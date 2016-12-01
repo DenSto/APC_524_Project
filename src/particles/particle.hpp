@@ -19,6 +19,10 @@ typedef struct Field_part {
 } Field_part;
 
 Particle* new_particle();
+void free_particle(Particle* part);
 
 
+Field_part* new_particle_field();
+void  free_particle_field(Field_part* field);
+void free_particle(Particle* part);
 #endif
