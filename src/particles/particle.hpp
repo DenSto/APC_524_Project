@@ -1,5 +1,5 @@
-#ifndef FIELD_HPP
-#define FIELD_HPP
+#ifndef PARTICLE_HPP
+#define PARTICLE_HPP
 
 typedef struct Particle {
 	double x1,x2,x3;  /* coordinate in X,Y,Z */	
@@ -19,15 +19,15 @@ typedef struct Field_part {
 } Field_part;
 
 typedef struct {
-    Particle *parts;
-    Field_part *fields;
+  Particle *parts;    /*List of particles*/
+  Field_part *fields; /*Field values at particle*/
 } Particle_Field_list_t;
 
 Particle* new_particle();
 void free_particle(Particle* part);
 
-
 Field_part* new_particle_field();
-void  free_particle_field(Field_part* field);
+void free_particle_field(Field_part* field);
 void free_particle(Particle* part);
+
 #endif
