@@ -1,0 +1,8 @@
+# number of grid in each linear dimension
+nx 4
+# number of particles in each domain
+np 8
+# number of time steps to run
+nt 2
+# whether this is restart of a previous run
+restart 0

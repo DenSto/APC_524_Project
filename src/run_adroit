@@ -1,0 +1,20 @@
+#!/bin/bash
+# Parallel job using 2 processors:
+#SBATCH -N 1                     # number of nodes
+#SBATCH --ntasks-per-node=1      # number of processor per node
+#SBATCH -t 00:01:00              # max minutes to run
+##SBATCH --mail-type=begin        # send email when process begins
+##SBATCH --mail-type=end          # send email when process begins
+##SBATCH --mail-type=fail         # send email when process begins
+##SBATCH --mail-user=yuans@princeton.edu # user email
+
+# Load openmpi environment
+module load openmpi
+
+# work directory
+path="$PWD"
+cd ../data/unitest
+rm -rf output.out
+
+srun $path/EMOOPIC input.txt > output.out
+
