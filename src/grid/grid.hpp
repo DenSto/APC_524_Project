@@ -12,8 +12,8 @@ class Grid {
 	int getCellID(double x, double y, double z);
 
 	int getGhostVecSize(); // called by main to size MPI Buffer
-	int getGhostVec(int side, double* ghostVec); // called by main to get MPI 
-	int setGhostVec(int side, const double* ghostVec);
+	void getGhostVec(const int side, double* ghostVec); // called by main to get MPI 
+	void setGhostVec(const int side, const double* ghostVec);
 
  protected:
 
@@ -21,11 +21,11 @@ class Grid {
  	const int ny_;
  	const int nz_;
 
-    const int nGhosts_; // number of ghost points in each direction
+    const int nGhosts_; // number of ghost points in each dimension/2
 
     const double x0_;	// initial x position
  	const double y0_;	// initial y position
- 	const double z0_;	// initial y position
+ 	const double z0_;	// initial z position
     
  	const double dx_;
 
@@ -45,7 +45,11 @@ class Grid {
  	double ***Jy_;
  	double ***Jz_;
 
-    void matSliceToVec(const double*** mat, double* slice);
+    // vector for storing temporary physical slices of scalar fields
+    double *sliceTmp_;
+
+    void sliceMatToVec(const double*** mat, const int side, double* slice);
+    void unsliceMatToVec(const double*** mat, const int side, double* lsice); 
 
  };
 
