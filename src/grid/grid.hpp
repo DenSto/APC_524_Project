@@ -7,26 +7,28 @@ class Grid {
 	virtual ~Grid();
 
 	int evolveFields (double dt);
+    void updateGhostCells(); 
 	int getFieldInterpolatorVec (int cellID, * double InterpolatorVec);
 	int getCellID(double x, double y, double z);
 
 	int getGhostVecSize(); // called by main to size MPI Buffer
-	int getGhostVec(int side, * double ghostVec); // called by main to get MPI 
-	int setGhostVec(int side, const * double ghostVec);
-
-
-
+	int getGhostVec(int side, double* ghostVec); // called by main to get MPI 
+	int setGhostVec(int side, const double* ghostVec);
 
  protected:
- 	
- 	const int nx_;     // number of gridpoints
+
+ 	const int nx_;     // number of (physical + ghost) gridpoints  
  	const int ny_;
  	const int nz_;
- 	const double x0_;	// initial x position
+
+    const int nGhosts_; // number of ghost points in each direction
+
+    const double x0_;	// initial x position
  	const double y0_;	// initial y position
  	const double z0_;	// initial y position
+    
  	const double dx_;
- 	
+
  	double ***Ex_;
  	double ***Ey_;
  	double ***Ez_;
@@ -43,6 +45,7 @@ class Grid {
  	double ***Jy_;
  	double ***Jz_;
 
+    void matSliceToVec(const double*** mat, double* slice);
 
  };
 
