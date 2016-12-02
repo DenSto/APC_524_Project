@@ -18,6 +18,11 @@ typedef struct Field_part {
     double b1, b2, b3; /* Magnetic field components */
 } Field_part;
 
+typedef struct {
+    Particle *parts;
+    Field_part *fields;
+} Particle_Field_list_t;
+
 Particle* new_particle();
 void free_particle(Particle* part);
 

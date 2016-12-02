@@ -1,1 +1,5 @@
-APC 524 grou[ project
+To compile the program using MPI
+    Set "USE_MPI = 1" in /src/Makefile
+To compile the serial program
+    Set "USE_MPI = 0" in /src/Makefile
+    
