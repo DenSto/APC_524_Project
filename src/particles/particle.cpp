@@ -22,4 +22,3 @@ void free_particle_field(Field_part* field){
 	free(field);
 	return;
 }
-	
