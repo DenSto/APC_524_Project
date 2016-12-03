@@ -1,6 +1,7 @@
 #include <stdlib.h>
-#include <assert.h>
-#include <math.h> 
+#include <iterator> // used for std::copy
+#include <assert.h> // plans to use?
+#include <math.h> // unneeded?
 #include "grid.hpp"
 
 // slices a physical plane in the x direction (excludes ghosts) 
