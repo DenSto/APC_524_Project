@@ -5,48 +5,55 @@
 
 // slices a physical plane in the x direction (excludes ghosts) 
 void Grid::sliceMatToVec(const double*** mat, const int side) { 
-    int j,k; 
+    int j,k; // iterators
     if (side < 0) { 
         i = 1; 
     } 
     else { // side = +1
         i = nx_-(1+nGhosts_); 
     } 
+    int iter=-1;
     for (j=1; j<ny_ - nGhosts_; ++j) { 
         for (k=1; k<nz_ - nGhosts_; ++k) { 
-            sliceTmp_[j*nz_ + k] = mat[i][j][k]; 
+            // equivalently: iter = j*nz_ + k
+            sliceTmp_[++iter] = mat[i][j][k]; 
         } 
     } 
 }
 
 // unslices a physical plane in the x direction (excludes ghosts) 
 void Grid::unsliceMatToVec(const double*** mat, const int side) { 
-    int j,k; 
+    int j,k; // iterators
     if (side < 0) { 
         i = 1; 
     } 
     else { // side = +1
         i = nx_-(1+nGhosts_); 
-    } 
+    }
+    int iter = -1; 
     for (j=1; j<ny_-nGhosts_; ++j) { 
         for (k=1; k<nz_-nGhosts_; ++k) { 
-            mat[i][j][k] = sliceTmp_[j*nz_ + k]; 
+            // equivalently: iter = j*nz_ + k
+            mat[i][j][k] = sliceTmp_[++iter]; 
         } 
     } 
 } 
 
 // updates ghost cells after evolving the field on physical points
-// not complete: needs to include all fields, and must resolve
-// cache hit/miss design
+// does this take a performance hit due to cache hit/miss?
 void Grid::updateGhostCells() { 
-    int i,j,k; 
+    int i,j,k; // iterators 
 
+    /* indices marking beginning and end of physical grids in each dimension */
     int iBeg = nGhosts_; 
     int iEnd = nx_ - (nGhosts_ + 1); 
     int jBeg = nGhosts_; 
     int jEnd = ny_ - (nGhosts_ + 1); 
     int kBeg = nGhosts_; 
     int kEnd = nz_ - (nGhosts_ + 1); 
+
+    // update ghost cells in x direction 
+    // iterates over yz plane
     for (j=1; j<ny_-nGhosts_; ++j) { 
         for (k=1; k<nz_-nGhosts_; ++k) { 
             Ex_[iBeg-1][j][k]=Ex_[iBeg][j][k]; 
@@ -71,7 +78,9 @@ void Grid::updateGhostCells() {
             Jz_[iEnd+1][j][k]=Jz_[iEnd][j][k]; 
         } 
     }
-    
+
+    // updates ghost cells in y direction 
+    // iterates over xz plane
     for (i=1; i<nx_-nGhosts_; ++i) { 
         for (k=1; k<nz_-nGhosts_; ++k) { 
             Ex_[i][jBeg-1][k]=Ex_[i][jBeg][k]; 
@@ -97,8 +106,10 @@ void Grid::updateGhostCells() {
         } 
     }
 
+    // updates ghost cells in z direction 
+    // iterates over xy plane 
     for (i=1; i<nx_-nGhosts_; ++i) { 
-        for (j=1; j<nz_-nGhosts_; ++j) { 
+        for (j=1; j<ny_-nGhosts_; ++j) { 
             Ex_[i][j][kBeg-1]=Ex_[i][j][kBeg]; 
             Ex_[i][j][kEnd+1]=Ex_[i][j][kEnd]; 
             Ey_[i][j][kBeg-1]=Ey_[i][j][kBeg]; 
@@ -179,8 +190,8 @@ void Grid::getGhostVecAlt(const int side, double* ghostVec) {
     else { // side = +1
         i = nx_-(1+nGhosts_); 
     } 
-    int j,k; 
-    int iter = 0; 
+    int j,k; // iterators
+    int iter = -1; 
     for (j=1; j<ny_ - nGhosts_; ++j) { 
         for (k=1; k<nz_ - nGhosts_; ++k) { 
             ++iter; 
@@ -242,8 +253,8 @@ void Grid::setGhostVecAlt(const int side, double* ghostVec) {
     else { // side = +1
         i = nx_-(1+nGhosts_); 
     } 
-    int j,k; 
-    int iter = 0; 
+    int j,k; // iterators
+    int iter = -1; 
     for (j=1; j<ny_ - nGhosts_; ++j) { 
         for (k=1; k<nz_ - nGhosts_; ++k) { 
             ++iter; 
