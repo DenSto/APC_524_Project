@@ -8,7 +8,7 @@ class Grid {
 
 	int evolveFields (double dt);
     void updateGhostCells(); 
-	int getFieldInterpolatorVec (int cellID, * double InterpolatorVec);
+	int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
 	int getCellID(double x, double y, double z);
 
 	int getGhostVecSize(); // called by main to size MPI Buffer
@@ -23,7 +23,17 @@ class Grid {
  	const int ny_;
  	const int nz_;
 
+    const int iBeg_; // indices marking beginning and end of physical 
+    const int jBeg_; // (non ghost) points in each direction 
+    const int kBeg_; 
+    const int iEnd_; 
+    const int jEnd_; 
+    const int kEnd_; 
+
     const int nGhosts_; // number of ghost points in each dimension/2
+    const int ghostVecSize_; /* total number of ghost field values in 
+                                a single plane. All MPI communiation 
+                                of fields send messages of this size */
 
     const double x0_;	// initial x position
  	const double y0_;	// initial y position
@@ -50,8 +60,9 @@ class Grid {
     // vector for storing temporary physical slices of scalar fields
     double *sliceTmp_;
 
-    void sliceMatToVec(const double*** mat, const int side, double* slice);
-    void unsliceMatToVec(const double*** mat, const int side, double* lsice); 
+    int sideToIndex_(const int side); 
+    void sliceMatToVec_(double*** const mat, const int side);
+    void unsliceMatToVec_(double*** mat, const int side); 
 
  };
 
