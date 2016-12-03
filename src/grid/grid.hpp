@@ -13,7 +13,9 @@ class Grid {
 
 	int getGhostVecSize(); // called by main to size MPI Buffer
 	void getGhostVec(const int side, double* ghostVec); // called by main to get MPI 
+	void getGhostVecAlt(const int side, double* ghostVec); // called by main to get MPI 
 	void setGhostVec(const int side, const double* ghostVec);
+	void setGhostVecAlt(const int side, const double* ghostVec);
 
  protected:
 
