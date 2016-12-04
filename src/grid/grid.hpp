@@ -3,7 +3,7 @@
 
 class Grid {
  public:
- 	Grid(int nx, int ny, int nz, double x0, double y0, double z0, double dx);
+ 	Grid(int nx, int ny, int nz, int nGhosts, double x0, double y0, double z0, double dx);
 	virtual ~Grid();
 
 	int evolveFields (double dt);
@@ -60,10 +60,18 @@ class Grid {
     // vector for storing temporary physical slices of scalar fields
     double *sliceTmp_;
 
+    // allocates contiguous memory for nx*ny*nz array 
+    void newField_(double**** fieldPt); 
+    // deallocates memory for nx*ny*nz array 
+    void deleteField_(double**** fieldPt); 
+    
+    // converts side = -/+ 1 into a real index 
     int sideToIndex_(const int side); 
+
+    // stores a 2D plane of ghost points in sliceTmp_
     void sliceMatToVec_(double*** const mat, const int side);
+    // puts a 2D plane of ghost points from sliceTmp_ into mat
     void unsliceMatToVec_(double*** mat, const int side); 
 
  };
-
 #endif
