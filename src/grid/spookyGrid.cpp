@@ -138,91 +138,88 @@ int Grid::getGhostVecSize() {
 // ghostVec is a 1D array storing doubles 
 // 9 loops, one for each field (accesses each field sequentially
 // better performance due to cache bonuses?
-void Grid::getGhostVec(const int side, double* ghostVec) {
-    int ncp = nx_-2*nGhosts_; 
+void Grid::getGhostVecAlt(const int side, double* ghostVec) {
     // this is the price of only 3 dimensions on field storage
     sliceMatToVec_(Ex_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(0 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(0 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(Ey_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(1 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(1 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(Ez_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(2 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(2 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(Bx_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(3 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(3 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(By_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(4 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(4 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(Bz_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(5 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(5 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(Jx_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(6 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(6 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(Jy_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(7 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(7 * nRealPtsYZPlane_)); 
 
     sliceMatToVec_(Jz_,side); 
-    std::copy(sliceTmp_,sliceTmp_+ncp,ghostVec+(8 * ncp)); 
+    std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(8 * nRealPtsYZPlane_)); 
 }; 
 
 // alternate implementation of getGhostVec
 // single loop, pulls from all fields at once
 // worse performance due to more cache misses or negligible? 
-void Grid::getGhostVecAlt(const int side, double* ghostVec) {
-    int realPts = (ny_ - 2*nGhosts_)*(nz_ - 2*nGhosts_); 
+void Grid::getGhostVec(const int side, double* ghostVec) {
     int i = sideToIndex_(side); 
     int j,k; // iterators
     int iter = -1; 
     for (j=jBeg_; j<jEnd_; ++j) { 
         for (k=kBeg_; k<kEnd_; ++k) { 
             ++iter; 
-            ghostVec[0*realPts + iter]=Ex_[i][j][k];
-            ghostVec[1*realPts + iter]=Ey_[i][j][k];
-            ghostVec[2*realPts + iter]=Ez_[i][j][k];
-            ghostVec[3*realPts + iter]=Bx_[i][j][k];
-            ghostVec[4*realPts + iter]=By_[i][j][k];
-            ghostVec[5*realPts + iter]=Bz_[i][j][k];
-            ghostVec[6*realPts + iter]=Jx_[i][j][k];
-            ghostVec[7*realPts + iter]=Jy_[i][j][k];
-            ghostVec[8*realPts + iter]=Jz_[i][j][k];
+            ghostVec[0*nRealPtsYZPlane_ + iter]=Ex_[i][j][k];
+            ghostVec[1*nRealPtsYZPlane_ + iter]=Ey_[i][j][k];
+            ghostVec[2*nRealPtsYZPlane_ + iter]=Ez_[i][j][k];
+            ghostVec[3*nRealPtsYZPlane_ + iter]=Bx_[i][j][k];
+            ghostVec[4*nRealPtsYZPlane_ + iter]=By_[i][j][k];
+            ghostVec[5*nRealPtsYZPlane_ + iter]=Bz_[i][j][k];
+            ghostVec[6*nRealPtsYZPlane_ + iter]=Jx_[i][j][k];
+            ghostVec[7*nRealPtsYZPlane_ + iter]=Jy_[i][j][k];
+            ghostVec[8*nRealPtsYZPlane_ + iter]=Jz_[i][j][k];
         } 
     } 
 };
 
 // unbundles the data and puts it in the field 
 // one loop for each field, aims to minimize cache misses
-void Grid::setGhostVec(const int side, const double* ghostVec) { 
-    int ncp = nx_-2*nGhosts_; 
+void Grid::setGhostVecAlt(const int side, const double* ghostVec) { 
     // this is the price of only 3 dimensions on field storage
-    std::copy(ghostVec+(0 * ncp),ghostVec+1*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(0 * nRealPtsYZPlane_),ghostVec+1*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(1 * ncp),ghostVec+2*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(1 * nRealPtsYZPlane_),ghostVec+2*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(2 * ncp),ghostVec+3*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(2 * nRealPtsYZPlane_),ghostVec+3*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(3 * ncp),ghostVec+4*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(3 * nRealPtsYZPlane_),ghostVec+4*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(4 * ncp),ghostVec+5*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(4 * nRealPtsYZPlane_),ghostVec+5*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(5 * ncp),ghostVec+6*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(5 * nRealPtsYZPlane_),ghostVec+6*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(6 * ncp),ghostVec+7*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(6 * nRealPtsYZPlane_),ghostVec+7*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(7 * ncp),ghostVec+8*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(7 * nRealPtsYZPlane_),ghostVec+8*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
-    std::copy(ghostVec+(8 * ncp),ghostVec+9*ncp -1,sliceTmp_); 
+    std::copy(ghostVec+(8 * nRealPtsYZPlane_),ghostVec+9*nRealPtsYZPlane_ -1,sliceTmp_); 
     unsliceMatToVec_(Ex_,side); 
 
 };
@@ -230,23 +227,22 @@ void Grid::setGhostVec(const int side, const double* ghostVec) {
 // alternate implementation of setGhostVec
 // single loop, sets all fields at once
 // worse performance due to more cache misses or negligible? 
-void Grid::setGhostVecAlt(const int side, const double* ghostVec) {
-    int realPts = (ny_ - 2*nGhosts_)*(nz_ - 2*nGhosts_); 
+void Grid::setGhostVec(const int side, const double* ghostVec) {
     int i = sideToIndex_(side);
     int j,k; // iterators
     int iter = -1; 
     for (j=jBeg_; j<jEnd_; ++j) { 
         for (k=kBeg_; k<kEnd_; ++k) { 
             ++iter; 
-            Ex_[i][j][k]=ghostVec[0*realPts + iter];
-            Ey_[i][j][k]=ghostVec[1*realPts + iter];
-            Ez_[i][j][k]=ghostVec[2*realPts + iter];
-            Bx_[i][j][k]=ghostVec[3*realPts + iter];
-            By_[i][j][k]=ghostVec[4*realPts + iter];
-            Bz_[i][j][k]=ghostVec[5*realPts + iter];
-            Jx_[i][j][k]=ghostVec[6*realPts + iter];
-            Jy_[i][j][k]=ghostVec[7*realPts + iter];
-            Jz_[i][j][k]=ghostVec[8*realPts + iter];
+            Ex_[i][j][k]=ghostVec[0*nRealPtsYZPlane_ + iter];
+            Ey_[i][j][k]=ghostVec[1*nRealPtsYZPlane_ + iter];
+            Ez_[i][j][k]=ghostVec[2*nRealPtsYZPlane_ + iter];
+            Bx_[i][j][k]=ghostVec[3*nRealPtsYZPlane_ + iter];
+            By_[i][j][k]=ghostVec[4*nRealPtsYZPlane_ + iter];
+            Bz_[i][j][k]=ghostVec[5*nRealPtsYZPlane_ + iter];
+            Jx_[i][j][k]=ghostVec[6*nRealPtsYZPlane_ + iter];
+            Jy_[i][j][k]=ghostVec[7*nRealPtsYZPlane_ + iter];
+            Jz_[i][j][k]=ghostVec[8*nRealPtsYZPlane_ + iter];
         } 
     } 
 };
@@ -255,10 +251,10 @@ void Grid::setGhostVecAlt(const int side, const double* ghostVec) {
 int Grid::sideToIndex_(const int side) { 
     int i; 
     if (side < 0) { 
-        i = 1; 
+        i = iBeg_; 
     } 
     else { 
-        i = nx_ - (1 + nGhosts_); 
+        i = iEnd_; 
     } 
     return i; 
 }; 

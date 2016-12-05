@@ -15,14 +15,16 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 
     kBeg_(nGhosts), 
-    iEnd_(nx_-(nGhosts+1)), 
-    jEnd_(ny_-(nGhosts+1)), 
-    kEnd_(nz_-(nGhosts+1)),
+    iEnd_(nx_-nGhosts), // fields are length nx_+1, so last element is indexed as nx_, then subtract nGhosts to get index of last physical point
+    jEnd_(ny_-nGhosts), 
+    kEnd_(nz_-nGhosts),
     nFields_(9),
+    nRealPtsYZPlane_((ny_+1-2*nGhosts)*(nz_+1-2*nGhosts)),
     dx_(Lxyz[0]/nxyz[0]), 
     dy_(Lxyz[1]/nxyz[1]), 
     dz_(Lxyz[2]/nxyz[2]),
-    ghostVecSize_(nFields_*(ny_-2*nGhosts)*(nz_-2*nGhosts))
+    // fields have ni_+1-2*nGhosts physical points in ith direction
+    ghostVecSize_(nFields_*nRealPtsYZPlane_)
 { 
     
     Ex_=newField_(); 
@@ -62,11 +64,11 @@ Grid::~Grid() {
  * of size [nx_][ny_][nz_]. */ 
 double*** Grid::newField_() { 
     int i,j; // iterators 
-    double*** fieldPt = new double**[nx_]; 
-    for (i=0; i<nx_; ++i) { 
-        fieldPt[i] = new double*[ny_]; 
-        for (j=0; j<ny_; ++j) { 
-            fieldPt[i][j] = new double[nz_]; 
+    double*** fieldPt = new double**[nx_+1]; 
+    for (i=0; i<nx_+1; ++i) { 
+        fieldPt[i] = new double*[ny_+1]; 
+        for (j=0; j<ny_+1; ++j) { 
+            fieldPt[i][j] = new double[nz_+1]; 
         } 
     } 
     return fieldPt;
@@ -76,8 +78,8 @@ double*** Grid::newField_() {
  * of size [nx_][ny_][nz_]. */ 
 void Grid::deleteField_(double*** fieldPt) { 
     int i,j; // iterators 
-    for (i=0; i<nx_; ++i) { 
-        for (j=0; j<ny_; ++j) { 
+    for (i=0; i<nx_+1; ++i) { 
+        for (j=0; j<ny_+1; ++j) { 
             delete [] fieldPt[i][j]; 
         } 
         delete [] fieldPt[i];

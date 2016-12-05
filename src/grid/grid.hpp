@@ -69,13 +69,12 @@ class Grid {
 	const int jEnd_;
 	const int kEnd_; 
     
-    
-    const int nFields_; 
-    
  	const double dx_;
  	const double dy_;
  	const double dz_;
 
+    const int nRealPtsYZPlane_;
+    const int nFields_; 
 	const int ghostVecSize_; /* total number of ghost field values in 
                                     a single plane. All MPI communiation 
                                     of fields send messages of this size */
@@ -95,7 +94,6 @@ class Grid {
   	double ***Jx_;
  	double ***Jy_;
  	double ***Jz_;
-
     
     // vector for storing temporary physical slices of scalar fields
     double *sliceTmp_;
