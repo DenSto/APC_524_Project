@@ -18,16 +18,24 @@ typedef struct Field_part {
     double b1, b2, b3; /* Magnetic field components */
 } Field_part;
 
-typedef struct {
-  Particle *parts;    /*List of particles*/
-  Field_part *fields; /*Field values at particle*/
-} Particle_Field_list_t;
+class Particle_Field_List {
+    public:
+        Particle_Field_List(int np); // list of np particles and their fields
+        ~Particle_Field_List();
+        virtual void Load();      // Initialize particles
+        virtual void Push(double dt); // Push all particles
+        virtual void Pass();          // Pass particles accross MPI boundary
+
+    private:
+        int np_;
+        Particle *parts_;    /* List of particles */
+        Field_part *fields_; /* Field values at particle locations */
+};
 
 Particle* new_particle();
 void free_particle(Particle* part);
 
 Field_part* new_particle_field();
 void free_particle_field(Field_part* field);
-void free_particle(Particle* part);
 
 #endif

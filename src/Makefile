@@ -1,21 +1,26 @@
-USE_MPI = 0
+USE_MPI = 1 
 
-ifeq ($(USE_MPI),1)
-  CC = mpic++
-  OMPFLAGS = -openmp -DUSE_MPI=1
-else
+ifeq ($(USE_MPI),0)
   CC = icpc
   OMPFLAGS = 
+else
+  CC = mpic++
+  OMPFLAGS = -openmp -DUSE_MPI=1
 endif
 
 CFLAGS= -lm -Wall  
 PROGRAM = EMOOPIC
 
-IOOBJ = ./IO/IO.o
-GRIDOBJ =
-PARTOBJ =
+IOOBJ = IO.o
+PUSHOBJ = boris.o 
+GRIDOBJ = grid.o
+PARTOBJ = particle.o
 
-OBJ = $(IOOBJ) $(GRIDOBJ) $(PARTOBJ) main.o 
+OBJ = ./IO/$(IOOBJ) \
+      ./pusher/$(PUSHOBJ) \
+      ./grid/$(GRIDOBJ) \
+      ./particles/$(PARTOBJ) \
+      main.o 
 
 all: $(PROGRAM)
 
@@ -26,4 +31,4 @@ $(PROGRAM): $(OBJ)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS)
 
 clean:
-	rm -f $(PROGRAM) *.o ./IO/*.o 
+	rm -f $(PROGRAM) $(OBJ) 

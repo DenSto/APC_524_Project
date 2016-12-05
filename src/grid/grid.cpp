@@ -1,14 +1,14 @@
 #include <stdlib.h>
 #include "grid.hpp"
 
-Grid::Grid(int nx, int ny, int nz, int nGhosts, double x0, double y0, double z0, double dx): 
-    nx_(nx), 
-    ny_(ny), 
-    nz_(nz), 
+Grid::Grid(int nxyz[3], int nGhosts, double xyz0[3], double dx): 
+    nx_(nxyz[0]), 
+    ny_(nxyz[1]), 
+    nz_(nxyz[2]), 
     nGhosts_(nGhosts), 
-    x0_(x0), 
-    y0_(y0), 
-    z0_(z0), 
+    x0_(xyz0[0]), 
+    y0_(xyz0[1]), 
+    z0_(xyz0[2]), 
     dx_(dx), 
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 

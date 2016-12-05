@@ -5,6 +5,7 @@
 #include "./IO/IO.hpp"
 #include "./grid/grid.hpp"
 #include "./particles/particle.hpp"
+#include "./pusher/pusher.hpp"
 
 #if USE_MPI
     #include "mpi.h"  
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]){
 
     int size,rank;
 
+    /* Initialize *****************************************/
 #if USE_MPI
     MPI_Init(&argc,&argv); 
     MPI_Comm_size(MPI_COMM_WORLD,&size);
@@ -32,7 +34,7 @@ int main(int argc, char *argv[]){
 #endif
 
     
-    // Read command line input //
+    /* Read and check command line input ******************/
     if(argc!=2 && rank==0){
       fprintf(stderr,"The correct usage is:\n");
       fprintf(stderr,"  ./EMOOPIC <inputfile>\n");
@@ -58,31 +60,42 @@ int main(int argc, char *argv[]){
     } 
 
 
-    // Initialization //
-    //Domain_t *domains = new Domain(size);
-    Grids_list_t *grids; //store Ei,Bi,Rhoi,Ji 
-    Particle_Field_list_t *parts_fields; //store x,v,Ex,Bx
+    /* Read and broadcast input file **********************/
     Input_Info_t input_info;
- 
-    if(rank==0){readinput(argv[1],input_info);}
+    if(rank==0){readinput(argv[1],&input_info);}
+
 #if USE_MPI
-    Input_Type_t *itype = new_input_type();
+    Input_Type itype;
     MPI_Datatype infotype; // new type
 
-    MPI_Type_create_struct(itype->count,itype->len,itype->disp,
-                           itype->types,&infotype);
+    MPI_Type_create_struct(itype.getcount(),itype.getlens(),itype.getdisps(),
+                           itype.gettypes(),&infotype);
     MPI_Type_commit(&infotype);
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
+  
+    checkinput(rank,&input_info);
 #endif
 
-/*
-    domain.setup(inputinfo);
-    particle.load(inputinfo);//allow restart
-    grid.deposeRhoJ(parts);
-    grid.poisson(inputinfo); //allow restart
-    grid.interpEB(parts);
+    /* Initial setup **************************************/
+    // Domain decomposition
+    //Domain_t *domains = new Domain(size);
+    //domain.setup(inputinfo);
 
-    // Advance time step //
+    // Load particle
+    Particle_Field_List *parts_fields = new Particle_Field_List(input_info.np); 
+    parts_fields->Load();//allow restart
+
+
+    // Initialize fields
+    //Grid *grids = new Grid(nxyz,nGhosts,xyz0,dx); //store Ei,Bi,Ji 
+    //grid.deposeRhoJ(parts);
+    //grid.poisson(inputinfo); //allow restart
+    //grid.interpEB(parts);
+
+
+
+/*    // Advance time step //
     t=inputinfo->t0; //initial time
     for(ti=0;ti<nt;ti++){
        particle.dtmin(dt); 
@@ -100,6 +113,8 @@ int main(int argc, char *argv[]){
     // output, finalize //
     writeoutput(t,domains,grids,parts); //MPI
 */
+    delete parts_fields;
+    //delete grids;
 
 #if USE_MPI
     double time = MPI_Wtime()-begin;
