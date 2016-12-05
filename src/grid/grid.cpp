@@ -2,9 +2,9 @@
 #include "grid.hpp"
 
 Grid::Grid(int nx, int ny, int nz, int nGhosts, double x0, double y0, double z0, double Lx, double Ly, double Lz): 
-    nx_(nx), 
-    ny_(ny), 
-    nz_(nz), 
+    nx_(nx+1), 
+    ny_(ny+1), 
+    nz_(nz+1), 
     nGhosts_(nGhosts), 
     x0_(x0), 
     y0_(y0), 
