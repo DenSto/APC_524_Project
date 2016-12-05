@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "grid.hpp"
 
-Grid::Grid(int nx, int ny, int nz, int nGhosts, double x0, double y0, double z0, double dx): 
+Grid::Grid(int nx, int ny, int nz, int nGhosts, double x0, double y0, double z0, double Lx, double Ly, double Lz): 
     nx_(nx), 
     ny_(ny), 
     nz_(nz), 
@@ -9,7 +9,10 @@ Grid::Grid(int nx, int ny, int nz, int nGhosts, double x0, double y0, double z0,
     x0_(x0), 
     y0_(y0), 
     z0_(z0), 
-    dx_(dx), 
+    z0_(z0), 
+    Lx_(Lx), 
+    Ly_(Ly), 
+    Lz_(Lz), 
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 
     kBeg_(nGhosts), 
@@ -33,6 +36,10 @@ Grid::Grid(int nx, int ny, int nz, int nGhosts, double x0, double y0, double z0,
     newField_(&Jz_); 
 
     sliceTmp_ = new double[ghostVecSize_/9]; 
+
+	dx = Lx/((double)(nx));
+	dy = Ly/((double)(ny));
+	dz = Lz/((double)(nz));
 } 
 
 Grid::~Grid() { 
