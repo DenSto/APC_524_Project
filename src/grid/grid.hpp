@@ -3,7 +3,7 @@
 
 class Grid {
  public:
- 	Grid(int nxyz[3], int nGhosts, double xyz0[3], double LX[3]);
+ 	Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz);
 	virtual ~Grid();
 
 	int evolveFields (double dt);
