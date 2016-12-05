@@ -9,9 +9,9 @@ Grid::Grid(int nxyz[3], int nGhosts, double xyz0[3], double Lxyz[3]):
     x0_(xyz0[0]), 
     y0_(xyz0[1]), 
     z0_(xyz0[2]), 
-    Lx_(Lx), 
-    Ly_(Ly), 
-    Lz_(Lz), 
+    Lx_(Lxyz[0]), 
+    Ly_(Lxyz[1]), 
+    Lz_(Lxyz[2]), 
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 
     kBeg_(nGhosts), 
@@ -20,9 +20,9 @@ Grid::Grid(int nxyz[3], int nGhosts, double xyz0[3], double Lxyz[3]):
     kEnd_(nz_-(nGhosts+1)),
     nFields_(9),
     ghostVecSize_(nFields_*(ny_-2*nGhosts)*(nz_-2*nGhosts)), 
-    dx_(Lx/nx), 
-    dy_(Ly/ny), 
-    dz_(Lz/nz)
+    dx_(Lxyz[0]/nxyz[0]), 
+    dy_(Lxyz[1]/nxyz[1]), 
+    dz_(Lxyz[2]/nxyz[2])
 { 
     
     Ex_=newField_(); 
@@ -61,7 +61,7 @@ Grid::~Grid() {
 /* allocates contiguous block of memory for 3D array 
  * of size [nx_][ny_][nz_]. */ 
 double*** Grid::newField_() { 
-    int i,j,k; // iterators 
+    int i,j; // iterators 
     double*** fieldPt = new double**[nx_]; 
     for (i=0; i<nx_; ++i) { 
         fieldPt[i] = new double*[ny_]; 
@@ -75,7 +75,7 @@ double*** Grid::newField_() {
 /* frees contiguous block fo memory for 3D array 
  * of size [nx_][ny_][nz_]. */ 
 void Grid::deleteField_(double*** fieldPt) { 
-    int i,j,k; // iterators 
+    int i,j; // iterators 
     for (i=0; i<nx_; ++i) { 
         for (j=0; j<ny_; ++j) { 
             delete [] fieldPt[i][j]; 

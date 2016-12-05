@@ -39,12 +39,13 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
 	ty = q_p*by;
 	tz = q_p*bz;
 
-	sx = tsqr*tx;
-	sy = tsqr*ty;
-	sz = tsqr*tz;
 
 	bsqr = bx*bx + by*by + bz*bz;
 	tsqr = 2.0/(1.0 + q_p*q_p*bsqr);
+
+	sx = tsqr*tx;
+	sy = tsqr*ty;
+	sz = tsqr*tz;
 
 	v_mx = vx + q_p*ex; 
 	v_my = vy + q_p*ey; 
