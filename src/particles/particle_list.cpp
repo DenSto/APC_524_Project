@@ -37,16 +37,10 @@ void Particle_Field_List::Load(){
 
 void Particle_Field_List::Push(double dt){
     Boris *boris = new Boris();
-	Field_part* field = new_particle_field();
-	field->b3=1.0;
-	field->e2=1.0;
-
 
     for(long ip=0;ip<np_;ip++){
-        //boris->Step((parts_[ip]),&(fields_[ip]),dt);
-        boris->Step((parts_[ip]),field,dt);
+        boris->Step(parts_[ip],&(fields_[ip]),dt);
     }
-	free_particle_field(field);
 
 }
 

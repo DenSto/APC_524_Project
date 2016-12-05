@@ -1,5 +1,4 @@
 #include "boris.hpp"
-#include <stdio.h>
 
 Boris::Boris(){
 
