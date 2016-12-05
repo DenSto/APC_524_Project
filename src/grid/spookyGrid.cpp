@@ -9,8 +9,8 @@ void Grid::sliceMatToVec_(double *** const mat, const int side) {
     int i = sideToIndex_(side); 
     int j,k; // iterators
     int iter=-1;
-    for (j=jBeg_; j<jEnd_; ++j) { 
-        for (k=kBeg_; k<kEnd_; ++k) { 
+    for (j=jBeg_; j<jEnd_+1; ++j) { 
+        for (k=kBeg_; k<kEnd_+1; ++k) { 
             // equivalently: iter = j*nz_ + k
             sliceTmp_[++iter] = mat[i][j][k]; 
         } 
@@ -22,8 +22,8 @@ void Grid::unsliceMatToVec_(double*** mat, const int side) {
     int i = sideToIndex_(side); 
     int j,k; // iterators
     int iter = -1; 
-    for (j=jBeg_; j<jEnd_; ++j) { 
-        for (k=kBeg_; k<kEnd_; ++k) { 
+    for (j=jBeg_; j<jEnd_+1; ++j) { 
+        for (k=kBeg_; k<kEnd_+1; ++k) { 
             // equivalently: iter = j*nz_ + k
             mat[i][j][k] = sliceTmp_[++iter]; 
         } 
@@ -44,8 +44,8 @@ void Grid::updateGhostCells() {
     
     // update ghost cells in x direction 
     // iterates over yz plane
-    for (j=jBeg_; j<jEnd_; ++j) { 
-        for (k=kBeg_; k<kEnd_; ++k) { 
+    for (j=jBeg_; j<jEnd_+1; ++j) { 
+        for (k=kBeg_; k<kEnd_+1; ++k) { 
             Ex_[iGhostLeft][j][k]=Ex_[iBeg_][j][k]; 
             Ex_[iGhostRight][j][k]=Ex_[iEnd_][j][k]; 
             Ey_[iGhostLeft][j][k]=Ey_[iBeg_][j][k]; 
@@ -71,8 +71,8 @@ void Grid::updateGhostCells() {
 
     // updates ghost cells in y direction 
     // iterates over xz plane
-    for (i=iBeg_; i<iEnd_; ++i) { 
-        for (k=kBeg_; k<kEnd_; ++k) { 
+    for (i=iBeg_; i<iEnd_+1; ++i) { 
+        for (k=kBeg_; k<kEnd_+1; ++k) { 
             Ex_[i][jGhostLeft][k]=Ex_[i][jBeg_][k]; 
             Ex_[i][jGhostRight][k]=Ex_[i][jEnd_][k]; 
             Ey_[i][jGhostLeft][k]=Ey_[i][jBeg_][k]; 
@@ -98,8 +98,8 @@ void Grid::updateGhostCells() {
 
     // updates ghost cells in z direction 
     // iterates over xy plane 
-    for (i=iBeg_; i<iEnd_; ++i) { 
-        for (j=jBeg_; j<jEnd_; ++j) { 
+    for (i=iBeg_; i<iEnd_+1; ++i) { 
+        for (j=jBeg_; j<jEnd_+1; ++j) { 
             Ex_[i][j][kGhostLeft]=Ex_[i][j][kBeg_]; 
             Ex_[i][j][kGhostRight]=Ex_[i][j][kEnd_]; 
             Ey_[i][j][kGhostLeft]=Ey_[i][j][kBeg_]; 
@@ -175,8 +175,8 @@ void Grid::getGhostVec(const int side, double* ghostVec) {
     int i = sideToIndex_(side); 
     int j,k; // iterators
     int iter = -1; 
-    for (j=jBeg_; j<jEnd_; ++j) { 
-        for (k=kBeg_; k<kEnd_; ++k) { 
+    for (j=jBeg_; j<jEnd_+1; ++j) { 
+        for (k=kBeg_; k<kEnd_+1; ++k) { 
             ++iter; 
             ghostVec[0*nRealPtsYZPlane_ + iter]=Ex_[i][j][k];
             ghostVec[1*nRealPtsYZPlane_ + iter]=Ey_[i][j][k];
@@ -231,8 +231,8 @@ void Grid::setGhostVec(const int side, const double* ghostVec) {
     int i = sideToIndex_(side);
     int j,k; // iterators
     int iter = -1; 
-    for (j=jBeg_; j<jEnd_; ++j) { 
-        for (k=kBeg_; k<kEnd_; ++k) { 
+    for (j=jBeg_; j<jEnd_+1; ++j) { 
+        for (k=kBeg_; k<kEnd_+1; ++k) { 
             ++iter; 
             Ex_[i][j][k]=ghostVec[0*nRealPtsYZPlane_ + iter];
             Ey_[i][j][k]=ghostVec[1*nRealPtsYZPlane_ + iter];
