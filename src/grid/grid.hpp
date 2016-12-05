@@ -33,6 +33,19 @@ class Grid {
 	void setGhostVec(const int side, const double* ghostVec);
 	void setGhostVecAlt(const int side, const double* ghostVec);
 
+
+	double getx0() {return x0_;};
+	double gety0() {return y0_;};
+	double getz0() {return z0_;};
+
+	double getdx() {return dx_;};
+	double getdy() {return dy_;};
+	double getdz() {return dz_;};
+
+	double getLx() {return Lx_;};
+	double getLy() {return Ly_;};
+	double getLz() {return Lz_;};
+
  protected:
 
  	const int nx_;     // number of (physical + ghost) gridpoints  
