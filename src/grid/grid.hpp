@@ -7,11 +7,14 @@ class Grid {
 	virtual ~Grid();
 
 	int evolveFields (double dt);
-    void updateGhostCells(); 
+
 	int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
 	int getCellID(double x, double y, double z);
+    int getNumberOfCells();
+    int getStepSize(int dimension);
 
-	int getGhostVecSize(); // called by main to size MPI Buffer
+	void updateGhostCells(); 
+    int getGhostVecSize(); // called by main to size MPI Buffer
 	void getGhostVec(const int side, double* ghostVec); // called by main to get MPI 
 	void getGhostVecAlt(const int side, double* ghostVec); // called by main to get MPI 
 	void setGhostVec(const int side, const double* ghostVec);
