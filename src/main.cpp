@@ -129,5 +129,8 @@ int main(int argc, char *argv[]){
         printf("Program completed successfully!\n");
         printf("Elapsed: %f seconds\n",maxtime);
     }
+#if USE_MPI
+	MPI_Finalize();
+#endif
 
 }
