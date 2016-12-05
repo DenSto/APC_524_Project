@@ -51,6 +51,6 @@ long Particle_Field_List::nParticles(){
 	return np_;
 }
 
-void Particle_Field_List::sortParticles(Particle_Compare comp){
+void Particle_Field_List::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }

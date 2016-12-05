@@ -6,7 +6,10 @@
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
 #include "./particles/particle.hpp"
+#include "./particles/particle_list.hpp"
+#include "./particles/particle_utils.hpp"
 #include "./pusher/pusher.hpp"
+#include "./pusher/boris.hpp"
 
 #if USE_MPI
     #include "mpi.h"  
@@ -16,7 +19,7 @@
 
 int main(int argc, char *argv[]){
 
-    int size,rank;
+    int size,rank=0;
 
     /* Initialize *****************************************/
 #if USE_MPI
@@ -87,6 +90,7 @@ int main(int argc, char *argv[]){
     // Load particle
     Particle_Field_List parts_fields(input_info.np); 
     parts_fields.Load();//allow restart
+    parts_fields.setPusher(new Boris());
 
     // Initialize fields
     Grid grids(domain.getnxyz(),domain.getnGhosts(),
@@ -94,7 +98,6 @@ int main(int argc, char *argv[]){
     //grid.deposeRhoJ(parts);
     //grid.poisson(inputinfo); //allow restart
     //grid.interpEB(parts);
-
 
 
 /*    // Advance time step //

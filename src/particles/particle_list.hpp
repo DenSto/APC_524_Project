@@ -4,6 +4,7 @@
 #include <vector>
 #include "../grid/grid.hpp"
 #include "particle_utils.hpp"
+#include "../pusher/pusher.hpp"
 
 class Particle_Field_List {
     public:
@@ -14,12 +15,16 @@ class Particle_Field_List {
         void Pass();          // Pass particles accross MPI boundary
 		long nParticles();
 
-		void sortParticles(Particle_Compare comp); // quicksort particle list
+		void SortParticles(Particle_Compare comp); // quicksort particle list
+
+		void setPusher(Pusher* pusher) {pusher_=pusher;};
+
 		std::vector<Particle*> parts_;    /* Vector of particles */
 
     private:
         long np_;
         Field_part *fields_; /* Field values at particle locations */
+		Pusher* pusher_;
 };
 
 Particle* new_particle();
