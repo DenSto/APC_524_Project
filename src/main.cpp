@@ -3,6 +3,7 @@
 #include<assert.h>
 //#include "domain.h" 
 #include "./IO/IO.hpp"
+#include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
 #include "./particles/particle.hpp"
 #include "./pusher/pusher.hpp"
@@ -79,15 +80,17 @@ int main(int argc, char *argv[]){
 
     /* Initial setup **************************************/
     // Domain decomposition
-    //Domain_t *domains = new Domain(size);
+    Domain domain(size,rank,&input_info);
+    checkdomain(rank,domain);
     //domain.setup(inputinfo);
 
     // Load particle
-    Particle_Field_List *parts_fields = new Particle_Field_List(input_info.np); 
-    parts_fields->Load();//allow restart
+    Particle_Field_List parts_fields(input_info.np); 
+    parts_fields.Load();//allow restart
 
     // Initialize fields
-    Grid *grids = new Grid(nxyz,nGhosts,xyz0,Lxyz); //store Ei,Bi,Ji 
+    Grid grids(domain.getnxyz(),domain.getnGhosts(),
+               domain.getxyz0(),domain.getLxyz()); //store Ei,Bi,Ji 
     //grid.deposeRhoJ(parts);
     //grid.poisson(inputinfo); //allow restart
     //grid.interpEB(parts);
@@ -112,8 +115,6 @@ int main(int argc, char *argv[]){
     // output, finalize //
     writeoutput(t,domains,grids,parts); //MPI
 */
-    delete parts_fields;
-    delete grids;
 
 #if USE_MPI
     double time = MPI_Wtime()-begin;

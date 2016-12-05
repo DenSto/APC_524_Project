@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "grid.hpp"
 
-Grid::Grid(int nxyz[3], int nGhosts, double xyz0[3], double Lxyz[3]): 
+Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz): 
     nx_(nxyz[0]), 
     ny_(nxyz[1]), 
     nz_(nxyz[2]), 
