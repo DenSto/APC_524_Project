@@ -1,6 +1,55 @@
+#include <cstdio>
+#include <algorithm>
 #include "grid.hpp"
 
+//! Evolve Electric and Magnetic fields in time
+/*!
+	Uses Yee algorithm to advance E and B fields.
+*/
 int Grid::evolveFields (double dt) {
+
+	// set B(t-1) = B(t)
+	std::swap(Bx_tm1_, Bx_);
+	std::swap(By_tm1_, By_);
+	std::swap(Bz_tm1_, Bz_);
+
+	// calculate E 
+	for (int ix = 1; ix < nx_; ix++) {
+		for (int iy = 1; iy < ny_; iy++) {
+			for (int iz = 1; iz < nz_; iz++) {
+				Ex_[ix][iy][iz] = Ex_[ix][iy][iz] - dt * 
+								  (  ( By_tm1_[ix][iy][iz] - By_tm1_[ix][iy][iz-1] )/dz_  
+								   - ( Bz_tm1_[ix][iy][iz] - Bz_tm1_[ix][iy-1][iz] )/dy_ 
+								  + Jx_[ix][iy][iz]  );
+				Ey_[ix][iy][iz] = Ey_[ix][iy][iz] - dt * 
+								  (  ( Bz_tm1_[ix][iy][iz] - Bz_tm1_[ix-1][iy][iz] )/dx_  
+								   - ( Bx_tm1_[ix][iy][iz] - Bx_tm1_[ix][iy][iz-1] )/dz_ 
+								 + Jy_[ix][iy][iz]  );
+				Ez_[ix][iy][iz] = Ez_[ix][iy][iz] - dt * 
+								  (  ( Bx_tm1_[ix][iy][iz] - Bx_tm1_[ix][iy-1][iz] )/dy_  
+								   - ( By_tm1_[ix][iy][iz] - By_tm1_[ix-1][iy][iz] )/dx_ 
+								  + Jz_[ix][iy][iz]  );
+			}
+		}
+	}
+
+	// calculate B
+	for (int ix = 1; ix < nx_; ix++) {
+		for (int iy = 1; iy < ny_; iy++) {
+			for (int iz = 1; iz < nz_; iz++) {
+				Bx_[ix][iy][iz] = Bx_[ix][iy][iz] + dt * 
+								  (  ( Ey_[ix][iy][iz+1] - Ey_[ix][iy][iz] )/dz_  
+								   - ( Ez_[ix][iy+1][iz] - Ez_[ix][iy][iz] )/dy_ );
+				By_[ix][iy][iz] = By_[ix][iy][iz] + dt * 
+								  (  ( Ez_[ix+1][iy][iz] - Ez_[ix][iy][iz] )/dx_  
+								   - ( Ex_[ix][iy][iz+1] - Ex_[ix][iy][iz] )/dz_ );
+				Bz_[ix][iy][iz] = Bz_[ix][iy][iz] + dt * 
+								  (  ( Ex_[ix][iy+1][iz] - Ex_[ix][iy][iz] )/dy_  
+								   - ( Ey_[ix+1][iy][iz] - Ey_[ix][iy][iz] )/dx_ );
+			}
+		}
+	}
+
 	return 0;
 };
 
@@ -24,8 +73,8 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 
 	// x, y, z
 	InterpolatorVec[0] = x0_ + dx_ * ix;
-	InterpolatorVec[1] = y0_ + dx_ * iy;
-	InterpolatorVec[2] = z0_ + dx_ * iz;
+	InterpolatorVec[1] = y0_ + dy_ * iy;
+	InterpolatorVec[2] = z0_ + dz_ * iz;
 
 	//Ex
 	InterpolatorVec[3] = Ex_[ix][iy][iz];
@@ -60,12 +109,16 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 	return 0;
 };
 
-
+//! Get cell ID based on particle position.
+/*!
+	Cell ID is uniquely given by (ny_*nz_)*ix + nz_*iy + iz.
+	Returns -1 if particle is not on grid.
+*/
 int Grid::getCellID(double x, double y, double z) {
 	//get indices in x, y, z
-	int ix = ((int) (x-x0_))/nx_;
-	int iy = ((int) (y-y0_))/ny_;
-	int iz = ((int) (z-z0_))/nz_;
+	int ix = ((int) (x-x0_))/dx_;
+	int iy = ((int) (y-y0_))/dy_;
+	int iz = ((int) (z-z0_))/dz_;
 
 	if ( ( ix < 0 ) || ( ix > nx_-1 ) || ( iy < 0 ) || ( iy > ny_-1 ) || ( iz < 0 ) || ( iz > nz_-1 ) ) {
 		printf("Particle out of grid bounds\n");
