@@ -147,7 +147,7 @@ double Grid::getStepSize(int dimension) {
 		case 0: return dx_; break;
 		case 1: return dy_; break;
 		case 2: return dz_; break;
-		default: printf("Invalid dimension in Grid::getNumberOfCells\n"); return -1;
+		default: printf("Invalid dimension in Grid::getStepSize\n"); return -1;
 	}
 };
 
