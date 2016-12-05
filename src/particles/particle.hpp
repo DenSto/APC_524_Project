@@ -33,7 +33,7 @@ class Particle_Field_List {
 
     private:
         int np_;
-		std::vector<Particle> parts_;    /* Vector of particles */
+		std::vector<Particle*> parts_;    /* Vector of particles */
         Field_part *fields_; /* Field values at particle locations */
 };
 
