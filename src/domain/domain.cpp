@@ -1,4 +1,5 @@
 #include "domain.hpp"
+#include <stdio.h>
 
 Domain::Domain(int size, int rank, Input_Info_t *input_info)
       : size_(size),

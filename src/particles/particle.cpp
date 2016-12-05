@@ -15,6 +15,13 @@ void free_particle(Particle* part){
 
 Field_part* new_particle_field(){
 	Field_part* field = (Field_part*)malloc(sizeof(Field_part));
+	field->e1=0.0;
+	field->e2=0.0;
+	field->e3=0.0;
+	field->b1=0.0;
+	field->b2=0.0;
+	field->b3=0.0;
+
 	return field;
 }
 void free_particle_field(Field_part* field){

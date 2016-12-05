@@ -1,4 +1,5 @@
 #include "boris.hpp"
+#include <stdio.h>
 
 Boris::Boris(){
 
@@ -17,11 +18,11 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
 	double m,q,q_p;
 
 	x = part->x1;
-	y = part->x1;
-	z = part->x1;
+	y = part->x2;
+	z = part->x3;
 	vx = part->v1;
-	vy = part->v1;
-	vz = part->v1;
+	vy = part->v2;
+	vz = part->v3;
 
 	q = part->q;
 	m = part->m;
@@ -72,8 +73,8 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
 	part->x3 = z_new;
 
 	part->v1 = vx_new;
-	part->v2 = vx_new;
-	part->v3 = vx_new;
+	part->v2 = vy_new;
+	part->v3 = vz_new;
 
 	return 1;
 }
