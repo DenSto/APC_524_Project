@@ -1,6 +1,8 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
 
+#include <vector>
+
 typedef struct Particle {
 	double x1,x2,x3;  /* coordinate in X,Y,Z */	
 	double v1,v2,v3;  /* velocity in X,Y,Z */	
@@ -22,13 +24,16 @@ class Particle_Field_List {
     public:
         Particle_Field_List(int np); // list of np particles and their fields
         ~Particle_Field_List();
-        virtual void Load();      // Initialize particles
-        virtual void Push(double dt); // Push all particles
-        virtual void Pass();          // Pass particles accross MPI boundary
+        void Load();      // Initialize particles
+        void Push(double dt); // Push all particles
+        void Pass();          // Pass particles accross MPI boundary
+		void nParticles();
+
+		void sortParticles(); // quicksort particle list
 
     private:
         int np_;
-        Particle *parts_;    /* List of particles */
+		std::vector<Particle> parts_;    /* Vector of particles */
         Field_part *fields_; /* Field values at particle locations */
 };
 
