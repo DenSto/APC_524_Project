@@ -19,10 +19,10 @@ Grid::Grid(int nxyz[3], int nGhosts, double xyz0[3], double Lxyz[3]):
     jEnd_(ny_-(nGhosts+1)), 
     kEnd_(nz_-(nGhosts+1)),
     nFields_(9),
-    ghostVecSize_(nFields_*(ny_-2*nGhosts)*(nz_-2*nGhosts)), 
     dx_(Lxyz[0]/nxyz[0]), 
     dy_(Lxyz[1]/nxyz[1]), 
-    dz_(Lxyz[2]/nxyz[2])
+    dz_(Lxyz[2]/nxyz[2]),
+    ghostVecSize_(nFields_*(ny_-2*nGhosts)*(nz_-2*nGhosts))
 { 
     
     Ex_=newField_(); 

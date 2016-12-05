@@ -22,30 +22,34 @@ class Grid {
  	const int nx_;     // number of (physical + ghost) gridpoints  
  	const int ny_;
  	const int nz_;
+	
+	const int nGhosts_; // number of ghost points in each dimension/2
 
-        const int iBeg_; // indices marking beginning and end of physical 
-        const int jBeg_; // (non ghost) points in each direction 
-        const int kBeg_; 
-        const int iEnd_; 
-        const int jEnd_; 
-        const int kEnd_; 
-     
-        const int nGhosts_; // number of ghost points in each dimension/2
-        const int ghostVecSize_; /* total number of ghost field values in 
-                                    a single plane. All MPI communiation 
-                                    of fields send messages of this size */
-     
-        const double x0_;	// initial x position
+	const double x0_;	// initial x position
  	const double y0_;	// initial y position
  	const double z0_;	// initial z position
+
+ 	const double Lx_;
+ 	const double Ly_;
+ 	const double Lz_;
+
+	const int iBeg_; // indices marking beginning and end of physical 
+	const int jBeg_; // (non ghost) points in each direction
+	const int kBeg_;
+	const int iEnd_;
+	const int jEnd_;
+	const int kEnd_; 
+    
+    
+    const int nFields_; 
     
  	const double dx_;
  	const double dy_;
  	const double dz_;
 
- 	const double Lx_;
- 	const double Ly_;
- 	const double Lz_;
+	const int ghostVecSize_; /* total number of ghost field values in 
+                                    a single plane. All MPI communiation 
+                                    of fields send messages of this size */
 
  	double ***Ex_;
  	double ***Ey_;
@@ -63,7 +67,6 @@ class Grid {
  	double ***Jy_;
  	double ***Jz_;
 
-    const int nFields_; 
     
     // vector for storing temporary physical slices of scalar fields
     double *sliceTmp_;
