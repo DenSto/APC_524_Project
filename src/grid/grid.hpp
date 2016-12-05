@@ -11,7 +11,7 @@ class Grid {
 	int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
 	int getCellID(double x, double y, double z);
     int getNumberOfCells();
-    int getStepSize(int dimension);
+    double getStepSize(int dimension);
 
 	void updateGhostCells(); 
     int getGhostVecSize(); // called by main to size MPI Buffer

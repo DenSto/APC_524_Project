@@ -121,10 +121,33 @@ int Grid::getCellID(double x, double y, double z) {
 	int iz = ((int) (z-z0_))/dz_;
 
 	if ( ( ix < 0 ) || ( ix > nx_-1 ) || ( iy < 0 ) || ( iy > ny_-1 ) || ( iz < 0 ) || ( iz > nz_-1 ) ) {
-		printf("Particle out of grid bounds\n");
+		printf("Particle out of grid bounds in Grid::getCellID\n");
 		return -1;
 	}
 
 	return (ny_*nz_)*ix + nz_*iy + iz;
 
 };
+
+//! Get total number of cells.
+int Grid::getNumberOfCells() {
+	return nx_*ny_*nz_;
+};
+
+//! Get number of cells along dimension in grid.
+/*!
+	Returns number of cells along dimension according to;
+	dimension = 0: x
+	dimension = 1: y
+	dimension = 2: z
+	Returns -1 if invalid dimension.
+*/
+double Grid::getStepSize(int dimension) {
+	switch(dimension) {
+		case 0: return dx_; break;
+		case 1: return dy_; break;
+		case 2: return dz_; break;
+		default: printf("Invalid dimension in Grid::getNumberOfCells\n"); return -1;
+	}
+};
+
