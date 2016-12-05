@@ -31,10 +31,8 @@ void free_particle_field(Field_part* field){
 Particle_Field_List::Particle_Field_List(int np){
     np_=np;
 
-	//parts_ = new std::vector<Particle>(); //twice number of particles for slosh room
-//	parts_(2*np);
-
- //   assert(parts_!=NULL);
+	parts_.reserve((int)1.5*np); // Have at least 1.5x the number of particles for 
+	                      // slosh room. Excessive maybe?
 
     Field_part* fields_ = (Field_part*)malloc(sizeof(Field_part)*np_);
     assert(fields_!=NULL);
