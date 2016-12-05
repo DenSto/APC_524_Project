@@ -5,7 +5,8 @@ ifeq ($(USE_MPI),0)
   OMPFLAGS = 
 else
   CC = mpic++
-  OMPFLAGS = -openmp -DUSE_MPI=1
+  #OMPFLAGS = -fopenmp -DUSE_MPI=1
+  OMPFLAGS = -DUSE_MPI=1
 endif
 
 CFLAGS= -lm -Wall  
