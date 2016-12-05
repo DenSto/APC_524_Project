@@ -1,6 +1,19 @@
 #ifndef GRID_HPP
 #define GRID_HPP
 
+
+//! Class representing grid on which E and B fields and currents are defined.
+/*!
+    Grid has ghost cells on each face.
+    The ghost cell updating in y and z arises from periodic boundary conditions.
+    x-direction ghost cells allow communication between MPI domains.
+
+    Following Yee (1966), electric fields and currents reside on edges, and magnetic fields on faces.
+    Fields are updated using a set of finite-difference equations approximating Ampere's and Faraday's Laws.
+
+    A set of getters are available to allow particles to interpolate electric fields based on their position.
+
+*/
 class Grid {
  public:
  	Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz);
