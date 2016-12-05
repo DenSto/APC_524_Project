@@ -3,7 +3,7 @@
 
 class Grid {
  public:
- 	Grid(int nxyz[3], int nGhosts, double xyz0[3], double dx);
+ 	Grid(int nxyz[3], int nGhosts, double xyz0[3], double LX[3]);
 	virtual ~Grid();
 
 	int evolveFields (double dt);
@@ -11,6 +11,7 @@ class Grid {
 	int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
 	int getCellID(double x, double y, double z);
 
+    void updateGhostCells(); 
 	int getGhostVecSize(); // called by main to size MPI Buffer
 	void getGhostVec(const int side, double* ghostVec); // called by main to get MPI 
 	void getGhostVecAlt(const int side, double* ghostVec); // called by main to get MPI 
@@ -40,6 +41,12 @@ class Grid {
  	const double z0_;	// initial z position
     
  	const double dx_;
+ 	const double dy_;
+ 	const double dz_;
+
+ 	const double Lx_;
+ 	const double Ly_;
+ 	const double Lz_;
 
  	double ***Ex_;
  	double ***Ey_;
@@ -57,21 +64,23 @@ class Grid {
  	double ***Jy_;
  	double ***Jz_;
 
-        // vector for storing temporary physical slices of scalar fields
-        double *sliceTmp_;
+    const int nFields_; 
+    
+    // vector for storing temporary physical slices of scalar fields
+    double *sliceTmp_;
 
-        // allocates contiguous memory for nx*ny*nz array 
-        void newField_(double**** fieldPt); 
-        // deallocates memory for nx*ny*nz array 
-        void deleteField_(double**** fieldPt); 
-        
-        // converts side = -/+ 1 into a real index 
-        int sideToIndex_(const int side); 
+    // allocates contiguous memory for nx*ny*nz array 
+    double*** newField_(); 
+    // deallocates memory for nx*ny*nz array 
+    void deleteField_(double*** fieldPt); 
+    
+    // converts side = -/+ 1 into a real index 
+    int sideToIndex_(const int side); 
 
-        // stores a 2D plane of ghost points in sliceTmp_
-        void sliceMatToVec_(double*** const mat, const int side);
-        // puts a 2D plane of ghost points from sliceTmp_ into mat
-        void unsliceMatToVec_(double*** mat, const int side); 
+    // stores a 2D plane of ghost points in sliceTmp_
+    void sliceMatToVec_(double*** const mat, const int side);
+    // puts a 2D plane of ghost points from sliceTmp_ into mat
+    void unsliceMatToVec_(double*** mat, const int side); 
 
  };
 #endif
