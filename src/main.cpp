@@ -86,9 +86,8 @@ int main(int argc, char *argv[]){
     Particle_Field_List *parts_fields = new Particle_Field_List(input_info.np); 
     parts_fields->Load();//allow restart
 
-
     // Initialize fields
-    //Grid *grids = new Grid(nxyz,nGhosts,xyz0,dx); //store Ei,Bi,Ji 
+    Grid *grids = new Grid(nxyz,nGhosts,xyz0,Lxyz); //store Ei,Bi,Ji 
     //grid.deposeRhoJ(parts);
     //grid.poisson(inputinfo); //allow restart
     //grid.interpEB(parts);
@@ -114,7 +113,7 @@ int main(int argc, char *argv[]){
     writeoutput(t,domains,grids,parts); //MPI
 */
     delete parts_fields;
-    //delete grids;
+    delete grids;
 
 #if USE_MPI
     double time = MPI_Wtime()-begin;

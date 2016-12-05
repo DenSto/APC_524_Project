@@ -12,11 +12,13 @@ CFLAGS= -lm -Wall
 PROGRAM = EMOOPIC
 
 IOOBJ = IO.o
+DOMOBJ = domain.o
 PUSHOBJ = boris.o 
 GRIDOBJ = grid.o
 PARTOBJ = particle.o
 
 OBJ = ./IO/$(IOOBJ) \
+      ./domain/$(DOMOBJ) \
       ./pusher/$(PUSHOBJ) \
       ./grid/$(GRIDOBJ) \
       ./particles/$(PARTOBJ) \
