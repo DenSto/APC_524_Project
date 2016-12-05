@@ -63,13 +63,15 @@ class Grid {
  	double ***Jy_;
  	double ***Jz_;
 
+    const int nFields_; 
+    
     // vector for storing temporary physical slices of scalar fields
     double *sliceTmp_;
 
     // allocates contiguous memory for nx*ny*nz array 
-    void newField_(double**** fieldPt); 
+    double*** newField_(); 
     // deallocates memory for nx*ny*nz array 
-    void deleteField_(double**** fieldPt); 
+    void deleteField_(double*** fieldPt); 
     
     // converts side = -/+ 1 into a real index 
     int sideToIndex_(const int side); 
