@@ -9,7 +9,7 @@ else
   OMPFLAGS = -DUSE_MPI=1
 endif
 
-CFLAGS= -lm -Wall  
+CFLAGS= -g -lm -Wall  
 PROGRAM = EMOOPIC
 
 IOOBJ = IO.o

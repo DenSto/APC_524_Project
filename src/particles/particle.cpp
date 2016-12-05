@@ -56,14 +56,7 @@ void Particle_Field_List::Load(){
         p->v1=0.0;
         p->v1=0.0;
         p->v3=1.0;
-		parts_.push_back(*p);
- /*       parts_[ip].x1=-1.0;
-        parts_[ip].x2=1.0;
-        parts_[ip].x3=ip*1.0;
-
-        parts_[ip].v1=0.0;
-        parts_[ip].v1=0.0;
-        parts_[ip].v3=1.0;*/
+		parts_.push_back(p);
     } 
 }
 
@@ -71,7 +64,7 @@ void Particle_Field_List::Push(double dt){
     Boris boris;
     int ip;
     for(ip=0;ip<np_;ip++){
-        boris.Step(&(parts_[ip]),&(fields_[ip]),dt);
+        boris.Step((parts_[ip]),&(fields_[ip]),dt);
     }
 
 }
