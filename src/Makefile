@@ -1,4 +1,4 @@
-USE_MPI = 1
+USE_MPI = 0
 
 ifeq ($(USE_MPI),0)
   CC = g++
@@ -16,7 +16,7 @@ IOOBJ = IO.o
 DOMOBJ = domain.o
 PUSHOBJ = boris.o 
 GRIDOBJ = grid.o oGrid.o
-PARTOBJ = particle.o particle_list.o
+PARTOBJ = particle.o particle_list.o interpolate.o
 
 OBJ = $(addprefix ./IO/, $(IOOBJ)) \
       $(addprefix ./domain/, $(DOMOBJ)) \

@@ -46,9 +46,8 @@ long Particle_Field_List::nParticles(){
 	return np_;
 }
 
-void Particle_Field_List::InterpolateEB(){
-  Grid* grid;
-  Interpolator* interpolator;
+void Particle_Field_List::InterpolateEB(Grid* grid){
+  Interpolator *interpolator = new Interpolator();
 
   long iCell = 0; //cell # tracker
   long pCell = 0; //particle cell #
@@ -60,7 +59,7 @@ void Particle_Field_List::InterpolateEB(){
   double lcell[3]; //Vector of lengths of cell.
 
   //Get lengths of grid cells.
-  for (int i=0; i<3; i++) lcell[i] = grid.getStepSize(i);
+  for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
 
   for (long i=0; i<np_; i++) {
     //Get position of particle.
@@ -72,11 +71,11 @@ void Particle_Field_List::InterpolateEB(){
     pCell = grid->getCellID(pos[0],pos[1],pos[2]);
     if (pCell != iCell) {
       iCell = pCell;
-      grid.getFieldInterpolatorVec(iCell, cellvars);
+      grid->getFieldInterpolatorVec(iCell, cellvars);
     }
 
     //Interpolate fields at particle.
-    interpolator.interpolate_fields(pos, lcell, cellvars, parts_[i]->field);
+    interpolator->interpolate_fields(pos, lcell, cellvars, parts_[i]->field);
   }
 }
 

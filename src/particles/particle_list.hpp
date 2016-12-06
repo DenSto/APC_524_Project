@@ -5,6 +5,7 @@
 #include "../grid/grid.hpp"
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
+#include "interpolate.hpp"
 
 class Particle_Field_List {
     public:
@@ -19,7 +20,7 @@ class Particle_Field_List {
 
 		void setPusher(Pusher* pusher) {pusher_=pusher;};
 
-                void InterpolateEB();
+                void InterpolateEB(Grid* grid);
 
     private:
         long np_;
