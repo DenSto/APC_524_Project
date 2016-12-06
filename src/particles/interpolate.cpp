@@ -3,6 +3,14 @@
 #include "interpolate.hpp"
 #include "particle.hpp"
 
+int get_grid_data_for_field_interpolation() {
+
+}
+
+int interpolate_fields_at_all_particles() {
+  
+}
+
 int interpolate_fields(double* pos, double* cfields, Field_part* fields) {
   int i,j,k;
   double ds[3]; /*projected distances from particles to "least" cell faces*/
@@ -26,7 +34,7 @@ int interpolate_fields(double* pos, double* cfields, Field_part* fields) {
     bField = 0;
     bField += (l_cell-ds[i]) * cfields[3+12+2*i]; /*1st face*/
     bField += ds[i] * cfields[3+12+2*i+1]; /*2nd face*/
-    bField / l_cell;
+    bField /= l_cell;
 
     if (i == 0) {
       fields->e1 = eField;
