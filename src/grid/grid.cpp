@@ -23,6 +23,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     dx_(Lxyz[0]/nxyz[0]), 
     dy_(Lxyz[1]/nxyz[1]), 
     dz_(Lxyz[2]/nxyz[2]),
+    idx_(1.0/dx_), 
+    idy_(1.0/dy_),
+    idz_(1.0/dz_),
     nRealPtsYZPlane_((ny_+1-2*nGhosts)*(nz_+1-2*nGhosts)), // fields have ni_+1-2*nGhosts physical points in ith direction
     nFields_(9),
     ghostVecSize_(nFields_*nRealPtsYZPlane_)

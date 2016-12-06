@@ -15,14 +15,15 @@ PROGRAM = EMOOPIC
 IOOBJ = IO.o
 DOMOBJ = domain.o
 PUSHOBJ = boris.o 
-GRIDOBJ = grid.o
+GRIDOBJ = ./grid/grid.o \
+		  ./grid/oGrid.o
 PARTOBJ = ./particles/particle.o \
 		  ./particles/particle_list.o
 
 OBJ = ./IO/$(IOOBJ) \
       ./domain/$(DOMOBJ) \
       ./pusher/$(PUSHOBJ) \
-      ./grid/$(GRIDOBJ) \
+      $(GRIDOBJ) \
       $(PARTOBJ) \
       main.o 
 

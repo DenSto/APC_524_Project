@@ -116,9 +116,9 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 */
 int Grid::getCellID(double x, double y, double z) {
 	//get indices in x, y, z
-	int ix = ((int) (x-x0_))/dx_;
-	int iy = ((int) (y-y0_))/dy_;
-	int iz = ((int) (z-z0_))/dz_;
+	int ix = ((int) (x-x0_))*idx_;
+	int iy = ((int) (y-y0_))*idy_;
+	int iz = ((int) (z-z0_))*idz_;
 
 	if ( ( ix < 0 ) || ( ix > nx_-1 ) || ( iy < 0 ) || ( iy > ny_-1 ) || ( iz < 0 ) || ( iz > nz_-1 ) ) {
 		printf("Particle out of grid bounds in Grid::getCellID\n");
