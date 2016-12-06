@@ -102,11 +102,11 @@ int main(int argc, char *argv[]){
      * Grid grids(nxyz,....) because it tries to allocate space 
      * for an array of negative size. This seems to be a problem with
      * domain, not Grid */
-    int *nxyz = domain.getnxyz();
+    int *nxyz = domain->getnxyz();
     printf("rank=%d,nxyz=%d,%d,%d\n",rank,nxyz[0],nxyz[1],nxyz[2]);
 
-    Grid grids(nxyz,domain.getnGhosts(),
-               domain.getxyz0(),domain.getLxyz()); //store Ei,Bi,Ji 
+    Grid grids(nxyz,domain->getnGhosts(),
+               domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
     printf("db: after constructing Grid\n"); 
     //grid.deposeRhoJ(parts);
     //grid.poisson(inputinfo); //allow restart
