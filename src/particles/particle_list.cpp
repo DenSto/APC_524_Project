@@ -11,13 +11,9 @@ Particle_Field_List::Particle_Field_List(long np){
 
 	parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 
 	                      // slosh room. Excessive maybe?
-
-    Field_part* fields_ = (Field_part*)malloc(sizeof(Field_part)*np_);
-    assert(fields_!=NULL);
 }
 
 Particle_Field_List::~Particle_Field_List(){
-    free(fields_);
 }
 
 void Particle_Field_List::Load(){
@@ -39,7 +35,7 @@ void Particle_Field_List::Push(double dt){
     Boris *boris = new Boris();
 
     for(long ip=0;ip<np_;ip++){
-        boris->Step(parts_[ip],&(fields_[ip]),dt);
+        boris->Step(parts_[ip],parts_[ip]->field,dt);
     }
 
 }
