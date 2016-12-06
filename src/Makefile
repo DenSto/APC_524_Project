@@ -1,8 +1,8 @@
-USE_MPI = 0
+USE_MPI = 1
 
 ifeq ($(USE_MPI),0)
   CC = g++
-  OMPFLAGS = 
+  OMPFLAGS = -DUSE_MPI=0
 else
   CC = mpic++
   #OMPFLAGS = -fopenmp -DUSE_MPI=1
