@@ -1,7 +1,7 @@
-USE_MPI = 1 
+USE_MPI = 0
 
 ifeq ($(USE_MPI),0)
-  CC = icpc
+  CC = g++
   OMPFLAGS = 
 else
   CC = mpic++
@@ -15,7 +15,7 @@ PROGRAM = EMOOPIC
 IOOBJ = IO.o
 DOMOBJ = domain.o
 PUSHOBJ = boris.o 
-GRIDOBJ = grid.o
+GRIDOBJ = grid.o oGrid.o
 PARTOBJ = particle.o particle_list.o
 
 OBJ = $(addprefix ./IO/, $(IOOBJ)) \
