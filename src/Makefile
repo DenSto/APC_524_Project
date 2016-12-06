@@ -16,14 +16,13 @@ IOOBJ = IO.o
 DOMOBJ = domain.o
 PUSHOBJ = boris.o 
 GRIDOBJ = grid.o
-PARTOBJ = ./particles/particle.o \
-		  ./particles/particle_list.o
+PARTOBJ = particle.o particle_list.o
 
-OBJ = ./IO/$(IOOBJ) \
-      ./domain/$(DOMOBJ) \
-      ./pusher/$(PUSHOBJ) \
-      ./grid/$(GRIDOBJ) \
-      $(PARTOBJ) \
+OBJ = $(addprefix ./IO/, $(IOOBJ)) \
+      $(addprefix ./domain/, $(DOMOBJ)) \
+      $(addprefix ./pusher/, $(PUSHOBJ)) \
+      $(addprefix ./grid/, $(GRIDOBJ)) \
+      $(addprefix ./particles/, $(PARTOBJ)) \
       main.o 
 
 all: $(PROGRAM)

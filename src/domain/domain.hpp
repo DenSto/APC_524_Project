@@ -22,6 +22,6 @@ class Domain {
         double *Lxyz_;
 };
 
-void checkdomain(int rank, Domain domain);
+void checkdomain(int rank, Domain *domain);
 
 #endif
