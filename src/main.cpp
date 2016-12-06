@@ -1,3 +1,13 @@
+//! Driver program for EMOOPIC
+/*! ******************************************************
+ * To run the program use the following syntex
+ *   Serial version:
+ *       ./EMOOPIC <inputfile>
+ *   MPI version
+ *       mpirun -np <nproc> ./EMOOPIC <inputfile>
+ *
+ * The inputs are specified in <inputfile>
+ **********************************************************/
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
@@ -67,7 +77,6 @@ int main(int argc, char *argv[]){
     /* Read and broadcast input file **********************/
     Input_Info_t input_info;
     if(rank==0){readinput(argv[1],&input_info);}
-
 #if USE_MPI
     Input_Type itype;
     MPI_Datatype infotype; // new type
@@ -77,9 +86,8 @@ int main(int argc, char *argv[]){
     MPI_Type_commit(&infotype);
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
-  
-    checkinput(rank,&input_info);
 #endif
+    checkinput(rank,&input_info);
 
     /* Initial setup **************************************/
     // Domain decomposition
@@ -87,20 +95,29 @@ int main(int argc, char *argv[]){
     checkdomain(rank,domain);
     //domain.setup(inputinfo);
 
-    // Load particle
+    // Initialize particles
     Particle_Field_List *parts_fields = new Particle_Field_List(input_info.np); 
-    parts_fields->Load();//allow restart
     parts_fields->setPusher(new Boris());
 
-    // Initialize fields
+    // Initialize grid
     Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
-    //grid.depositRhoJ(parts_fields);
-    //grid.poisson(inputinfo); //allow restart
+
+    // Load particles, allow restart
+    parts_fields->Load();
+
+    // Deposite initial charge and current from particles to grid
+    parts_fields->depositCharge(grids);
+    parts_fields->depositCurrent(grids);
+
+    // Solve initial fields from particle or read restart file
+    grids->InitializeFields(&input_info); 
+
+    // Prepare to push particles
     parts_fields->InterpolateEB(grids);
 
-/*    // Advance time step //
-    t=inputinfo->t0; //initial time
+    /* Advance time step **********************************/
+/*    t=inputinfo->t0; //initial time
     for(ti=0;ti<nt;ti++){
        particle.dtmin(dt); 
        Pusher.step(part,field,dt);

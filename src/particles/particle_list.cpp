@@ -5,6 +5,7 @@
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
 #include "../pusher/boris.hpp"
+#include "../grid/grid.hpp"
 
 Particle_Field_List::Particle_Field_List(long np){
     np_=np;
@@ -81,4 +82,10 @@ void Particle_Field_List::InterpolateEB(Grid* grid){
 
 void Particle_Field_List::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
+}
+
+void Particle_Field_List::depositCurrent(Grid *grids){
+}
+
+void Particle_Field_List::depositCharge(Grid *grids){
 }

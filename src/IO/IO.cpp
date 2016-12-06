@@ -17,7 +17,8 @@ void readinput(char *fname,Input_Info_t *input_info){
 #if USE_MPI
   #include "mpi.h"
 
-  /* MPI arguments for broadcasting input *****************/
+  /*! construct MPI arguments for broadcasting input_info. 
+   *  Need to be modified if Input_Info_t is modified */
   Input_Type::Input_Type(){
     
       count_ = 2; // two types

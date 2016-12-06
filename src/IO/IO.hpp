@@ -1,6 +1,7 @@
 #ifndef IO_HPP
 #define IO_HPP
 
+//! Structure storing info in the input file
 typedef struct {
     int nx;
     long np;
@@ -11,10 +12,12 @@ typedef struct {
     double temp; // temperature
 } Input_Info_t;
 
-// type infomation for passing Input_Info_t in MPI
 #if USE_MPI
   #include "mpi.h"
 
+//! Type infomation for passing Input_Info_t in MPI
+/*! When Input_Info_t is modified, constructor of this 
+ *  class needs to be modified correspondly. */
   class Input_Type{
       public:
           Input_Type();
@@ -36,6 +39,7 @@ typedef struct {
 #endif
 
 void readinput(char *fname, Input_Info_t *input_info);
+
 void checkinput(int rank, Input_Info_t *input_info);
 
 #endif

@@ -14,13 +14,16 @@ class Particle_Field_List {
         void Load();      // Initialize particles
         void Push(double dt); // Push all particles
         void Pass();          // Pass particles accross MPI boundary
-		long nParticles();
+	long nParticles();
 
-		void SortParticles(Particle_Compare comp); // quicksort particle list
+	void SortParticles(Particle_Compare comp); // quicksort particle list
 
-		void setPusher(Pusher* pusher) {pusher_=pusher;};
+	void setPusher(Pusher* pusher) {pusher_=pusher;};
 
-                void InterpolateEB(Grid* grid);
+        void InterpolateEB(Grid* grid);
+
+        void depositCurrent(Grid *grids); // deposite current density from particles to grid
+        void depositCharge(Grid *grids);  // deposite charge density from particles to grid
 
     private:
         long np_;
