@@ -46,6 +46,40 @@ long Particle_Field_List::nParticles(){
 	return np_;
 }
 
+void Particle_Field_List::InterpolateEB(){
+  Grid* grid;
+  Interpolator* interpolator;
+
+  long iCell = 0; //cell # tracker
+  long pCell = 0; //particle cell #
+  double cellvars[21];//Vector describing position of and all field elements of a cell
+                      //["least" corner vertex, E-field on edges, B-field on surfaces]
+                      //21 elements ordered as: [x1,x2,x3,E1,E2,E3,B1,B2,B3]
+                      //              of sizes:   1, 1, 1, 4, 4, 4, 2, 2, 2
+  double pos[3]; //Vector of position of particle.
+  double lcell[3]; //Vector of lengths of cell.
+
+  //Get lengths of grid cells.
+  for (int i=0; i<3; i++) lcell[i] = grid.getStepSize(i);
+
+  for (long i=0; i<np_; i++) {
+    //Get position of particle.
+    pos[0] = parts_[i]->x1;
+    pos[1] = parts_[i]->x2;
+    pos[2] = parts_[i]->x3;
+
+    //Update cell field variables.
+    pCell = grid->getCellID(pos[0],pos[1],pos[2]);
+    if (pCell != iCell) {
+      iCell = pCell;
+      grid.getFieldInterpolatorVec(iCell, cellvars);
+    }
+
+    //Interpolate fields at particle.
+    interpolator.interpolate_fields(pos, lcell, cellvars, parts_[i]->field);
+  }
+}
+
 void Particle_Field_List::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }

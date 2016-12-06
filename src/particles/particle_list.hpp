@@ -19,6 +19,7 @@ class Particle_Field_List {
 
 		void setPusher(Pusher* pusher) {pusher_=pusher;};
 
+                void InterpolateEB();
 
     private:
         long np_;
