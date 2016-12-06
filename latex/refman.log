@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  5 DEC 2016 18:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  6 DEC 2016 14:38
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -1138,33 +1138,32 @@ Chapter 2.
 ]
 Chapter 3.
 (./class_boris.tex
-<class_boris__inherit__graph.pdf, id=175, 128.48pt x 156.585pt>
+<class_boris__inherit__graph.pdf, id=184, 128.48pt x 156.585pt>
 File: class_boris__inherit__graph.pdf Graphic file (type pdf)
 
 <use class_boris__inherit__graph.pdf>
-Package pdftex.def Info: class_boris__inherit__graph.pdf used on input line 10.
-
+Package pdftex.def Info: class_boris__inherit__graph.pdf used on input line 9.
 (pdftex.def)             Requested size: 128.0pt x 156.01117pt.
 
-<class_boris__coll__graph.pdf, id=176, 128.48pt x 156.585pt>
+<class_boris__coll__graph.pdf, id=185, 128.48pt x 156.585pt>
 File: class_boris__coll__graph.pdf Graphic file (type pdf)
 
 <use class_boris__coll__graph.pdf>
-Package pdftex.def Info: class_boris__coll__graph.pdf used on input line 20.
+Package pdftex.def Info: class_boris__coll__graph.pdf used on input line 18.
 (pdftex.def)             Requested size: 128.0pt x 156.01117pt.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <12> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 23.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 21.
 LaTeX Font Info:    Font shape `T1/phv/b/n' will be
-(Font)              scaled to size 10.79993pt on input line 23.
+(Font)              scaled to size 10.79993pt on input line 21.
 LaTeX Font Info:    Font shape `T1/phv/bc/n' will be
-(Font)              scaled to size 10.79993pt on input line 23.
-LaTeX Font Info:    Try loading font information for TS1+phv on input line 26.
+(Font)              scaled to size 10.79993pt on input line 21.
+LaTeX Font Info:    Try loading font information for TS1+phv on input line 24.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ts1phv.fd
 File: ts1phv.fd 2001/06/04 scalable font definitions for TS1/phv.
 )
 LaTeX Font Info:    Font shape `TS1/phv/m/n' will be
-(Font)              scaled to size 8.99994pt on input line 26.
+(Font)              scaled to size 8.99994pt on input line 24.
  [5 <./class_boris__inherit__graph.pdf> <./class_boris__coll__graph.pdf
 
 pdfTeX warning: /Library/TeX/texbin/pdflatex (file ./class_boris__coll__graph.p
@@ -1186,42 +1185,51 @@ LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
 (Font)              scaled to size 8.09995pt on input line 19.
  [6] [7]
 LaTeX Font Info:    Font shape `T1/phv/bc/n' will be
-(Font)              scaled to size 8.99994pt on input line 215.
+(Font)              scaled to size 8.99994pt on input line 200.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 7.19995pt on input line 216.
+(Font)              scaled to size 7.19995pt on input line 201.
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <8> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 216.
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 201.
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <7> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 236.
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 221.
  [8])
-(./struct_input___info__t.tex) (./struct_particle.tex [9])
-(./class_particle___compare.tex) (./class_particle___field___list.tex)
-(./class_pusher.tex
-<class_pusher__inherit__graph.pdf, id=325, 128.48pt x 156.585pt>
+(./struct_input___info__t.tex) (./class_interpolator.tex)
+(./struct_particle.tex
+<struct_particle__coll__graph.pdf, id=311, 140.525pt x 168.63pt>
+File: struct_particle__coll__graph.pdf Graphic file (type pdf)
+
+<use struct_particle__coll__graph.pdf>
+Package pdftex.def Info: struct_particle__coll__graph.pdf used on input line 10
+.
+(pdftex.def)             Requested size: 140.0pt x 168.00946pt.
+ [9]) (./class_particle___compare.tex
+[10 <./struct_particle__coll__graph.pdf>]) (./class_particle___field___list.tex
+) (./class_pusher.tex
+<class_pusher__inherit__graph.pdf, id=360, 128.48pt x 156.585pt>
 File: class_pusher__inherit__graph.pdf Graphic file (type pdf)
 
 <use class_pusher__inherit__graph.pdf>
-Package pdftex.def Info: class_pusher__inherit__graph.pdf used on input line 10
-.
+Package pdftex.def Info: class_pusher__inherit__graph.pdf used on input line 9.
+
 (pdftex.def)             Requested size: 128.0pt x 156.01117pt.
- [10]) [11 <./class_pusher__inherit__graph.pdf>] [12
+) [11 <./class_pusher__inherit__graph.pdf>] [12
 
 ]
 No file refman.ind.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 165.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 165.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 166.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 166.
 (./refman.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 165.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 165.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 166.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 166.
 Package rerunfilecheck Info: File `refman.out' has not changed.
-(rerunfilecheck)             Checksum: C010FCBE370895DE877BFBCA715F67E2;3880.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 165.
+(rerunfilecheck)             Checksum: BE08D7C09EFFA79F75F8C045F87326C5;4110.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 166.
  ) 
 Here is how much of TeX's memory you used:
- 14956 strings out of 493089
- 220249 string characters out of 6134842
- 314485 words of memory out of 5000000
- 18011 multiletter control sequences out of 15000+600000
+ 14962 strings out of 493089
+ 220311 string characters out of 6134842
+ 315395 words of memory out of 5000000
+ 18014 multiletter control sequences out of 15000+600000
  60907 words of font info for 81 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  53i,15n,92p,827b,526s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1235,10 +1243,10 @@ ist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2015/texmf-dist/fon
 ts/type1/urw/helvetic/uhvb8ac.pfb></usr/local/texlive/2015/texmf-dist/fonts/typ
 e1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/urw/
 helvetic/uhvro8a.pfb>
-Output written on refman.pdf (16 pages, 121483 bytes).
+Output written on refman.pdf (16 pages, 128184 bytes).
 PDF statistics:
- 444 PDF objects out of 1000 (max. 8388607)
- 403 compressed objects within 5 object streams
+ 463 PDF objects out of 1000 (max. 8388607)
+ 419 compressed objects within 5 object streams
  158 named destinations out of 1000 (max. 500000)
- 176 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 189 words of extra memory for PDF output out of 10000 (max. 10000000)
 

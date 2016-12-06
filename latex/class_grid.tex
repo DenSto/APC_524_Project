@@ -43,33 +43,6 @@ void {\bfseries set\+Ghost\+Vec} (const int side, const double $\ast$ghost\+Vec)
 \item 
 \hypertarget{class_grid_a5d47f8db0c280c26467b5a91465b7d40}{}\label{class_grid_a5d47f8db0c280c26467b5a91465b7d40} 
 void {\bfseries set\+Ghost\+Vec\+Alt} (const int side, const double $\ast$ghost\+Vec)
-\item 
-\hypertarget{class_grid_ab6866ceb9a38b1b68d587db5cd343bba}{}\label{class_grid_ab6866ceb9a38b1b68d587db5cd343bba} 
-double {\bfseries getx0} ()
-\item 
-\hypertarget{class_grid_abde253b5f588c41e5fef6151052ca2ab}{}\label{class_grid_abde253b5f588c41e5fef6151052ca2ab} 
-double {\bfseries gety0} ()
-\item 
-\hypertarget{class_grid_a0e89654502e992253544fc200387272b}{}\label{class_grid_a0e89654502e992253544fc200387272b} 
-double {\bfseries getz0} ()
-\item 
-\hypertarget{class_grid_a800957fe9d9d5ea65ee324fec80351af}{}\label{class_grid_a800957fe9d9d5ea65ee324fec80351af} 
-double {\bfseries getdx} ()
-\item 
-\hypertarget{class_grid_af8a59161f00b54b18f9a472447cfdca4}{}\label{class_grid_af8a59161f00b54b18f9a472447cfdca4} 
-double {\bfseries getdy} ()
-\item 
-\hypertarget{class_grid_afd9f90b7b01e8bf072f0328c9683927c}{}\label{class_grid_afd9f90b7b01e8bf072f0328c9683927c} 
-double {\bfseries getdz} ()
-\item 
-\hypertarget{class_grid_a79f8ff349630daeab0928c5295160789}{}\label{class_grid_a79f8ff349630daeab0928c5295160789} 
-double {\bfseries get\+Lx} ()
-\item 
-\hypertarget{class_grid_a4b845844084784e1feaec7d606aa1298}{}\label{class_grid_a4b845844084784e1feaec7d606aa1298} 
-double {\bfseries get\+Ly} ()
-\item 
-\hypertarget{class_grid_a8b159f067d2b3df26aebbf5408c90fc1}{}\label{class_grid_a8b159f067d2b3df26aebbf5408c90fc1} 
-double {\bfseries get\+Lz} ()
 \end{DoxyCompactItemize}
 \subsection*{Protected Member Functions}
 \begin{DoxyCompactItemize}
@@ -82,6 +55,9 @@ void {\bfseries delete\+Field\+\_\+} (double $\ast$$\ast$$\ast$field\+Pt)
 \item 
 \hypertarget{class_grid_a91fc198085fdfeaa6378a99db4dbc6ac}{}\label{class_grid_a91fc198085fdfeaa6378a99db4dbc6ac} 
 int {\bfseries side\+To\+Index\+\_\+} (const int side)
+\item 
+\hypertarget{class_grid_af631b4ec77d5ad46d17abe24155114c1}{}\label{class_grid_af631b4ec77d5ad46d17abe24155114c1} 
+void {\bfseries check\+Input\+\_\+} ()
 \item 
 \hypertarget{class_grid_adfae48e6068488739c8823bc575f4f0a}{}\label{class_grid_adfae48e6068488739c8823bc575f4f0a} 
 void {\bfseries slice\+Mat\+To\+Vec\+\_\+} (double $\ast$$\ast$$\ast$const mat, const int side)
@@ -148,6 +124,15 @@ const double {\bfseries dy\+\_\+}
 \item 
 \hypertarget{class_grid_a88975e0c193ba200d3bb20d1b7f5aa08}{}\label{class_grid_a88975e0c193ba200d3bb20d1b7f5aa08} 
 const double {\bfseries dz\+\_\+}
+\item 
+\hypertarget{class_grid_a2ca6e799692e4196f745402785c38eea}{}\label{class_grid_a2ca6e799692e4196f745402785c38eea} 
+const double {\bfseries idx\+\_\+}
+\item 
+\hypertarget{class_grid_ae03d8f59e2a2b45691746c36c6dd3e90}{}\label{class_grid_ae03d8f59e2a2b45691746c36c6dd3e90} 
+const double {\bfseries idy\+\_\+}
+\item 
+\hypertarget{class_grid_aa7bbf073678332ff181b08c9e1d893e5}{}\label{class_grid_aa7bbf073678332ff181b08c9e1d893e5} 
+const double {\bfseries idz\+\_\+}
 \item 
 \hypertarget{class_grid_a873f5a0ef0ef52b485a3b38237c3e916}{}\label{class_grid_a873f5a0ef0ef52b485a3b38237c3e916} 
 const int {\bfseries n\+Real\+Pts\+Y\+Z\+Plane\+\_\+}
