@@ -92,12 +92,13 @@ int main(int argc, char *argv[]){
     parts_fields->Load();//allow restart
     parts_fields->setPusher(new Boris());
 
-    // Initialize fields
-    Grid grids(domain->getnxyz(),domain->getnGhosts(),
-               domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
+    // Initialize grids
+    Grid *grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
+                           domain->getxyz0(),domain->getLxyz()); 
     //grid.deposeRhoJ(parts);
     //grid.poisson(inputinfo); //allow restart
-    //grid.interpEB(parts);
+    // initialize field values at particle locations
+    parts_fields->InterpolateEB(grids);
 
 
 /*    // Advance time step //
@@ -120,6 +121,7 @@ int main(int argc, char *argv[]){
 */
     delete domain;
     delete parts_fields;
+    delete grids;
 
 #if USE_MPI
     double time = MPI_Wtime()-begin;
