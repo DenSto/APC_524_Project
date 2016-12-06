@@ -1,3 +1,4 @@
+#include <stdio.h> 
 #include <stdlib.h>
 #include "grid.hpp"
 
@@ -18,29 +19,31 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     iEnd_(nx_-nGhosts), // fields are length nx_+1, so last element is indexed as nx_, then subtract nGhosts to get index of last physical point
     jEnd_(ny_-nGhosts), 
     kEnd_(nz_-nGhosts),
-    nFields_(9),
-    nRealPtsYZPlane_((ny_+1-2*nGhosts)*(nz_+1-2*nGhosts)),
     dx_(Lxyz[0]/nxyz[0]), 
     dy_(Lxyz[1]/nxyz[1]), 
     dz_(Lxyz[2]/nxyz[2]),
-    // fields have ni_+1-2*nGhosts physical points in ith direction
+    nRealPtsYZPlane_((ny_+1-2*nGhosts)*(nz_+1-2*nGhosts)), // fields have ni_+1-2*nGhosts physical points in ith direction
+    nFields_(9),
     ghostVecSize_(nFields_*nRealPtsYZPlane_)
 { 
-    
+    printf("db: after setting consts\n");    
     Ex_=newField_(); 
+    printf("db: after allocating Ex_\n"); 
     Ey_=newField_(); 
     Ez_=newField_(); 
     Bx_=newField_(); 
     By_=newField_(); 
     Bz_=newField_(); 
-    Bx_=newField_(); 
-    By_=newField_(); 
-    Bz_=newField_(); 
+    Bx_tm1_=newField_(); 
+    By_tm1_=newField_(); 
+    Bz_tm1_=newField_(); 
     Jx_=newField_(); 
     Jy_=newField_(); 
     Jz_=newField_(); 
+    printf("db: after allocating all fields\n");
 
     sliceTmp_ = new double[ghostVecSize_/nFields_]; 
+    printf("db: after allocating sliceTmp\n"); 
 } 
 
 Grid::~Grid() { 

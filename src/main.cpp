@@ -93,8 +93,21 @@ int main(int argc, char *argv[]){
     parts_fields.setPusher(new Boris());
 
     // Initialize fields
-    Grid grids(domain.getnxyz(),domain.getnGhosts(),
+    printf("db: before constructing Grid\n"); 
+
+    /* for debugging only
+     * nxyz should be [4,4,4], as it is in checkdomain function above. 
+     * However, there is some bug (in domain class?) that causes
+     * nxyz here to be [0,0,4]. This in turn causes a problem in 
+     * Grid grids(nxyz,....) because it tries to allocate space 
+     * for an array of negative size. This seems to be a problem with
+     * domain, not Grid */
+    int *nxyz = domain.getnxyz();
+    printf("rank=%d,nxyz=%d,%d,%d\n",rank,nxyz[0],nxyz[1],nxyz[2]);
+
+    Grid grids(nxyz,domain.getnGhosts(),
                domain.getxyz0(),domain.getLxyz()); //store Ei,Bi,Ji 
+    printf("db: after constructing Grid\n"); 
     //grid.deposeRhoJ(parts);
     //grid.poisson(inputinfo); //allow restart
     //grid.interpEB(parts);
