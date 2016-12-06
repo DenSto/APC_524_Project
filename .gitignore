@@ -10,3 +10,5 @@ EMOOPIC
 *latex/*.toc
 *latex/*.sty
 *latex/Makefile
+*latex/*.aux
+*latex/*.idx
