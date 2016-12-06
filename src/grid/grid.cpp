@@ -1,5 +1,6 @@
 #include <stdio.h> 
 #include <stdlib.h>
+#include <assert.h> 
 #include "grid.hpp"
 
 Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz): 
@@ -25,7 +26,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     nRealPtsYZPlane_((ny_+1-2*nGhosts)*(nz_+1-2*nGhosts)), // fields have ni_+1-2*nGhosts physical points in ith direction
     nFields_(9),
     ghostVecSize_(nFields_*nRealPtsYZPlane_)
-{ 
+{
+    checkInput_(); 
+    
     printf("db: after setting consts\n");    
     Ex_=newField_(); 
     printf("db: after allocating Ex_\n"); 
@@ -68,10 +71,13 @@ Grid::~Grid() {
 double*** Grid::newField_() { 
     int i,j; // iterators 
     double*** fieldPt = new double**[nx_+1]; 
+    assert( fieldPt != NULL ); 
     for (i=0; i<nx_+1; ++i) { 
         fieldPt[i] = new double*[ny_+1]; 
+        assert( fieldPt[i] != NULL ); 
         for (j=0; j<ny_+1; ++j) { 
             fieldPt[i][j] = new double[nz_+1]; 
+            assert( fieldPt[i][j] != NULL ); 
         } 
     } 
     return fieldPt;
@@ -88,4 +94,27 @@ void Grid::deleteField_(double*** fieldPt) {
         delete [] fieldPt[i];
     } 
     delete [] fieldPt;
+};
+
+/* assert statements to check necessary conditions for initialized variables */ 
+void Grid::checkInput_() { 
+    assert(nx_ > 0); 
+    assert(ny_ > 0); 
+    assert(nz_ > 0); 
+    assert(nGhosts_ == 1); // currently some grid functions assume this, though they can be generalized later to allow fo rmore 
+    assert(Lx_ > 0); 
+    assert(Ly_ > 0); 
+    assert(Lz_ > 0); 
+    assert(iBeg_ > 0); 
+    assert(jBeg_ > 0); 
+    assert(kBeg_ > 0); 
+    assert(iEnd_ < nx_+1); 
+    assert(jEnd_ < ny_+1); 
+    assert(kEnd_ < nz_+1);
+    assert(dx_ > 0); 
+    assert(dy_ > 0); 
+    assert(dz_ > 0);
+    assert(nRealPtsYZPlane_ > 0); 
+    assert(nFields_ == 9); 
+    assert(ghostVecSize_ > 0); 
 }; 

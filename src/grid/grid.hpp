@@ -105,6 +105,8 @@ class Grid {
     
     // converts side = -/+ 1 into a real index 
     int sideToIndex_(const int side); 
+    /* assert statements to check necessary conditions for initialized variables */ 
+    void checkInput_();
 
     // stores a 2D plane of ghost points in sliceTmp_
     void sliceMatToVec_(double*** const mat, const int side);
