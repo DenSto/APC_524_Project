@@ -10,8 +10,8 @@ double* cell_fields; /*Vector describing position of and all field elements of a
                      /*21 elements ordered as: [x1,x2,x3,E1,E2,E3,B1,B2,B3]*/
                      /*              of sizes:   1, 1, 1, 4, 4, 4, 2, 2, 2*/
 
-int get_grid_data_for_field_interpolation();
-int interpolate_fields_at_all_particles();
+int run_interpolation();
+int get_gridvec_to_interpolate();
 int interpolate_fields(double* pos, double* cfields, Field_part* fields); /*interpolate fields at particle position*/
 
 #endif

@@ -3,11 +3,11 @@
 #include "interpolate.hpp"
 #include "particle.hpp"
 
-int get_grid_data_for_field_interpolation() {
+int get_gridvec_to_interpolate() {
 
 }
 
-int interpolate_fields_at_all_particles() {
+int run_interpolation() {
   
 }
 

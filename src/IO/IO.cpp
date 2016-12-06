@@ -64,7 +64,7 @@ void readinput(char *fname,Input_Info_t *input_info){
   void checkinput(int rank, Input_Info_t *input_info){
   
      printf("rank=%d,nx=%d\n",rank,input_info->nx);
-     printf("rank=%d,np=%d\n",rank,input_info->np);
+     printf("rank=%d,np=%ld\n",rank,input_info->np);
      printf("rank=%d,nt=%d\n",rank,input_info->nt);
      printf("rank=%d,restart=%d\n",rank,input_info->restart);
      printf("rank=%d,dens=%f\n",rank,input_info->dens);

@@ -19,18 +19,11 @@ class Particle_Field_List {
 
 		void setPusher(Pusher* pusher) {pusher_=pusher;};
 
-		std::vector<Particle*> parts_;    /* Vector of particles */
 
     private:
         long np_;
-        Field_part *fields_; /* Field values at particle locations */
+		std::vector<Particle*> parts_;    /* Vector of particles */
 		Pusher* pusher_;
 };
-
-Particle* new_particle();
-void free_particle(Particle* part);
-
-Field_part* new_particle_field();
-void free_particle_field(Field_part* field);
 
 #endif

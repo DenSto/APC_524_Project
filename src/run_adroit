@@ -17,4 +17,3 @@ cd ../data/unitest
 rm -rf output.out
 
 srun $path/EMOOPIC input.txt > output.out
-

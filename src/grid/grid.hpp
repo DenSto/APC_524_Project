@@ -34,18 +34,6 @@ class Grid {
 	void setGhostVecAlt(const int side, const double* ghostVec);
 
 
-	double getx0() {return x0_;};
-	double gety0() {return y0_;};
-	double getz0() {return z0_;};
-
-	double getdx() {return dx_;};
-	double getdy() {return dy_;};
-	double getdz() {return dz_;};
-
-	double getLx() {return Lx_;};
-	double getLy() {return Ly_;};
-	double getLz() {return Lz_;};
-
  protected:
 
  	const int nx_;     // number of (physical + ghost) gridpoints  
@@ -72,6 +60,10 @@ class Grid {
  	const double dx_;
  	const double dy_;
  	const double dz_;
+
+ 	const double idx_;
+ 	const double idy_;
+ 	const double idz_;
 
     const int nRealPtsYZPlane_;
     const int nFields_; 
@@ -105,6 +97,8 @@ class Grid {
     
     // converts side = -/+ 1 into a real index 
     int sideToIndex_(const int side); 
+    /* assert statements to check necessary conditions for initialized variables */ 
+    void checkInput_();
 
     // stores a 2D plane of ghost points in sliceTmp_
     void sliceMatToVec_(double*** const mat, const int side);

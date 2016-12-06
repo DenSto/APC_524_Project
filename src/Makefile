@@ -1,8 +1,8 @@
-USE_MPI = 1 
+USE_MPI = 1
 
 ifeq ($(USE_MPI),0)
-  CC = icpc
-  OMPFLAGS = 
+  CC = g++
+  OMPFLAGS = -DUSE_MPI=0
 else
   CC = mpic++
   #OMPFLAGS = -fopenmp -DUSE_MPI=1
@@ -15,15 +15,14 @@ PROGRAM = EMOOPIC
 IOOBJ = IO.o
 DOMOBJ = domain.o
 PUSHOBJ = boris.o 
-GRIDOBJ = grid.o
-PARTOBJ = ./particles/particle.o \
-		  ./particles/particle_list.o
+GRIDOBJ = grid.o oGrid.o
+PARTOBJ = particle.o particle_list.o
 
-OBJ = ./IO/$(IOOBJ) \
-      ./domain/$(DOMOBJ) \
-      ./pusher/$(PUSHOBJ) \
-      ./grid/$(GRIDOBJ) \
-      $(PARTOBJ) \
+OBJ = $(addprefix ./IO/, $(IOOBJ)) \
+      $(addprefix ./domain/, $(DOMOBJ)) \
+      $(addprefix ./pusher/, $(PUSHOBJ)) \
+      $(addprefix ./grid/, $(GRIDOBJ)) \
+      $(addprefix ./particles/, $(PARTOBJ)) \
       main.o 
 
 all: $(PROGRAM)
