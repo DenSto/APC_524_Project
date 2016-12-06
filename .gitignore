@@ -3,9 +3,10 @@
 *.out
 *~
 EMOOPIC
-*latex/!(*.pdf)
 *latex/*.log
 *latex/*.tex
 *latex/*.md5
 *latex/*.gz
 *latex/*.toc
+*latex/*.sty
+*latex/Makefile
