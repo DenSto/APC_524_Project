@@ -92,14 +92,12 @@ int main(int argc, char *argv[]){
     parts_fields->Load();//allow restart
     parts_fields->setPusher(new Boris());
 
-    // Initialize grids
-    Grid *grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
-                           domain->getxyz0(),domain->getLxyz()); 
-    //grid.deposeRhoJ(parts);
+    // Initialize fields
+    Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
+               domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
+    //grid.depositRhoJ(parts_fields);
     //grid.poisson(inputinfo); //allow restart
-    // initialize field values at particle locations
     parts_fields->InterpolateEB(grids);
-
 
 /*    // Advance time step //
     t=inputinfo->t0; //initial time
@@ -107,10 +105,12 @@ int main(int argc, char *argv[]){
        particle.dtmin(dt); 
        Pusher.step(part,field,dt);
        particle.pass(domains); //MPI
-       grid.deposeRhoJ(parts);
+       grid.depositRhoJ(parts_fields);
        grid.advanceEB(dt);
        grid.boundary(domains); //MPI
-       grid.interpEB(parts);
+*/
+       parts_fields->InterpolateEB(grids);
+/*
        // check and write restart files
        if(ti%ntcheck==0){check(t,domains,grids,parts);}
        t+=dt;
