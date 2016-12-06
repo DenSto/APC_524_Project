@@ -1,6 +1,8 @@
 #ifndef GRID_HPP
 #define GRID_HPP
 
+#include "../IO/IO.hpp"
+
 //! Class representing grid on which E and B fields and currents are defined.
 /*!
 	Grid has ghost cells on each face.
@@ -20,6 +22,10 @@ public:
   virtual ~Grid();
 
   int evolveFields (double dt);
+
+  void InitializeFields(Input_Info_t *input_info); // Initialize E field by either solve Poisson's equation
+                                                   // or read restart file. Initialize B field with prescribed
+                                                   // geometry or read restart file. 
 
   int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
   int getCellID(double x, double y, double z);

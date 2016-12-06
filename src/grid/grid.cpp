@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h> 
 #include "grid.hpp"
+#include "../IO/IO.hpp"
 
 Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz): 
     nx_(nxyz[0]), 
@@ -120,4 +121,8 @@ void Grid::checkInput_() {
     assert(nRealPtsYZPlane_ > 0); 
     assert(nFields_ == 9); 
     assert(ghostVecSize_ > 0); 
+}; 
+
+
+void Grid::InitializeFields(Input_Info_t *input_info){
 }; 
