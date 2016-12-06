@@ -95,7 +95,7 @@ int main(int argc, char *argv[]){
     // Initialize fields
     Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
-    //grid.depositRhoJ(parts);
+    //grid.depositRhoJ(parts_fields);
     //grid.poisson(inputinfo); //allow restart
     parts_fields->InterpolateEB(grids);
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
        particle.dtmin(dt); 
        Pusher.step(part,field,dt);
        particle.pass(domains); //MPI
-       grid.depositRhoJ(parts);
+       grid.depositRhoJ(parts_fields);
        grid.advanceEB(dt);
        grid.boundary(domains); //MPI
 */
