@@ -3,7 +3,7 @@
 
 typedef struct {
     int nx;
-    int np;
+    long np;
     int nt;
     int restart; // How many previous runs?
                  // Initial run if restart = 0

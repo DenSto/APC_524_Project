@@ -32,10 +32,9 @@ void Particle_Field_List::Load(){
 }
 
 void Particle_Field_List::Push(double dt){
-    Boris *boris = new Boris();
 
     for(long ip=0;ip<np_;ip++){
-        boris->Step(parts_[ip],parts_[ip]->field,dt);
+        pusher_->Step(parts_[ip],parts_[ip]->field,dt);
     }
 
 }

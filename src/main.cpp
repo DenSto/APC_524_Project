@@ -88,9 +88,9 @@ int main(int argc, char *argv[]){
     //domain.setup(inputinfo);
 
     // Load particle
-//    Particle_Field_List parts_fields(input_info.np); 
-//    parts_fields.Load();//allow restart
-//    parts_fields.setPusher(new Boris());
+    Particle_Field_List *parts_fields = new Particle_Field_List(input_info.np); 
+    parts_fields->Load();//allow restart
+    parts_fields->setPusher(new Boris());
 
     // Initialize fields
     Grid grids(domain->getnxyz(),domain->getnGhosts(),
@@ -119,6 +119,7 @@ int main(int argc, char *argv[]){
     writeoutput(t,domains,grids,parts); //MPI
 */
     delete domain;
+    delete parts_fields;
 
 #if USE_MPI
     double time = MPI_Wtime()-begin;
