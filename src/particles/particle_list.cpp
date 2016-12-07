@@ -17,18 +17,20 @@ Particle_Field_List::Particle_Field_List(long np){
 Particle_Field_List::~Particle_Field_List(){
 }
 
-void Particle_Field_List::Load(){
+void Particle_Field_List::Load(int restart){
     //dummy code inserted by Yuan for testing main.cpp
-    for(long ip=0;ip<np_;ip++){
-		Particle* p = new_particle();
-        p->x1=-1.0;
-        p->x2=1.0;
-        p->x3=ip*1.0;
-
-        p->v1=0.0;
-        p->v2=4.0;
-        p->v3=1.0;
-		parts_.push_back(p);
+    if(restart==0){// initial run
+       for(long ip=0;ip<np_;ip++){
+           Particle* p = new_particle();
+           p->x1=-1.0;
+           p->x2=1.0;
+           p->x3=ip*1.0;
+    
+           p->v1=0.0;
+           p->v2=4.0;
+           p->v3=1.0;
+           parts_.push_back(p);
+       }
     } 
 }
 
@@ -88,4 +90,8 @@ void Particle_Field_List::SortParticles(Particle_Compare comp){
 
 void Particle_Field_List::depositRhoJ(Grid *grids, double dt){
   Depositor *depositor = new Depositor();
+}
+
+double Particle_Field_List::maxVelocity(void){
+    return 0.1;
 }
