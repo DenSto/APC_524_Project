@@ -16,12 +16,12 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
   double x_new, y_new,z_new, vx_new, vy_new,vz_new;
   double m,q,q_p;
 
-  x = part->x1;
-  y = part->x2;
-  z = part->x3;
-  vx = part->v1;
-  vy = part->v2;
-  vz = part->v3;
+  x = part->x[0];
+  y = part->x[1];
+  z = part->x[2];
+  vx = part->v[0];
+  vy = part->v[1];
+  vz = part->v[2];
 
   q = part->q;
   m = part->m;
@@ -67,22 +67,22 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
   z_new = z + dt*vz_new;
 
   //Update last particle position.
-  part->xo1 = x;
-  part->xo2 = y;
-  part->xo3 = z;
+  part->xo[0] = x;
+  part->xo[1] = y;
+  part->xo[2] = z;
 
   //Update last particle velocity.
-  part->vo1 = vx;
-  part->vo2 = vy;
-  part->vo3 = vz;
+  part->vo[0] = vx;
+  part->vo[1] = vy;
+  part->vo[2] = vz;
 
-  part->x1 = x_new;
-  part->x2 = y_new;
-  part->x3 = z_new;
+  part->x[0] = x_new;
+  part->x[1] = y_new;
+  part->x[2] = z_new;
 
-  part->v1 = vx_new;
-  part->v2 = vy_new;
-  part->v3 = vz_new;
+  part->v[0] = vx_new;
+  part->v[1] = vy_new;
+  part->v[2] = vz_new;
 
   return 1;
 }

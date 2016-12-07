@@ -17,8 +17,8 @@ class Particle_Compare {
 	}
 
 	bool operator()(Particle const* a, Particle const* b) const {
-		int id1 = grid_->getCellID(a->x1,a->x2,a->x3);
-		int id2 = grid_->getCellID(b->x1,b->x2,b->x3);
+		int id1 = grid_->getCellID(a->x[0],a->x[1],a->x[2]);
+		int id2 = grid_->getCellID(b->x[0],b->x[1],b->x[2]);
 
 		// if all indices are equal, return 0;
 		if(id1 <= id2)

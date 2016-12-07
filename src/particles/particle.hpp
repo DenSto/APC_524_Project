@@ -7,11 +7,11 @@ typedef struct Field_part {
 } Field_part;
 
 typedef struct Particle {
-  double x1,x2,x3;  /* coordinate in X,Y,Z */	
-  double v1,v2,v3;  /* velocity in X,Y,Z */	
+  double x[3];  /* coordinate in X,Y,Z */	
+  double v[3];  /* velocity in X,Y,Z */	
 
-  double xo1,xo2,xo3;  /* LAST coordinate in X,Y,Z */
-  double vo1,vo2,vo3;  /* LAST velocity in X,Y,Z */
+  double xo[3];  /* LAST coordinate in X,Y,Z */
+  double vo[3];  /* LAST velocity in X,Y,Z */
 
   double q;		  /* charge */
   double m;		  /* mass */

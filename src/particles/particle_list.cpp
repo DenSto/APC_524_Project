@@ -22,13 +22,13 @@ void Particle_List::Load(int restart){
     if(restart==0){// initial run
        for(long ip=0;ip<np_;ip++){
            Particle* p = new_particle();
-           p->x1=-1.0;
-           p->x2=1.0;
-           p->x3=ip*1.0;
+           p->x[0]=-1.0;
+           p->x[1]=1.0;
+           p->x[2]=ip*1.0;
     
-           p->v1=0.0;
-           p->v2=4.0;
-           p->v3=1.0;
+           p->v[0]=0.0;
+           p->v[1]=4.0;
+           p->v[2]=1.0;
            parts_.push_back(p);
        }
     } 
@@ -56,7 +56,7 @@ void Particle_List::InterpolateEB(Grid* grid){
   long pCell = 0; //particle cell #
   double cellvars[21];//Vector describing position of and all field elements of a cell
                       //["least" corner vertex, E-field on edges, B-field on surfaces]
-                      //21 elements ordered as: [x1,x2,x3,E1,E2,E3,B1,B2,B3]
+                      //21 elements ordered as: [x[0],x[1],x[2],E1,E2,E3,B1,B2,B3]
                       //              of sizes:   1, 1, 1, 4, 4, 4, 2, 2, 2
   double pos[3]; //Vector of position of particle.
   double lcell[3]; //Vector of lengths of cell.
@@ -66,9 +66,9 @@ void Particle_List::InterpolateEB(Grid* grid){
 
   for (long i=0; i<np_; i++) {
     //Get position of particle.
-    pos[0] = parts_[i]->x1;
-    pos[1] = parts_[i]->x2;
-    pos[2] = parts_[i]->x3;
+    pos[0] = parts_[i]->x[0];
+    pos[1] = parts_[i]->x[1];
+    pos[2] = parts_[i]->x[2];
 
     //Update cell field variables.
     pCell = grid->getCellID(pos[0],pos[1],pos[2]);
