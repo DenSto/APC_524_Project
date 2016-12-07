@@ -134,7 +134,7 @@ void Grid::checkInput_() {
 }; 
 
 /// Initialize E and B fields
-/*! Use input parameters to set values of initial E,B,J fields
+/*! Use restart file to set values of initial E,B,J fields
  */ 
-void Grid::InitializeFields(Input_Info_t *input_info){
+void Grid::InitializeFields(int restart){
 }; 

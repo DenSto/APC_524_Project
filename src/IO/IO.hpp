@@ -1,15 +1,24 @@
 #ifndef IO_HPP
 #define IO_HPP
 
+#include "../grid/grid.hpp"
+#include "../particles/particle_list.hpp"
+
 //! Structure storing info in the input file
 typedef struct {
-    int nx;
-    long np;
-    int nt;
+    int nx; // number of grids
+    int nt; // number of time steps
     int restart; // How many previous runs?
                  // Initial run if restart = 0
+
+    long np; // number of particles in each domain
+
+    double t0;   // start time of simulation
     double dens; // density
     double temp; // temperature
+
+    char distname[50]; // name of file containing distribution function 
+
 } Input_Info_t;
 
 #if USE_MPI
@@ -39,7 +48,8 @@ typedef struct {
 #endif
 
 void readinput(char *fname, Input_Info_t *input_info);
-
 void checkinput(int rank, Input_Info_t *input_info);
+
+void writeoutput(double t, int rank, Grid *grids, Particle_Field_List *parts__fields); //MPI
 
 #endif

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <algorithm>
 #include "domain.hpp"
 
 Domain::Domain(int size, int rank, Input_Info_t *input_info)
@@ -27,8 +28,8 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
        Lxyz_ = new double[3];
        assert(Lxyz_!=NULL);
        Lxyz_[0] = 1.0/size;
-       Lxyz_[1] = 1.0;
-       Lxyz_[2] = 1.0;
+       Lxyz_[1] = 0.5*(rank+1); // for testing
+       Lxyz_[2] = 0.8;
   
 }
 
@@ -57,6 +58,16 @@ double* Domain::getxyz0(void){
 double* Domain::getLxyz(void){
     //printf("rank=%d: call getLxyz\n",rank_);
     return Lxyz_;
+}
+
+//! Find minimum grid size
+double Domain::getmindx(void){
+    double dxyz[3];
+    for(int i=0;i<3;i++){
+      dxyz[i]=Lxyz_[i]/nxyz_[i];
+    }
+
+    return *std::min_element(dxyz,dxyz+3);
 }
 
 void checkdomain(int rank, Domain *domain){

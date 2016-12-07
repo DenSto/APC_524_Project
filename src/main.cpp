@@ -88,6 +88,8 @@ int main(int argc, char *argv[]){
     MPI_Barrier(MPI_COMM_WORLD);
 #endif
     checkinput(rank,&input_info);
+    int restart = input_info.restart; // restart=0: initial run
+                                      // restart=3: third restart
 
     /* Initial setup **************************************/
     // Domain decomposition
@@ -104,38 +106,51 @@ int main(int argc, char *argv[]){
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
 
     // Load particles, allow restart
-    parts_fields->Load();
+    parts_fields->Load(restart);
 
     // Deposite initial charge and current from particles to grid
     parts_fields->depositCharge(grids);
     parts_fields->depositCurrent(grids);
 
     // Solve initial fields from particle or read restart file
-    grids->InitializeFields(&input_info); 
+    grids->InitializeFields(restart); 
 
     // Prepare to push particles
     parts_fields->InterpolateEB(grids);
 
     /* Advance time step **********************************/
-/*    t=inputinfo->t0; //initial time
-    for(ti=0;ti<nt;ti++){
-       particle.dtmin(dt); 
-       Pusher.step(part,field,dt);
-       particle.pass(domains); //MPI
-       grid.depositRhoJ(parts_fields);
-       grid.advanceEB(dt);
-       grid.boundary(domains); //MPI
-*/
+    int nt = input_info.nt; //number of steps to run
+    double t = input_info.t0; //initial time
+    double dx = domain->getmindx(); 
+    double vmax; //maximum velocity of particles 
+    double dt; //step size to be determined at each step
+    double dtmin; // minimum dt for all MPI processes
+    //printf("rank=%d: nt=%d,t0=%f,dx=%f\n",rank,nt,t,dx);
+
+    for(int ti=0;ti<nt;ti++){
+       vmax = parts_fields->maxVelocity(); 
+       assert(vmax>0);
+       dt   = dx/vmax;
+#if USE_MPI
+       MPI_Allreduce(&dt,&dtmin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
+#else  
+       dtmin = dt;
+#endif
+       //printf("rank=%d:ti=%d,vmax=%f,dx=%f,dt=%f,dtmin=%f\n",rank,ti,vmax,dx,dt,dtmin);
+       parts_fields->Push(dtmin);
+//       particle.pass(domains); //MPI
+       parts_fields->depositCurrent(grids);
+       grids->evolveFields(dtmin);
+//       grid.boundary(domains); //MPI
        parts_fields->InterpolateEB(grids);
-/*
        // check and write restart files
-       if(ti%ntcheck==0){check(t,domains,grids,parts);}
+//       if(ti%ntcheck==0){check(t,domains,grids,parts);}
        t+=dt;
      }  
 
-    // output, finalize //
-    writeoutput(t,domains,grids,parts); //MPI
-*/
+    /* output, finalize ***********************************/
+    writeoutput(t,rank,grids,parts_fields); //MPI
+
     delete domain;
     delete parts_fields;
     delete grids;

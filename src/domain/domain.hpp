@@ -12,6 +12,7 @@ class Domain {
         int *getnxyz(void);
         double *getxyz0(void);
         double *getLxyz(void);
+        double getmindx(void); 
 
     private:
         int size_; // MPI size
