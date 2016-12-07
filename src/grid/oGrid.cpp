@@ -7,7 +7,7 @@
 //! Evolve Electric and Magnetic fields in time
 /*!
 	Uses Yee algorithm to advance E and B fields.
-
+	Assumes Gaussian-style Maxwell equation, with c = 1. 
 */
 int Grid::evolveFields (double dt) {
 
@@ -152,9 +152,9 @@ int Grid::getNumberOfCells() {
 	return nx_*ny_*nz_;
 };
 
-//! Get number of cells along dimension in grid.
+//! Get step size along dimension in grid.
 /*!
-	Returns number of cells along dimension according to;
+	Returns step size along dimension according to;
 	dimension = 0: x
 	dimension = 1: y
 	dimension = 2: z
