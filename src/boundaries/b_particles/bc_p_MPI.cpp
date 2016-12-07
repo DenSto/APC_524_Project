@@ -14,6 +14,7 @@ void BC_P_MPI::completeBC(){
 	//Send/Receives go here!
 }
 
-void BC_P_MPI::particle_BC(double* x, double* v, double xMin, double xMax){
+int BC_P_MPI::particle_BC(double* x, double* v, double xMin, double xMax){
 	// Load particles into buffer if needed
+	return 0;
 }
