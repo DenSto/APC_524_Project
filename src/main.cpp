@@ -138,7 +138,7 @@ int main(int argc, char *argv[]){
        //printf("rank=%d:ti=%d,vmax=%f,dx=%f,dt=%f,dtmin=%f\n",rank,ti,vmax,dx,dt,dtmin);
        parts_fields->Push(dtmin);
 //       particle.pass(domains); //MPI
-       parts_fields->depositCurrent(grids);
+       parts_fields->depositRhoJ(grids, dt);
        grids->evolveFields(dtmin);
 //       grid.boundary(domains); //MPI
        parts_fields->InterpolateEB(grids);
