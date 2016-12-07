@@ -3,13 +3,18 @@
 
 //! Structure storing info in the input file
 typedef struct {
-    int nx;
-    long np;
-    int nt;
+    int nx; // number of grids
+    int nt; // number of time steps
     int restart; // How many previous runs?
                  // Initial run if restart = 0
+    long np; // number of particles in each domain
+
+    double t0;   // start time of simulation
     double dens; // density
     double temp; // temperature
+
+    char distname[50]; // name of file containing distribution function 
+
 } Input_Info_t;
 
 #if USE_MPI
