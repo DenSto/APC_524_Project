@@ -4,7 +4,9 @@
 #include <math.h> // unneeded?
 #include "grid.hpp"
 
-// slices a physical plane in the x direction (excludes ghosts) 
+/// slices a physical plane in the x direction (excludes ghosts) 
+/*! mat is 3D array whose real (non-ghost) data on one side will be stored in sliceTmp_ as a 1D array. side is an integer +1 to indicate storage of the right hand side values and -1 to indicate storage of the left hand side. Complementary function to unsliceMatToVec_. 
+ */ 
 void Grid::sliceMatToVec_(double *** const mat, const int side) { 
     int i = sideToIndex_(side); 
     int j,k; // iterators
@@ -17,7 +19,9 @@ void Grid::sliceMatToVec_(double *** const mat, const int side) {
     } 
 };
 
-// unslices a physical plane in the x direction (excludes ghosts) 
+/// unslices a physical plane in the x direction (excludes ghosts) 
+/*! mat is 3D array whose real (non-ghost) data on one side will be set from the temporary 1D array sliceTmp_. side is an integer +1 to indicate setting of the right hand side values and -1 to indicate setting of the left hand side. Complementary function to sliceMatToVec_. 
+ */ 
 void Grid::unsliceMatToVec_(double*** mat, const int side) { 
     int i = sideToIndex_(side); 
     int j,k; // iterators
@@ -30,9 +34,9 @@ void Grid::unsliceMatToVec_(double*** mat, const int side) {
     } 
 }; 
 
-// updates ghost cells after evolving the field on physical points
-// does this take a performance hit due to cache hit/miss?
-// this method currently requires nGhosts_=1
+/// updates ghost cells after evolving the field on physical points
+/*! For each of Ei_,Bi_,Ji_ (for i=x,y,z), copies the value of the field on the outermost physical grid points onto their adjacent ghost grid points. Currently this method requires nGhosts_=1 and will not perform correctly if nGhosts_ != 1 (it may not crash but will not update the ghost cells as desired). 
+ */ 
 void Grid::updateGhostCells() { 
     int i,j,k; // iterators 
     int iGhostLeft=iBeg_-1; 
@@ -125,19 +129,18 @@ void Grid::updateGhostCells() {
 
 };
 
-// returns size of ghost cell data to send 
+/// returns size of ghost cell data to send
+/*! this size is stored in the protected int ghostVecSize_
+ */ 
 int Grid::getGhostVecSize() { 
     // must bundle 9 scalar fields
     // each of size of the physical zy plane
     return ghostVecSize_; 
 }; 
 
-// bundles the data in the ghost cells to send
-// sends (in order): Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz
-// side is -1 for left side of cell, +1 for right 
-// ghostVec is a 1D array storing doubles 
-// 9 loops, one for each field (accesses each field sequentially
-// better performance due to cache bonuses?
+/// bundles the data in the ghost cells to send
+/*! stores the data of the E,B,J fields at all of the ghost points along the domain interfaces (yz plane) into a 1D array of doubles to be sent with a single MPI call. ghostVec is an array of length ghostVecSize_ to store the data in. Side is -1 for left side of domain, +1 for right side. Sends (in order): Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. This is an alternative implementation to the one in getGhostVecAlt which is less elegant but might decrease cache misses? Requires profiling
+ */ 
 void Grid::getGhostVecAlt(const int side, double* ghostVec) {
     // this is the price of only 3 dimensions on field storage
     sliceMatToVec_(Ex_,side); 
@@ -168,9 +171,9 @@ void Grid::getGhostVecAlt(const int side, double* ghostVec) {
     std::copy(sliceTmp_,sliceTmp_+nRealPtsYZPlane_,ghostVec+(8 * nRealPtsYZPlane_)); 
 }; 
 
-// alternate implementation of getGhostVec
-// single loop, pulls from all fields at once
-// worse performance due to more cache misses or negligible? 
+/// bundles the data in the ghost cells to send
+/*! stores the data of the E,B,J fields at all of the ghost points along the domain interfaces (yz plane) into a 1D array of doubles to be sent with a single MPI call. ghostVec is an array of length ghostVecSize_ to store the data in. Side is -1 for left side of domain, +1 for right side. Sends (in order): Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. This is a more elegant implementation than the one in getGhostVec, but may increase cache misses? Requires profiling. 
+ */ 
 void Grid::getGhostVec(const int side, double* ghostVec) {
     int i = sideToIndex_(side); 
     int j,k; // iterators
@@ -191,8 +194,9 @@ void Grid::getGhostVec(const int side, double* ghostVec) {
     } 
 };
 
-// unbundles the data and puts it in the field 
-// one loop for each field, aims to minimize cache misses
+///  unbundles the data sent from the ghost cells and puts it in the field 
+/*! to be used in conjuction with getGhostVec or getGhostVecAlt. ghostVec is a 1D array storing each of the E,B,J field values at each of the ghost points along the domain interfaces (yz plane) of a single side. Side specifies which side this data should be set to. -1 corresponds to the left side of the domain (receiving data from the right ghost cells of the previous domain) and +1 to the right side (receiving data from the left ghost cells of the next domain). This is an alternate implementation of setGhostVec. setGhostVecAlt is less elegant but may reduce cache misses (requires profiling). 
+ */ 
 void Grid::setGhostVecAlt(const int side, const double* ghostVec) { 
     // this is the price of only 3 dimensions on field storage
     std::copy(ghostVec+(0 * nRealPtsYZPlane_),ghostVec+1*nRealPtsYZPlane_ -1,sliceTmp_); 
@@ -224,9 +228,9 @@ void Grid::setGhostVecAlt(const int side, const double* ghostVec) {
 
 };
 
-// alternate implementation of setGhostVec
-// single loop, sets all fields at once
-// worse performance due to more cache misses or negligible? 
+///  unbundles the data sent from the ghost cells and puts it in the field 
+/*! to be used in conjuction with getGhostVec or getGhostVecAlt. ghostVec is a 1D array storing each of the E,B,J field values at each of the ghost points along the domain interfaces (yz plane) of a single side. Side specifies which side this data should be set to. -1 corresponds to the left side of the domain (receiving data from the right ghost cells of the previous domain) and +1 to the right side (receiving data from the left ghost cells of the next domain). This is an alternate implementation of setGhostVecAlt. setGhostVec is more elegant but may increase cache misses (requires profiling). 
+ */ 
 void Grid::setGhostVec(const int side, const double* ghostVec) {
     int i = sideToIndex_(side);
     int j,k; // iterators
@@ -247,7 +251,9 @@ void Grid::setGhostVec(const int side, const double* ghostVec) {
     } 
 };
 
-// function to convert -/+ 1 left/right side indicator to index in x direction 
+/// function to convert -/+ 1 left/right side indicator to index in x direction 
+/*! For use with ghost cell methods. side=-1 indicates operations on the left side of the domain, side=+1 indicates operations on the right side of the domain. This method converts side into the correct index i to reference ghost cells on that side of the domain. For instance, called by getGhostVec and setGhostVec. Generalizes to any number of ghost cells so long as iBeg_ and iEnd_ are initialized correctly. 
+ */ 
 int Grid::sideToIndex_(const int side) { 
     int i; 
     if (side < 0) { 

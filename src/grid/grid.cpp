@@ -4,6 +4,13 @@
 #include "grid.hpp"
 #include "../IO/IO.hpp"
 
+/// Grid constructor 
+/*! Input arguments: \n 
+ * nxyz: integer array [nx,ny,nz] where nx is the total number of cells (physical + ghost) in the x direction in the simulation, and the same for ny,nz. \n 
+ * nGhosts: integer number of ghost cells on each side of the domain. This should always be at least 1. Currently the code does not support nGhosts>1, though it may in the future (to take advantage of higher order finite difference and interpolation methods, for instance). \n 
+ * xyz0: integer array [x0,y0,z0] where x0 is the initial x position, and the same for y0,z0 \n 
+ * Lxyz0: double array [Lx,Ly,Lz] where Lx is the physical length of each cell in the x direction, and the same for Ly,Lz \n 
+ */ 
 Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz): 
     nx_(nxyz[0]), 
     ny_(nxyz[1]), 
@@ -33,9 +40,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
 {
     checkInput_(); 
     
-    printf("db: after setting consts\n");    
     Ex_=newField_(); 
-    printf("db: after allocating Ex_\n"); 
     Ey_=newField_(); 
     Ez_=newField_(); 
     Bx_=newField_(); 
@@ -47,12 +52,13 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     Jx_=newField_(); 
     Jy_=newField_(); 
     Jz_=newField_(); 
-    printf("db: after allocating all fields\n");
 
     sliceTmp_ = new double[ghostVecSize_/nFields_]; 
-    printf("db: after allocating sliceTmp\n"); 
 } 
 
+/// Grid destructor 
+/*! calls deleteField_ on each of the double*** fields 
+ */ 
 Grid::~Grid() { 
     deleteField_(Ex_); 
     deleteField_(Ey_); 
@@ -70,8 +76,9 @@ Grid::~Grid() {
     delete [] sliceTmp_; 
 };
 
-/* allocates contiguous block of memory for 3D array 
- * of size [nx_][ny_][nz_]. */ 
+/// allocates contiguous block of memory for a single field 
+/*! Returns double*** of size [nx_+1][ny_+1][nz_+1]
+ */ 
 double*** Grid::newField_() { 
     int i,j; // iterators 
     double*** fieldPt = new double**[nx_+1]; 
@@ -87,8 +94,9 @@ double*** Grid::newField_() {
     return fieldPt;
 };
 
-/* frees contiguous block fo memory for 3D array 
- * of size [nx_][ny_][nz_]. */ 
+/// frees contiguous block of memory for a single field
+/*! Deletes double*** of size [nx_+1][ny_+1][nz_+1]
+*/ 
 void Grid::deleteField_(double*** fieldPt) { 
     int i,j; // iterators 
     for (i=0; i<nx_+1; ++i) { 
@@ -100,7 +108,9 @@ void Grid::deleteField_(double*** fieldPt) {
     delete [] fieldPt;
 };
 
-/* assert statements to check necessary conditions for initialized variables */ 
+/// checks validity of input parameters for Grid constructor 
+/*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
+ */ 
 void Grid::checkInput_() { 
     assert(nx_ > 0); 
     assert(ny_ > 0); 
@@ -123,6 +133,8 @@ void Grid::checkInput_() {
     assert(ghostVecSize_ > 0); 
 }; 
 
-
+/// Initialize E and B fields
+/*! Use input parameters to set values of initial E,B,J fields
+ */ 
 void Grid::InitializeFields(Input_Info_t *input_info){
 }; 
