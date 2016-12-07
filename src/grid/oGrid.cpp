@@ -1,10 +1,13 @@
 #include <cstdio>
 #include <algorithm>
+#include <math.h>
 #include "grid.hpp"
+
 
 //! Evolve Electric and Magnetic fields in time
 /*!
 	Uses Yee algorithm to advance E and B fields.
+
 */
 int Grid::evolveFields (double dt) {
 
@@ -13,6 +16,7 @@ int Grid::evolveFields (double dt) {
 	std::swap(By_tm1_, By_);
 	std::swap(Bz_tm1_, Bz_);
 
+
 	// calculate E 
 	for (int ix = 1; ix < nx_; ix++) {
 		for (int iy = 1; iy < ny_; iy++) {
@@ -20,15 +24,15 @@ int Grid::evolveFields (double dt) {
 				Ex_[ix][iy][iz] = Ex_[ix][iy][iz] - dt * 
 								  (  ( By_tm1_[ix][iy][iz] - By_tm1_[ix][iy][iz-1] )/dz_  
 								   - ( Bz_tm1_[ix][iy][iz] - Bz_tm1_[ix][iy-1][iz] )/dy_ 
-								  + Jx_[ix][iy][iz]  );
+								  + 4*M_PI*Jx_[ix][iy][iz]  );
 				Ey_[ix][iy][iz] = Ey_[ix][iy][iz] - dt * 
 								  (  ( Bz_tm1_[ix][iy][iz] - Bz_tm1_[ix-1][iy][iz] )/dx_  
 								   - ( Bx_tm1_[ix][iy][iz] - Bx_tm1_[ix][iy][iz-1] )/dz_ 
-								 + Jy_[ix][iy][iz]  );
+								 + 4*M_PI*Jy_[ix][iy][iz]  );
 				Ez_[ix][iy][iz] = Ez_[ix][iy][iz] - dt * 
 								  (  ( Bx_tm1_[ix][iy][iz] - Bx_tm1_[ix][iy-1][iz] )/dy_  
 								   - ( By_tm1_[ix][iy][iz] - By_tm1_[ix-1][iy][iz] )/dx_ 
-								  + Jz_[ix][iy][iz]  );
+								  + 4*M_PI*Jz_[ix][iy][iz]  );
 			}
 		}
 	}
@@ -55,14 +59,14 @@ int Grid::evolveFields (double dt) {
 
 //! Return vector for field interpolation
 /*!
-	Based on cellID, return relevant edge E and face B fields and cell origin, in format
-	[x, y, z, ...
-	Ex( ix, iy, iz ), Ex( ix, iy+1,iz ), Ex( ix, iy+1, iz+1 ), Ex( ix, iy, iz+1 ), ...
-	Ey( ix, iy, iz ), Ey( ix, iy, iz+1 ), Ey( ix+1, iy, iz+1 ), Ey( ix+1, iy, iz ), ...
-	Ez( ix, iy, iz ), Ez( ix+1, iy, iz ), Ez( ix+1, iy+1, iz ), Ez( ix, iy+1, iz ), ...
-	Bx( ix, iy, iz ), Bx( ix+1, iy, iz ), ...
-	By( ix, iy, iz ), By( ix, iy+1, iz ), ...
-	Bz( ix, iy, iz ), Bz( ix, iy, iz+1 ), ...]
+	Based on cellID, return relevant edge E and face B fields and cell origin, in format:\n
+	[x, y, z, ...\n
+	Ex( ix, iy, iz ), Ex( ix, iy+1,iz ), Ex( ix, iy+1, iz+1 ), Ex( ix, iy, iz+1 ), ...\n
+	Ey( ix, iy, iz ), Ey( ix, iy, iz+1 ), Ey( ix+1, iy, iz+1 ), Ey( ix+1, iy, iz ), ...\n
+	Ez( ix, iy, iz ), Ez( ix+1, iy, iz ), Ez( ix+1, iy+1, iz ), Ez( ix, iy+1, iz ), ...\n
+	Bx( ix, iy, iz ), Bx( ix+1, iy, iz ), ...\n
+	By( ix, iy, iz ), By( ix, iy+1, iz ), ...\n
+	Bz( ix, iy, iz ), Bz( ix, iy, iz+1 ), ...]\n
 	where ix, iy, and iz are the row indices for each of the three dimensions (calculated from the cellID)
 */
 int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
@@ -112,17 +116,31 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 //! Get cell ID based on particle position.
 /*!
 	Cell ID is uniquely given by (ny_*nz_)*ix + nz_*iy + iz.
-	Returns -1 if particle is not on grid.
+	\n
+	If particle is in a ghost cell or off the grid entirely, returns \n
+	-1 if off (-z), -2 if off (+z) \n
+	-3 if off (-y), -4 if off (+y) \n
+	-5 if off (-x), -6 if off (+x)
 */
 int Grid::getCellID(double x, double y, double z) {
-	//get indices in x, y, z
+	// get indices in x, y, z
 	int ix = ((int) (x-x0_))*idx_;
 	int iy = ((int) (y-y0_))*idy_;
 	int iz = ((int) (z-z0_))*idz_;
 
-	if ( ( ix < 0 ) || ( ix > nx_-1 ) || ( iy < 0 ) || ( iy > ny_-1 ) || ( iz < 0 ) || ( iz > nz_-1 ) ) {
-		printf("Particle out of grid bounds in Grid::getCellID\n");
+	// inform if in ghost cell, and which one
+	if ( iz < nGhosts_ ) {
 		return -1;
+	} else if ( iz > nz_ - nGhosts_ - 1 ) {
+		return -2;
+	} else if ( iy < nGhosts_ ) {
+		return -3; 
+	} else if ( iy > ny_ - nGhosts_ - 1) {
+		return -4;
+	} else if ( ix < nGhosts_ ) {
+		return -5;
+	} else if ( ix > nx_ - nGhosts_ - 1) {
+		return -6;
 	}
 
 	return (ny_*nz_)*ix + nz_*iy + iz;
