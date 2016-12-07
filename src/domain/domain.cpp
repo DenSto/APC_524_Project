@@ -35,7 +35,7 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
 		nProcxyz_ = new int[3];
 		myLocationOnMap = new int[3];
 
-        nProcxyz_[0] = input_info->npx; 
+      /*  nProcxyz_[0] = input_info->npx; 
         nProcxyz_[1] = input_info->npy; 
         nProcxyz_[2] = input_info->npz; 
 		assert(size == nProcxyz_[0]*nProcxyz_[1]*nProcxyz_[2]);
@@ -54,7 +54,7 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
 				}
 			}
 		}
-
+		*/
 #endif
   
 }

@@ -86,8 +86,8 @@ int main(int argc, char *argv[]){
     MPI_Type_commit(&infotype);
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
-#endif
     checkinput(rank,&input_info);
+#endif
     int restart = input_info.restart; // restart=0: initial run
                                       // restart=3: third restart
 

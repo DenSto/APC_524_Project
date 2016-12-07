@@ -1,6 +1,6 @@
-USE_MPI = 0 
+USE_MPI = yes
 
-ifeq ($(USE_MPI),0)
+ifeq ($(USE_MPI),no)
   CC = g++
   OMPFLAGS = -DUSE_MPI=0
 else
