@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
     parts_fields->Load();
 
     // Deposite initial charge and current from particles to grid
-    parts_fields->depositRhoJ(grids);
+    //parts_fields->depositRhoJ(grids, dt);
 
     // Solve initial fields from particle or read restart file
     grids->InitializeFields(&input_info); 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]){
        particle.dtmin(dt); 
        Pusher.step(part,field,dt);
        particle.pass(domains); //MPI
-       grid.depositRhoJ(parts_fields);
+       particle.depositRhoJ(grids, dt);
        grid.advanceEB(dt);
        grid.boundary(domains); //MPI
 */

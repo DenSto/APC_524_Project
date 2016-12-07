@@ -22,7 +22,7 @@ class Particle_Field_List {
 	void setPusher(Pusher* pusher) {pusher_=pusher;};
 
         void InterpolateEB(Grid* grid);
-        void depositRhoJ(Grid *grids); // deposite current and charge density from particles to grid
+  void depositRhoJ(Grid *grids, double dt); // deposite current and charge density from particles to grid
 
     private:
         long np_;
