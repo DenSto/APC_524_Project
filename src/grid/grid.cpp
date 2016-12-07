@@ -124,5 +124,5 @@ void Grid::checkInput_() {
 }; 
 
 
-void Grid::InitializeFields(Input_Info_t *input_info){
+void Grid::InitializeFields(int restart){
 }; 

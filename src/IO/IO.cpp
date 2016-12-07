@@ -19,6 +19,11 @@ void readinput(char *fname,Input_Info_t *input_info){
     sprintf(input_info->distname,"distribution.dat");
 }
 
+void writeoutput(double t, int rank, Grid *grids, Particle_Field_List *parts_fields){
+    printf("rank %d: writing output files...\n",rank);
+}
+
+
 #if USE_MPI
   #include "mpi.h"
 
