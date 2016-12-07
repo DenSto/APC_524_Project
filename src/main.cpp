@@ -117,8 +117,8 @@ int main(int argc, char *argv[]){
     parts_fields->InterpolateEB(grids);
 
     /* Advance time step **********************************/
-/*    t=inputinfo->t0; //initial time
-    for(ti=0;ti<nt;ti++){
+    double t = input_info.t0; //initial time
+/*    for(ti=0;ti<nt;ti++){
        particle.dtmin(dt); 
        Pusher.step(part,field,dt);
        particle.pass(domains); //MPI

@@ -1,17 +1,22 @@
-#include "IO.hpp"
+#include <stdio.h>
 #include<assert.h>
+#include "IO.hpp"
 
 void readinput(char *fname,Input_Info_t *input_info){
 
     // Inserted by Yuan for testing
     // The following code is to be replaced
     input_info->nx      = 4;
-    input_info->np      = 8;
     input_info->nt      = 2;
     input_info->restart = 0;
+
+    input_info->np      = 8;
+
+    input_info->t0      = 0.0;
     input_info->dens    = 0.2;
     input_info->temp    = 1.5;
-
+ 
+    sprintf(input_info->distname,"distribution.dat");
 }
 
 #if USE_MPI
@@ -21,22 +26,36 @@ void readinput(char *fname,Input_Info_t *input_info){
    *  Need to be modified if Input_Info_t is modified */
   Input_Type::Input_Type(){
     
-      count_ = 2; // two types
+      count_ = 4; // three types
+      int nint = 3;
+      int nlong = 1;
+      int ndouble = 3;
+      int nchar = 50; //char of length 50
 
-      lens_ = new int[count_];
-      assert(lens_!=NULL);
-      lens_[0]=4;
-      lens_[1]=2;
-      
-      disps_ = new MPI_Aint[count_];
-      assert(disps_!=NULL);
-      disps_[0]=0;
-      disps_[1]=disps_[0]+4*sizeof(int);
-
+      // specify what are the MPI data types
       types_ = new MPI_Datatype[count_];
       assert(types_!=NULL);
       types_[0]=MPI_INT;
-      types_[1]=MPI_DOUBLE;
+      types_[1]=MPI_LONG;
+      types_[2]=MPI_DOUBLE;
+      types_[3]=MPI_CHAR;
+
+      // specify how many variable of each type
+      lens_ = new int[count_];
+      assert(lens_!=NULL);
+      lens_[0]=nint;
+      lens_[1]=nlong;
+      lens_[2]=ndouble;
+      lens_[3]=nchar;
+   
+      // specify displacements   
+      disps_ = new MPI_Aint[count_];
+      assert(disps_!=NULL);
+      disps_[0]=0;
+      disps_[1]=disps_[0]+nint*sizeof(int);
+      disps_[2]=disps_[1]+nlong*sizeof(long);
+      disps_[3]=disps_[2]+ndouble*sizeof(double);
+
   }
 
   Input_Type::~Input_Type(){
@@ -68,8 +87,10 @@ void readinput(char *fname,Input_Info_t *input_info){
      printf("rank=%d,np=%ld\n",rank,input_info->np);
      printf("rank=%d,nt=%d\n",rank,input_info->nt);
      printf("rank=%d,restart=%d\n",rank,input_info->restart);
+     printf("rank=%d,t0=%f\n",rank,input_info->t0);
      printf("rank=%d,dens=%f\n",rank,input_info->dens);
      printf("rank=%d,temp=%f\n",rank,input_info->temp);
+     printf("rank=%d,distname=%s\n",rank,input_info->distname);
   
   }
 
