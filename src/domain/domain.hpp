@@ -13,7 +13,11 @@ class Domain {
         double *getxyz0(void);
         double *getLxyz(void);
         double getmindx(void); 
-
+#if USE_MPI
+		int *getnProcxyz(void);
+		int ***getProcMap(void);
+#endif
+	
     private:
         int size_; // MPI size
         int rank_; // MPI rank
@@ -21,6 +25,11 @@ class Domain {
         int *nxyz_;
         double *xyz0_;
         double *Lxyz_;
+#if USE_MPI
+		int ***procMap_;  // map of rank to partition segment
+		int *nProcxyz_;   // sizes of the partitions
+		int *myLocationOnMap; // where am I on this partition?
+#endif
 };
 
 void checkdomain(int rank, Domain *domain);

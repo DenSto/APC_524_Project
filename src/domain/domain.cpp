@@ -30,6 +30,32 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
        Lxyz_[0] = 1.0/size;
        Lxyz_[1] = 0.5*(rank+1); // for testing
        Lxyz_[2] = 0.8;
+
+#if USE_MPI
+		nProcxyz_ = new int[3];
+		myLocationOnMap = new int[3];
+
+        nProcxyz_[0] = input_info->npx; 
+        nProcxyz_[1] = input_info->npy; 
+        nProcxyz_[2] = input_info->npz; 
+		assert(size == nProcxyz_[0]*nProcxyz_[1]*nProcxyz_[2]);
+		procMap_ = new int[nProcxyz_[0]][nProcxyz_[1]][nProcxyz_[2]];
+
+		int count = 0;
+		for(int i = 0; i < nProcxyz_[0]; i++){
+			for(int j = 0; j < nProcxyz_[1]; j++){
+				for(int k = 0; k < nProcxyz_[2]; k++){
+					procMap_[i][j][k] = count;
+					if(rank_ == count){
+						myLocationOnMap[0] = i;
+						myLocationOnMap[1] = j;
+						myLocationOnMap[2] = k;
+					}
+				}
+			}
+		}
+
+#endif
   
 }
 
