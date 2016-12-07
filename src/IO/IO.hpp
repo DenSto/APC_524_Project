@@ -50,6 +50,6 @@ typedef struct {
 void readinput(char *fname, Input_Info_t *input_info);
 void checkinput(int rank, Input_Info_t *input_info);
 
-void writeoutput(double t, int rank, Grid *grids, Particle_Field_List *parts__fields); //MPI
+void writeoutput(double t, int rank, Grid *grids, Particle_List *parts__fields); //MPI
 
 #endif

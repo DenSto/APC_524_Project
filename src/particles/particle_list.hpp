@@ -7,10 +7,10 @@
 #include "../pusher/pusher.hpp"
 #include "interpolate.hpp"
 
-class Particle_Field_List {
+class Particle_List {
     public:
-        Particle_Field_List(long np); // list of np particles and their fields
-        ~Particle_Field_List();
+        Particle_List(long np); // list of np particles and their fields
+        ~Particle_List();
         void Load(int restart); // Initialize particles
         void Push(double dt);   // Push all particles
         void Pass();            // Pass particles accross MPI boundary

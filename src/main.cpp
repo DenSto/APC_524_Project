@@ -98,7 +98,7 @@ int main(int argc, char *argv[]){
     //domain.setup(inputinfo);
 
     // Initialize particles
-    Particle_Field_List *parts_fields = new Particle_Field_List(input_info.np); 
+    Particle_List *parts_fields = new Particle_List(input_info.np); 
     parts_fields->setPusher(new Boris());
 
     // Initialize grid

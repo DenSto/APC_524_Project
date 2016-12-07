@@ -7,17 +7,17 @@
 #include "../pusher/boris.hpp"
 #include "../grid/grid.hpp"
 
-Particle_Field_List::Particle_Field_List(long np){
+Particle_List::Particle_List(long np){
     np_=np;
 
 	parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 
 	                      // slosh room. Excessive maybe?
 }
 
-Particle_Field_List::~Particle_Field_List(){
+Particle_List::~Particle_List(){
 }
 
-void Particle_Field_List::Load(int restart){
+void Particle_List::Load(int restart){
     //dummy code inserted by Yuan for testing main.cpp
     if(restart==0){// initial run
        for(long ip=0;ip<np_;ip++){
@@ -34,7 +34,7 @@ void Particle_Field_List::Load(int restart){
     } 
 }
 
-void Particle_Field_List::Push(double dt){
+void Particle_List::Push(double dt){
 
     for(long ip=0;ip<np_;ip++){
         pusher_->Step(parts_[ip],parts_[ip]->field,dt);
@@ -42,14 +42,14 @@ void Particle_Field_List::Push(double dt){
 
 }
 
-void Particle_Field_List::Pass(){
+void Particle_List::Pass(){
 }
 
-long Particle_Field_List::nParticles(){
+long Particle_List::nParticles(){
 	return np_;
 }
 
-void Particle_Field_List::InterpolateEB(Grid* grid){
+void Particle_List::InterpolateEB(Grid* grid){
   Interpolator *interpolator = new Interpolator();
 
   long iCell = 0; //cell # tracker
@@ -82,16 +82,16 @@ void Particle_Field_List::InterpolateEB(Grid* grid){
   }
 }
 
-void Particle_Field_List::SortParticles(Particle_Compare comp){
+void Particle_List::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_Field_List::depositCurrent(Grid *grids){
+void Particle_List::depositCurrent(Grid *grids){
 }
 
-void Particle_Field_List::depositCharge(Grid *grids){
+void Particle_List::depositCharge(Grid *grids){
 }
 
-double Particle_Field_List::maxVelocity(void){
+double Particle_List::maxVelocity(void){
     return 0.1;
 }
