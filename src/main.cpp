@@ -107,8 +107,7 @@ int main(int argc, char *argv[]){
     parts_fields->Load();
 
     // Deposite initial charge and current from particles to grid
-    parts_fields->depositCharge(grids);
-    parts_fields->depositCurrent(grids);
+    parts_fields->depositRhoJ(grids);
 
     // Solve initial fields from particle or read restart file
     grids->InitializeFields(&input_info); 

@@ -70,13 +70,15 @@ void Particle_Field_List::InterpolateEB(Grid* grid){
 
     //Update cell field variables.
     pCell = grid->getCellID(pos[0],pos[1],pos[2]);
-    if (pCell != iCell) {
-      iCell = pCell;
-      grid->getFieldInterpolatorVec(iCell, cellvars);
-    }
+    if (pCell >= 0) {
+      if (pCell != iCell) {
+	iCell = pCell;
+	grid->getFieldInterpolatorVec(iCell, cellvars);
+      }
 
-    //Interpolate fields at particle.
-    interpolator->interpolate_fields(pos, lcell, cellvars, parts_[i]->field);
+      //Interpolate fields at particle.
+      interpolator->interpolate_fields(pos, lcell, cellvars, parts_[i]->field);
+    }
   }
 }
 
@@ -84,8 +86,6 @@ void Particle_Field_List::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_Field_List::depositCurrent(Grid *grids){
-}
-
-void Particle_Field_List::depositCharge(Grid *grids){
+void Particle_Field_List::depositRhoJ(Grid *grids, double dt){
+  Depositor *depositor = new Depositor();
 }

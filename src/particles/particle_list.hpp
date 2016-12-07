@@ -6,6 +6,7 @@
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
 #include "interpolate.hpp"
+#include "deposit.hpp"
 
 class Particle_Field_List {
     public:
@@ -21,9 +22,7 @@ class Particle_Field_List {
 	void setPusher(Pusher* pusher) {pusher_=pusher;};
 
         void InterpolateEB(Grid* grid);
-
-        void depositCurrent(Grid *grids); // deposite current density from particles to grid
-        void depositCharge(Grid *grids);  // deposite charge density from particles to grid
+        void depositRhoJ(Grid *grids); // deposite current and charge density from particles to grid
 
     private:
         long np_;

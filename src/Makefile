@@ -9,14 +9,14 @@ else
   OMPFLAGS = -DUSE_MPI=1
 endif
 
-CFLAGS= -g -lm -Wall  
+CFLAGS= -g -lm -Wall
 PROGRAM = EMOOPIC
 
 IOOBJ = IO.o
 DOMOBJ = domain.o
-PUSHOBJ = boris.o 
+PUSHOBJ = boris.o
 GRIDOBJ = grid.o oGrid.o
-PARTOBJ = particle.o particle_list.o interpolate.o
+PARTOBJ = particle.o particle_list.o interpolate.o deposit.o
 
 OBJ = $(addprefix ./IO/, $(IOOBJ)) \
       $(addprefix ./domain/, $(DOMOBJ)) \
