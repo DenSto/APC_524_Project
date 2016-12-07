@@ -21,14 +21,14 @@ void Particle_Handler::Load(int restart){
     //dummy code inserted by Yuan for testing main.cpp
     if(restart==0){// initial run
        for(long ip=0;ip<np_;ip++){
-           Particle* p = new_particle();
-           p->x[0]=-1.0;
-           p->x[1]=1.0;
-           p->x[2]=ip*1.0;
+           Particle p = new_particle();
+           p.x[0]=-1.0;
+           p.x[1]=1.0;
+           p.x[2]=ip*1.0;
     
-           p->v[0]=0.0;
-           p->v[1]=4.0;
-           p->v[2]=1.0;
+           p.v[0]=0.0;
+           p.v[1]=4.0;
+           p.v[2]=1.0;
            parts_.push_back(p);
        }
     } 
@@ -37,7 +37,7 @@ void Particle_Handler::Load(int restart){
 void Particle_Handler::Push(double dt){
 
     for(long ip=0;ip<np_;ip++){
-        pusher_->Step(parts_[ip],&(parts_[ip]->field),dt);
+        pusher_->Step(&(parts_[ip]),&(parts_[ip].field),dt);
     }
 
 }
@@ -66,9 +66,9 @@ void Particle_Handler::InterpolateEB(Grid* grid){
 
   for (long i=0; i<np_; i++) {
     //Get position of particle.
-    pos[0] = parts_[i]->x[0];
-    pos[1] = parts_[i]->x[1];
-    pos[2] = parts_[i]->x[2];
+    pos[0] = parts_[i].x[0];
+    pos[1] = parts_[i].x[1];
+    pos[2] = parts_[i].x[2];
 
     //Update cell field variables.
     pCell = grid->getCellID(pos[0],pos[1],pos[2]);
@@ -78,7 +78,7 @@ void Particle_Handler::InterpolateEB(Grid* grid){
     }
 
     //Interpolate fields at particle.
-    interpolator->interpolate_fields(pos, lcell, cellvars, &(parts_[i]->field));
+    interpolator->interpolate_fields(pos, lcell, cellvars, &(parts_[i].field));
   }
 }
 

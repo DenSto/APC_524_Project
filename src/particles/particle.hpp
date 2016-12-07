@@ -24,10 +24,8 @@ typedef struct Particle {
 } Particle;
 
 
-Particle* new_particle();
-void free_particle(Particle* part);
+Particle new_particle();
 
-Field_part* new_particle_field();
-void free_particle_field(Field_part* field);
+Field_part new_particle_field();
 
 #endif

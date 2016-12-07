@@ -33,13 +33,13 @@ class Particle_Handler {
 		void depositCurrent(Grid *grids); // deposite current density from particles to grid
 		void depositCharge(Grid *grids);  // deposite charge density from particles to grid
 
-		std::vector<Particle*> getParticleVector(){return parts_;}
+		std::vector<Particle> getParticleVector(){return parts_;}
 
 	double maxVelocity(void); 	// return maximum velocity of particles 
 								// to determine size of time steps 
 	private:
 		long np_;
-		std::vector<Particle*> parts_;	/* Vector of particles */
+		std::vector<Particle> parts_;	/* Vector of particles */
 		Pusher* pusher_;
 };
 
