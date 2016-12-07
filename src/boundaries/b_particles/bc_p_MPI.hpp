@@ -9,6 +9,7 @@
 
 
 #include "../boudary_particles.hpp"
+#include <vector>
 
 class BC_P_MPI : public BC_Particle {
 	public:

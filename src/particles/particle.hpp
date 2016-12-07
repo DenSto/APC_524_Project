@@ -19,7 +19,7 @@ typedef struct Particle {
   int my_id; 		  /* particle id */
   short isGhost;    /* is particle in ghost cell? */
 
-  Field_part* field; /* interpolated field */
+  Field_part field; /* interpolated field */
 
 } Particle;
 

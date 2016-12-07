@@ -37,7 +37,7 @@ void Particle_Handler::Load(int restart){
 void Particle_Handler::Push(double dt){
 
     for(long ip=0;ip<np_;ip++){
-        pusher_->Step(parts_[ip],parts_[ip]->field,dt);
+        pusher_->Step(parts_[ip],&(parts_[ip]->field),dt);
     }
 
 }
@@ -78,7 +78,7 @@ void Particle_Handler::InterpolateEB(Grid* grid){
     }
 
     //Interpolate fields at particle.
-    interpolator->interpolate_fields(pos, lcell, cellvars, parts_[i]->field);
+    interpolator->interpolate_fields(pos, lcell, cellvars, &(parts_[i]->field));
   }
 }
 

@@ -7,12 +7,16 @@ Particle* new_particle(){
 	assert(part != NULL);
 	part->q=1.0;
 	part->m=1.0;
-	part->field=new_particle_field();
+	part->field.e1=0.0;
+	part->field.e2=0.0;
+	part->field.e3=0.0;
+	part->field.b1=0.0;
+	part->field.b2=0.0;
+	part->field.b3=0.0;
 	return part;
 }
 
 void free_particle(Particle* part){
-	free_particle_field(part->field);
 	free(part);
 	return;
 }

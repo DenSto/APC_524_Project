@@ -3,6 +3,7 @@
 
 
 #include "../grid/grid.hpp"
+#include "../domain/domain.hpp"
 #include "../particles/particle_list.hpp"
 
 class BC_Particle {
@@ -22,10 +23,20 @@ class BC_Particle {
 
 
 BC_Particle::computeParticleBCs() {
-	for(int i = pl_.begin(); i < pl_.end(); i++)
-		pl_[i]->isGhost = pl_[i]->isGhost || 
-			  particle_BC(&(pl_[i]->x[dim_index_]),&(pl_[i]->v[dim_index_]),x0_,L_);
+	for(auto ptr = pl_.begin(); ptr != pl_.end(); ++ptr)
+		ptr->isGhost = ptr->isGhost || 
+			  particle_BC(&(ptr->x[dim_index_]),&(ptr->v[dim_index_]),x0_,L_);
 	}
 }
 
+
+
+class BC_P_Collection {
+	public:
+		BC_P_Collection();
+		~BC_P_Collection();
+		executeParticleBoundaries();
+	private:
+		BC_Particle* boundaries_[6];
+}
 #endif
