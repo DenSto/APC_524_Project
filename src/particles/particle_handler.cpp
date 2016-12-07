@@ -1,4 +1,4 @@
-#include "particle_list.hpp"
+#include "particle_handler.hpp"
 #include <stdlib.h>
 #include <assert.h>
 #include <algorithm>
@@ -7,17 +7,17 @@
 #include "../pusher/boris.hpp"
 #include "../grid/grid.hpp"
 
-Particle_List::Particle_List(long np){
+Particle_Handler::Particle_Handler(long np){
     np_=np;
 
 	parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 
 	                      // slosh room. Excessive maybe?
 }
 
-Particle_List::~Particle_List(){
+Particle_Handler::~Particle_Handler(){
 }
 
-void Particle_List::Load(int restart){
+void Particle_Handler::Load(int restart){
     //dummy code inserted by Yuan for testing main.cpp
     if(restart==0){// initial run
        for(long ip=0;ip<np_;ip++){
@@ -34,7 +34,7 @@ void Particle_List::Load(int restart){
     } 
 }
 
-void Particle_List::Push(double dt){
+void Particle_Handler::Push(double dt){
 
     for(long ip=0;ip<np_;ip++){
         pusher_->Step(parts_[ip],parts_[ip]->field,dt);
@@ -42,14 +42,14 @@ void Particle_List::Push(double dt){
 
 }
 
-void Particle_List::Pass(){
+void Particle_Handler::Pass(){
 }
 
-long Particle_List::nParticles(){
+long Particle_Handler::nParticles(){
 	return np_;
 }
 
-void Particle_List::InterpolateEB(Grid* grid){
+void Particle_Handler::InterpolateEB(Grid* grid){
   Interpolator *interpolator = new Interpolator();
 
   long iCell = 0; //cell # tracker
@@ -82,16 +82,16 @@ void Particle_List::InterpolateEB(Grid* grid){
   }
 }
 
-void Particle_List::SortParticles(Particle_Compare comp){
+void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_List::depositCurrent(Grid *grids){
+void Particle_Handler::depositCurrent(Grid *grids){
 }
 
-void Particle_List::depositCharge(Grid *grids){
+void Particle_Handler::depositCharge(Grid *grids){
 }
 
-double Particle_List::maxVelocity(void){
+double Particle_Handler::maxVelocity(void){
     return 0.1;
 }

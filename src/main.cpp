@@ -16,7 +16,7 @@
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
 #include "./particles/particle.hpp"
-#include "./particles/particle_list.hpp"
+#include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]){
     //domain.setup(inputinfo);
 
     // Initialize particles
-    Particle_List *parts_fields = new Particle_List(input_info.np); 
+    Particle_Handler *parts_fields = new Particle_Handler(input_info.np); 
     parts_fields->setPusher(new Boris());
 
     // Initialize grid
