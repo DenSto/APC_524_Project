@@ -1,4 +1,4 @@
-#include "bc_p_periodic.hpp"
+#include "bc_p_MPI.hpp"
 
 BC_P_MPI::BC_P_MPI(Particle_List* pl, double xMin, double xMax, int dim_Index) 
 	:	pl_(pl),

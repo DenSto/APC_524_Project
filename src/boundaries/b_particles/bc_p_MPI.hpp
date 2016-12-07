@@ -12,7 +12,7 @@
 
 class BC_P_MPI : public BC_Particle {
 	public:
-		BC_P_MPI(Particle_List* pl, int targetRank, double lengthShift);
+		BC_P_MPI(Particle_List* pl, double xMin, double xMax, int targetRank, double lengthShift);
 		~BC_P_MPI();
 		void computeParticleBCs();
 		void completeBC();
@@ -21,6 +21,8 @@ class BC_P_MPI : public BC_Particle {
 		double xMin_;
 		double xMax_;
 		int dim_index_;
+		int targetRank_;
+		double lengthShift_;
 		short isLeft_;
 		Particle_List* pl_;
 }
