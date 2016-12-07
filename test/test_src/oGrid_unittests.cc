@@ -8,4 +8,5 @@ TEST(GridGetNumberOfCellsTest, returnsCorrectNumberOfCells) {
 
   Grid *grid = new Grid(nxyz, 1, xyz0, Lxyz);
   EXPECT_EQ(60, grid->getNumberOfCells());
+  delete grid;
 }
