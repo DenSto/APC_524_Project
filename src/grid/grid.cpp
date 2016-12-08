@@ -49,6 +49,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     Bx_tm1_=newField_(); 
     By_tm1_=newField_(); 
     Bz_tm1_=newField_(); 
+    rhox_=newField_(); 
+    rhoy_=newField_(); 
+    rhoz_=newField_(); 
     Jx_=newField_(); 
     Jy_=newField_(); 
     Jz_=newField_(); 
@@ -69,6 +72,9 @@ Grid::~Grid() {
     deleteField_(Bx_tm1_); 
     deleteField_(By_tm1_); 
     deleteField_(Bz_tm1_); 
+    deleteField_(rhox_); 
+    deleteField_(rhoy_); 
+    deleteField_(rhoz_); 
     deleteField_(Jx_); 
     deleteField_(Jy_); 
     deleteField_(Jz_); 
@@ -132,6 +138,20 @@ void Grid::checkInput_() {
     assert(nFields_ == 9); 
     assert(ghostVecSize_ > 0); 
 }; 
+
+/// sets all of J (Jx,Jy,Jz) to be identically zero
+void Grid::zeroJ() { 
+    int i,j,k; // iterators 
+    for (i=0; i<nx_+1; ++i) { 
+        for (j=0; j<ny_+1; ++j) { 
+            for (k=0; k<nz_+1; ++k) { 
+                Jx_[i][j][k]=0; 
+                Jy_[i][j][k]=0; 
+                Jz_[i][j][k]=0;
+            } 
+        } 
+    } 
+} 
 
 /// Initialize E and B fields
 /*! Use restart file to set values of initial E,B,J fields
