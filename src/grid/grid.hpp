@@ -24,9 +24,11 @@ public:
   void InitializeFields(int restart); // Initialize E field by either solve Poisson's equation
                                       // or read restart file. Initialize B field with prescribed
                                       // geometry or read restart file. 
-
+  void zeroJ(); 
+  int addJ(int cellID, double *Jvec);
   int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
   int getCellID(double x, double y, double z);
+  int getCellVertex(int cellID, double *xyz);
   int getNumberOfCells();
   double getStepSize(int dimension);
 
@@ -89,6 +91,10 @@ protected:
   double ***Jx_;
   double ***Jy_;
   double ***Jz_;
+
+  double ***rhox_; 
+  double ***rhoy_; 
+  double ***rhoz_; 
 
   // vector for storing temporary physical slices of scalar fields
   double *sliceTmp_;

@@ -16,7 +16,7 @@
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
 #include "./particles/particle.hpp"
-#include "./particles/particle_list.hpp"
+#include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
@@ -86,8 +86,8 @@ int main(int argc, char *argv[]){
     MPI_Type_commit(&infotype);
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
-#endif
     checkinput(rank,&input_info);
+#endif
     int restart = input_info.restart; // restart=0: initial run
                                       // restart=3: third restart
 
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]){
     //domain.setup(inputinfo);
 
     // Initialize particles
-    Particle_Field_List *parts_fields = new Particle_Field_List(input_info.np); 
+    Particle_Handler *parts_fields = new Particle_Handler(input_info.np); 
     parts_fields->setPusher(new Boris());
 
     // Initialize grid

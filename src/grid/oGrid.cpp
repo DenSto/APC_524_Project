@@ -4,10 +4,11 @@
 #include "grid.hpp"
 
 
+
 //! Evolve Electric and Magnetic fields in time
 /*!
 	Uses Yee algorithm to advance E and B fields.
-
+	Assumes Gaussian-style Maxwell equation, with c = 1. 
 */
 int Grid::evolveFields (double dt) {
 
@@ -56,6 +57,41 @@ int Grid::evolveFields (double dt) {
 
 	return 0;
 };
+
+
+//! Add currents from particle to grid
+/*!
+	Currents added to cell with ID cellID via input vector of form:\n
+	[Jx((0,0,0) -> (1,0,0)), Jx((0,1,0) -> (1,1,0)), Jx((0,1,1) -> (1,1,1)), Jx((0,0,1) -> (1,0,1)),...\n
+	Jy((0,0,0) -> (0,1,0)), Jy((0,0,1) -> (0,1,1)), Jy((1,0,1) -> (1,1,1)), Jy((1,0,0) -> (1,1,0)),...\n
+	Jz((0,0,0) -> (0,0,1)), Jz((1,0,0) -> (1,0,1)), Jz((1,1,0) -> (1,1,1)), Jz((0,1,0) -> (0,1,1))]
+*/
+int Grid::addJ(int cellID, double *Jvec) {
+	// get indices for cellID
+	int iz = cellID % nz_;
+	int iy = ( cellID - iz) % (ny_*nz_);
+	int ix = ( cellID - iz - nz_*iy ) / (ny_ * nz_);
+
+	// put down currents
+	Jx_[ix][iy][iz] += Jvec[0];
+	Jx_[ix][iy+1][iz] += Jvec[1];
+	Jx_[ix][iy+1][iz+1] += Jvec[2];
+	Jx_[ix][iy+1][iz] += Jvec[3];
+
+	Jy_[ix][iy][iz] += Jvec[4];
+	Jy_[ix][iy][iz+1] += Jvec[5];
+	Jy_[ix+1][iy][iz+1] += Jvec[6];
+	Jy_[ix+1][iy][iz] += Jvec[7];
+
+	Jz_[ix][iy][iz] += Jvec[8];
+	Jz_[ix+1][iy][iz] += Jvec[9];
+	Jz_[ix+1][iy+1][iz] += Jvec[10];
+	Jz_[ix][iy+1][iz] += Jvec[11];
+
+	return 0;
+};
+
+
 
 //! Return vector for field interpolation
 /*!
@@ -147,14 +183,34 @@ int Grid::getCellID(double x, double y, double z) {
 
 };
 
-//! Get total number of cells.
+//! Returns vertex corresponding to cell ID
+/*
+	Vertex stored in input vector *xyz.
+*/
+int Grid::getCellVertex(int cellID, double *xyz) {
+	int iz = cellID % nz_;
+	int iy = ( cellID - iz) % (ny_*nz_);
+	int ix = ( cellID - iz - nz_*iy ) / (ny_ * nz_);
+
+	// x, y, z
+	xyz[0] = x0_ + dx_ * ix;
+	xyz[1] = y0_ + dy_ * iy;
+	xyz[2] = z0_ + dz_ * iz;
+
+	return 0;
+};
+
+//! Get total number of cells in grid.
+/*!
+	Includes ghost cells.
+*/
 int Grid::getNumberOfCells() {
 	return nx_*ny_*nz_;
 };
 
-//! Get number of cells along dimension in grid.
+//! Get step size along dimension in grid.
 /*!
-	Returns number of cells along dimension according to;
+	Returns step size along dimension according to;
 	dimension = 0: x
 	dimension = 1: y
 	dimension = 2: z

@@ -2,7 +2,7 @@
 #define IO_HPP
 
 #include "../grid/grid.hpp"
-#include "../particles/particle_list.hpp"
+#include "../particles/particle_handler.hpp"
 
 //! Structure storing info in the input file
 typedef struct {
@@ -50,6 +50,6 @@ typedef struct {
 void readinput(char *fname, Input_Info_t *input_info);
 void checkinput(int rank, Input_Info_t *input_info);
 
-void writeoutput(double t, int rank, Grid *grids, Particle_Field_List *parts__fields); //MPI
+void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts__fields); //MPI
 
 #endif

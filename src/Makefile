@@ -1,6 +1,6 @@
-USE_MPI = 0 
+USE_MPI = yes
 
-ifeq ($(USE_MPI),0)
+ifeq ($(USE_MPI),no)
   CC = g++
   OMPFLAGS = -DUSE_MPI=0
 else
@@ -9,14 +9,14 @@ else
   OMPFLAGS = -DUSE_MPI=1
 endif
 
-CFLAGS= -g -lm -Wall
+CFLAGS= -g -lm -Wall -stdlib=libstdc++  
 PROGRAM = EMOOPIC
 
 IOOBJ = IO.o
 DOMOBJ = domain.o
 PUSHOBJ = boris.o
 GRIDOBJ = grid.o oGrid.o
-PARTOBJ = particle.o particle_list.o interpolate.o deposit.o
+PARTOBJ = particle.o particle_list.o interpolate.o deposit.o #particle_handler.o
 
 OBJ = $(addprefix ./IO/, $(IOOBJ)) \
       $(addprefix ./domain/, $(DOMOBJ)) \

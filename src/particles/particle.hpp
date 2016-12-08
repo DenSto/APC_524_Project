@@ -7,11 +7,11 @@ typedef struct Field_part {
 } Field_part;
 
 typedef struct Particle {
-  double x1,x2,x3;  /* coordinate in X,Y,Z */	
-  double v1,v2,v3;  /* velocity in X,Y,Z */	
+  double x[3];  /* coordinate in X,Y,Z */	
+  double v[3];  /* velocity in X,Y,Z */	
 
-  double xo1,xo2,xo3;  /* LAST coordinate in X,Y,Z */
-  double vo1,vo2,vo3;  /* LAST velocity in X,Y,Z */
+  double xo[3];  /* LAST coordinate in X,Y,Z */
+  double vo[3];  /* LAST velocity in X,Y,Z */
 
   double dx1, dx2, dx3; /*last step-lengths*/
 
@@ -21,15 +21,13 @@ typedef struct Particle {
   int my_id; 		  /* particle id */
   short isGhost;    /* is particle in ghost cell? */
 
-  Field_part* field; /* interpolated field */
+  Field_part field; /* interpolated field */
 
 } Particle;
 
 
-Particle* new_particle();
-void free_particle(Particle* part);
+Particle new_particle();
 
-Field_part* new_particle_field();
-void free_particle_field(Field_part* field);
+Field_part new_particle_field();
 
 #endif

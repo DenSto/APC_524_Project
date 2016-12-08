@@ -30,11 +30,11 @@ TESTSRC_DIR = test_src
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -g -Wall -Wextra -pthread -stdlib=libstdc++
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = IO_unittests
+TESTS = IO_unittests oGrid_unittests
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -91,4 +91,10 @@ IO_unittests.o : $(TESTSRC_DIR)/IO_unittests.cc $(SRC_DIR)/IO/IO.hpp $(GTEST_HEA
 
 IO_unittests : $(SRC_DIR)/IO/IO.o IO_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp $(SRC_DIR)/grid/grid.cpp $(SRC_DIR)/grid/oGrid.cpp $(SRC_DIR)/grid/spookyGrid.cpp $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.cpp $(SRC_DIR)/grid/oGrid.cpp $(SRC_DIR)/grid/spookyGrid.cpp -I $(SRC_DIR)/grid 
+
+oGrid_unittests : $(SRC_DIR)/grid/grid.o $(SRC_DIR)/grid/oGrid.o $(SRC_DIR)/grid/spookyGrid.o oGrid_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
 
