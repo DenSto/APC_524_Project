@@ -9,7 +9,7 @@ else
   OMPFLAGS = -DUSE_MPI=1
 endif
 
-CFLAGS= -g -lm -Wall  
+CFLAGS= -g -lm -Wall -stdlib=libstdc++  
 PROGRAM = EMOOPIC
 
 IOOBJ = IO.o

@@ -25,8 +25,10 @@ public:
                                       // or read restart file. Initialize B field with prescribed
                                       // geometry or read restart file. 
   void zeroJ(); 
+  int addJ(int cellID, double *Jvec);
   int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
   int getCellID(double x, double y, double z);
+  int getCellVertex(int cellID, double *xyz);
   int getNumberOfCells();
   double getStepSize(int dimension);
 
