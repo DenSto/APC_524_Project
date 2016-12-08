@@ -72,9 +72,9 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
   part->xo[2] = z;
 
   //Update particle step length
-  part->dx1 = x_new-x;
-  part->dx2 = y_new-y;
-  part->dx3 = z_new-z;
+  part->dx[0] = x_new-x;
+  part->dx[1] = y_new-y;
+  part->dx[2] = z_new-z;
 
   //Update last particle velocity.
   part->vo[0] = vx;

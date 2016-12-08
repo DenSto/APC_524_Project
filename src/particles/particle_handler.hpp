@@ -36,7 +36,7 @@ public:
                                   // to determine size of time steps 
 private:
   long np_;
-  std::vector<Particle*> parts_;    /* Vector of particles */
+  std::vector<Particle> parts_;    /* Vector of particles */
   Pusher* pusher_;
 };
 

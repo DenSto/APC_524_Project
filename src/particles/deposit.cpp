@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "deposit.hpp"
+#include "assert.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -9,7 +10,7 @@ Depositor::Depositor(){
 
 Depositor::~Depositor(){
 }
-                deposit_particle_RhoJ(long* cellID, double pos[][3], double* dpos, double* lcell, double cellverts[][3], double dt, double q, double RhoJObj[][12]);
+
 void Depositor::deposit_particle_RhoJ(long* cellID, double pos[][3], double* dpos, double* lcell, double cellverts[][3], double dt, double q, double RhoJObj[][12]) {
   //Function returns an updated RhoJObj to include the current due to particle motion on the cell edges.
 
@@ -21,6 +22,7 @@ void Depositor::deposit_particle_RhoJ(long* cellID, double pos[][3], double* dpo
   int celltot = 0;
   double jFactor = 0.0;
   double moveDir = 0.0;
+  double cellArea = 0.0;
 
   //If particle starts and ends in the same cell.
   if (cellID[0]==cellID[1]) {
@@ -34,6 +36,7 @@ void Depositor::deposit_particle_RhoJ(long* cellID, double pos[][3], double* dpo
   assert(celltot > 0 && celltot <= 2); //Other cases are not yet implemented!
   for (int kcell=0; kcell<celltot; kcell++) {
     for (int i=0; i<3; i++) {
+      int j, k;
       j = i+1 % 3; /*Modular arithmetic cycles over Cartesian directions*/
       k = i+2 % 3;
 

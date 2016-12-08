@@ -105,23 +105,23 @@ void Particle_Handler::depositRhoJ(Grid *grid, double dt){
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
 
   //Zero the grid's currents and charge densities.
-  grid->zeroRhoJ();
+  grid->zeroJ();
 
   //Cycle through particles, depositing RhoJ for each one.
   for (long i=0; i<np_; i++) {
     //Get last and current positions of particle.
-    pos[0][0] = parts_[i]->xo1;
-    pos[0][1] = parts_[i]->xo2;
-    pos[0][2] = parts_[i]->xo3;
-    pos[1][0] = parts_[i]->x1;
-    pos[1][1] = parts_[i]->x2;
-    pos[1][2] = parts_[i]->x3;
-    dpos[0] = parts_[i]->dx1;
-    dpos[1] = parts_[i]->dx2;
-    dpos[2] = parts_[i]->dx3;
+    pos[0][0] = parts_[i].xo[0];
+    pos[0][1] = parts_[i].xo[1];
+    pos[0][2] = parts_[i].xo[2];
+    pos[1][0] = parts_[i].x[0];
+    pos[1][1] = parts_[i].x[1];
+    pos[1][2] = parts_[i].x[2];
+    dpos[0] = parts_[i].dx[0];
+    dpos[1] = parts_[i].dx[1];
+    dpos[2] = parts_[i].dx[2];
 
     //Get charge of particle.
-    pcharge = parts_[i]->q;
+    pcharge = parts_[i].q;
 
     //Update particle's last and current cell id's
     for (int j=0; j<2; j++) tempCellID[j] = grid->getCellID(pos[j][0],pos[j][1],pos[j][2]);
@@ -135,7 +135,7 @@ void Particle_Handler::depositRhoJ(Grid *grid, double dt){
 	  //If cellID has already been assinged...
 	  if (cellID[j] != -1) {
 	    //Deposit to grid
-	    grid->addRhoJ(cellID[j],&RhoJObj[j][0]);
+	    grid->addJ(cellID[j],&RhoJObj[j][0]);
 	    //Zero RhoJObj[j]
 	    for (int k=0; k<12; k++) {
 	      RhoJObj[j][k] = 0;
@@ -157,7 +157,7 @@ void Particle_Handler::depositRhoJ(Grid *grid, double dt){
 
   //Add remaining currents to the grid.
   for (int j=0; j<2; j++) {
-    grid->addRhoJ(cellID[j],&RhoJObj[j][0]);
+    grid->addJ(cellID[j],&RhoJObj[j][0]);
   }
 }
 

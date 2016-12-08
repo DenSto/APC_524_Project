@@ -13,7 +13,7 @@ typedef struct Particle {
   double xo[3];  /* LAST coordinate in X,Y,Z */
   double vo[3];  /* LAST velocity in X,Y,Z */
 
-  double dx1, dx2, dx3; /*last step-lengths*/
+  double dx[3]; /*last step-lengths*/
 
   double q;		  /* charge */
   double m;		  /* mass */

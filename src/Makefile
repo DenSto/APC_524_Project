@@ -16,7 +16,7 @@ IOOBJ = IO.o
 DOMOBJ = domain.o
 PUSHOBJ = boris.o
 GRIDOBJ = grid.o oGrid.o
-PARTOBJ = particle.o particle_list.o interpolate.o deposit.o #particle_handler.o
+PARTOBJ = particle.o particle_handler.o interpolate.o deposit.o
 
 OBJ = $(addprefix ./IO/, $(IOOBJ)) \
       $(addprefix ./domain/, $(DOMOBJ)) \
