@@ -7,7 +7,7 @@
 
 //! Structure storing info in the input file
 typedef struct {
-    int *nCell; // number of cells in each direction
+    int nCell[3]; // number of cells in each direction
 
     int nt; // number of time steps
     int restart; // How many previous runs?
@@ -21,7 +21,7 @@ typedef struct {
 
     char distname[50]; // name of file containing distribution function 
 #if USE_MPI
-	int *nProc; // number of processors to use in each direction
+	int nProc[3]; // number of processors to use in each direction
 #endif
 	std::string boundaries_particles[6]; // particle boundary conditions for each side of the box
 	std::string boundaries_fields[6];    // field boundary conditions for each side of the box
