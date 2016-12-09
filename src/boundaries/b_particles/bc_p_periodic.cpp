@@ -14,8 +14,8 @@ void BC_P_Periodic::completeBC(){}
 
 int BC_P_Periodic::particle_BC(double* x, double* v, double xMin, double xMax){
 	if(*x > xMax)
-		*x-= (xMax-xMin)
+		*x-= (xMax-xMin);
 	if(*x < xMin)
-		*x+= (xMax-xMin)
+		*x+= (xMax-xMin);
 	return 0;
 }

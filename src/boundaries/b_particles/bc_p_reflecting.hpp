@@ -8,7 +8,7 @@
 */
 
 
-#include "../boudary_particles.hpp"
+#include "../boundary_particles.hpp"
 
 class BC_P_Reflecting : public BC_Particle {
 	public:

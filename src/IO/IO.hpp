@@ -6,7 +6,8 @@
 
 //! Structure storing info in the input file
 typedef struct {
-    int nx; // number of grids
+    int *nCell; // number of cells in each direction
+
     int nt; // number of time steps
     int restart; // How many previous runs?
                  // Initial run if restart = 0
@@ -18,6 +19,9 @@ typedef struct {
     double temp; // temperature
 
     char distname[50]; // name of file containing distribution function 
+#if USE_MPI
+	int *nProc; // number of processors to use in each direction
+#endif
 
 } Input_Info_t;
 

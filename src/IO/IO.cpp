@@ -6,7 +6,11 @@ void readinput(char *fname,Input_Info_t *input_info){
 
     // Inserted by Yuan for testing
     // The following code is to be replaced
-    input_info->nx      = 4;
+    input_info->nCell[0]      = 4;
+    input_info->nCell[1]      = 4;
+    input_info->nCell[2]      = 4;
+    input_info->nt      = 2;
+    input_info->nt      = 2;
     input_info->nt      = 2;
     input_info->restart = 0;
 
@@ -15,6 +19,11 @@ void readinput(char *fname,Input_Info_t *input_info){
     input_info->t0      = 0.0;
     input_info->dens    = 0.2;
     input_info->temp    = 1.5;
+#if USE_MPI
+    input_info->nProc[0]      = 1;
+    input_info->nProc[1]      = 1;
+    input_info->nProc[2]      = 1;
+#endif
  
     sprintf(input_info->distname,"distribution.dat");
 }
@@ -88,7 +97,7 @@ void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts_fields
   /* Check MPI broadcast **********************************/
   void checkinput(int rank, Input_Info_t *input_info){
   
-     printf("rank=%d,nx=%d\n",rank,input_info->nx);
+     printf("rank=%d,nx=%d\n",rank,input_info->nCell[0]);
      printf("rank=%d,np=%ld\n",rank,input_info->np);
      printf("rank=%d,nt=%d\n",rank,input_info->nt);
      printf("rank=%d,restart=%d\n",rank,input_info->restart);

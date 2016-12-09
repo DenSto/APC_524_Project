@@ -10,12 +10,19 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
        //printf("rank=%d: call Domain constructor\n",rank_);
        nGhosts_ = 1;
 
-       const int nx = input_info->nx; 
+       const int* nCell = input_info->nCell; 
        nxyz_ = new int[3];
        assert(nxyz_!=NULL);
-       nxyz_[0]=nx/size;
-       nxyz_[1]=nx;
-       nxyz_[2]=nx;
+       nxyz_[0]=nCell[0];
+       nxyz_[1]=nCell[1];
+       nxyz_[2]=nCell[2];
+#if USE_MPI
+       const int* nProc = input_info->nProc; 
+	   assert(size == nProc[0]*nProc[1]*nProc[2]);
+       nxyz_[0]/=nProc[0];
+       nxyz_[1]/=nProc[1];
+       nxyz_[2]/=nProc[2];
+#endif
 
        //const double *xyz = input_info->xyz; 
        xyz0_ = new double[3];
@@ -33,13 +40,23 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
 
 #if USE_MPI
 		nProcxyz_ = new int[3];
-		myLocationOnMap = new int[3];
+		myLocationOnMap_ = new int[3];
+        assert(nProcxyz_!=NULL);
+        assert(myLocationOnMap_!=NULL);
 
-      /*  nProcxyz_[0] = input_info->npx; 
-        nProcxyz_[1] = input_info->npy; 
-        nProcxyz_[2] = input_info->npz; 
-		assert(size == nProcxyz_[0]*nProcxyz_[1]*nProcxyz_[2]);
-		procMap_ = new int[nProcxyz_[0]][nProcxyz_[1]][nProcxyz_[2]];
+        nProcxyz_[0] = nProc[0]; 
+        nProcxyz_[1] = nProc[1]; 
+        nProcxyz_[2] = nProc[2]; 
+
+		procMap_ = (int***) malloc(nProc[0]*sizeof(int**));
+		for(int i = 0; i < nProcxyz_[0]; i++){
+			procMap_[i] = (int**) malloc(nProc[1]*sizeof(int*));
+			for(int j = 0; j < nProcxyz_[1]; j++){
+				procMap_[i][j] =(int*) malloc(nProc[2]*sizeof(int));
+			}
+		}
+
+        assert(procMap_!=NULL);
 
 		int count = 0;
 		for(int i = 0; i < nProcxyz_[0]; i++){
@@ -47,14 +64,15 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
 				for(int k = 0; k < nProcxyz_[2]; k++){
 					procMap_[i][j][k] = count;
 					if(rank_ == count){
-						myLocationOnMap[0] = i;
-						myLocationOnMap[1] = j;
-						myLocationOnMap[2] = k;
+						myLocationOnMap_[0] = i;
+						myLocationOnMap_[1] = j;
+						myLocationOnMap_[2] = k;
 					}
+					count++;		
 				}
 			}
 		}
-		*/
+		
 #endif
   
 }
@@ -64,6 +82,20 @@ Domain::~Domain(){
     delete[] nxyz_;
     delete[] xyz0_;
     delete[] Lxyz_;
+#if USE_MPI
+	delete[] nProcxyz_;
+	delete[] myLocationOnMap_;
+	delete[] globalnxyz_;
+	delete[] globalxyz0_;
+ 	delete[] globalLxyz_;
+	for(int i = 0; i < nProcxyz_[0]; i++){
+		for(int j = 0; j < nProcxyz_[1]; j++){
+			free(procMap_[i][j]);
+		}
+		free(procMap_[i]);
+	}
+	free(procMap_);
+#endif
 }
 
 int Domain::getnGhosts(void){

@@ -9,11 +9,14 @@ class Domain {
         ~Domain();
         
         int getnGhosts(void);
-        int *getnxyz(void);
-        double *getxyz0(void);
-        double *getLxyz(void);
+        int *getnxyz(void);    // Local grid size
+        double *getxyz0(void); // Local position
+        double *getLxyz(void); // Local domain size
         double getmindx(void); 
 #if USE_MPI
+        double *getGlobalnyxz(void); // Global grid size
+        double *getGlobalxyz0(void); // Global domain position
+        double *getGlobalLxyz(void); // Global domain size
 		int *getnProcxyz(void);
 		int ***getProcMap(void);
 #endif
@@ -28,7 +31,10 @@ class Domain {
 #if USE_MPI
 		int ***procMap_;  // map of rank to partition segment
 		int *nProcxyz_;   // sizes of the partitions
-		int *myLocationOnMap; // where am I on this partition?
+		int *myLocationOnMap_; // where am I on this partition?
+        int *globalnxyz_;
+        double *globalxyz0_;
+        double *globalLxyz_;
 #endif
 };
 
