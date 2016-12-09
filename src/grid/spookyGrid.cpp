@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <iterator> // used for std::copy
+#include <algorithm> // used for std::copy
 #include <assert.h> // plans to use?
 #include <math.h> // unneeded?
 #include "grid.hpp"
