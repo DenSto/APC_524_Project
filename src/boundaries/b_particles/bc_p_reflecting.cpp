@@ -40,3 +40,5 @@ int BC_P_Reflecting::particle_BC(double* x, double* v, double xMin, double xMax)
 	}
 	return 0;
 }
+
+static RegisterParticleBoundary instance("reflecting", makeBCParticle<BC_P_Reflecting>);

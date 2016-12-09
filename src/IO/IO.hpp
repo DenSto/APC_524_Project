@@ -3,6 +3,7 @@
 
 #include "../grid/grid.hpp"
 #include "../particles/particle_handler.hpp"
+#include <string>
 
 //! Structure storing info in the input file
 typedef struct {
@@ -22,6 +23,8 @@ typedef struct {
 #if USE_MPI
 	int *nProc; // number of processors to use in each direction
 #endif
+	std::string boundaries_particles[6]; // particle boundary conditions for each side of the box
+	std::string boundaries_fields[6];    // field boundary conditions for each side of the box
 
 } Input_Info_t;
 

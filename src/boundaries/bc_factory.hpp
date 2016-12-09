@@ -71,7 +71,7 @@ public:
 				ret[2*i+1]=lookup(types[2*i+1])(domain,i,types[2*i+1]);
 			}
 		}			 
-		
+		return ret;
 	}
 
   /*  

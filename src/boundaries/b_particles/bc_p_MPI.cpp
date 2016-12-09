@@ -38,3 +38,5 @@ int BC_P_MPI::particle_BC(double* x, double* v, double xMin, double xMax){
 	// Load particles into buffer if needed
 	return 0;
 }
+
+static RegisterParticleBoundary instance("MPI", makeBCParticle<BC_P_MPI>);

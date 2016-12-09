@@ -1,4 +1,4 @@
-USE_MPI = yes
+USE_MPI = no
 
 ifeq ($(USE_MPI),no)
   CC = g++

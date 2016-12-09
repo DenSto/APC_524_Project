@@ -24,6 +24,13 @@ void readinput(char *fname,Input_Info_t *input_info){
     input_info->nProc[1]      = 1;
     input_info->nProc[2]      = 1;
 #endif
+
+	input_info->boundaries_particles[0] = ("periodic"); // x -> Left
+	input_info->boundaries_particles[1] = ("periodic"); // x -> Right
+	input_info->boundaries_particles[2] = ("periodic"); // y -> Left
+	input_info->boundaries_particles[3] = ("periodic"); // y -> Right
+	input_info->boundaries_particles[4] = ("periodic"); // z -> Left
+	input_info->boundaries_particles[5] = ("periodic"); // z -> Right
  
     sprintf(input_info->distname,"distribution.dat");
 }

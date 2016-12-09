@@ -36,3 +36,5 @@ int BC_P_Periodic::particle_BC(double* x, double* v, double xMin, double xMax){
 		*x+= (xMax-xMin);
 	return 0;
 }
+
+static RegisterParticleBoundary instance("periodic", makeBCParticle<BC_P_Periodic>);

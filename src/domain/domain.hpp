@@ -14,7 +14,7 @@ class Domain {
         double *getLxyz(void); // Local domain size
         double getmindx(void); 
 #if USE_MPI
-        double *getGlobalnyxz(void); // Global grid size
+        int *getGlobalnyxz(void); // Global grid size
         double *getGlobalxyz0(void); // Global domain position
         double *getGlobalLxyz(void); // Global domain size
 		int *getMyLocationOnMap();

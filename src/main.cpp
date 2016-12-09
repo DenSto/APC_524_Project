@@ -18,6 +18,7 @@
 #include "./particles/particle.hpp"
 #include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
+#include "./boundaries/bc_factory.hpp"
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
 
@@ -100,6 +101,9 @@ int main(int argc, char *argv[]){
     // Initialize particles
     Particle_Handler *parts_fields = new Particle_Handler(input_info.np); 
     parts_fields->setPusher(new Boris());
+
+	// Set up particle boundary conditions
+	BC_Factory::getInstance().constructConditions(domain,input_info.boundaries_particles);
 
     // Initialize grid
     Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),

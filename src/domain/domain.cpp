@@ -118,6 +118,33 @@ double* Domain::getLxyz(void){
     return Lxyz_;
 }
 
+
+#if USE_MPI
+int* Domain::getGlobalnyxz(void){
+	return globalnxyz_;
+}
+
+double* Domain::getGlobalxyz0(void){
+	return globalxyz0_;
+}
+
+double* Domain::getGlobalLxyz(void){
+	return globalLxyz_;
+}
+
+int* Domain::getMyLocationOnMap(){
+	return myLocationOnMap_;
+}
+
+int* Domain::getnProcxyz(){
+	return nProcxyz_;
+}
+
+int*** Domain::getProcMap(){
+	return procMap_;
+}
+#endif
+
 //! Find minimum grid size
 double Domain::getmindx(void){
     double dxyz[3];
