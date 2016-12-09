@@ -17,6 +17,7 @@ class Domain {
         double *getGlobalnyxz(void); // Global grid size
         double *getGlobalxyz0(void); // Global domain position
         double *getGlobalLxyz(void); // Global domain size
+		int *getMyLocationOnMap();
 		int *getnProcxyz(void);
 		int ***getProcMap(void);
 #endif

@@ -1,10 +1,27 @@
-#include "bc_p_periodic.hpp"
+#include "../boundary_particles.hpp"
+#include "../bc_factory.hpp"
+#include "../../domain/domain.hpp"
+#include <vector>
 
-BC_P_Periodic::BC_P_Periodic(Particle_List* pl, double xMin, double xMax, int dim_Index) 
-	:	pl_(pl),
-		xMin_(xMin),
-		xMax_(xMax),
-		dim_Index_(dim_Index),
+class BC_P_Periodic : public BC_Particle {
+	public:
+		BC_P_Periodic(Domain* domain, int dim_Index, std::string type);
+		~BC_P_Periodic();
+		void computeParticleBCs(std::vector<Particle> pl);
+		void completeBC();
+	private:
+		int particle_BC(double *x, double *v, double xMin, double xMax);
+		double xMin_;
+		double xMax_;
+		int dim_index_;
+		std::string type_;
+
+		short isLeft_;
+};
+
+BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, std::string type) 
+	:	dim_index_(dim_Index),
+		type_(type)
 		{}
 
 BC_P_Periodic::~BC_P_Periodic(){
