@@ -3,6 +3,7 @@
 *.o
 *.out
 *~
+.depend
 EMOOPIC
 *latex/*.log
 *latex/*.tex
@@ -13,3 +14,4 @@ EMOOPIC
 *latex/Makefile
 *latex/*.aux
 *latex/*.idx
+libconfig-1.5

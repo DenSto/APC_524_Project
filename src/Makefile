@@ -29,13 +29,36 @@ OBJ = $(addprefix ./IO/, $(IOOBJ)) \
       $(addprefix ./particles/, $(PARTOBJ)) \
       main.o 
 
+SRCDIR = $(PWD)
+LCONFIG_DIR = ../libconfig-1.5
+LCONFIG = $(LCONFIG_DIR)/lib/libconfig++.a
+
+LIBS = $(LCONFIG)
+
 all: $(PROGRAM)
 
-$(PROGRAM): $(OBJ) 
+$(PROGRAM): $(OBJ) $(LIBS)
 	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
 
 %.o: %.cpp 
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS)
 
+IO/IO.o: IO/IO.cpp
+	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
+
+$(LCONFIG):
+	cd ..; \
+	tar xf libconfig-1.5.tar.gz; \
+	cd libconfig-1.5; \
+	./configure --prefix=$(PWD)/$(LCONFIG_DIR); \
+	make; \
+	make install; \
+	cd $(SRCDIR)
+depend:
+	$(CC) -MM $(CFLAGS) *.cpp > .depend
+
 clean:
-	rm -f $(PROGRAM) $(OBJ) 
+	rm -f $(PROGRAM) $(OBJ) .depend
+
+-include .depend
+

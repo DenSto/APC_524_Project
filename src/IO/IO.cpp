@@ -1,8 +1,18 @@
 #include <stdio.h>
 #include<assert.h>
 #include "IO.hpp"
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <libconfig.h++>
+
+using namespace std;
+using namespace libconfig;
+
 
 void readinput(char *fname,Input_Info_t *input_info){
+
+    Config cfg;
 
     // Inserted by Yuan for testing
     // The following code is to be replaced
