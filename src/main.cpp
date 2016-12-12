@@ -11,6 +11,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
+#include <iostream>
 
 #include "./IO/IO.hpp"
 #include "./domain/domain.hpp"
@@ -77,7 +78,17 @@ int main(int argc, char *argv[]){
 
     /* Read and broadcast input file **********************/
     Input_Info_t input_info;
-    if(rank==0){readinput(argv[1],&input_info);}
+    if(rank==0){
+      int err = readinput(argv[1],&input_info,size);
+      if(err!=0) {
+        std::cerr << "Terminating..." << std::endl;
+#if USE_MPI
+         MPI_Abort(MPI_COMM_WORLD,1);
+#else
+         exit(1);
+#endif
+      }
+    }
 #if USE_MPI
     Input_Type itype;
     MPI_Datatype infotype; // new type

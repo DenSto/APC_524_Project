@@ -23,7 +23,7 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
        //fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
        int* nCell = input_info->nCell; 
        int* nProc = input_info->nProc;
-       //fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d\n",rank_,size_,nProc[0]); 
+       fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d,%d,%d\n",rank_,size_,nProc[0],nProc[1],nProc[2]); 
        assert(size_ == nProc[0]*nProc[1]*nProc[2]);
 
        // assign private variables
