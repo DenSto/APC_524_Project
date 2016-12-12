@@ -1,0 +1,10 @@
+IOOBJ = $(addprefix ./IO/, IO.o)
+DOMOBJ = $(addprefix ./domain/, domain.o ghosts.o pass_fields.o pass_parts.o)
+PUSHOBJ = $(addprefix ./pusher/, boris.o)
+B_PARTICLEOBJ = bc_p_MPI.o bc_p_periodic.o bc_p_reflecting.o
+BOUNDARYOBJ = $(addprefix ./boundaries/, boundary_particles.o \
+			  $(addprefix b_particles/, $(B_PARTICLEOBJ)))
+GRIDOBJ = $(addprefix ./grid/, grid.o oGrid.o spookyGrid.o)
+PARTOBJ = $(addprefix ./particles/, particle.o particle_handler.o interpolate.o deposit.o)
+
+OBJ = $(IOOBJ) $(DOMOBJ) $(PUSHOBJ) $(BOUNDARYOBJ) $(GRIDOBJ) $(PARTOBJ) main.o

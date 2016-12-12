@@ -14,15 +14,21 @@
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
-GTEST_DIR = ../googletest
+CXX = g++
+
+ROOT_DIR = $(shell dirname $(shell pwd))
+
+GTEST_DIR = $(ROOT_DIR)/googletest
 
 # gtest sample directory for reference
 SAMPLE_DIR = $(GTEST_DIR)/samples
 
 # Where to find user code.
-SRC_DIR = ../src
+SRC_DIR = $(ROOT_DIR)/src
 
-TESTSRC_DIR = test_src
+TESTSRC_DIR = $(ROOT_DIR)/test/test_src
+
+LCONFIG = $(ROOT_DIR)/libconfig-1.5/lib/libconfig++.a
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -30,7 +36,7 @@ TESTSRC_DIR = test_src
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread -stdlib=libstdc++
+CXXFLAGS += -g -Wall -Wextra -pthread 
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -40,6 +46,7 @@ TESTS = IO_unittests oGrid_unittests
 # definition.
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
+
 
 # House-keeping build targets.
 
@@ -76,25 +83,23 @@ gtest_main.a : gtest-all.o gtest_main.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-sample1.o : $(SAMPLE_DIR)/sample1.cc $(SAMPLE_DIR)/sample1.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(SAMPLE_DIR)/sample1.cc
+include $(SRC_DIR)/Makefile.obj
 
-sample1_unittest.o : $(SAMPLE_DIR)/sample1_unittest.cc \
-                     $(SAMPLE_DIR)/sample1.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(SAMPLE_DIR)/sample1_unittest.cc
-
-sample1_unittest : sample1.o sample1_unittest.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+# General rule to build any .o file in src
+$(SRC_DIR)/%.o:
+	cd $(SRC_DIR); \
+	make; \
+	cd $(ROOT_DIR)/test
 
 IO_unittests.o : $(TESTSRC_DIR)/IO_unittests.cc $(SRC_DIR)/IO/IO.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/IO_unittests.cc -I $(SRC_DIR)/IO 
 
-IO_unittests : $(SRC_DIR)/IO/IO.o IO_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+IO_unittests : $(addprefix $(SRC_DIR)/, $(IOOBJ)) IO_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LCONFIG)
 
-oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp $(SRC_DIR)/grid/grid.cpp $(SRC_DIR)/grid/oGrid.cpp $(SRC_DIR)/grid/spookyGrid.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.cpp $(SRC_DIR)/grid/oGrid.cpp $(SRC_DIR)/grid/spookyGrid.cpp -I $(SRC_DIR)/grid 
+oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/oGrid_unittests.cc  -I $(SRC_DIR)/grid 
 
-oGrid_unittests : $(SRC_DIR)/grid/grid.o $(SRC_DIR)/grid/oGrid.o $(SRC_DIR)/grid/spookyGrid.o oGrid_unittests.o gtest_main.a
+oGrid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) oGrid_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
 

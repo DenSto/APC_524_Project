@@ -6,12 +6,15 @@ TEST(ReadinputTest, ValuesCorrect) {
   
   char filename[100];
 
-  sprintf(filename, "dummy");
+  sprintf(filename, "data/test.txt");
 
-  readinput(filename, &input_info);
+  readinput(filename, &input_info, 1);
 
-  EXPECT_EQ(4, input_info.nx);
-  EXPECT_EQ(8, input_info.np);
+  EXPECT_EQ(8, input_info.nCell[0]);
+  EXPECT_EQ(8, input_info.nCell[1]);
+  EXPECT_EQ(8, input_info.nCell[2]);
+
+  EXPECT_EQ(16, input_info.np);
 }
 
 

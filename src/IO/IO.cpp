@@ -70,8 +70,8 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
       }
       if(input_info->nProc[0]*input_info->nProc[1]*input_info->nProc[2]!=size)
       {
-        cerr << "Error: nProc layout specified does not match "
-             << "number of processes requested." << endl;
+        cerr << "Error: nProc layout specified in input file does not match "
+             << "number of MPI processes requested." << endl;
         return(EXIT_FAILURE);
       }
     }
@@ -81,6 +81,37 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
       return(EXIT_FAILURE);
     }
 #endif
+
+    try
+    {
+      input_info->nt = cfg.lookup("runtime.nTimesteps");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: nTimesteps not set in input file" << endl; 
+      return(EXIT_FAILURE);
+    }
+    try
+    {
+      input_info->t0 = cfg.lookup("runtime.startTime");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "startTime not set in input file... " 
+           << "Assuming startTime = 0" << endl;
+      input_info->t0 = 0.;
+    }
+    
+    try
+    {
+      input_info->restart = cfg.lookup("initialization.restart");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "restart not set in input file... " 
+           << "Assuming restart = 0" << endl;
+      input_info->restart = 0.;
+    }
 
     try
     {
@@ -107,38 +138,6 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
       cerr << "Error: nParticles not set in input file" << endl; 
       return(EXIT_FAILURE);
     }
-
-    try
-    {
-      input_info->nt = cfg.lookup("runtime.nTimesteps");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      cerr << "Error: nTimesteps not set in input file" << endl; 
-      return(EXIT_FAILURE);
-    }
-    try
-    {
-      input_info->t0 = cfg.lookup("runtime.startTime");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      cerr << "Error: startTime not set in input file... " 
-           << "Assuming startTime = 0" << endl;
-      input_info->t0 = 0.;
-    }
-    
-    try
-    {
-      input_info->restart = cfg.lookup("initialization.restart");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      cerr << "Error: restart not set in input file... " 
-           << "Assuming restart = 0" << endl;
-      input_info->restart = 0.;
-    }
-
 
     input_info->dens    = 0.2;
     input_info->temp    = 1.5;
