@@ -10,39 +10,147 @@ using namespace std;
 using namespace libconfig;
 
 
-void readinput(char *fname,Input_Info_t *input_info){
+int readinput(char *fname,Input_Info_t *input_info, int size){
 
     Config cfg;
+    // Read the file. If there is an error, report it and exit.
+    try
+    {
+      cfg.readFile(fname);
+    }
+    catch(const FileIOException &fioex)
+    {
+      cerr << "I/O error while reading file." << endl;
+      return(EXIT_FAILURE);
+    }
+    catch(const ParseException &pex)
+    {
+      cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine()
+                << " - " << pex.getError() << endl;
+      return(EXIT_FAILURE);
+    }
 
-    // Inserted by Yuan for testing
-    // The following code is to be replaced
-    input_info->nCell[0]      = 4;
-    input_info->nCell[1]      = 4;
-    input_info->nCell[2]      = 4;
-    input_info->nt      = 2;
-    input_info->nt      = 2;
-    input_info->nt      = 2;
-    input_info->restart = 0;
+    try
+    {
+      const Setting &nCell = cfg.lookup("domain.nCell");
+      if(nCell.getLength() == 3) {
+        input_info->nCell[0] = nCell[0];
+        input_info->nCell[1] = nCell[1];
+        input_info->nCell[2] = nCell[2];
+      } else {
+        input_info->nCell[0] = nCell[0];
+        input_info->nCell[1] = nCell[0];
+        input_info->nCell[2] = nCell[0];
+        cerr << "Error: nCell is not a 3 element array in input file."
+           << endl << "Assuming nCell[0]=nCell[1]=nCell[2]=" 
+           << input_info->nCell[0] << "." << endl;
+      }
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: nCell not set in input file" << endl; 
+      return(EXIT_FAILURE);
+    }
 
-    input_info->np      = 8;
-
-    input_info->t0      = 0.0;
-    input_info->dens    = 0.2;
-    input_info->temp    = 1.5;
 #if USE_MPI
-    input_info->nProc[0]      = 1;
-    input_info->nProc[1]      = 1;
-    input_info->nProc[2]      = 1;
+    try
+    {
+      const Setting &nProc = cfg.lookup("domain.nProc");
+      if(nProc.getLength() == 3) {
+        input_info->nProc[0] = nProc[0];
+        input_info->nProc[1] = nProc[1];
+        input_info->nProc[2] = nProc[2];
+      } else {
+        input_info->nProc[0] = nProc[0];
+        input_info->nProc[1] = nProc[0];
+        input_info->nProc[2] = nProc[0];
+        cerr << "Error: nProc is not a 3 element array in input file."
+           << endl << "Assuming nProc[0]=nProc[1]=nProc[2]=" 
+           << input_info->nProc[0] << "." << endl;
+      }
+      if(input_info>nProc[0]*input_info>nProc[1]*input_info>nProc[2]!=size) {
+        cerr << "Error: nProc layout specified does not match "
+             << "number of processes requested." << endl;
+      }
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: nCell not set in input file" << endl; 
+      return(EXIT_FAILURE);
+    }
 #endif
 
-	input_info->boundaries_particles[0] = ("periodic"); // x -> Left
-	input_info->boundaries_particles[1] = ("periodic"); // x -> Right
-	input_info->boundaries_particles[2] = ("periodic"); // y -> Left
-	input_info->boundaries_particles[3] = ("periodic"); // y -> Right
-	input_info->boundaries_particles[4] = ("periodic"); // z -> Left
-	input_info->boundaries_particles[5] = ("periodic"); // z -> Right
+    try
+    {
+      const Setting &nParticles = 
+           cfg.lookup("initialization.particles.nParticles");
+      if(nParticles.getType() == Setting::TypeInt) {
+        int np = nParticles;
+        input_info->np = (long) np;
+        if(input_info->np < 0) {
+          cerr << "Error: integer overflow..." 
+               << "Use nParticles = #######L in input file"
+               << "for long format or use scientific notation." << endl;
+          return(EXIT_FAILURE); 
+        }
+      } else if (nParticles.getType() == Setting::TypeInt64) {
+        input_info->np = nParticles;
+      } else if (nParticles.getType() == Setting::TypeFloat) {
+        double np = nParticles;
+        input_info->np = (long) np;
+      }
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: nParticles not set in input file" << endl; 
+      return(EXIT_FAILURE);
+    }
+
+    try
+    {
+      input_info->nt = cfg.lookup("runtime.nTimesteps");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: nTimesteps not set in input file" << endl; 
+      return(EXIT_FAILURE);
+    }
+    try
+    {
+      input_info->t0 = cfg.lookup("runtime.startTime");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: startTime not set in input file... " 
+           << "Assuming startTime = 0" << endl;
+      input_info->t0 = 0.;
+    }
+    
+    try
+    {
+      input_info->restart = cfg.lookup("initialization.restart");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: restart not set in input file... " 
+           << "Assuming restart = 0" << endl;
+      input_info->restart = 0.;
+    }
+
+
+    input_info->dens    = 0.2;
+    input_info->temp    = 1.5;
+
+    input_info->boundaries_particles[0] = ("periodic"); // x -> Left
+    input_info->boundaries_particles[1] = ("periodic"); // x -> Right
+    input_info->boundaries_particles[2] = ("periodic"); // y -> Left
+    input_info->boundaries_particles[3] = ("periodic"); // y -> Right
+    input_info->boundaries_particles[4] = ("periodic"); // z -> Left
+    input_info->boundaries_particles[5] = ("periodic"); // z -> Right
  
     sprintf(input_info->distname,"distribution.dat");
+
+    return 0;
 }
 
 void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts_fields){
@@ -57,8 +165,8 @@ void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts_fields
    *  Need to be modified if Input_Info_t is modified */
   Input_Type::Input_Type(){
     
-      count_ = 4; // three types
-      int nint = 3;
+      count_ = 4; // number of types
+      int nint = 8;
       int nlong = 1;
       int ndouble = 3;
       int nchar = 50; //char of length 50

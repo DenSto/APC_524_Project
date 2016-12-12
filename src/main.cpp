@@ -77,7 +77,10 @@ int main(int argc, char *argv[]){
 
     /* Read and broadcast input file **********************/
     Input_Info_t input_info;
-    if(rank==0){readinput(argv[1],&input_info);}
+    if(rank==0){
+      int err = readinput(argv[1],&input_info,size);
+      assert(err==0);
+    }
 #if USE_MPI
     Input_Type itype;
     MPI_Datatype infotype; // new type
