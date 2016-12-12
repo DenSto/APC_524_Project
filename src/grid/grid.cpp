@@ -38,6 +38,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     nFields_(9),
     ghostVecSize_(nFields_*nRealPtsYZPlane_)
 {
+    //fprintf(stderr,"New Grid Object\n");
     checkInput_(); 
     
     Ex_=newField_(); 

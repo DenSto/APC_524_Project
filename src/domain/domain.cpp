@@ -7,96 +7,104 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
       : size_(size),
         rank_(rank){
 
-       //printf("rank=%d: call Domain constructor\n",rank_);
+       //fprintf(stderr,"rank=%d: call Domain constructor\n",rank_);
        nGhosts_ = 1;
 
-       const int* nCell = input_info->nCell; 
-       nxyz_ = new int[3];
+       /* partition domain ********************************/
+       nxyz_ = new int[3]; // local grid cells in each direction
        assert(nxyz_!=NULL);
-       nxyz_[0]=nCell[0];
-       nxyz_[1]=nCell[1];
-       nxyz_[2]=nCell[2];
-#if USE_MPI
-       const int* nProc = input_info->nProc; 
-	   assert(size == nProc[0]*nProc[1]*nProc[2]);
-       nxyz_[0]/=nProc[0];
-       nxyz_[1]/=nProc[1];
-       nxyz_[2]/=nProc[2];
-#endif
 
-       //const double *xyz = input_info->xyz; 
-       xyz0_ = new double[3];
-       assert(xyz0_!=NULL);
-       xyz0_[0] = 1.0*rank;
-       xyz0_[1] = 0.0;
-       xyz0_[2] = 0.0;
+       n2xyz_ = new int[3]; // local grid area in each direction
+       assert(n2xyz_!=NULL);
 
-       //const double *lxyz = input_info->lxyz;
+       nProcxyz_ = new int[3];// procs in each direction
+       assert(nProcxyz_!=NULL);
+
+       //fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
+       int* nCell = input_info->nCell; 
+       int* nProc = input_info->nProc;
+       //fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d\n",rank_,size_,nProc[0]); 
+       assert(size_ == nProc[0]*nProc[1]*nProc[2]);
+
+       // assign private variables
+       n3xyz_=(nCell[0]*nCell[1]*nCell[2])/size_; // local grid volume
+       //fprintf(stderr,"rank=%d,n3xyz=%d\n",rank,n3xyz_);
+       assert(n3xyz_>0);
+
+       for (int i=0;i<3;i++){
+           nProcxyz_[i]=nProc[i];
+
+           nxyz_[i]=nCell[i]/nProc[i];
+           assert((nCell[i] % nProc[i])==0);
+
+           n2xyz_[i]=n3xyz_/nxyz_[i];
+           assert((n3xyz_ % nxyz_[i])==0);
+       }           
+
+       /* determine mylocation on map *********************/
+       myLocationOnMap_ =  new int[3];
+       assert(myLocationOnMap_!=NULL);
+       RankToijk(rank_, myLocationOnMap_);
+
+       /* determine physical domain size ******************/
+       const double *Lxyz = input_info->Lxyz;
        Lxyz_ = new double[3];
        assert(Lxyz_!=NULL);
-       Lxyz_[0] = 1.0/size;
-       Lxyz_[1] = 0.5*(rank+1); // for testing
-       Lxyz_[2] = 0.8;
 
-#if USE_MPI
-		nProcxyz_ = new int[3];
-		myLocationOnMap_ = new int[3];
-        assert(nProcxyz_!=NULL);
-        assert(myLocationOnMap_!=NULL);
+       const double *xyz0 = input_info->xyz0; 
+       xyz0_ = new double[3];
+       assert(xyz0_!=NULL);
 
-        nProcxyz_[0] = nProc[0]; 
-        nProcxyz_[1] = nProc[1]; 
-        nProcxyz_[2] = nProc[2]; 
+       for(int i=0;i<3;i++){
+           Lxyz_[i] = Lxyz[i]/nProcxyz_[i];
+           xyz0_[i] = xyz0[i]+Lxyz_[i]*myLocationOnMap_[i];
+       }
 
-		procMap_ = (int***) malloc(nProc[0]*sizeof(int**));
-		for(int i = 0; i < nProcxyz_[0]; i++){
-			procMap_[i] = (int**) malloc(nProc[1]*sizeof(int*));
-			for(int j = 0; j < nProcxyz_[1]; j++){
-				procMap_[i][j] =(int*) malloc(nProc[2]*sizeof(int));
-			}
-		}
-
-        assert(procMap_!=NULL);
-
-		int count = 0;
-		for(int i = 0; i < nProcxyz_[0]; i++){
-			for(int j = 0; j < nProcxyz_[1]; j++){
-				for(int k = 0; k < nProcxyz_[2]; k++){
-					procMap_[i][j][k] = count;
-					if(rank_ == count){
-						myLocationOnMap_[0] = i;
-						myLocationOnMap_[1] = j;
-						myLocationOnMap_[2] = k;
-					}
-					count++;		
-				}
-			}
-		}
-		
-#endif
-  
+       //fprintf(stderr,"rank=%d: end Domain constructor\n",rank_);
 }
 
 Domain::~Domain(){
     //printf("rank=%d: call Domain destructor\n",rank_);
     delete[] nxyz_;
+    delete[] n2xyz_;
     delete[] xyz0_;
     delete[] Lxyz_;
-#if USE_MPI
-	delete[] nProcxyz_;
-	delete[] myLocationOnMap_;
-	delete[] globalnxyz_;
-	delete[] globalxyz0_;
- 	delete[] globalLxyz_;
-	for(int i = 0; i < nProcxyz_[0]; i++){
-		for(int j = 0; j < nProcxyz_[1]; j++){
-			free(procMap_[i][j]);
-		}
-		free(procMap_[i]);
-	}
-	free(procMap_);
-#endif
+    delete[] nProcxyz_;
+    delete[] myLocationOnMap_;
 }
+
+//! return rank for assigned myijk[3]
+int Domain::ijkToRank(int *myijk){
+    assert(myijk!=NULL);
+    for(int i=0;i<3;i++){
+       assert(myijk[i]>=0);
+    }
+
+    int myrank;
+    myrank = myijk[0]*nProcxyz_[1]*nProcxyz_[2];
+    myrank+= myijk[1]*nProcxyz_[2];
+    myrank+= myijk[2];
+ 
+    assert(myrank>0 && myrank<=size_);   
+ 
+    return myrank; 
+}; 
+
+
+//! assign value to allocated myijk[3] 
+void Domain::RankToijk(int myrank, int *myijk){
+    assert(myijk!=NULL);
+
+    int nyz;
+    nyz = nProcxyz_[1]*nProcxyz_[2];
+    myijk[0] = myrank/nyz;
+
+    int res;
+    res = myrank % nyz;
+    myijk[1] = res/nProcxyz_[2];
+    myijk[2] = res % nProcxyz_[2];
+   
+}; 
 
 int Domain::getnGhosts(void){
     //printf("rank=%d: call getnGhosts\n",rank_);
@@ -106,6 +114,11 @@ int Domain::getnGhosts(void){
 int* Domain::getnxyz(void){
     //printf("rank=%d: call getnxyz\n",rank_);
     return nxyz_;
+}
+
+int* Domain::getn2xyz(void){
+    //printf("rank=%d: call getnxyz\n",rank_);
+    return n2xyz_;
 }
 
 double* Domain::getxyz0(void){
@@ -118,20 +131,6 @@ double* Domain::getLxyz(void){
     return Lxyz_;
 }
 
-
-#if USE_MPI
-int* Domain::getGlobalnyxz(void){
-	return globalnxyz_;
-}
-
-double* Domain::getGlobalxyz0(void){
-	return globalxyz0_;
-}
-
-double* Domain::getGlobalLxyz(void){
-	return globalLxyz_;
-}
-
 int* Domain::getMyLocationOnMap(){
 	return myLocationOnMap_;
 }
@@ -139,11 +138,6 @@ int* Domain::getMyLocationOnMap(){
 int* Domain::getnProcxyz(){
 	return nProcxyz_;
 }
-
-int*** Domain::getProcMap(){
-	return procMap_;
-}
-#endif
 
 //! Find minimum grid size
 double Domain::getmindx(void){
@@ -157,16 +151,23 @@ double Domain::getmindx(void){
 
 void checkdomain(int rank, Domain *domain){
  
-      printf("rank=%d: Check domain\n",rank);
-      printf("rank=%d,nGhosts=%d\n",rank,domain->getnGhosts());
+      fprintf(stderr,"rank=%d: Check domain\n",rank);
+      fprintf(stderr,"rank=%d,nGhosts=%d\n",rank,domain->getnGhosts());
+
+      int *myijk = domain->getMyLocationOnMap();
+      fprintf(stderr,"rank=%d: myijk=%d,%d,%d\n",rank,myijk[0],myijk[1],myijk[2]);
 
       int *nxyz = domain->getnxyz();
-      printf("rank=%d,nxyz=%d,%d,%d\n",rank,nxyz[0],nxyz[1],nxyz[2]);
+      fprintf(stderr,"rank=%d,nxyz=%d,%d,%d\n",rank,nxyz[0],nxyz[1],nxyz[2]);
   
-      double *xyz0 = domain->getxyz0();
-      printf("rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
+      int *n2xyz = domain->getn2xyz();
+      fprintf(stderr,"rank=%d,n2xyz=%d,%d,%d\n",rank,n2xyz[0],n2xyz[1],n2xyz[2]);
   
       double *Lxyz = domain->getLxyz();
-      printf("rank=%d,Lxyz=%f,%f,%f\n",rank,Lxyz[0],Lxyz[1],Lxyz[2]);
+      fprintf(stderr,"rank=%d,Lxyz=%f,%f,%f\n",rank,Lxyz[0],Lxyz[1],Lxyz[2]);
+
+      double *xyz0 = domain->getxyz0();
+      fprintf(stderr,"rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
+  
 }
     

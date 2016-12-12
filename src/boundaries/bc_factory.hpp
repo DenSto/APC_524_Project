@@ -31,7 +31,15 @@ public:
    	* Construct the boundary condition array (must be freed!)
 	* Takes in an array of size 6.
     */
-	BC_Particle** constructConditions(Domain* domain, const std::string* types){
+     //BC_Particle** constructConditions(Domain* domain, const std::string* types){
+     BC_Particle** constructConditions(Domain* domain, const char (*bound)[32]){
+                // conver c string for MPI to std::string for BC_Particle
+                // size 32 is in correspondence definition in Input_Info_t
+		std::string types[6];
+		for(int i=0;i<6;i++){
+		    types[i].assign(bound[i]);
+		    //std::cerr << types[i] <<std::endl;
+		}
 #if USE_MPI
 		std::string periodic ("periodic");
 		std::string mpi ("MPI");
