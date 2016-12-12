@@ -1,6 +1,6 @@
-USE_MPI = no
+USE_MPI = 0
 
-ifeq ($(USE_MPI),no)
+ifeq ($(USE_MPI),0)
   CC = g++
   OMPFLAGS = -DUSE_MPI=0
 else
@@ -13,12 +13,12 @@ CFLAGS= -g -lm -Wall
 PROGRAM = EMOOPIC
 
 IOOBJ = IO.o
-DOMOBJ = domain.o
+DOMOBJ = domain.o ghosts.o pass_fields.o pass_parts.o
 PUSHOBJ = boris.o
 B_PARTICLEOBJ = bc_p_MPI.o bc_p_periodic.o bc_p_reflecting.o
 BOUNDARYOBJ = boundary_particles.o \
 			  $(addprefix b_particles/, $(B_PARTICLEOBJ))
-GRIDOBJ = grid.o oGrid.o
+GRIDOBJ = grid.o oGrid.o spookyGrid.o
 PARTOBJ = particle.o particle_handler.o interpolate.o deposit.o
 
 OBJ = $(addprefix ./IO/, $(IOOBJ)) \

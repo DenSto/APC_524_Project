@@ -88,7 +88,8 @@ void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_Handler::depositRhoJ(Grid *grid, double dt){
+//void Particle_Handler::depositRhoJ(Grid *grid, double dt){
+void Particle_Handler::depositRhoJ(Grid *grid){
   Depositor *depositor = new Depositor();
 
   long cellID[2] = {-1, -1}; //cell id tracker, 2 slots: 'exited' cell and 'entered' cell
@@ -151,7 +152,8 @@ void Particle_Handler::depositRhoJ(Grid *grid, double dt){
       }
 
       //Generate currents at cell edges.
-      depositor->deposit_particle_RhoJ(cellID, pos, dpos, lcell, cellverts, dt, pcharge, RhoJObj);
+      //YShi: see comment in deposit.cpp
+      depositor->deposit_particle_RhoJ(cellID, &(parts_[i]), lcell, cellverts, RhoJObj);
     }
   }
 
