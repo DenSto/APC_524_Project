@@ -14,9 +14,6 @@ typedef struct {
     int nt; // number of time steps
     int restart; // How many previous runs?
                  // Initial run if restart = 0
-#if USE_MPI
-	int nProc[3]; // number of processors to use in each direction
-#endif
 
     long np; // number of particles in each domain
 

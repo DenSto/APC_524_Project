@@ -60,7 +60,7 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
     input_info->Lxyz[1] = 2.0;
     input_info->Lxyz[2] = 2.5;
 
-#if USE_MPI
+#ifdef USE_MPI
     try
     {
       const Setting &nProc = cfg.lookup("domain.nProc");
@@ -68,13 +68,17 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
         input_info->nProc[0] = nProc[0];
         input_info->nProc[1] = nProc[1];
         input_info->nProc[2] = nProc[2];
-      } else {
+      } else if(nProc.getLength()==1) {
         input_info->nProc[0] = nProc[0];
-        input_info->nProc[1] = nProc[0];
-        input_info->nProc[2] = nProc[0];
+        input_info->nProc[1] = 1;
+        input_info->nProc[2] = 1;
         cerr << "Error: nProc is not a 3 element array in input file."
-           << endl << "Assuming nProc[0]=nProc[1]=nProc[2]=" 
-           << input_info->nProc[0] << "." << endl;
+           << endl << "Assuming nProc[0]=" << input_info->nProc[0] 
+           << ", nProc[1]=nProc[2]=1." << endl;
+      } else {
+        cerr << "Error: unrecognized nProc input format. Use" << endl
+             << "nProc = [# # #]." << endl;
+        return(EXIT_FAILURE);
       }
       if(input_info->nProc[0]*input_info->nProc[1]*input_info->nProc[2]!=size)
       {
@@ -85,10 +89,13 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
     }
     catch(const SettingNotFoundException &nfex)
     {
-      cerr << "Error: nCell not set in input file" << endl; 
+      cerr << "Error: nProc not set in input file" << endl; 
       return(EXIT_FAILURE);
     }
-#endif
+#else
+    // serial case
+    nProc[0] = nProc[1] = nProc[2] = 1;
+#endif 
 
     try
     {
