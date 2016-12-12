@@ -94,7 +94,7 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
     }
 #else
     // serial case
-    nProc[0] = nProc[1] = nProc[2] = 1;
+    input_info->nProc[0] = input_info->nProc[1] = input_info->nProc[2] = 1;
 #endif 
 
     try

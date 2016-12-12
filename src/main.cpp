@@ -100,7 +100,7 @@ int main(int argc, char *argv[]){
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
     //fprintf(stderr,"rank=%d:after MPI_Bcast\n",rank);
-    //checkinput(rank,&input_info);
+    checkinput(rank,&input_info);
 #endif
     int restart = input_info.restart; // restart=0: initial run
                                       // restart=3: third restart
@@ -119,41 +119,42 @@ int main(int argc, char *argv[]){
 
     // Set up particle boundary conditions
     BC_Factory::getInstance().constructConditions(domain,input_info.parts_bound);
-    //fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
+    fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
     // Initialize grid
     Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
+    fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
     parts_fields->Load(restart);
-    //fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
+    fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
     parts_fields->depositRhoJ(grids);
-    //fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
+    fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
 
     // Solve initial fields from particle or read restart file
     grids->InitializeFields(restart); 
-    //fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
+    fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
 
     // Interpolate fields from grid to particle
     // Prepare initial push of particles
     parts_fields->InterpolateEB(grids);
-    //fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
+    fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
 
 
     /* Advance time step **********************************/
     // prepare ghost cells
     /// Ghost cells are either MPI neighbors or physical boundary conditions
     domain->mallocGhosts(grids);
-    //fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);   
+    fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);   
 
     // prepare time step
     int nt = input_info.nt; //number of steps to run
     double t = input_info.t0; //initial time
     double dt = 1/domain->getmindx(); //c=1, resolve EM wave
-    //fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
+    fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     for(int ti=0;ti<nt;ti++){
        // push particles
