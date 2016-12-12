@@ -68,9 +68,11 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
            << endl << "Assuming nProc[0]=nProc[1]=nProc[2]=" 
            << input_info->nProc[0] << "." << endl;
       }
-      if(input_info>nProc[0]*input_info>nProc[1]*input_info>nProc[2]!=size) {
+      if(input_info->nProc[0]*input_info->nProc[1]*input_info->nProc[2]!=size)
+      {
         cerr << "Error: nProc layout specified does not match "
              << "number of processes requested." << endl;
+        return(EXIT_FAILURE);
       }
     }
     catch(const SettingNotFoundException &nfex)
