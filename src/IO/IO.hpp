@@ -4,11 +4,12 @@
 // NRM: why are these needed?
 #include "../grid/grid.hpp"
 #include "../particles/particle_handler.hpp"
-#include <string>
+#include <string.h>
 
 //! Structure storing info in the input file
 typedef struct {
     int nCell[3]; // number of cells in each direction
+    int nProc[3]; // number of processors to use in each direction
 
     int nt; // number of time steps
     int restart; // How many previous runs?
@@ -23,9 +24,13 @@ typedef struct {
     double dens; // density
     double temp; // temperature
 
+    double xyz0[3];
+    double Lxyz[3]; 
+
+    // MPI can only send c_str!
     char distname[50]; // name of file containing distribution function 
-	std::string boundaries_particles[6]; // particle boundary conditions for each side of the box
-	std::string boundaries_fields[6];    // field boundary conditions for each side of the box
+    char parts_bound[6][32]; // particle boundary conditions for 6 sides of box
+    char fields_bound[6][32];// field boundary conditions for 6 sides of the box
 
 } Input_Info_t;
 

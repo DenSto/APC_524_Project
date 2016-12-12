@@ -8,6 +8,7 @@
         needed
 */
 #include <vector>
+#include <stdio.h>
 #include "../grid/grid.hpp"
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"

@@ -52,6 +52,14 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
       return(EXIT_FAILURE);
     }
 
+    input_info->xyz0[0]=  0.0;
+    input_info->xyz0[1]=  0.0;
+    input_info->xyz0[2]=  0.0;
+
+    input_info->Lxyz[0] = 1.5;
+    input_info->Lxyz[1] = 2.0;
+    input_info->Lxyz[2] = 2.5;
+
 #if USE_MPI
     try
     {
@@ -142,20 +150,30 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
     input_info->dens    = 0.2;
     input_info->temp    = 1.5;
 
-    input_info->boundaries_particles[0] = ("periodic"); // x -> Left
-    input_info->boundaries_particles[1] = ("periodic"); // x -> Right
-    input_info->boundaries_particles[2] = ("periodic"); // y -> Left
-    input_info->boundaries_particles[3] = ("periodic"); // y -> Right
-    input_info->boundaries_particles[4] = ("periodic"); // z -> Left
-    input_info->boundaries_particles[5] = ("periodic"); // z -> Right
- 
     sprintf(input_info->distname,"distribution.dat");
+
+    // MPI can only Bcast C strings
+    char (*parts_bound)[32] = input_info->parts_bound;
+    strcpy(parts_bound[0], "periodic"); // x -> Left
+    strcpy(parts_bound[1], "periodic"); // x -> Right
+    strcpy(parts_bound[2], "periodic"); // y -> Left
+    strcpy(parts_bound[3], "periodic"); // y -> Right
+    strcpy(parts_bound[4], "periodic"); // z -> Left
+    strcpy(parts_bound[5], "periodic"); // z -> Right
+ 
+    char (*fields_bound)[32] = input_info->fields_bound;
+    strcpy(fields_bound[0], "periodic"); // x -> Left
+    strcpy(fields_bound[1], "periodic"); // x -> Right
+    strcpy(fields_bound[2], "periodic"); // y -> Left
+    strcpy(fields_bound[3], "periodic"); // y -> Right
+    strcpy(fields_bound[4], "periodic"); // z -> Left
+    strcpy(fields_bound[5], "periodic"); // z -> Right
 
     return 0;
 }
 
 void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts_fields){
-    printf("rank %d: writing output files...\n",rank);
+    //printf("rank %d: writing output files...\n",rank);
 }
 
 
@@ -166,11 +184,19 @@ void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts_fields
    *  Need to be modified if Input_Info_t is modified */
   Input_Type::Input_Type(){
     
+<<<<<<< HEAD
+      count_ = 4; // three types
+      int nint = 2*3+2*1; //2 of len 3 + 2 of len 1
+      int nlong = 1; // 1 of len 1
+      int ndouble = 3*1+2*3; //3 of len 1 + 2 of len 3
+      int nchar = 50+2*6*32; //char 50 + 2*6 boundaries each of 32
+=======
       count_ = 4; // number of types
       int nint = 8;
       int nlong = 1;
       int ndouble = 3;
       int nchar = 50; //char of length 50
+>>>>>>> f584c02896784738062d2bf2d3b5aa835681e84b
 
       // specify what are the MPI data types
       types_ = new MPI_Datatype[count_];
@@ -222,15 +248,31 @@ void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts_fields
 
   /* Check MPI broadcast **********************************/
   void checkinput(int rank, Input_Info_t *input_info){
-  
-     printf("rank=%d,nx=%d\n",rank,input_info->nCell[0]);
-     printf("rank=%d,np=%ld\n",rank,input_info->np);
-     printf("rank=%d,nt=%d\n",rank,input_info->nt);
-     printf("rank=%d,restart=%d\n",rank,input_info->restart);
-     printf("rank=%d,t0=%f\n",rank,input_info->t0);
-     printf("rank=%d,dens=%f\n",rank,input_info->dens);
-     printf("rank=%d,temp=%f\n",rank,input_info->temp);
-     printf("rank=%d,distname=%s\n",rank,input_info->distname);
+ 
+     fprintf(stderr,"rank=%d:checkinput\n",rank); 
+     const int *nCell = input_info->nCell;
+     fprintf(stderr,"rank=%d,nCell=%d,%d,%d\n",rank,nCell[0],nCell[1],nCell[2]);
+ 
+     const int *nProc = input_info->nProc;
+     fprintf(stderr,"rank=%d,nProc=%d,%d,%d\n",rank,nProc[0],nProc[1],nProc[2]);
+
+     fprintf(stderr,"rank=%d,nt=%d\n",rank,input_info->nt);
+     fprintf(stderr,"rank=%d,restart=%d\n",rank,input_info->restart);
+     fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
+
+     fprintf(stderr,"rank=%d,t0=%f\n",rank,input_info->t0);
+     fprintf(stderr,"rank=%d,dens=%f\n",rank,input_info->dens);
+     fprintf(stderr,"rank=%d,temp=%f\n",rank,input_info->temp);
+
+     const double *xyz0 = input_info->xyz0;
+     fprintf(stderr,"rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
+
+     const double *Lxyz = input_info->Lxyz;
+     fprintf(stderr,"rank=%d,Lxyz=%f,%f,%f\n",rank,Lxyz[0],Lxyz[1],Lxyz[2]);
+
+     fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);
+     fprintf(stderr,"rank=%d,parts_bound=%s\n",rank,input_info->parts_bound[0]);
+     fprintf(stderr,"rank=%d,fields_bound=%s\n",rank,input_info->fields_bound[0]);
   
   }
 

@@ -8,6 +8,7 @@
 #include "../grid/grid.hpp"
 
 Particle_Handler::Particle_Handler(long np){
+    //fprintf(stderr,"new Particle_Handler\n");
     np_=np;
 
 	parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 

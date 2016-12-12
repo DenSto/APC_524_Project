@@ -32,7 +32,7 @@ public:
   int getNumberOfCells();
   double getStepSize(int dimension);
 
-  void updateGhostCells();
+  void updatePeriodicGhostCells();
   int getGhostVecSize(); // called by main to size MPI Buffer
   void getGhostVec(const int side, double* ghostVec); // called by main to get MPI
   void getGhostVecAlt(const int side, double* ghostVec); // called by main to get MPI
@@ -46,6 +46,10 @@ protected:
   const int nz_;
 
   const int nGhosts_; // number of ghost points in each dimension/2
+
+  const int nxTot_; // nx_ + 1 (total number of grid points in x) 
+  const int nyTot_; 
+  const int nzTot_; 
 
   const double x0_;	// initial x position
   const double y0_;	// initial y position
@@ -71,7 +75,8 @@ protected:
   const double idz_;
 
   const int nRealPtsYZPlane_;
-  const int nFields_;
+  const int nFieldsToSend_;
+  const int nFieldsTotal_; 
   const int ghostVecSize_; /* total number of ghost field values in
                                     a single plane. All MPI communiation
                                     of fields send messages of this size */
@@ -99,10 +104,12 @@ protected:
   // vector for storing temporary physical slices of scalar fields
   double *sliceTmp_;
 
+  double *fieldIsContiguous_; 
+
   // allocates contiguous memory for nx*ny*nz array
-  double*** newField_();
+  double*** newField_(int ifield);
   // deallocates memory for nx*ny*nz array
-  void deleteField_(double*** fieldPt);
+  void deleteField_(double*** fieldPt,int ifield);
 
   // converts side = -/+ 1 into a real index
   int sideToIndex_(const int side);

@@ -12,55 +12,44 @@ class Domain {
         
         int getnGhosts(void);
         int *getnxyz(void);    // Local grid size
-        double *getxyz0(void); // Local position
+        int *getn2xyz(void);    // Local grid area
+        double *getxyz0(void); // Local origin
         double *getLxyz(void); // Local domain size
         double getmindx(void);
 
-        void mallocGhosts(void); // allocate ghostVec
+        void mallocGhosts(Grid *grids); // allocate ghostVec
         void freeGhosts(void); // free ghostVec
 
         void PassParticles(Particle_Handler *parts_fields); // particle boundary
         void PassFields(Grid *grids); // field boundary
  
-#if USE_MPI
-        int *getGlobalnyxz(void); // Global grid size
-        double *getGlobalxyz0(void); // Global domain position
-        double *getGlobalLxyz(void); // Global domain size
-		int *getMyLocationOnMap();
-		int *getnProcxyz(void);
-		int ***getProcMap(void);
-#endif
+	int *getnProcxyz(void); // return pointer nProcxyz_
+        int *getMyLocationOnMap(void);
+
+	int ijkToRank(int *myijk); // return rank for assigned myijk[3]
+        void RankToijk(int rank, int *myijk); // assign value to allocated myijk[3] 
 	
     private:
         int size_; // MPI size
         int rank_; // MPI rank     
 
         int nGhosts_; 
-        int *nxyz_;
+        int *nxyz_; // nxyz_[0]=nx
+        int *n2xyz_; // n2xyz_[0]=ny*nz
+        int n3xyz_; // n3xyz=nx*ny*nz
         double *xyz0_;
         double *Lxyz_;
-
-        int nxny_; //size of z-plane nx*ny
-        int nynz_; //size of x-plane ny*nz
-        int nznx_; //size of y-plane nz*nx
 
         int rank_xl_, rank_xr_; // x neighbors 
         int rank_yl_, rank_yr_; // y neighbors
         int rank_zl_, rank_zr_; // z neighbors
 
-        double *xghost_send, *xghost_recv; // buffer for ghostVec in x direction
-        double *yghost_send, *yghost_recv; // buffer for ghostVec in y direction
-        double *zghost_send, *zghost_recv; // buffer for ghostVec in z direction
+        double *xghost_send_, *xghost_recv_; // buffer for ghostVec in x direction
+        double *yghost_send_, *yghost_recv_; // buffer for ghostVec in y direction
+        double *zghost_send_, *zghost_recv_; // buffer for ghostVec in z direction
 
-
-#if USE_MPI
-		int ***procMap_;  // map of rank to partition segment
-		int *nProcxyz_;   // sizes of the partitions
-		int *myLocationOnMap_; // where am I on this partition?
-        int *globalnxyz_;
-        double *globalxyz0_;
-        double *globalLxyz_;
-#endif
+        int *nProcxyz_;   // sizes of the partitions
+	int *myLocationOnMap_; // where am I on this partition?
 };
 
 void checkdomain(int rank, Domain *domain);

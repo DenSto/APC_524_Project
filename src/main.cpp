@@ -96,17 +96,21 @@ int main(int argc, char *argv[]){
     MPI_Type_create_struct(itype.getcount(),itype.getlens(),itype.getdisps(),
                            itype.gettypes(),&infotype);
     MPI_Type_commit(&infotype);
+    //fprintf(stderr,"rank=%d:before MPI_Bcast\n",rank);
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
-    checkinput(rank,&input_info);
+    //fprintf(stderr,"rank=%d:after MPI_Bcast\n",rank);
+    //checkinput(rank,&input_info);
 #endif
     int restart = input_info.restart; // restart=0: initial run
                                       // restart=3: third restart
+    //fprintf(stderr,"rank=%d,restart=%d\n",rank,restart);
+
 
     /* Initial setup **************************************/
     // Domain decomposition
     Domain *domain = new Domain(size,rank,&input_info);
-    checkdomain(rank,domain);
+    //checkdomain(rank,domain);
     //domain.setup(inputinfo);
 
     // Initialize particles
@@ -114,9 +118,8 @@ int main(int argc, char *argv[]){
     parts_fields->setPusher(new Boris());
 
     // Set up particle boundary conditions
-    std::string *bound_part;
-    bound_part = input_info.boundaries_particles;
-    BC_Factory::getInstance().constructConditions(domain,bound_part);
+    BC_Factory::getInstance().constructConditions(domain,input_info.parts_bound);
+    //fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
     // Initialize grid
     Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
@@ -124,45 +127,58 @@ int main(int argc, char *argv[]){
 
     // Load particles, allow restart
     parts_fields->Load(restart);
+    //fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
     parts_fields->depositRhoJ(grids);
+    //fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
 
     // Solve initial fields from particle or read restart file
     grids->InitializeFields(restart); 
+    //fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
 
     // Interpolate fields from grid to particle
     // Prepare initial push of particles
     parts_fields->InterpolateEB(grids);
+    //fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
+
 
     /* Advance time step **********************************/
     // prepare ghost cells
     /// Ghost cells are either MPI neighbors or physical boundary conditions
-    domain->mallocGhosts();
+    domain->mallocGhosts(grids);
+    //fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);   
 
     // prepare time step
     int nt = input_info.nt; //number of steps to run
     double t = input_info.t0; //initial time
     double dt = 1/domain->getmindx(); //c=1, resolve EM wave
+    //fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     for(int ti=0;ti<nt;ti++){
        // push particles
        parts_fields->Push(dt);
+       //fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // pass particles that cross boundary
        domain->PassParticles(parts_fields); 
+       //fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
        parts_fields->depositRhoJ(grids);
+       //fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
        grids->evolveFields(dt);
+       //fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
        domain->PassFields(grids);
+       //fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle
        parts_fields->InterpolateEB(grids);
+       //fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
 
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
@@ -170,13 +186,19 @@ int main(int argc, char *argv[]){
        t+=dt;
      }  
 
+
     /* output, finalize ***********************************/
     writeoutput(t,rank,grids,parts_fields); //MPI
+    //fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
 
     domain->freeGhosts();
     delete domain;
     delete parts_fields;
     delete grids;
+    //fprintf(stderr,"rank=%d: Finish free\n",rank);   
+    //MPI_Barrier(MPI_COMM_WORLD);
+    //fprintf(stderr,"rank=%d: Finish barrier\n",rank);   
+
 
 #if USE_MPI
     double time = MPI_Wtime()-begin;
