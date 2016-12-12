@@ -184,19 +184,11 @@ void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts_fields
    *  Need to be modified if Input_Info_t is modified */
   Input_Type::Input_Type(){
     
-<<<<<<< HEAD
       count_ = 4; // three types
       int nint = 2*3+2*1; //2 of len 3 + 2 of len 1
       int nlong = 1; // 1 of len 1
       int ndouble = 3*1+2*3; //3 of len 1 + 2 of len 3
       int nchar = 50+2*6*32; //char 50 + 2*6 boundaries each of 32
-=======
-      count_ = 4; // number of types
-      int nint = 8;
-      int nlong = 1;
-      int ndouble = 3;
-      int nchar = 50; //char of length 50
->>>>>>> f584c02896784738062d2bf2d3b5aa835681e84b
 
       // specify what are the MPI data types
       types_ = new MPI_Datatype[count_];
