@@ -35,68 +35,41 @@ void Grid::unsliceMatToVec_(double*** mat, const int side) {
 }; 
 
 /// updates ghost cells after evolving the field on physical points
-/*! For each of Ei_,Bi_,Ji_ (for i=x,y,z), copies the value of the field on the outermost physical grid points onto their adjacent ghost grid points. Currently this method requires nGhosts_=1 and will not perform correctly if nGhosts_ != 1 (it may not crash but will not update the ghost cells as desired). 
+/*! For each of Ei_,Bi_,Ji_ (for i=x,y,z), updates the ghost cells in the y and z directions with periodic boundary conditions. \n
+ * Updates of ghost cells in the x direction requires MPI calls due to 1D domain decomposition, and is handled in domain class, not here. \n
+ * Currently this method requires nGhosts_=1 and will not perform correctly if nGhosts_ != 1 (it may not crash but will not update the ghost cells as desired). 
  */ 
-void Grid::updateGhostCells() { 
+void Grid::updatePeriodicGhostCells() { 
     int i,j,k; // iterators 
-    int iGhostLeft=iBeg_-1; 
-    int iGhostRight=iEnd_+1; 
     int jGhostLeft=jBeg_-1; 
     int jGhostRight=jEnd_+1; 
     int kGhostLeft=kBeg_-1; 
     int kGhostRight=kEnd_+1; 
     
-    // update ghost cells in x direction 
-    // iterates over yz plane
-    for (j=jBeg_; j<jEnd_+1; ++j) { 
-        for (k=kBeg_; k<kEnd_+1; ++k) { 
-            Ex_[iGhostLeft][j][k]=Ex_[iBeg_][j][k]; 
-            Ex_[iGhostRight][j][k]=Ex_[iEnd_][j][k]; 
-            Ey_[iGhostLeft][j][k]=Ey_[iBeg_][j][k]; 
-            Ey_[iGhostRight][j][k]=Ey_[iEnd_][j][k]; 
-            Ez_[iGhostLeft][j][k]=Ez_[iBeg_][j][k]; 
-            Ez_[iGhostRight][j][k]=Ez_[iEnd_][j][k]; 
-
-            Bx_[iGhostLeft][j][k]=Bx_[iBeg_][j][k]; 
-            Bx_[iGhostRight][j][k]=Bx_[iEnd_][j][k]; 
-            By_[iGhostLeft][j][k]=By_[iBeg_][j][k]; 
-            By_[iGhostRight][j][k]=By_[iEnd_][j][k]; 
-            Bz_[iGhostLeft][j][k]=Bz_[iBeg_][j][k]; 
-            Bz_[iGhostRight][j][k]=Bz_[iEnd_][j][k]; 
-
-            Jx_[iGhostLeft][j][k]=Jx_[iBeg_][j][k]; 
-            Jx_[iGhostRight][j][k]=Jx_[iEnd_][j][k]; 
-            Jy_[iGhostLeft][j][k]=Jy_[iBeg_][j][k]; 
-            Jy_[iGhostRight][j][k]=Jy_[iEnd_][j][k]; 
-            Jz_[iGhostLeft][j][k]=Jz_[iBeg_][j][k]; 
-            Jz_[iGhostRight][j][k]=Jz_[iEnd_][j][k]; 
-        } 
-    }
-
     // updates ghost cells in y direction 
     // iterates over xz plane
     for (i=iBeg_; i<iEnd_+1; ++i) { 
         for (k=kBeg_; k<kEnd_+1; ++k) { 
-            Ex_[i][jGhostLeft][k]=Ex_[i][jBeg_][k]; 
-            Ex_[i][jGhostRight][k]=Ex_[i][jEnd_][k]; 
-            Ey_[i][jGhostLeft][k]=Ey_[i][jBeg_][k]; 
-            Ey_[i][jGhostRight][k]=Ey_[i][jEnd_][k]; 
-            Ez_[i][jGhostLeft][k]=Ez_[i][jBeg_][k]; 
-            Ez_[i][jGhostRight][k]=Ez_[i][jEnd_][k]; 
+            Ex_[i][jGhostLeft][k]=Ex_[i][jEnd_][k]; 
+            Ex_[i][jGhostRight][k]=Ex_[i][jBeg_][k]; 
+            Ey_[i][jGhostLeft][k]=Ey_[i][jEnd_][k]; 
+            Ey_[i][jGhostRight][k]=Ey_[i][jBeg_][k]; 
+            Ez_[i][jGhostLeft][k]=Ez_[i][jEnd_][k]; 
+            Ez_[i][jGhostRight][k]=Ez_[i][jBeg_][k]; 
 
-            Bx_[i][jGhostLeft][k]=Bx_[i][jBeg_][k]; 
-            Bx_[i][jGhostRight][k]=Bx_[i][jEnd_][k]; 
-            By_[i][jGhostLeft][k]=By_[i][jBeg_][k]; 
-            By_[i][jGhostRight][k]=By_[i][jEnd_][k]; 
-            Bz_[i][jGhostLeft][k]=Bz_[i][jBeg_][k]; 
-            Bz_[i][jGhostRight][k]=Bz_[i][jEnd_][k]; 
+            Bx_[i][jGhostLeft][k]=Bx_[i][jEnd_][k]; 
+            Bx_[i][jGhostRight][k]=Bx_[i][jBeg_][k]; 
+            By_[i][jGhostLeft][k]=By_[i][jEnd_][k]; 
+            By_[i][jGhostRight][k]=By_[i][jBeg_][k]; 
+            Bz_[i][jGhostLeft][k]=Bz_[i][jEnd_][k]; 
+            Bz_[i][jGhostRight][k]=Bz_[i][jBeg_][k]; 
 
-            Jx_[i][jGhostLeft][k]=Jx_[i][jBeg_][k]; 
-            Jx_[i][jGhostRight][k]=Jx_[i][jEnd_][k]; 
-            Jy_[i][jGhostLeft][k]=Jy_[i][jBeg_][k]; 
-            Jy_[i][jGhostRight][k]=Jy_[i][jEnd_][k]; 
-            Jz_[i][jGhostLeft][k]=Jz_[i][jBeg_][k]; 
-            Jz_[i][jGhostRight][k]=Jz_[i][jEnd_][k]; 
+            Jx_[i][jGhostLeft][k]=Jx_[i][jEnd_][k]; 
+            Jx_[i][jGhostRight][k]=Jx_[i][jBeg_][k]; 
+            Jy_[i][jGhostLeft][k]=Jy_[i][jEnd_][k]; 
+            Jy_[i][jGhostRight][k]=Jy_[i][jBeg_][k]; 
+            Jz_[i][jGhostLeft][k]=Jz_[i][jEnd_][k]; 
+            Jz_[i][jGhostRight][k]=Jz_[i][jBeg_][k]; 
         } 
     }
 
@@ -104,26 +77,26 @@ void Grid::updateGhostCells() {
     // iterates over xy plane 
     for (i=iBeg_; i<iEnd_+1; ++i) { 
         for (j=jBeg_; j<jEnd_+1; ++j) { 
-            Ex_[i][j][kGhostLeft]=Ex_[i][j][kBeg_]; 
-            Ex_[i][j][kGhostRight]=Ex_[i][j][kEnd_]; 
-            Ey_[i][j][kGhostLeft]=Ey_[i][j][kBeg_]; 
-            Ey_[i][j][kGhostRight]=Ey_[i][j][kEnd_]; 
-            Ez_[i][j][kGhostLeft]=Ez_[i][j][kBeg_]; 
-            Ez_[i][j][kGhostRight]=Ez_[i][j][kEnd_]; 
+            Ex_[i][j][kGhostLeft]=Ex_[i][j][kEnd_]; 
+            Ex_[i][j][kGhostRight]=Ex_[i][j][kBeg_]; 
+            Ey_[i][j][kGhostLeft]=Ey_[i][j][kEnd_]; 
+            Ey_[i][j][kGhostRight]=Ey_[i][j][kBeg_]; 
+            Ez_[i][j][kGhostLeft]=Ez_[i][j][kEnd_]; 
+            Ez_[i][j][kGhostRight]=Ez_[i][j][kBeg_]; 
 
-            Bx_[i][j][kGhostLeft]=Bx_[i][j][kBeg_]; 
-            Bx_[i][j][kGhostRight]=Bx_[i][j][kEnd_]; 
-            By_[i][j][kGhostLeft]=By_[i][j][kBeg_]; 
-            By_[i][j][kGhostRight]=By_[i][j][kEnd_]; 
-            Bz_[i][j][kGhostLeft]=Bz_[i][j][kBeg_]; 
-            Bz_[i][j][kGhostRight]=Bz_[i][j][kEnd_]; 
+            Bx_[i][j][kGhostLeft]=Bx_[i][j][kEnd_]; 
+            Bx_[i][j][kGhostRight]=Bx_[i][j][kBeg_]; 
+            By_[i][j][kGhostLeft]=By_[i][j][kEnd_]; 
+            By_[i][j][kGhostRight]=By_[i][j][kBeg_]; 
+            Bz_[i][j][kGhostLeft]=Bz_[i][j][kEnd_]; 
+            Bz_[i][j][kGhostRight]=Bz_[i][j][kBeg_]; 
 
-            Jx_[i][j][kGhostLeft]=Jx_[i][j][kBeg_]; 
-            Jx_[i][j][kGhostRight]=Jx_[i][j][kEnd_]; 
-            Jy_[i][j][kGhostLeft]=Jy_[i][j][kBeg_]; 
-            Jy_[i][j][kGhostRight]=Jy_[i][j][kEnd_]; 
-            Jz_[i][j][kGhostLeft]=Jz_[i][j][kBeg_]; 
-            Jz_[i][j][kGhostRight]=Jz_[i][j][kEnd_]; 
+            Jx_[i][j][kGhostLeft]=Jx_[i][j][kEnd_]; 
+            Jx_[i][j][kGhostRight]=Jx_[i][j][kBeg_]; 
+            Jy_[i][j][kGhostLeft]=Jy_[i][j][kEnd_]; 
+            Jy_[i][j][kGhostRight]=Jy_[i][j][kBeg_]; 
+            Jz_[i][j][kGhostLeft]=Jz_[i][j][kEnd_]; 
+            Jz_[i][j][kGhostRight]=Jz_[i][j][kBeg_]; 
         } 
     }
 
