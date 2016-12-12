@@ -11,11 +11,16 @@ Depositor::Depositor(){
 Depositor::~Depositor(){
 }
 
-void Depositor::deposit_particle_RhoJ(long* cellID, double pos[][3], double* dpos, double* lcell, double cellverts[][3], double dt, double q, double RhoJObj[][12]) {
+//Comment(YShi): J deposition is better done with velocity directly. Because at 
+//initialization step, dpos is undefined. The interface can also be made simpler
+//by passing in struct Particle, which contains pos, dpos,q 
+//If the above is accepted, then some contents of this soutine needs to be changed
+void Depositor::deposit_particle_RhoJ(long* cellID,Particle *part, double* lcell, double cellverts[][3], double RhoJObj[][12]) {
+//void Depositor::deposit_particle_RhoJ(long* cellID, double pos[][3], double* dpos, double* lcell, double cellverts[][3], double dt, double q, double RhoJObj[][12]) {
   //Function returns an updated RhoJObj to include the current due to particle motion on the cell edges.
 
-  double dx = 0.0;
-  double fullArea = 0.0;
+//  double dx = 0.0;
+//  double fullArea = 0.0;
   double curIn1D = 0.0;
   double cur2AreaRatio = 0.0;
   double avgpos[3] = {};
@@ -48,15 +53,15 @@ void Depositor::deposit_particle_RhoJ(long* cellID, double pos[][3], double* dpo
       }
 
       //Get average position of particle w.r.t. "least" cell vertex.
-      for (int j=0; j<3; j++) {
+/*      for (int j=0; j<3; j++) {
 	avgpos[j] = ( pos[kcell][j] + (pos[kcell][j] + moveDir*dpos[j]) )/2.0 - cellverts[kcell][j];
 	//Keep its propagation within the cell, however.
 	avgpos[j] = MIN(MAX(avgpos[j], 0.0), lcell[j]);
       }
-
+*/
       //Calculate current DUE TO MOTION and apply to exited and entered cells (split in half if not the same).
       cellArea = lcell[j]*lcell[k];
-      curIn1D = jFactor*q*dpos[i]/dt;
+//      curIn1D = jFactor*q*dpos[i]/dt;
       cur2AreaRatio = curIn1D / cellArea;
       RhoJObj[kcell][4*i] += cur2AreaRatio * (lcell[j]-avgpos[j]) * (lcell[k]-avgpos[k]);
       RhoJObj[kcell][4*i+1] += cur2AreaRatio * avgpos[j] * (lcell[k]-avgpos[k]);

@@ -105,8 +105,10 @@ int main(int argc, char *argv[]){
     Particle_Handler *parts_fields = new Particle_Handler(input_info.np); 
     parts_fields->setPusher(new Boris());
 
-	// Set up particle boundary conditions
-	BC_Factory::getInstance().constructConditions(domain,input_info.boundaries_particles);
+    // Set up particle boundary conditions
+    std::string *bound_part;
+    bound_part = input_info.boundaries_particles;
+    BC_Factory::getInstance().constructConditions(domain,bound_part);
 
     // Initialize grid
     Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
@@ -116,47 +118,54 @@ int main(int argc, char *argv[]){
     parts_fields->Load(restart);
 
     // Deposite initial charge and current from particles to grid
-    //parts_fields->depositRhoJ(grids, dt);
+    parts_fields->depositRhoJ(grids);
 
     // Solve initial fields from particle or read restart file
     grids->InitializeFields(restart); 
 
-    // Prepare to push particles
+    // Interpolate fields from grid to particle
+    // Prepare initial push of particles
     parts_fields->InterpolateEB(grids);
 
     /* Advance time step **********************************/
+    // prepare ghost cells
+    /// Ghost cells are either MPI neighbors or physical boundary conditions
+    domain->mallocGhosts();
+
+    // prepare time step
     int nt = input_info.nt; //number of steps to run
     double t = input_info.t0; //initial time
-    double dx = domain->getmindx(); 
-    double vmax; //maximum velocity of particles 
-    double dt; //step size to be determined at each step
-    double dtmin; // minimum dt for all MPI processes
-    //printf("rank=%d: nt=%d,t0=%f,dx=%f\n",rank,nt,t,dx);
+    double dt = 1/domain->getmindx(); //c=1, resolve EM wave
 
     for(int ti=0;ti<nt;ti++){
-       vmax = parts_fields->maxVelocity(); 
-       assert(vmax>0);
-       dt   = dx/vmax;
-#if USE_MPI
-       MPI_Allreduce(&dt,&dtmin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
-#else  
-       dtmin = dt;
-#endif
-       //printf("rank=%d:ti=%d,vmax=%f,dx=%f,dt=%f,dtmin=%f\n",rank,ti,vmax,dx,dt,dtmin);
-       parts_fields->Push(dtmin);
-//       particle.pass(domains); //MPI
-       parts_fields->depositRhoJ(grids, dt);
-       grids->evolveFields(dtmin);
-//       grid.boundary(domains); //MPI
+       // push particles
+       parts_fields->Push(dt);
+
+       // pass particles that cross boundary
+       domain->PassParticles(parts_fields); 
+
+       // deposite charge and current on grid
+       parts_fields->depositRhoJ(grids);
+
+       // evolve E, B fields
+       grids->evolveFields(dt);
+
+       // pass field boundaries 
+       domain->PassFields(grids);
+
+       // Interpolate fields from grid to particle
        parts_fields->InterpolateEB(grids);
+
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
+
        t+=dt;
      }  
 
     /* output, finalize ***********************************/
     writeoutput(t,rank,grids,parts_fields); //MPI
 
+    domain->freeGhosts();
     delete domain;
     delete parts_fields;
     delete grids;
