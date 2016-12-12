@@ -1,6 +1,7 @@
 #ifndef IO_HPP
 #define IO_HPP
 
+// NRM: why are these needed?
 #include "../grid/grid.hpp"
 #include "../particles/particle_handler.hpp"
 #include <string>
@@ -12,6 +13,9 @@ typedef struct {
     int nt; // number of time steps
     int restart; // How many previous runs?
                  // Initial run if restart = 0
+#if USE_MPI
+	int nProc[3]; // number of processors to use in each direction
+#endif
 
     long np; // number of particles in each domain
 
@@ -20,9 +24,6 @@ typedef struct {
     double temp; // temperature
 
     char distname[50]; // name of file containing distribution function 
-#if USE_MPI
-	int nProc[3]; // number of processors to use in each direction
-#endif
 	std::string boundaries_particles[6]; // particle boundary conditions for each side of the box
 	std::string boundaries_fields[6];    // field boundary conditions for each side of the box
 
@@ -54,7 +55,7 @@ typedef struct {
 
 #endif
 
-void readinput(char *fname, Input_Info_t *input_info);
+int readinput(char *fname, Input_Info_t *input_info, int size);
 void checkinput(int rank, Input_Info_t *input_info);
 
 void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts__fields); //MPI
