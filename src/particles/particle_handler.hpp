@@ -27,6 +27,7 @@ public:
   void SortParticles(Particle_Compare comp); // quicksort particle list
 
   void setPusher(Pusher* pusher) {pusher_=pusher;};
+  void clearGhosts();	// remove all ghost particles in particle list
 
   void InterpolateEB(Grid* grid);
   //void depositRhoJ(Grid *grids, double dt); // deposit current and charge density from particles to grid

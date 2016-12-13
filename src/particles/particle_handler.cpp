@@ -167,3 +167,18 @@ void Particle_Handler::depositRhoJ(Grid *grid){
 double Particle_Handler::maxVelocity(void){
     return 0.1;
 }
+
+
+void Particle_Handler::clearGhosts(){
+	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
+		if(iter->isGhost){
+			std::swap(*iter, parts_.back());
+			parts_.pop_back();
+		} else {
+			iter++;
+		}
+	}
+
+
+
+}
