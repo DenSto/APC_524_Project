@@ -48,8 +48,7 @@ clean:
 test:
 	cd ../test; \
 	make; \
-	./IO_unittests; \
-	./oGrid_unittests; \
+	make run_tests; \
 	cd ../src;
 
 -include .depend

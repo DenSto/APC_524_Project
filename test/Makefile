@@ -50,7 +50,7 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 
 # House-keeping build targets.
 
-all : $(TESTS)
+all : $(TESTS) 
 
 clean :
 	rm -f $(TESTS) gtest.a gtest_main.a *.o
@@ -103,3 +103,5 @@ oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  
 oGrid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) oGrid_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
 
+run_tests:
+	$(addsuffix ;, $(addprefix ./, $(TESTS)))	
