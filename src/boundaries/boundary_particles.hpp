@@ -3,9 +3,7 @@
 
 
 #include "../grid/grid.hpp"
-#include "../domain/domain.hpp"
 #include "../particles/particle.hpp"
-#include "../particles/particle_handler.hpp"
 #include <vector>
 #include <string>
 
@@ -20,7 +18,6 @@ class BC_Particle {
 		double xMin_;
 		double xMax_;
 		int dim_index_;
-		short isLeft_;
 		std::string type_;
 };
 

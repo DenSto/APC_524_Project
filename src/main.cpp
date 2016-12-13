@@ -20,6 +20,7 @@
 #include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
 #include "./boundaries/bc_factory.hpp"
+#include "./boundaries/boundary_particles.hpp"
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
 
@@ -113,11 +114,12 @@ int main(int argc, char *argv[]){
     //checkdomain(rank,domain);
 
     // Initialize particles
-    Particle_Handler *parts_fields = new Particle_Handler(input_info.np); 
-    parts_fields->setPusher(new Boris());
+    Particle_Handler *part_handler = new Particle_Handler(input_info.np); 
+    part_handler->setPusher(new Boris());
 
     // Set up particle boundary conditions
-    BC_Factory::getInstance().constructConditions(domain,input_info.parts_bound);
+    BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info.parts_bound);
+	part_handler->setParticleBoundaries(bc);
     fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
     // Initialize grid
@@ -126,11 +128,11 @@ int main(int argc, char *argv[]){
     fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
-    parts_fields->Load(restart);
+    part_handler->Load(restart);
     fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
-    parts_fields->depositRhoJ(grids);
+    part_handler->depositRhoJ(grids);
     fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
 
     // Solve initial fields from particle or read restart file
@@ -139,7 +141,7 @@ int main(int argc, char *argv[]){
 
     // Interpolate fields from grid to particle
     // Prepare initial push of particles
-    parts_fields->InterpolateEB(grids);
+    part_handler->InterpolateEB(grids);
     fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
 
 
@@ -157,15 +159,16 @@ int main(int argc, char *argv[]){
 
     for(int ti=0;ti<nt;ti++){
        // push particles
-       parts_fields->Push(dt);
+       part_handler->Push(dt);
        //fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
-       // pass particles that cross boundary
-       domain->PassParticles(parts_fields); 
+       // Cycle through the particle boundary conditions
+	   part_handler->executeParticleBoundaryConditions();
+
        //fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
-       parts_fields->depositRhoJ(grids);
+       part_handler->depositRhoJ(grids);
        //fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
@@ -177,7 +180,7 @@ int main(int argc, char *argv[]){
        //fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle
-       parts_fields->InterpolateEB(grids);
+       part_handler->InterpolateEB(grids);
        //fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
 
        // check and write restart files
@@ -188,12 +191,12 @@ int main(int argc, char *argv[]){
 
 
     /* output, finalize ***********************************/
-    writeoutput(t,rank,grids,parts_fields); //MPI
+    writeoutput(t,rank,grids,part_handler); //MPI
     //fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
 
     domain->freeGhosts();
     delete domain;
-    delete parts_fields;
+    delete part_handler;
     delete grids;
     //fprintf(stderr,"rank=%d: Finish free\n",rank);   
     //MPI_Barrier(MPI_COMM_WORLD);

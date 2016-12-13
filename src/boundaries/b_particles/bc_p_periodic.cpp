@@ -15,8 +15,6 @@ class BC_P_Periodic : public BC_Particle {
 		double xMax_;
 		int dim_index_;
 		std::string type_;
-
-		short isLeft_;
 };
 
 BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, std::string type) 

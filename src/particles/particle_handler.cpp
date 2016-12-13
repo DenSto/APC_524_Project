@@ -178,7 +178,12 @@ void Particle_Handler::clearGhosts(){
 			iter++;
 		}
 	}
+}
 
 
-
+void Particle_Handler::executeParticleBoundaryConditions(){
+	for(int i = 0; i < 6; i++){
+		boundaries_[i]->computeParticleBCs(parts_);
+		boundaries_[i]->completeBC();
+	}
 }

@@ -16,7 +16,6 @@ class BC_P_MPI : public BC_Particle {
 		int dim_index_;
 		std::string type_;
 
-		short isLeft_;
 		int targetRank_;
 		double lengthShift_;
 };

@@ -12,6 +12,7 @@
 #include "../grid/grid.hpp"
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
+#include "../boundaries/boundary_particles.hpp"
 #include "interpolate.hpp"
 #include "deposit.hpp"
 
@@ -38,8 +39,12 @@ public:
 
   double maxVelocity(void); // return maximum velocity of particles 
                                   // to determine size of time steps 
+
+  void setParticleBoundaries(BC_Particle** bc){boundaries_=bc;}
+  void executeParticleBoundaryConditions();
 private:
   long np_;
+  BC_Particle** boundaries_; /* Particle Boundary Conditions */
   std::vector<Particle> parts_;    /* Vector of particles */
   Pusher* pusher_;
 };
