@@ -44,7 +44,7 @@ public:
 		std::string periodic ("periodic");
 		std::string mpi ("MPI");
 		int* nProc = domain->getnProcxyz();	
-		int* myLoc = domain->getMyLocationOnMap();	
+		int* myLoc = domain->getmyijk();	
 #endif
 		BC_Particle** ret = new BC_Particle*[6];
 		assert(ret != NULL);

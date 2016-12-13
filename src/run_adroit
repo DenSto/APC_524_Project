@@ -15,4 +15,4 @@ path="$PWD"
 cd ../data/unitest
 rm -rf output.out
 
-srun $path/EMOOPIC input.txt > output.out
+srun $path/EMOOPIC input_MPI.txt > output.out

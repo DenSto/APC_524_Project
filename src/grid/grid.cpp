@@ -42,7 +42,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     nFieldsTotal_(15), 
     ghostVecSize_(nFieldsToSend_*nRealPtsYZPlane_)
 {
-    //fprintf(stderr,"New Grid Object\n");
+    fprintf(stderr,"New Grid Object\n");
     checkInput_(); 
  
     int ifield = -1; 

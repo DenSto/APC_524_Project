@@ -100,7 +100,7 @@ int main(int argc, char *argv[]){
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
     //fprintf(stderr,"rank=%d:after MPI_Bcast\n",rank);
-    checkinput(rank,&input_info);
+    //checkinput(rank,&input_info);
 #endif
     int restart = input_info.restart; // restart=0: initial run
                                       // restart=3: third restart
@@ -111,7 +111,6 @@ int main(int argc, char *argv[]){
     // Domain decomposition
     Domain *domain = new Domain(size,rank,&input_info);
     //checkdomain(rank,domain);
-    //domain.setup(inputinfo);
 
     // Initialize particles
     Particle_Handler *parts_fields = new Particle_Handler(input_info.np); 

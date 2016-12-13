@@ -23,7 +23,7 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
        //fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
        int* nCell = input_info->nCell; 
        int* nProc = input_info->nProc;
-       fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d,%d,%d\n",rank_,size_,nProc[0],nProc[1],nProc[2]); 
+       //fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d,%d,%d\n",rank_,size_,nProc[0],nProc[1],nProc[2]); 
        assert(size_ == nProc[0]*nProc[1]*nProc[2]);
 
        // assign private variables
@@ -41,10 +41,40 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
            assert((n3xyz_ % nxyz_[i])==0);
        }           
 
-       /* determine mylocation on map *********************/
-       myLocationOnMap_ =  new int[3];
-       assert(myLocationOnMap_!=NULL);
-       RankToijk(rank_, myLocationOnMap_);
+       /* determine location on map ***********************/
+       // my location
+       myijk_ =  new int[3];
+       assert(myijk_!=NULL);
+       RankToijk(rank_, myijk_);
+
+       int itmp;
+       // x neihbors in toroidal topology
+       if(myijk_[0]>0){itmp = myijk_[0]-1;}
+       else{itmp = nProcxyz_[0]-1;}
+       rank_xl_ = ijkToRank(itmp,myijk_[1],myijk_[2]);
+
+       if(myijk_[0]<nProcxyz_[0]-1){itmp = myijk_[0]+1;}
+       else{itmp = 0;}
+       rank_xr_ = ijkToRank(itmp,myijk_[1],myijk_[2]);
+
+       // y neihbors in toroidal topology
+       if(myijk_[1]>0){itmp = myijk_[1]-1;}
+       else{itmp = nProcxyz_[1]-1;}
+       rank_yl_ = ijkToRank(myijk_[0],itmp,myijk_[2]);
+
+       if(myijk_[1]<nProcxyz_[1]-1){itmp = myijk_[1]+1;}
+       else{itmp = 0;}
+       rank_yr_ = ijkToRank(myijk_[0],itmp,myijk_[2]);
+
+       // z neihbors in toroidal topology
+       if(myijk_[2]>0){itmp = myijk_[2]-1;}
+       else{itmp = nProcxyz_[2]-1;}
+       rank_zl_ = ijkToRank(myijk_[0],myijk_[1],itmp);
+
+       if(myijk_[2]<nProcxyz_[2]-1){itmp = myijk_[2]+1;}
+       else{itmp = 0;}
+       rank_zr_ = ijkToRank(myijk_[0],myijk_[1],itmp);
+
 
        /* determine physical domain size ******************/
        const double *Lxyz = input_info->Lxyz;
@@ -57,7 +87,7 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
 
        for(int i=0;i<3;i++){
            Lxyz_[i] = Lxyz[i]/nProcxyz_[i];
-           xyz0_[i] = xyz0[i]+Lxyz_[i]*myLocationOnMap_[i];
+           xyz0_[i] = xyz0[i]+Lxyz_[i]*myijk_[i];
        }
 
        //fprintf(stderr,"rank=%d: end Domain constructor\n",rank_);
@@ -70,22 +100,22 @@ Domain::~Domain(){
     delete[] xyz0_;
     delete[] Lxyz_;
     delete[] nProcxyz_;
-    delete[] myLocationOnMap_;
+    delete[] myijk_;
 }
 
-//! return rank for assigned myijk[3]
-int Domain::ijkToRank(int *myijk){
-    assert(myijk!=NULL);
-    for(int i=0;i<3;i++){
-       assert(myijk[i]>=0);
-    }
+//! return rank for assigned i,j,k
+int Domain::ijkToRank(int i, int j, int k){
+    assert(i>=0);
+    assert(j>=0);
+    assert(k>=0);
 
     int myrank;
-    myrank = myijk[0]*nProcxyz_[1]*nProcxyz_[2];
-    myrank+= myijk[1]*nProcxyz_[2];
-    myrank+= myijk[2];
- 
-    assert(myrank>0 && myrank<=size_);   
+    myrank = i*nProcxyz_[1]*nProcxyz_[2];
+    myrank+= j*nProcxyz_[2];
+    myrank+= k;
+
+    //fprintf(stderr,"rank=%d:i=%d,j=%d,k=%d,myrank=%d\n",rank_,i,j,k,myrank); 
+    assert(myrank>=0 && myrank<=size_);   
  
     return myrank; 
 }; 
@@ -131,14 +161,23 @@ double* Domain::getLxyz(void){
     return Lxyz_;
 }
 
-int* Domain::getMyLocationOnMap(){
-	return myLocationOnMap_;
+int* Domain::getmyijk(void){
+    return myijk_;
 }
 
-int* Domain::getnProcxyz(){
-	return nProcxyz_;
+int* Domain::getnProcxyz(void){
+    return nProcxyz_;
 }
 
+int Domain::getxl(void){return rank_xl_;}    
+int Domain::getxr(void){return rank_xr_;}
+    
+int Domain::getyl(void){return rank_yl_;}    
+int Domain::getyr(void){return rank_yr_;}
+    
+int Domain::getzl(void){return rank_zl_;}    
+int Domain::getzr(void){return rank_zr_;}
+    
 //! Find minimum grid size
 double Domain::getmindx(void){
     double dxyz[3];
@@ -154,7 +193,7 @@ void checkdomain(int rank, Domain *domain){
       fprintf(stderr,"rank=%d: Check domain\n",rank);
       fprintf(stderr,"rank=%d,nGhosts=%d\n",rank,domain->getnGhosts());
 
-      int *myijk = domain->getMyLocationOnMap();
+      int *myijk = domain->getmyijk();
       fprintf(stderr,"rank=%d: myijk=%d,%d,%d\n",rank,myijk[0],myijk[1],myijk[2]);
 
       int *nxyz = domain->getnxyz();
@@ -169,5 +208,10 @@ void checkdomain(int rank, Domain *domain){
       double *xyz0 = domain->getxyz0();
       fprintf(stderr,"rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
   
+      fprintf(stderr,"rank=%d: xl=%d,xr=%d,yl=%d,yr=%d,zl=%d,zr=%d\n",rank,
+              domain->getxl(),domain->getxr(),
+              domain->getyl(),domain->getyr(),
+              domain->getzl(),domain->getzr());
+
 }
     

@@ -24,10 +24,18 @@ class Domain {
         void PassFields(Grid *grids); // field boundary
  
 	int *getnProcxyz(void); // return pointer nProcxyz_
-        int *getMyLocationOnMap(void);
+        int *getmyijk(void); 
+        int getxl(void); // rank of x left neighbot 
+        int getyl(void); 
+        int getzl(void);
+        int getxr(void); // rank of x right neighbor
+        int getyr(void);
+        int getzr(void);
 
-	int ijkToRank(int *myijk); // return rank for assigned myijk[3]
-        void RankToijk(int rank, int *myijk); // assign value to allocated myijk[3] 
+        // return rank for assigned i,j,k
+	int ijkToRank(int i, int j, int k); 
+        // assign value to allocated myijk[3] 
+        void RankToijk(int rank, int *myijk); 
 	
     private:
         int size_; // MPI size
@@ -49,7 +57,7 @@ class Domain {
         double *zghost_send_, *zghost_recv_; // buffer for ghostVec in z direction
 
         int *nProcxyz_;   // sizes of the partitions
-	int *myLocationOnMap_; // where am I on this partition?
+	int *myijk_; // where am I on this partition?
 };
 
 void checkdomain(int rank, Domain *domain);
