@@ -5,36 +5,38 @@
 
 class BC_P_Reflecting : public BC_Particle {
 	public:
-		BC_P_Reflecting(Domain* domain, int dim_Index, std::string type);
+		BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type);
 		~BC_P_Reflecting();
 		void computeParticleBCs(std::vector<Particle> pl);
-		void completeBC();
+		void completeBC(std::vector<Particle> pl);
 	private:
-		int particle_BC(double *x, double *v, double xMin, double xMax);
+		int particle_BC(Particle* p);
 		double xMin_;
 		double xMax_;
 		int dim_index_;
+		short isLeft_;
 		std::string type_;
 };
 
-BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, std::string type) 
+BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type) 
 	:	dim_index_(dim_Index),
+		isLeft_(isLeft),
 		type_(type)
 		{}
 
 BC_P_Reflecting::~BC_P_Reflecting(){
 }
 
-void BC_P_Reflecting::completeBC(){}
+void BC_P_Reflecting::completeBC(std::vector<Particle> pl){}
 
-int BC_P_Reflecting::particle_BC(double* x, double* v, double xMin, double xMax){
-	if(*x > xMax){
-		*x = 2.0*xMax - *x;
-		*v=-*v;
+int BC_P_Reflecting::particle_BC(Particle* p){
+	if(p->x[dim_index_] > xMax_){
+		p->x[dim_index_] = 2.0*xMax_ - p->x[dim_index_];
+		p->v[dim_index_]=-p->v[dim_index_];
 	} 
-	if(*x < xMin){
-		*x = 2.0*xMin - *x;
-		*v=-*v;
+	if(p->x[dim_index_] < xMin_){
+		p->x[dim_index_] = 2.0*xMin_ - p->x[dim_index_];
+		p->v[dim_index_]=-p->v[dim_index_];
 	}
 	return 0;
 }

@@ -12,12 +12,9 @@ class BC_Particle {
 	public:
 		virtual ~BC_Particle() {};
 		void computeParticleBCs(std::vector<Particle> pl);
-		virtual void completeBC() = 0;
+		virtual void completeBC(std::vector<Particle> pl) = 0;
 	private:
-		virtual int particle_BC(double *x, double *v, double xMin, double xMax) = 0;
-		double xMin_;
-		double xMax_;
-		int dim_index_;
+		virtual int particle_BC(Particle* p) = 0;
 		std::string type_;
 };
 

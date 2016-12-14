@@ -3,6 +3,6 @@
 void BC_Particle::computeParticleBCs(std::vector<Particle> pl) {
 	for(std::vector<Particle>::iterator ptr = pl.begin(); ptr != pl.end(); ++ptr){
 		ptr->isGhost = ptr->isGhost || 
-			  particle_BC(&(ptr->x[dim_index_]),&(ptr->v[dim_index_]),xMin_,xMax_);
+			  particle_BC(&(*ptr));
 	}
 }

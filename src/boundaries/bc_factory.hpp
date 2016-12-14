@@ -18,7 +18,7 @@
  */
 class BC_Factory {
 public:
-    typedef BC_Particle *(*Factory)(Domain* domain, int dim_Index, std::string type);
+    typedef BC_Particle *(*Factory)(Domain* domain, int dim_Index, short isLeft, std::string type);
   /*  
    * Return the (singleton) BC_Factory object
    */
@@ -55,28 +55,31 @@ public:
 				short inMiddle = (partitionIndex != 0) && (partitionIndex != nProc[i] - 1);
 				if(periodic.compare(types[2*i]) || inMiddle){ // Two MPI communication loops
 					// Left condition
-					ret[2*i]=lookup(mpi)(domain,i,mpi);
+					ret[2*i]=lookup(mpi)(domain,i,1,mpi);
 
 					// Right condition
-					ret[2*i+1]=lookup(mpi)(domain,i,mpi);
+					ret[2*i+1]=lookup(mpi)(domain,i,0,mpi);
 				} else { // One MPI communication loop
 					// Physical side (to be calculated first)
+					int MPIisLeft = 0;	
 					if(partitionIndex == 0){ // Physical boundary on left
 						ret[2*i]=lookup(types[2*i])(domain,i,types[2*i+1]);
+						MPIisLeft=0;
 					} else { // Physical boundary on right
 						ret[2*i]=lookup(types[2*i+1])(domain,i,types[2*i+1]);
+						MPIisLeft=1
 					}
 					// MPI side (left or right, compute second)
-					ret[2*i+1]=lookup(mpi)(domain,i,mpi);
+					ret[2*i+1]=lookup(mpi)(domain,i,MPIisLeft, mpi);
 				}
  			} else // treat serially
 #endif
 			{
 				// Left condition
-				ret[2*i]=lookup(types[2*i])(domain,i,types[2*i]);
+				ret[2*i]=lookup(types[2*i])(domain,i,1,types[2*i]);
 
 				// Right condition
-				ret[2*i+1]=lookup(types[2*i+1])(domain,i,types[2*i+1]);
+				ret[2*i+1]=lookup(types[2*i+1])(domain,i,0,types[2*i+1]);
 			}
 		}			 
 		return ret;
@@ -147,8 +150,8 @@ struct RegisterParticleBoundary {
  * A factory function for particle boudaries
  */
 template<typename T>
-BC_Particle *makeBCParticle(Domain* domain, int dim_Index, std::string type) {
-    return new T(domain,dim_Index,type);
+BC_Particle *makeBCParticle(Domain* domain, int dim_Index, short isLeft, std::string type) {
+    return new T(domain,dim_Index,isLeft, type);
 }
 
 
