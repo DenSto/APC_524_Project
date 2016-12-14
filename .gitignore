@@ -16,3 +16,4 @@ EMOOPIC
 *latex/*.idx
 libconfig-1.5
 test/*unittests
+*.bundle
