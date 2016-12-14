@@ -88,7 +88,7 @@ include $(SRC_DIR)/Makefile.obj
 # General rule to build any .o file in src
 $(SRC_DIR)/%.o:
 	cd $(SRC_DIR); \
-	make; \
+	make EMOOPIC; \
 	cd $(ROOT_DIR)/test
 
 IO_unittests.o : $(TESTSRC_DIR)/IO_unittests.cc $(SRC_DIR)/IO/IO.hpp $(GTEST_HEADERS)
@@ -115,5 +115,5 @@ spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) spookyGrid_unittests
 spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/spookyGrid_unittests.cc  -I $(SRC_DIR)/grid 
 
-run_tests:
+run_tests: $(TESTS)
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	

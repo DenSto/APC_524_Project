@@ -9,3 +9,8 @@ TEST(GridGetNumberOfCellsTest, returnsCorrectNumberOfCells) {
   Grid *grid = new Grid(nxyz, xyz0, Lxyz);
   EXPECT_EQ(60, grid->getNumberOfCells());
 }
+
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

@@ -10,3 +10,8 @@ TEST(GridGetNumberOfCellsTest, returnsCorrectNumberOfCells) {
   EXPECT_EQ(60, grid->getNumberOfCells());
   delete grid;
 }
+
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

@@ -1,4 +1,4 @@
-USE_MPI = 0
+USE_MPI = 1
 
 ifeq ($(USE_MPI),0)
   CC = g++
@@ -20,7 +20,7 @@ LCONFIG = $(LCONFIG_DIR)/lib/libconfig++.a
 
 LIBS = $(LCONFIG)
 
-all: $(PROGRAM) test
+all: $(PROGRAM) run_tests
 
 $(PROGRAM): $(OBJ) $(LIBS)
 	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
@@ -45,7 +45,7 @@ depend:
 clean:
 	rm -f $(PROGRAM) $(OBJ) .depend
 
-test:
+run_tests:
 	cd ../test; \
 	make; \
 	make run_tests; \

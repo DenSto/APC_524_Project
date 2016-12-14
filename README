@@ -1,5 +1,24 @@
-To compile the program using MPI
+Compilation instructions:
+>> cd src
+>> make
+
+Note:
+To compile the program using MPI (currently work in progress...)
     Set "USE_MPI = 1" in /src/Makefile
 To compile the serial program
     Set "USE_MPI = 0" in /src/Makefile
-    
+(make clean before trying to switch from serial to parallel versions)    
+
+Run instructions (from src directory)
+>> ./EMOOPIC path/to/inputfile.txt
+e.g.
+>> ./EMOOPIC ../data/unitest/input.txt
+
+Unit testing (serial only for now...):
+executing make in src directory compiles google test unit tests 
+and runs all unit tests automatically.
+
+in src directory, can also use
+>> make run_tests
+or in test directory,
+>> make run_tests
