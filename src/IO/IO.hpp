@@ -14,6 +14,7 @@ typedef struct {
     int nt; // number of time steps
     int restart; // How many previous runs?
                  // Initial run if restart = 0
+    int debug;
 
     long np; // number of particles in each domain
 

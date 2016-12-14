@@ -20,7 +20,7 @@ LCONFIG = $(LCONFIG_DIR)/lib/libconfig++.a
 
 LIBS = $(LCONFIG)
 
-all: $(PROGRAM)
+all: $(PROGRAM) test
 
 $(PROGRAM): $(OBJ) $(LIBS)
 	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
@@ -44,6 +44,12 @@ depend:
 
 clean:
 	rm -f $(PROGRAM) $(OBJ) .depend
+
+test:
+	cd ../test; \
+	make; \
+	make run_tests; \
+	cd ../src;
 
 -include .depend
 

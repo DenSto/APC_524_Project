@@ -42,8 +42,10 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     nFieldsTotal_(15), 
     ghostVecSize_(nFieldsToSend_*nRealPtsYZPlane_)
 {
-    fprintf(stderr,"New Grid Object\n");
     checkInput_(); 
+
+    sliceTmp_ = new double[ghostVecSize_/nFieldsToSend_]; 
+    fieldIsContiguous_ = new double[nFieldsTotal_];
  
     int ifield = -1; 
     Ex_=newField_(++ifield); 
@@ -61,9 +63,6 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     rhox_=newField_(++ifield); 
     rhoy_=newField_(++ifield); 
     rhoz_=newField_(++ifield); 
-
-    sliceTmp_ = new double[ghostVecSize_/nFieldsToSend_]; 
-    fieldIsContiguous_ = new double[nFieldsTotal_];
 } 
 
 /// Grid destructor 

@@ -106,7 +106,7 @@ int main(int argc, char *argv[]){
     int restart = input_info.restart; // restart=0: initial run
                                       // restart=3: third restart
     //fprintf(stderr,"rank=%d,restart=%d\n",rank,restart);
-
+    int debug = input_info.debug;
 
     /* Initial setup **************************************/
     // Domain decomposition
@@ -120,68 +120,68 @@ int main(int argc, char *argv[]){
     // Set up particle boundary conditions
     BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info.parts_bound);
 	part_handler->setParticleBoundaries(bc);
-    fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
+    if(debug) fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
     // Initialize grid
     Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
-    fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
+    if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
     part_handler->Load(restart);
-    fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
     part_handler->depositRhoJ(grids);
-    fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
 
     // Solve initial fields from particle or read restart file
     grids->InitializeFields(restart); 
-    fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
 
     // Interpolate fields from grid to particle
     // Prepare initial push of particles
     part_handler->InterpolateEB(grids);
-    fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
 
 
     /* Advance time step **********************************/
     // prepare ghost cells
     /// Ghost cells are either MPI neighbors or physical boundary conditions
     domain->mallocGhosts(grids);
-    fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);   
 
     // prepare time step
     int nt = input_info.nt; //number of steps to run
     double t = input_info.t0; //initial time
     double dt = 1/domain->getmindx(); //c=1, resolve EM wave
-    fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     for(int ti=0;ti<nt;ti++){
        // push particles
        part_handler->Push(dt);
-       //fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // Cycle through the particle boundary conditions
 	   part_handler->executeParticleBoundaryConditions();
 
-       //fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
        part_handler->depositRhoJ(grids);
-       //fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
        grids->evolveFields(dt);
-       //fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
        domain->PassFields(grids);
-       //fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle
        part_handler->InterpolateEB(grids);
-       //fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
 
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
@@ -192,15 +192,15 @@ int main(int argc, char *argv[]){
 
     /* output, finalize ***********************************/
     writeoutput(t,rank,grids,part_handler); //MPI
-    //fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
 
     domain->freeGhosts();
     delete domain;
     delete part_handler;
     delete grids;
-    //fprintf(stderr,"rank=%d: Finish free\n",rank);   
+    if(debug) fprintf(stderr,"rank=%d: Finish free\n",rank);   
     //MPI_Barrier(MPI_COMM_WORLD);
-    //fprintf(stderr,"rank=%d: Finish barrier\n",rank);   
+    //if(debug) fprintf(stderr,"rank=%d: Finish barrier\n",rank);   
 
 
 #if USE_MPI
