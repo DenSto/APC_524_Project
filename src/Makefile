@@ -46,10 +46,12 @@ clean:
 	rm -f $(PROGRAM) $(OBJ) .depend
 
 run_tests:
+ifeq ($(USE_MPI),0)
 	cd ../test; \
 	make; \
 	make run_tests; \
 	cd ../src;
+endif
 
 -include .depend
 

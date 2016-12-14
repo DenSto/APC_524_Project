@@ -9,10 +9,12 @@ To compile the serial program
     Set "USE_MPI = 0" in /src/Makefile
 (make clean before trying to switch from serial to parallel versions)    
 
-Run instructions (from src directory)
+Run instructions (from src directory):
 >> ./EMOOPIC path/to/inputfile.txt
 e.g.
 >> ./EMOOPIC ../data/unitest/input.txt
+For parallel version, recompile (see above) and use mpirun, e.g.
+>> mpirun -np 16 ./EMOOPIC ../data/unitest/input_MPI.txt
 
 Unit testing (serial only for now...):
 executing make in src directory compiles google test unit tests 

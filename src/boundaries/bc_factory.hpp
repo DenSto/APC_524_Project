@@ -63,10 +63,10 @@ public:
 					// Physical side (to be calculated first)
 					int MPIisLeft = 0;	
 					if(partitionIndex == 0){ // Physical boundary on left
-						ret[2*i]=lookup(types[2*i])(domain,i,types[2*i+1]);
+						ret[2*i]=lookup(types[2*i])(domain,i,1,types[2*i+1]);
 						MPIisLeft=0;
 					} else { // Physical boundary on right
-						ret[2*i]=lookup(types[2*i+1])(domain,i,types[2*i+1]);
+						ret[2*i]=lookup(types[2*i+1])(domain,i,0,types[2*i+1]);
 						MPIisLeft=1;
 					}
 					// MPI side (left or right, compute second)
