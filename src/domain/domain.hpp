@@ -2,7 +2,6 @@
 #define DOMAIN_HPP_
 
 #include "../grid/grid.hpp"
-#include "../particles/particle_handler.hpp"
 #include "../IO/IO.hpp"
 
 class Domain {
@@ -20,7 +19,6 @@ class Domain {
         void mallocGhosts(Grid *grids); // allocate ghostVec
         void freeGhosts(void); // free ghostVec
 
-        void PassParticles(Particle_Handler *parts_fields); // particle boundary
         void PassFields(Grid *grids); // field boundary
  
 	int *getnProcxyz(void); // return pointer nProcxyz_

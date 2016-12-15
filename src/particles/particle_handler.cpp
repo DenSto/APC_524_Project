@@ -1,11 +1,14 @@
 #include "particle_handler.hpp"
 #include <stdlib.h>
 #include <assert.h>
+#include <cmath>
 #include <algorithm>
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
 #include "../pusher/boris.hpp"
 #include "../grid/grid.hpp"
+#include "../utils/RNG.hpp"
+#define _USE_MATH_DEFINES
 
 Particle_Handler::Particle_Handler(long np){
     //fprintf(stderr,"new Particle_Handler\n");
@@ -18,9 +21,9 @@ Particle_Handler::Particle_Handler(long np){
 Particle_Handler::~Particle_Handler(){
 }
 
-void Particle_Handler::Load(int restart){
+void Particle_Handler::Load(Input_Info_t info, Domain* domain, int restart){
     //dummy code inserted by Yuan for testing main.cpp
-    if(restart==0){// initial run
+/*    if(restart==0){// initial run
        for(long ip=0;ip<np_;ip++){
            Particle p = new_particle();
            p.x[0]=-1.0;
@@ -32,7 +35,33 @@ void Particle_Handler::Load(int restart){
            p.v[2]=1.0;
            parts_.push_back(p);
        }
-    } 
+    }*/ 
+
+	Random_Number_Generator *rng = new Random_Number_Generator(-1);
+	double* L = domain->getLxyz();
+	double* x0 = domain->getxyz0();
+
+	// electrons
+    for(long ip=0;ip<np_;ip++){
+		Particle p = new_particle();
+		if(ip < np_/2) { // ions
+			p.q = 1;
+			p.m = 1;
+		} else { // electrons
+			p.q = -1;
+			p.m = 1;
+		}
+		double vth= sqrt(8 * info.temp / (p.q * M_PI));
+		p.x[0]=rng->getUniform()*L[0]+x0[0];
+		p.x[1]=rng->getUniform()*L[1]+x0[1];
+		p.x[2]=rng->getUniform()*L[2]+x0[2];
+    
+		p.v[0]=rng->getGaussian(0.0,vth);
+		p.v[1]=rng->getGaussian(0.0,vth);
+		p.v[2]=rng->getGaussian(0.0,vth);
+
+		parts_.push_back(p);
+	}
 }
 
 void Particle_Handler::Push(double dt){
@@ -48,6 +77,10 @@ void Particle_Handler::Pass(){
 
 long Particle_Handler::nParticles(){
 	return np_;
+}
+
+void Particle_Handler::incrementNParticles(int inc){
+	np_+=inc;
 }
 
 void Particle_Handler::InterpolateEB(Grid* grid){
@@ -188,3 +221,4 @@ void Particle_Handler::executeParticleBoundaryConditions(){
 		boundaries_[i]->completeBC(parts_);
 	}
 }
+#undef _USE_MATH_DEFINES

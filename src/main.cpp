@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "./IO/IO.hpp"
+#include "./IO/output.hpp"
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
 #include "./particles/particle.hpp"
@@ -128,7 +129,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
-    part_handler->Load(restart);
+    part_handler->Load(input_info,domain,restart);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid

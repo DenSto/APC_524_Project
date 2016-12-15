@@ -9,6 +9,8 @@
 */
 #include <vector>
 #include <stdio.h>
+#include "../IO/IO.hpp"
+#include "../Domain/domain.hpp"
 #include "../grid/grid.hpp"
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
@@ -20,10 +22,12 @@ class Particle_Handler {
 public:
   Particle_Handler(long np); // list of np particles and their fields
   ~Particle_Handler();
-  void Load(int restart); // Initialize particles
+  void Load(Input_Info_t info, Domain* domain, int restart); // Initialize particles
   void Push(double dt);   // Push all particles
   void Pass();            // Pass particles accross MPI boundary
   long nParticles();
+
+  void incrementNParticles(int inc);
 
   void SortParticles(Particle_Compare comp); // quicksort particle list
 

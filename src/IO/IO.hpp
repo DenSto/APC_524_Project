@@ -1,11 +1,6 @@
 #ifndef IO_HPP
 #define IO_HPP
 
-// NRM: why are these needed?
-#include "../grid/grid.hpp"
-#include "../particles/particle_handler.hpp"
-#include <string.h>
-
 //! Structure storing info in the input file
 typedef struct {
     int nCell[3]; // number of cells in each direction
@@ -21,6 +16,8 @@ typedef struct {
     double t0;   // start time of simulation
     double dens; // density
     double temp; // temperature
+
+	double massratio;
 
     double xyz0[3];
     double Lxyz[3]; 
@@ -61,6 +58,5 @@ typedef struct {
 int readinput(char *fname, Input_Info_t *input_info, int size);
 void checkinput(int rank, Input_Info_t *input_info);
 
-void writeoutput(double t, int rank, Grid *grids, Particle_Handler *parts__fields); //MPI
 
 #endif
