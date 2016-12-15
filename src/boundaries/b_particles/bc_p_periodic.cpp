@@ -9,7 +9,7 @@ class BC_P_Periodic : public BC_Particle {
 		BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::string type);
 		~BC_P_Periodic();
 		void computeParticleBCs(std::vector<Particle> pl);
-		void completeBC(std::vector<Particle> pl);
+		int completeBC(std::vector<Particle> pl);
 	private:
 		int particle_BC(Particle* p);
 		double xMin_;
@@ -29,8 +29,9 @@ BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::
 BC_P_Periodic::~BC_P_Periodic(){
 }
 
-void BC_P_Periodic::completeBC(std::vector<Particle> pl){
+int BC_P_Periodic::completeBC(std::vector<Particle> pl){
 	pl.insert(pl.end(),ghostBuf_.begin(),ghostBuf_.end());
+	return 0;
 }
 
 int BC_P_Periodic::particle_BC(Particle* p){

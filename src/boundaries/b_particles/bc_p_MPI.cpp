@@ -14,7 +14,7 @@ class BC_P_MPI : public BC_Particle {
 		BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string type);
 		~BC_P_MPI();
 		void computeParticleBCs(std::vector<Particle> pl);
-		void completeBC(std::vector<Particle> pl);
+		int completeBC(std::vector<Particle> pl);
 	private:
 		int particle_BC(Particle* p);
 		double xMin_;
@@ -88,7 +88,7 @@ BC_P_MPI::~BC_P_MPI(){
 	delete[] lengthShift_;
 }
 
-void BC_P_MPI::completeBC(std::vector<Particle> pl){
+int BC_P_MPI::completeBC(std::vector<Particle> pl){
 	MPI_Request req;
 	int err;
 
@@ -119,8 +119,12 @@ void BC_P_MPI::completeBC(std::vector<Particle> pl){
 
 	err=MPI_Wait(&req,MPI_STATUS_IGNORE);
 	if(err) fprintf(stderr, "rank=%d (2) MPI_Wait error = %d\n",rank_MPI,err);
+
+	int ret = toReceive_ - toSend_;
 	toSend_=0;
 	toReceive_=0;
+
+	return ret;
 }
 
 int BC_P_MPI::particle_BC(Particle* p){

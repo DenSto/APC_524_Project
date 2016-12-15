@@ -217,7 +217,8 @@ void Particle_Handler::clearGhosts(){
 void Particle_Handler::executeParticleBoundaryConditions(){
 	for(int i = 0; i < 6; i++){
 		boundaries_[i]->computeParticleBCs(parts_);
-		boundaries_[i]->completeBC(parts_);
+		int inc = boundaries_[i]->completeBC(parts_);
+		incrementNParticles(inc);
 	}
 }
 #undef _USE_MATH_DEFINES
