@@ -112,7 +112,7 @@ int main(int argc, char *argv[]){
     /* Initial setup **************************************/
     // Domain decomposition
     Domain *domain = new Domain(size,rank,&input_info);
-    //checkdomain(rank,domain);
+    if(debug>1) checkdomain(rank,domain);
 
     // Initialize particles
     Particle_Handler *part_handler = new Particle_Handler(input_info.np); 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]){
 
     // Set up particle boundary conditions
     BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info.parts_bound);
-	part_handler->setParticleBoundaries(bc);
+    part_handler->setParticleBoundaries(bc);
     if(debug) fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
     // Initialize grid
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
-    part_handler->Load(input_info,domain,restart);
+    part_handler->Load(input_info,domain);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
@@ -163,9 +163,10 @@ int main(int argc, char *argv[]){
        part_handler->Push(dt);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
-       // Cycle through the particle boundary conditions
-	   part_handler->executeParticleBoundaryConditions();
-
+       // Pass particle through MPI boundary, or physical boundary conditions
+       part_handler->executeParticleBoundaryConditions();
+       // remove any particles left in the ghost cells
+       //part_handler->clearGhosts();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
@@ -183,9 +184,6 @@ int main(int argc, char *argv[]){
        // Interpolate fields from grid to particle
        part_handler->InterpolateEB(grids);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
-
-	   // remove any particles left in the ghost cells
-       part_handler->clearGhosts();
 
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
