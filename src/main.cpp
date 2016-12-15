@@ -8,11 +8,14 @@
  *
  * The inputs are specified in <inputfile>
  **********************************************************/
+#define MAIN_CPP
 #include<stdio.h>
 #include<stdlib.h>
 #include<assert.h>
 #include <iostream>
 
+
+#include "./globals.hpp"
 #include "./IO/IO.hpp"
 #include "./IO/output.hpp"
 #include "./domain/domain.hpp"
@@ -40,6 +43,8 @@ int main(int argc, char *argv[]){
     MPI_Init(&argc,&argv); 
     MPI_Comm_size(MPI_COMM_WORLD,&size);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	size_MPI=size;
+	rank_MPI=rank;
     double begin = MPI_Wtime();
     if(rank==0){
         printf("This simulation uses MPI domain decomposition.\n");
