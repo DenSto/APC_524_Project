@@ -62,10 +62,16 @@ int BC_P_MPI::particle_BC(Particle* p){
 		p->isGhost = 1;
 		return 1;
 	}
+	else{
+		return 0;
+	}
 
 	if(p->x[dim_index_] > xMax_ && !isLeft_){
 		p->isGhost = 1;
 		return 1;
+	}
+	else{
+		return 0;
 	}
 }
 

@@ -10,7 +10,7 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 20
+  nTimesteps = 2
 
   # start time
   startTime = 0.0

@@ -211,6 +211,7 @@ void Particle_Handler::clearGhosts(){
 			iter++;
 		}
 	}
+        std::cerr<<"parts_.size="<<parts_.size()<<", np_="<<np_<<".\n";
 	assert(parts_.size() == np_);
 }
 
