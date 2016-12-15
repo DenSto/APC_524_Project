@@ -2,6 +2,7 @@
 #include "../bc_factory.hpp"
 #include "../../domain/domain.hpp"
 #include <vector>
+#include <stdlib.h>
 #include "assert.h"
 
 class BC_P_MPI : public BC_Particle {

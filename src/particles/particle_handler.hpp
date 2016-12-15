@@ -10,7 +10,7 @@
 #include <vector>
 #include <stdio.h>
 #include "../IO/IO.hpp"
-#include "../Domain/domain.hpp"
+#include "../domain/domain.hpp"
 #include "../grid/grid.hpp"
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
