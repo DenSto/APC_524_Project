@@ -21,7 +21,8 @@ Particle_Handler::Particle_Handler(long np){
 Particle_Handler::~Particle_Handler(){
 }
 
-void Particle_Handler::Load(Input_Info_t info, Domain* domain, int restart){
+void Particle_Handler::Load(Input_Info_t info, Domain* domain){
+    int restart = info.restart;
     //dummy code inserted by Yuan for testing main.cpp
 /*    if(restart==0){// initial run
        for(long ip=0;ip<np_;ip++){
@@ -70,9 +71,6 @@ void Particle_Handler::Push(double dt){
         pusher_->Step(&(parts_[ip]),&(parts_[ip].field),dt);
     }
 
-}
-
-void Particle_Handler::Pass(){
 }
 
 long Particle_Handler::nParticles(){
@@ -211,8 +209,8 @@ void Particle_Handler::clearGhosts(){
 			iter++;
 		}
 	}
-        std::cerr<<"parts_.size="<<parts_.size()<<", np_="<<np_<<".\n";
-	assert(parts_.size() == np_);
+//        std::cerr<<"parts_.size="<<parts_.size()<<", np_="<<np_<<".\n";
+//	assert(parts_.size() == np_);
 }
 
 

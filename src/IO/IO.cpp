@@ -197,9 +197,9 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
   Input_Type::Input_Type(){
     
       count_ = 4; // three types
-      int nint = 2*3+3*1; //2 of len 3 + 3 of len 1
+      int nint = 2*3+4*1; //2 of len 3 + 3 of len 1
       int nlong = 1; // 1 of len 1
-      int ndouble = 3*1+2*3; //3 of len 1 + 2 of len 3
+      int ndouble = 4*1+2*3; //3 of len 1 + 2 of len 3
       int nchar = 50+2*6*32; //char 50 + 2*6 boundaries each of 32
 
       // specify what are the MPI data types

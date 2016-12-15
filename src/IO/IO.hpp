@@ -17,7 +17,7 @@ typedef struct {
     double dens; // density
     double temp; // temperature
 
-	double massratio;
+    double massratio;
 
     double xyz0[3];
     double Lxyz[3]; 
