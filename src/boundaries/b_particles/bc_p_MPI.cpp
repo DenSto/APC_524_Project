@@ -1,5 +1,6 @@
 #if USE_MPI
 
+#include "../../globals.hpp"
 #include "../boundary_particles.hpp"
 #include "../bc_factory.hpp"
 #include "../../domain/domain.hpp"
@@ -88,23 +89,36 @@ BC_P_MPI::~BC_P_MPI(){
 }
 
 void BC_P_MPI::completeBC(std::vector<Particle> pl){
+	MPI_Request req;
+	int err;
 
-	MPI_Isend(&toSend_, 1, MPI_LONG,sendRank_,11,MPI_COMM_WORLD,NULL);
-	MPI_Recv(&toReceive_, 1, MPI_LONG,recvRank_,11,MPI_COMM_WORLD,NULL);
+	err = MPI_Isend(&toSend_, 1, MPI_LONG,sendRank_,11,MPI_COMM_WORLD,&req);
+	if(err) fprintf(stderr, "rank=%d MPI_Isend error on toSend_ = %d\n",rank_MPI,err);
+
+	err = MPI_Recv(&toReceive_, 1, MPI_LONG,recvRank_,11,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+	if(err) fprintf(stderr, "rank=%d MPI_Recv error on toReceive_ = %d\n",rank_MPI,err);
+
 
 	if(toSend_ != 0){
-		MPI_Isend(&sendBuf_[0],toSend_*MPI_P_SIZE, MPI_DOUBLE, sendRank_,12,MPI_COMM_WORLD,NULL);
+		err=MPI_Wait(&req,MPI_STATUS_IGNORE);
+		if(err) fprintf(stderr, "rank=%d (1) MPI_Wait error = %d\n",rank_MPI,err);
+
+		err=MPI_Isend(&sendBuf_[0],toSend_*MPI_P_SIZE, MPI_DOUBLE, sendRank_,12,MPI_COMM_WORLD,&req);
+		if(err) fprintf(stderr, "rank=%d MPI_Isend error on sendBuf_ = %d\n",rank_MPI,err);
 	}
 
 	if(toReceive_ != 0){
 		recvBuf_ = (double*) realloc(recvBuf_,sizeof(double*)*MPI_P_SIZE*toReceive_);
-		MPI_Recv(recvBuf_,toReceive_*MPI_P_SIZE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,NULL);
+		err=MPI_Recv(recvBuf_,toReceive_*MPI_P_SIZE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+		if(err) fprintf(stderr, "rank=%d MPI_Recv error on recvBuf_ = %d\n",rank_MPI,err);
 	
 		for(int i = 0; i < toReceive_; i++){
 			unpackParticle(i*MPI_P_SIZE);
 		}
 	}
 
+	err=MPI_Wait(&req,MPI_STATUS_IGNORE);
+	if(err) fprintf(stderr, "rank=%d (2) MPI_Wait error = %d\n",rank_MPI,err);
 	toSend_=0;
 	toReceive_=0;
 }
