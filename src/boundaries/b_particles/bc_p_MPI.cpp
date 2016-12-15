@@ -89,8 +89,6 @@ BC_P_MPI::~BC_P_MPI(){
 
 void BC_P_MPI::completeBC(std::vector<Particle> pl){
 
-	//Send/Receives go here!
-	
 	MPI_Isend(&toSend_, 1, MPI_LONG,sendRank_,11,MPI_COMM_WORLD,NULL);
 	MPI_Recv(&toReceive_, 1, MPI_LONG,recvRank_,11,MPI_COMM_WORLD,NULL);
 
@@ -100,7 +98,7 @@ void BC_P_MPI::completeBC(std::vector<Particle> pl){
 
 	if(toReceive_ != 0){
 		recvBuf_ = (double*) realloc(recvBuf_,sizeof(double*)*MPI_P_SIZE*toReceive_);
-		MPI_Isend(recvBuf_,toReceive_*MPI_P_SIZE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,NULL);
+		MPI_Recv(recvBuf_,toReceive_*MPI_P_SIZE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,NULL);
 	
 		for(int i = 0; i < toReceive_; i++){
 			unpackParticle(i*MPI_P_SIZE);
