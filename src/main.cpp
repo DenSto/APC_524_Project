@@ -147,8 +147,7 @@ int main(int argc, char *argv[]){
 
 
     /* Advance time step **********************************/
-    // prepare ghost cells
-    /// Ghost cells are either MPI neighbors or physical boundary conditions
+    // prepare ghost cells: either MPI neighbors or physical boundary 
     domain->mallocGhosts(grids);
     if(debug) fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);   
 
