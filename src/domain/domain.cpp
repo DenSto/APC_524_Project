@@ -44,6 +44,7 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
        /* determine location on map ***********************/
        // my location
        myijk_ =  new int[3];
+	   neighbours_ = new int[6];
        assert(myijk_!=NULL);
        RankToijk(rank_, myijk_);
 
@@ -52,28 +53,34 @@ Domain::Domain(int size, int rank, Input_Info_t *input_info)
        if(myijk_[0]>0){itmp = myijk_[0]-1;}
        else{itmp = nProcxyz_[0]-1;}
        rank_xl_ = ijkToRank(itmp,myijk_[1],myijk_[2]);
+	   neighbours_[0] = rank_xl_;
 
        if(myijk_[0]<nProcxyz_[0]-1){itmp = myijk_[0]+1;}
        else{itmp = 0;}
        rank_xr_ = ijkToRank(itmp,myijk_[1],myijk_[2]);
+	   neighbours_[1] = rank_xr_;
 
        // y neihbors in toroidal topology
        if(myijk_[1]>0){itmp = myijk_[1]-1;}
        else{itmp = nProcxyz_[1]-1;}
        rank_yl_ = ijkToRank(myijk_[0],itmp,myijk_[2]);
+	   neighbours_[2] = rank_yl_;
 
        if(myijk_[1]<nProcxyz_[1]-1){itmp = myijk_[1]+1;}
        else{itmp = 0;}
        rank_yr_ = ijkToRank(myijk_[0],itmp,myijk_[2]);
+	   neighbours_[3] = rank_yr_;
 
        // z neihbors in toroidal topology
        if(myijk_[2]>0){itmp = myijk_[2]-1;}
        else{itmp = nProcxyz_[2]-1;}
        rank_zl_ = ijkToRank(myijk_[0],myijk_[1],itmp);
+	   neighbours_[4] = rank_zl_;
 
        if(myijk_[2]<nProcxyz_[2]-1){itmp = myijk_[2]+1;}
        else{itmp = 0;}
        rank_zr_ = ijkToRank(myijk_[0],myijk_[1],itmp);
+	   neighbours_[5] = rank_zr_;
 
 
        /* determine physical domain size ******************/
@@ -101,6 +108,7 @@ Domain::~Domain(){
     delete[] Lxyz_;
     delete[] nProcxyz_;
     delete[] myijk_;
+    delete[] neighbours_;
 }
 
 //! return rank for assigned i,j,k
@@ -163,6 +171,10 @@ double* Domain::getLxyz(void){
 
 int* Domain::getmyijk(void){
     return myijk_;
+}
+
+int* Domain::getNeighbours(void){
+    return neighbours_;
 }
 
 int* Domain::getnProcxyz(void){

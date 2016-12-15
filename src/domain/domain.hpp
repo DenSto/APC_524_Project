@@ -23,6 +23,7 @@ class Domain {
  
 	int *getnProcxyz(void); // return pointer nProcxyz_
         int *getmyijk(void); 
+		int *getNeighbours(); // like below, but in useful array form xLR-yLR-zLR
         int getxl(void); // rank of x left neighbot 
         int getyl(void); 
         int getzl(void);
@@ -55,7 +56,8 @@ class Domain {
         double *zghost_send_, *zghost_recv_; // buffer for ghostVec in z direction
 
         int *nProcxyz_;   // sizes of the partitions
-	int *myijk_; // where am I on this partition?
+		int *neighbours_;
+		int *myijk_; // where am I on this partition?
 };
 
 void checkdomain(int rank, Domain *domain);
