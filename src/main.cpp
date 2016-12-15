@@ -183,6 +183,9 @@ int main(int argc, char *argv[]){
        part_handler->InterpolateEB(grids);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
 
+	   // remove any particles left in the ghost cells
+       part_handler->clearGhosts();
+
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
 

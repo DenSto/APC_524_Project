@@ -178,6 +178,7 @@ void Particle_Handler::clearGhosts(){
 			iter++;
 		}
 	}
+	assert(parts_.size() == np_);
 }
 
 

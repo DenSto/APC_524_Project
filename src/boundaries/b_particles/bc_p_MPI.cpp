@@ -19,6 +19,8 @@ class BC_P_MPI : public BC_Particle {
 
 		int targetRank_;
 		double lengthShift_;
+		std::vector<Particle> sendBuf_;
+		std::vector<Particle> recvBuf_;
 };
 
 
@@ -36,13 +38,23 @@ void BC_P_MPI::completeBC(std::vector<Particle> pl){
 }
 
 int BC_P_MPI::particle_BC(Particle* p){
-	// Load particles into buffer if needed
-	if(p->x[dim_index_] < xMin_ && isLeft_)
-		p->x[dim_index_] += (xMax_-xMin_);
-	if(p->x[dim_index_] > xMax_ && !isLeft_)
-		p->x[dim_index_] -= (xMax_-xMin_);
-	return 0;
-	return 0;
+// Non-persistent particles (create new particles, delete the ones in ghost cells
+// at the end of the time step.
+/*	if(p->x[dim_index_] < xMin_ && isLeft_){
+		Particle newP = *p;
+		newP.x[dim_index_] += (xMax_-xMin_);
+		ghostBuf_.push_back(newP);
+		p->isGhost = 1;
+		return 1;
+	}
+
+	if(p->x[dim_index_] > xMax_ && !isLeft_){
+		Particle newP = *p;
+		newP.x[dim_index_] -= (xMax_-xMin_);
+		ghostBuf_.push_back(newP);
+		p->isGhost = 1;
+		return 1;
+	}*/
 }
 
 static RegisterParticleBoundary instance("MPI", makeBCParticle<BC_P_MPI>);
