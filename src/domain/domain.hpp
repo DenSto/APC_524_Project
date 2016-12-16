@@ -4,6 +4,10 @@
 #include "../grid/grid.hpp"
 #include "../IO/IO.hpp"
 
+#if USE_MPI
+#include "mpi.h"
+#endif
+
 class Domain {
     public:
         Domain(int size, int rank, Input_Info_t *input_info);
@@ -19,7 +23,7 @@ class Domain {
         void mallocGhosts(Grid *grids); // allocate ghostVec
         void freeGhosts(void); // free ghostVec
 
-        void PassFields(Grid *grids); // field boundary
+        void PassFields(Grid *grids, Input_Info_t *input_info); // field boundary
  
 	int *getnProcxyz(void); // return pointer nProcxyz_
         int *getmyijk(void); 
@@ -58,6 +62,12 @@ class Domain {
         int *nProcxyz_;   // sizes of the partitions
 		int *neighbours_;
 		int *myijk_; // where am I on this partition?
+
+#if USE_MPI
+        // communication in x direction
+        MPI_Request xreqs_[4];
+        MPI_Status xstats_[4];
+#endif
 };
 
 void checkdomain(int rank, Domain *domain);

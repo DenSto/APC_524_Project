@@ -150,7 +150,6 @@ int main(int argc, char *argv[]){
     part_handler->InterpolateEB(grids);
     if(debug) fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
 
-
     /* Advance time step **********************************/
     // prepare ghost cells: either MPI neighbors or physical boundary 
     domain->mallocGhosts(grids);
@@ -163,6 +162,8 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     for(int ti=0;ti<nt;ti++){
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
+
        // push particles
        part_handler->Push(dt);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
@@ -182,7 +183,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
-       domain->PassFields(grids);
+       //domain->PassFields(grids,&input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle

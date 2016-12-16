@@ -1,3 +1,4 @@
+#include "../globals.hpp"
 #include "particle_handler.hpp"
 #include <stdlib.h>
 #include <assert.h>
@@ -82,7 +83,9 @@ void Particle_Handler::incrementNParticles(int inc){
 }
 
 void Particle_Handler::InterpolateEB(Grid* grid){
+  fprintf(stderr,"rank=%d,start InterpolateEB\n",rank_MPI);
   Interpolator *interpolator = new Interpolator();
+  fprintf(stderr,"rank=%d,new Interpolator\n",rank_MPI);
 
   long iCell = 0; //cell # tracker
   long pCell = 0; //particle cell #
@@ -104,6 +107,7 @@ void Particle_Handler::InterpolateEB(Grid* grid){
 
     //Update cell field variables.
     pCell = grid->getCellID(pos[0],pos[1],pos[2]);
+    //fprintf(stderr,"rank=%d,pCell=%ld\n",rank_MPI,pCell);
     if (pCell >= 0) {
       if (pCell != iCell) {
 	iCell = pCell;
@@ -111,9 +115,11 @@ void Particle_Handler::InterpolateEB(Grid* grid){
       }
 
       //Interpolate fields at particle.
+      fprintf(stderr,"rank=%d,call Interpolator\n",rank_MPI);
       interpolator->interpolate_fields(pos, lcell, cellvars, &(parts_[i].field));
     }
   }
+  fprintf(stderr,"rank=%d,Finish InterpolateEB\n",rank_MPI);
 }
 
 void Particle_Handler::SortParticles(Particle_Compare comp){

@@ -4,7 +4,8 @@ domain:
   nCell = [ 16, 8, 8 ]
 
   # number of processors in each dimension (parallel version only)
-  nProc = [ 4, 2, 2 ]
+  #nProc = [ 4, 2, 2 ]
+  nProc = [ 4, 1, 1 ]
 }
 
 runtime: 
@@ -17,7 +18,7 @@ runtime:
 
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
-  debug = 1
+  debug = 2
 }
 
 initialization:

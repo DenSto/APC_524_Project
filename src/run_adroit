@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1                     # number of nodes
-#SBATCH --ntasks-per-node=16      # number of processor per node
+#SBATCH --ntasks-per-node=4      # number of processor per node
 #SBATCH -t 00:01:00              # max minutes to run
 ##SBATCH --mail-type=begin        # send email when process begins
 ##SBATCH --mail-type=end          # send email when process begins
@@ -14,5 +14,6 @@ module load openmpi
 path="$PWD"
 cd ../data/unitest
 rm -rf output.out
+rm -rf *.dat*
 
 srun $path/EMOOPIC input_MPI.txt > output.out

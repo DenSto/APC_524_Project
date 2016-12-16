@@ -1,8 +1,14 @@
 # for serial version:
-#USE_MPI = 0
+USE_MPI = 0
 # for parallel version:
-USE_MPI = 1
+#USE_MPI = 1
 #Note: be sure to make clean after changing USE_MPI!
+
+# run test:
+#RUN_TEST = 1
+# only compile:
+RUN_TEST = 0
+
 
 ifeq ($(USE_MPI),0)
   CC = g++
@@ -24,7 +30,11 @@ LCONFIG = $(LCONFIG_DIR)/lib/libconfig++.a
 
 LIBS = $(LCONFIG)
 
-all: $(PROGRAM) run_tests
+ifeq ($(RUN_TEST),1)
+  all: $(PROGRAM) run_tests
+else
+  all: $(PROGRAM)
+endif
 
 $(PROGRAM): $(OBJ) $(LIBS)
 	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
@@ -49,12 +59,15 @@ depend:
 clean:
 	rm -f $(PROGRAM) $(OBJ) .depend
 
+
+ifeq ($(RUN_TEST),1)
 run_tests:
 ifeq ($(USE_MPI),0)
 	cd ../test; \
 	make; \
 	make run_tests; \
 	cd ../src;
+endif
 endif
 
 -include .depend

@@ -17,7 +17,7 @@ runtime:
 
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
-  debug = 1
+  debug = 2
 }
 
 initialization:

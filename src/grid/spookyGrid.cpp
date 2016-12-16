@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <algorithm> // used for std::copy
 #include <assert.h> // plans to use?
@@ -153,7 +154,8 @@ void Grid::getGhostVec(const int side, double* ghostVec) {
     int iter = -1; 
     for (j=jBeg_; j<jEnd_+1; ++j) { 
         for (k=kBeg_; k<kEnd_+1; ++k) { 
-            ++iter; 
+            ++iter;
+            fprintf(stderr,"iter=%d\n",iter); 
             ghostVec[0*nRealPtsYZPlane_ + iter]=Ex_[i][j][k];
             ghostVec[1*nRealPtsYZPlane_ + iter]=Ey_[i][j][k];
             ghostVec[2*nRealPtsYZPlane_ + iter]=Ez_[i][j][k];
