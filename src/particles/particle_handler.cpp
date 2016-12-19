@@ -126,19 +126,14 @@ void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-//void Particle_Handler::depositRhoJ(Grid *grid, double dt){
 void Particle_Handler::depositRhoJ(Grid *grid){
   Depositor *depositor = new Depositor();
 
-  long cellID[2] = {-1, -1}; //cell id tracker, 2 slots: 'exited' cell and 'entered' cell
-  long tempCellID[2] = {}; //particle's 'exited' and 'entered' cell ids.
-  double cvec[3] = {};
-  double cellverts[2][3] = {};//Vector describing two cells' respective "least" vertices.
-  double pos[2][3] = {}; //Array of previous and current positions of particle.
-  double dpos[3] = {}; //Vector of change in position of particle.
+  long cellID = -1; //cell id tracker.
+  long tempCellID = 0; //particle's 'entered' cell id.
+  double cellverts[3] = {};//Vector describing a cell's "least" vertex.
   double lcell[3] = {}; //Vector of lengths of cells.
-  double RhoJObj[2][12] = {}; //Array describing two cells' Jx (4), Jy (4), Jz (4).
-  double pcharge;
+  double RhoJObj[12] = {}; //Array describing a cell's Jx (4), Jy (4), Jz (4).
 
   //Get lengths of grid cells.
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
@@ -148,57 +143,35 @@ void Particle_Handler::depositRhoJ(Grid *grid){
 
   //Cycle through particles, depositing RhoJ for each one.
   for (long i=0; i<np_; i++) {
-    //Get last and current positions of particle.
-    pos[0][0] = parts_[i].xo[0];
-    pos[0][1] = parts_[i].xo[1];
-    pos[0][2] = parts_[i].xo[2];
-    pos[1][0] = parts_[i].x[0];
-    pos[1][1] = parts_[i].x[1];
-    pos[1][2] = parts_[i].x[2];
-    dpos[0] = parts_[i].dx[0];
-    dpos[1] = parts_[i].dx[1];
-    dpos[2] = parts_[i].dx[2];
-
-    //Get charge of particle.
-    pcharge = parts_[i].q;
-
-    //Update particle's last and current cell id's
-    for (int j=0; j<2; j++) tempCellID[j] = grid->getCellID(pos[j][0],pos[j][1],pos[j][2]);
+    //Get particle's 'entered' (post-push) cell id
+    tempCellID = grid->getCellID(parts_[i].x[0],parts_[i].x[1],parts_[i].x[2]);
 
     //Only if particle ENDS in a 'real' (non-ghost) cell, do we 'deposit' it.
-    if (tempCellID[1] >= 0) {
-      //If list of particles continue to start and end in same cells, add current to existing RhoJObj object.
+    if (tempCellID >= 0) {
+      //If list of particles continues to be in same cell, add current to existing RhoJObj object.
       //Otherwise, deposit (add) RhoJ to the grid, and re-point (and zero out) the existing RhoJObj object.
-      for (int j=0; j<2; j++) {
-	if (tempCellID[j] != cellID[j]) {
-	  //If cellID has already been assinged...
-	  if (cellID[j] != -1) {
-	    //Deposit to grid
-	    grid->addJ(cellID[j],&RhoJObj[j][0]);
-	    //Zero RhoJObj[j]
-	    for (int k=0; k<12; k++) {
-	      RhoJObj[j][k] = 0;
-	    }
-	  }
-	  //Get new cell vertex data.
-	  cellID[j] = tempCellID[j];
-	  grid->getCellVertex(cellID[j], cvec);
-	  for (int k=0; k<3; k++) {
-	    cellverts[j][k] = cvec[k];
+      if (tempCellID != cellID) {
+	//If cellID has already been assigned...
+	if (cellID != -1) {
+	  //Deposit to grid
+	  grid->addJ(cellID,&RhoJObj[0]);
+	  //Zero RhoJObj
+	  for (int k=0; k<12; k++) {
+	    RhoJObj[k] = 0;
 	  }
 	}
+	//Get new cell vertex data.
+	cellID = tempCellID;
+	grid->getCellVertex(cellID, cellverts);
       }
 
       //Generate currents at cell edges.
-      //YShi: see comment in deposit.cpp
-      depositor->deposit_particle_RhoJ(cellID, &(parts_[i]), lcell, cellverts, RhoJObj);
+      depositor->deposit_particle_RhoJ(&(parts_[i]), lcell, cellverts, RhoJObj);
     }
   }
 
-  //Add remaining currents to the grid.
-  for (int j=0; j<2; j++) {
-    grid->addJ(cellID[j],&RhoJObj[j][0]);
-  }
+  //Add remaining current to the grid.
+  grid->addJ(cellID,&RhoJObj[0]);
 }
 
 double Particle_Handler::maxVelocity(void){

@@ -34,8 +34,6 @@ public:
   void clearGhosts();	// remove all ghost particles in particle list
 
   void InterpolateEB(Grid* grid);
-  //void depositRhoJ(Grid *grids, double dt); // deposit current and charge density from particles to grid
-  // depositRhoJ should not explicitly depends on dt, see deposit.cpp for comments 
   void depositRhoJ(Grid *grids); // deposit current and charge density from particles to grid
 
   std::vector<Particle> getParticleVector(){return parts_;}
