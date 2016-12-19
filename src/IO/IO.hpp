@@ -55,8 +55,8 @@ typedef struct {
 
 #endif
 
-int readinput(char *fname, Input_Info_t *input_info, int size);
-void checkinput(int rank, Input_Info_t *input_info);
+int readinput(char *fname, Input_Info_t *input_info);
+void checkinput(Input_Info_t *input_info);
 
 
 #endif

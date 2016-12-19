@@ -10,7 +10,7 @@
 
 class Domain {
     public:
-        Domain(int size, int rank, Input_Info_t *input_info);
+        Domain(Input_Info_t *input_info);
         ~Domain();
         
         int getnGhosts(void);
@@ -20,7 +20,7 @@ class Domain {
         double *getLxyz(void); // Local domain size
         double getmindx(void);
 
-        void mallocGhosts(Grid *grids); // allocate ghostVec
+        void mallocGhosts(int xgsize, int ygsize, int zgsize); // allocate ghostVec
         void freeGhosts(void); // free ghostVec
 
         void PassFields(Grid *grids, Input_Info_t *input_info); // field boundary
@@ -70,6 +70,6 @@ class Domain {
 #endif
 };
 
-void checkdomain(int rank, Domain *domain);
+void checkdomain(Domain *domain);
 
 #endif
