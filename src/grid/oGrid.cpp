@@ -160,9 +160,9 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 */
 int Grid::getCellID(double x, double y, double z) {
 	// get indices in x, y, z
-	int ix = ((int) (x-x0_))*idx_;
-	int iy = ((int) (y-y0_))*idy_;
-	int iz = ((int) (z-z0_))*idz_;
+	int ix = (int) ((x-x0_) * idx_);
+	int iy = (int) ((y-y0_) * idy_);
+	int iz = (int) ((z-z0_) * idz_);
 
 	// inform if in ghost cell, and which one
 	if ( iz < nGhosts_ ) {
