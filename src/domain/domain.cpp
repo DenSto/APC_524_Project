@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <assert.h>
 #include <algorithm>
-#include "domain.hpp"
 
-Domain::Domain(int size, int rank, Input_Info_t *input_info)
-      : size_(size),
-        rank_(rank){
+#include "domain.hpp"
+#include "../globals.hpp"
+
+Domain::Domain(Input_Info_t *input_info)
+      : size_(size_MPI),
+        rank_(rank_MPI){
 
        //fprintf(stderr,"rank=%d: call Domain constructor\n",rank_);
        nGhosts_ = 1;
@@ -200,7 +202,9 @@ double Domain::getmindx(void){
     return *std::min_element(dxyz,dxyz+3);
 }
 
-void checkdomain(int rank, Domain *domain){
+void checkdomain(Domain *domain){
+
+      int rank = rank_MPI;
  
       fprintf(stderr,"rank=%d: Check domain\n",rank);
       fprintf(stderr,"rank=%d,nGhosts=%d\n",rank,domain->getnGhosts());

@@ -1,17 +1,19 @@
 #include <stdio.h>
 #include<assert.h>
-#include "IO.hpp"
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
 #include <libconfig.h++>
 #include <string.h>
 
+#include "IO.hpp"
+#include "../globals.hpp"
+
 using namespace std;
 using namespace libconfig;
 
 
-int readinput(char *fname,Input_Info_t *input_info, int size){
+int readinput(char *fname,Input_Info_t *input_info){
 
     Config cfg;
     // Read the file. If there is an error, report it and exit.
@@ -81,7 +83,7 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
              << "nProc = [# # #]." << endl;
         return(EXIT_FAILURE);
       }
-      if(input_info->nProc[0]*input_info->nProc[1]*input_info->nProc[2]!=size)
+      if(input_info->nProc[0]*input_info->nProc[1]*input_info->nProc[2]!=size_MPI)
       {
         cerr << "Error: nProc layout specified in input file does not match "
              << "number of MPI processes requested." << endl;
@@ -251,7 +253,8 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
   }
 
   /* Check MPI broadcast **********************************/
-  void checkinput(int rank, Input_Info_t *input_info){
+  void checkinput(Input_Info_t *input_info){
+     int rank = rank_MPI;
  
      fprintf(stderr,"rank=%d:checkinput\n",rank); 
      const int *nCell = input_info->nCell;
