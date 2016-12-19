@@ -7,7 +7,7 @@ Depositor::Depositor(){
 Depositor::~Depositor(){
 }
 
-void Depositor::deposit_particle_RhoJ(Particle *part, double* lcell, double* cellverts, double* RhoJObj) {
+void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellverts, double* RhoJObj) {
   //Function returns an updated RhoJObj to include the current due to particle motion on the cell edges.
 
   double curIn1D = 0.0; //1D current

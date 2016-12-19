@@ -166,7 +166,7 @@ void Particle_Handler::depositRhoJ(Grid *grid){
       }
 
       //Generate currents at cell edges.
-      depositor->deposit_particle_RhoJ(&(parts_[i]), lcell, cellverts, RhoJObj);
+      depositor->deposit_particle_J(&(parts_[i]), lcell, cellverts, RhoJObj);
     }
   }
 
