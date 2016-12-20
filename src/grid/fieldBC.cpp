@@ -16,7 +16,7 @@ FieldBC::FieldBC( std::string &fieldStr, int dim, bool edge, double amp, double 
 
 //! Apply boundary condition to grid
 /*!
-   Uses setFieldAlongEdge method in grid to add field to 
+   Uses setFieldAlongEdge method in grid to add field to grid.
 */
 void FieldBC::applyBCs( double t, Grid &grid) {
    double fieldVal = amp_ * cos( omega_ * t + phase_ );
