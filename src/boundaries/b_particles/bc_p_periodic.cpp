@@ -1,3 +1,4 @@
+#include "../../globals.hpp"
 #include "../boundary_particles.hpp"
 #include "../bc_factory.hpp"
 #include "../../domain/domain.hpp"
@@ -6,7 +7,7 @@
 
 class BC_P_Periodic : public BC_Particle {
 	public:
-		BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::string type);
+		BC_P_Periodic(Domain* domain, int dim_Index, short isLeft, std::string type);
 		~BC_P_Periodic();
 		void computeParticleBCs(std::vector<Particle> pl);
 		int completeBC(std::vector<Particle> pl);
@@ -20,11 +21,14 @@ class BC_P_Periodic : public BC_Particle {
 		std::vector<Particle> ghostBuf_;
 };
 
-BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::string type) 
+BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isLeft, std::string type) 
 	:	dim_index_(dim_Index),
-		isRight_(isRight),
+		isRight_((isLeft+1)%2),// factory use isLeft
 		type_(type)
-		{}
+		{
+		fprintf(stderr,"rank=%d:dim=%d,isRight=%d,periodic BC\n",rank_MPI,dim_Index,isRight_); 	
+
+}
 
 BC_P_Periodic::~BC_P_Periodic(){
 }
