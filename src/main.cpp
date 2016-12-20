@@ -138,8 +138,8 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
-    part_handler->depositRhoJ(grids);
-    if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
+    //part_handler->depositRhoJ(grids);
+    //if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
 
     // Solve initial fields from particle or read restart file
     grids->InitializeFields(restart); 
