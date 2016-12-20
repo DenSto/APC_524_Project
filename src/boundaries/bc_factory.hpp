@@ -13,7 +13,7 @@
 
 
 
-/*
+/*!
  * A singleton class to handle registration of particle boundaries
  */
 class BC_Factory {

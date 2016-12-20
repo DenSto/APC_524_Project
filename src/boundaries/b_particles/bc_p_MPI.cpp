@@ -1,9 +1,9 @@
 #if USE_MPI
 
 #include "../../globals.hpp"
-#include "../boundary_particles.hpp"
+//#include "../boundary_particles.hpp"
 #include "../bc_factory.hpp"
-#include "../../domain/domain.hpp"
+//#include "../../domain/domain.hpp"
 #include <vector>
 #include <stdlib.h>
 #include "assert.h"
@@ -61,12 +61,16 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 					sendRank_ = neigh[2*dim_index_ + 1]; //send to right
 					recvRank_ = neigh[2*dim_index_ ];    //receive from left
 				} else {
-					sendRank_ = neigh[2*dim_index_];     //send to right
-					recvRank_ = neigh[2*dim_index_ + 1]; //receive from left
+					//sendRank_ = neigh[2*dim_index_];     //send to right
+					//recvRank_ = neigh[2*dim_index_ + 1]; //receive from left
+					sendRank_ = neigh[2*dim_index_];     //send to left
+					recvRank_ = neigh[2*dim_index_ + 1]; //receive from right
 
 					if(!inMiddle){// Left most processor responsible for wrap-around in x
-						int* nxyz = domain->getmyijk();
-						int* L = domain->getmyijk();
+						//int* nxyz = domain->getmyijk();
+						//int* L = domain->getmyijk();
+						int* nxyz = domain->getnxyz();
+						double* L = domain->getLxyz();
 						lengthShift_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
 					}
 				}
