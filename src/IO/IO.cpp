@@ -1,17 +1,19 @@
 #include <stdio.h>
 #include<assert.h>
-#include "IO.hpp"
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
 #include <libconfig.h++>
 #include <string.h>
 
+#include "IO.hpp"
+#include "../globals.hpp"
+
 using namespace std;
 using namespace libconfig;
 
 
-int readinput(char *fname,Input_Info_t *input_info, int size){
+int readinput(char *fname,Input_Info_t *input_info){
 
     Config cfg;
     // Read the file. If there is an error, report it and exit.
@@ -81,7 +83,7 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
              << "nProc = [# # #]." << endl;
         return(EXIT_FAILURE);
       }
-      if(input_info->nProc[0]*input_info->nProc[1]*input_info->nProc[2]!=size)
+      if(input_info->nProc[0]*input_info->nProc[1]*input_info->nProc[2]!=size_MPI)
       {
         cerr << "Error: nProc layout specified in input file does not match "
              << "number of MPI processes requested." << endl;
@@ -250,35 +252,37 @@ int readinput(char *fname,Input_Info_t *input_info, int size){
       return types_;
   }
 
-  /* Check MPI broadcast **********************************/
-  void checkinput(int rank, Input_Info_t *input_info){
- 
-     fprintf(stderr,"rank=%d:checkinput\n",rank); 
-     const int *nCell = input_info->nCell;
-     fprintf(stderr,"rank=%d,nCell=%d,%d,%d\n",rank,nCell[0],nCell[1],nCell[2]);
- 
-     const int *nProc = input_info->nProc;
-     fprintf(stderr,"rank=%d,nProc=%d,%d,%d\n",rank,nProc[0],nProc[1],nProc[2]);
-
-     fprintf(stderr,"rank=%d,nt=%d\n",rank,input_info->nt);
-     fprintf(stderr,"rank=%d,restart=%d\n",rank,input_info->restart);
-     fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
-
-     fprintf(stderr,"rank=%d,t0=%f\n",rank,input_info->t0);
-     fprintf(stderr,"rank=%d,dens=%f\n",rank,input_info->dens);
-     fprintf(stderr,"rank=%d,temp=%f\n",rank,input_info->temp);
-
-     const double *xyz0 = input_info->xyz0;
-     fprintf(stderr,"rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
-
-     const double *Lxyz = input_info->Lxyz;
-     fprintf(stderr,"rank=%d,Lxyz=%f,%f,%f\n",rank,Lxyz[0],Lxyz[1],Lxyz[2]);
-
-     fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);
-     fprintf(stderr,"rank=%d,parts_bound=%s\n",rank,input_info->parts_bound[0]);
-     fprintf(stderr,"rank=%d,fields_bound=%s\n",rank,input_info->fields_bound[0]);
-  
-  }
-
-
 #endif
+
+/* Check MPI broadcast **********************************/
+void checkinput(Input_Info_t *input_info){
+   int rank = rank_MPI;
+
+   fprintf(stderr,"rank=%d:checkinput\n",rank); 
+   const int *nCell = input_info->nCell;
+   fprintf(stderr,"rank=%d,nCell=%d,%d,%d\n",rank,nCell[0],nCell[1],nCell[2]);
+
+   const int *nProc = input_info->nProc;
+   fprintf(stderr,"rank=%d,nProc=%d,%d,%d\n",rank,nProc[0],nProc[1],nProc[2]);
+
+   fprintf(stderr,"rank=%d,nt=%d\n",rank,input_info->nt);
+   fprintf(stderr,"rank=%d,restart=%d\n",rank,input_info->restart);
+   fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
+
+   fprintf(stderr,"rank=%d,t0=%f\n",rank,input_info->t0);
+   fprintf(stderr,"rank=%d,dens=%f\n",rank,input_info->dens);
+   fprintf(stderr,"rank=%d,temp=%f\n",rank,input_info->temp);
+
+   const double *xyz0 = input_info->xyz0;
+   fprintf(stderr,"rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
+
+   const double *Lxyz = input_info->Lxyz;
+   fprintf(stderr,"rank=%d,Lxyz=%f,%f,%f\n",rank,Lxyz[0],Lxyz[1],Lxyz[2]);
+
+   fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);
+   fprintf(stderr,"rank=%d,parts_bound=%s\n",rank,input_info->parts_bound[0]);
+   fprintf(stderr,"rank=%d,fields_bound=%s\n",rank,input_info->fields_bound[0]);
+
+}
+
+

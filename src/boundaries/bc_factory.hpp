@@ -1,6 +1,7 @@
 #ifndef BC_FACTORY
 #define BC_FACTORY
 
+#include <stdio.h>
 #include <map>
 #include <vector>
 #include <sstream>
@@ -13,7 +14,7 @@
 
 
 
-/*
+/*!
  * A singleton class to handle registration of particle boundaries
  */
 class BC_Factory {
@@ -63,14 +64,14 @@ public:
 					// Physical side (to be calculated first)
 					int MPIisLeft = 0;	
 					if(partitionIndex == 0){ // Physical boundary on left
-						ret[2*i]=lookup(types[2*i])(domain,i,1,types[2*i+1]);
+						ret[2*i]=lookup(types[2*i])(domain,i,1,types[2*i]);
 						MPIisLeft=0;
 					} else { // Physical boundary on right
-						ret[2*i]=lookup(types[2*i+1])(domain,i,0,types[2*i+1]);
+						ret[2*i+1]=lookup(types[2*i+1])(domain,i,0,types[2*i+1]);
 						MPIisLeft=1;
 					}
 					// MPI side (left or right, compute second)
-					ret[2*i+1]=lookup(mpi)(domain,i,MPIisLeft, mpi);
+					ret[2*i+1-MPIisLeft]=lookup(mpi)(domain,i,MPIisLeft, mpi);
 				}
  			} else // treat serially
 #endif
@@ -91,6 +92,7 @@ public:
   void declare(const std::string &type, // the type of particle
                Factory factory             // a factory function to make the desired integrator
               ) {
+    //fprintf(stderr,"call declare\n");
     registry_.insert(std::make_pair(type, factory));
   }
 

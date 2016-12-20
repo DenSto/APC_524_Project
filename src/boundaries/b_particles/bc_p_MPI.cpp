@@ -1,9 +1,9 @@
 #if USE_MPI
 
 #include "../../globals.hpp"
-#include "../boundary_particles.hpp"
+//#include "../boundary_particles.hpp"
 #include "../bc_factory.hpp"
-#include "../../domain/domain.hpp"
+//#include "../../domain/domain.hpp"
 #include <vector>
 #include <stdlib.h>
 #include "assert.h"
@@ -11,7 +11,7 @@
 
 class BC_P_MPI : public BC_Particle {
 	public:
-		BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string type);
+		BC_P_MPI(Domain* domain, int dim_Index, short isLeft, std::string type);
 		~BC_P_MPI();
 		void computeParticleBCs(std::vector<Particle> pl);
 		int completeBC(std::vector<Particle> pl);
@@ -33,53 +33,62 @@ class BC_P_MPI : public BC_Particle {
 };
 
 
-BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string type)
+BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isLeft, std::string type)
 	:	dim_index_(dim_Index),
-		isRight_(isRight),
+		isRight_((isLeft+1)%2),// factory use isLeft
 		type_(type)
-		{
-			assert(dim_index_ < 3);
+{
+	assert(dim_index_ < 3);
 
-			toSend_ = 0;
-			toReceive_ = 0;
+	xMin_ = domain->getxyz0()[dim_index_];
+        xMax_ = xMin_+domain->getLxyz()[dim_index_];
+	if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,MPI_BC,xMin=%f,xMax=%f\n",
+                                   rank_MPI,dim_index_,isRight_,xMin_,xMax_); 	
 
-			std::string periodic ("periodic");
-			bool isPeriodic = periodic.compare(type);
+	toSend_ = 0;
+	toReceive_ = 0;
 
-			lengthShift_ = new double[3];
-			for(int i = 0; i < 3; i++) lengthShift_[i] = 0.0;
+	std::string periodic ("periodic");
+	bool isPeriodic = periodic.compare(type);
 
-			int* nProc = domain->getnProcxyz();
-			int* myLoc = domain->getmyijk();
-			int* neigh = domain->getNeighbours();
+	lengthShift_ = new double[3];
+	for(int i = 0; i < 3; i++) lengthShift_[i] = 0.0;
 
-			int partitionIndex = myLoc[dim_index_];
-			short inMiddle = (partitionIndex != 0 && (partitionIndex != nProc[dim_index_]- 1));
+	int* nProc = domain->getnProcxyz();
+	int* myLoc = domain->getmyijk();
+	int* neigh = domain->getNeighbours();
 
-			if(inMiddle || isPeriodic){
-				if(isRight_){
-					sendRank_ = neigh[2*dim_index_ + 1]; //send to right
-					recvRank_ = neigh[2*dim_index_ ];    //receive from left
-				} else {
-					sendRank_ = neigh[2*dim_index_];     //send to right
-					recvRank_ = neigh[2*dim_index_ + 1]; //receive from left
+	int partitionIndex = myLoc[dim_index_];
+	short inMiddle = (partitionIndex != 0 && (partitionIndex != nProc[dim_index_]- 1));
 
-					if(!inMiddle){// Left most processor responsible for wrap-around in x
-						int* nxyz = domain->getmyijk();
-						int* L = domain->getmyijk();
-						lengthShift_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
-					}
-				}
-			} else {
-				if(isRight_){ 
-					sendRank_ = neigh[2*dim_index_ + 1]; // send to right
-					recvRank_ = neigh[2*dim_index_ + 1]; // receive from right
-				} else {
-					sendRank_ = neigh[2*dim_index_]; // send to left 
-					recvRank_ = neigh[2*dim_index_]; // receive from left
-				}
+	if(inMiddle || isPeriodic){
+		if(isRight_){
+			sendRank_ = neigh[2*dim_index_ + 1]; //send to right
+			recvRank_ = neigh[2*dim_index_ ];    //receive from left
+		} else {
+			//sendRank_ = neigh[2*dim_index_];     //send to right
+			//recvRank_ = neigh[2*dim_index_ + 1]; //receive from left
+			sendRank_ = neigh[2*dim_index_];     //send to left
+			recvRank_ = neigh[2*dim_index_ + 1]; //receive from right
+
+			if(!inMiddle){// Left most processor responsible for wrap-around in x
+				//int* nxyz = domain->getmyijk();
+				//int* L = domain->getmyijk();
+				int* nxyz = domain->getnxyz();
+				double* L = domain->getLxyz();
+				lengthShift_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
 			}
 		}
+	} else {
+		if(isRight_){ 
+			sendRank_ = neigh[2*dim_index_ + 1]; // send to right
+			recvRank_ = neigh[2*dim_index_ + 1]; // receive from right
+		} else {
+			sendRank_ = neigh[2*dim_index_]; // send to left 
+			recvRank_ = neigh[2*dim_index_]; // receive from left
+		}
+	}
+}
 
 
 BC_P_MPI::~BC_P_MPI(){

@@ -22,29 +22,17 @@ Particle_Handler::Particle_Handler(long np){
 Particle_Handler::~Particle_Handler(){
 }
 
-void Particle_Handler::Load(Input_Info_t info, Domain* domain){
-    int restart = info.restart;
-    //dummy code inserted by Yuan for testing main.cpp
-/*    if(restart==0){// initial run
-       for(long ip=0;ip<np_;ip++){
-           Particle p = new_particle();
-           p.x[0]=-1.0;
-           p.x[1]=1.0;
-           p.x[2]=ip*1.0;
-    
-           p.v[0]=0.0;
-           p.v[1]=4.0;
-           p.v[2]=1.0;
-           parts_.push_back(p);
-       }
-    }*/ 
+void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 
-	Random_Number_Generator *rng = new Random_Number_Generator(-1);
-	double* L = domain->getLxyz();
-	double* x0 = domain->getxyz0();
+    int restart = input_info->restart;
+    double* L = domain->getLxyz();
+    double* x0 = domain->getxyz0();
 
+    if(restart==0){// initial run
+/*	Random_Number_Generator *rng = new Random_Number_Generator(-1);
 	// electrons
-    for(long ip=0;ip<np_;ip++){
+        for(long ip=0;ip<np_;ip++){
+                //fprintf(stderr,"rank=%d: np_=%ld,ip=%ld\n",rank_MPI,np_,ip);
 		Particle p = new_particle();
 		if(ip < np_/2) { // ions
 			p.q = 1;
@@ -53,17 +41,35 @@ void Particle_Handler::Load(Input_Info_t info, Domain* domain){
 			p.q = -1;
 			p.m = 1;
 		}
-		double vth= sqrt(8 * info.temp / (p.q * M_PI));
+		double vth= sqrt(8 * input_info->temp / (p.q * M_PI));
 		p.x[0]=rng->getUniform()*L[0]+x0[0];
 		p.x[1]=rng->getUniform()*L[1]+x0[1];
 		p.x[2]=rng->getUniform()*L[2]+x0[2];
+                //fprintf(stderr,"rank=%d: ip=%ld, getUniform\n",rank_MPI,ip);
     
 		p.v[0]=rng->getGaussian(0.0,vth);
 		p.v[1]=rng->getGaussian(0.0,vth);
 		p.v[2]=rng->getGaussian(0.0,vth);
 
+                //fprintf(stderr,"rank=%d: ip=%ld, push back\n",rank_MPI,ip);
 		parts_.push_back(p);
 	}
+*/
+    }
+    else{//read restart file
+        //dummy code inserted by YShi for testing
+        //insert a single particle at the center of the cell
+	Particle p = new_particle();
+	p.q = 1;
+	p.m = 1;
+	p.x[0]=L[0]/2+x0[0];
+	p.x[1]=L[1]/2+x0[1];
+	p.x[2]=L[2]/2+x0[2];
+	p.v[0]=0.1;
+	p.v[1]=0.1;
+	p.v[2]=0.1;
+	parts_.push_back(p);
+    }
 }
 
 void Particle_Handler::Push(double dt){
@@ -126,7 +132,7 @@ void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_Handler::depositRhoJ(Grid *grid){
+void Particle_Handler::depositJ(Grid *grid){
   Depositor *depositor = new Depositor();
 
   long cellID = -1; //cell id tracker.
@@ -166,7 +172,7 @@ void Particle_Handler::depositRhoJ(Grid *grid){
       }
 
       //Generate currents at cell edges.
-      depositor->deposit_particle_RhoJ(&(parts_[i]), lcell, cellverts, RhoJObj);
+      depositor->deposit_particle_J(&(parts_[i]), lcell, cellverts, RhoJObj);
     }
   }
 
@@ -195,8 +201,11 @@ void Particle_Handler::clearGhosts(){
 
 void Particle_Handler::executeParticleBoundaryConditions(){
 	for(int i = 0; i < 6; i++){
+		// determine whether particles are ghost
 		boundaries_[i]->computeParticleBCs(parts_);
+                // place ghost particles
 		int inc = boundaries_[i]->completeBC(parts_);
+                // change the number of particles np_ in each domain
 		incrementNParticles(inc);
 	}
 }

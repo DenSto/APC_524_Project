@@ -22,7 +22,7 @@ class Particle_Handler {
 public:
   Particle_Handler(long np); // list of np particles and their fields
   ~Particle_Handler();
-  void Load(Input_Info_t info, Domain* domain); // Initialize particles
+  void Load(Input_Info_t *input_info, Domain* domain); // Initialize particles
   void Push(double dt);   // Push all particles
   long nParticles();
 
@@ -34,7 +34,7 @@ public:
   void clearGhosts();	// remove all ghost particles in particle list
 
   void InterpolateEB(Grid* grid);
-  void depositRhoJ(Grid *grids); // deposit current and charge density from particles to grid
+  void depositJ(Grid *grid); // deposit current and charge density from particles to grid
 
   std::vector<Particle> getParticleVector(){return parts_;}
 

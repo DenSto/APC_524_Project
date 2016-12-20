@@ -4,10 +4,13 @@
 #include "particle.hpp"
 
 class Depositor{
- public:
+public:
   Depositor();
   ~Depositor();
-  void deposit_particle_RhoJ(Particle *part, double* lcell, double* cellverts, double* RhoJObj); //deposit particle on cells' (Rho, J)
+  
+  void deposit_particle_J(Particle *part, double* lcell, double* cellverts, double* JObj); //deposit particle on cells' J
+
+  void deposit_particle_Rho(Particle *part, double* lcell, double* cellverts, double* RhoObj); //deposit particle on cells' Rho
 };
 
 #endif

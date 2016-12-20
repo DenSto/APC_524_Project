@@ -1,3 +1,4 @@
+#include "../../globals.hpp"
 #include "../boundary_particles.hpp"
 #include "../bc_factory.hpp"
 #include "../../domain/domain.hpp"
@@ -5,7 +6,7 @@
 
 class BC_P_Reflecting : public BC_Particle {
 	public:
-		BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, std::string type);
+		BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type);
 		~BC_P_Reflecting();
 		void computeParticleBCs(std::vector<Particle> pl);
 		int completeBC(std::vector<Particle> pl);
@@ -18,11 +19,17 @@ class BC_P_Reflecting : public BC_Particle {
 		std::string type_;
 };
 
-BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, std::string type) 
+BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type) 
 	:	dim_index_(dim_Index),
-		isRight_(isRight),
+		isRight_((isLeft+1)%2),// factory use isLeft
 		type_(type)
-		{}
+{
+	xMin_ = domain->getxyz0()[dim_index_];
+        xMax_ = xMin_+domain->getLxyz()[dim_index_];
+	if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,reflect_BC,xMin=%f,xMax=%f\n",
+                                   rank_MPI,dim_index_,isRight_,xMin_,xMax_); 	
+
+}
 
 BC_P_Reflecting::~BC_P_Reflecting(){
 }
