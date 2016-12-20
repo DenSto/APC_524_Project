@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <math.h>
 #include "grid.hpp"
+#include <string>
 
 
 
@@ -224,4 +225,194 @@ double Grid::getStepSize(int dimension) {
 		default: printf("Invalid dimension in Grid::getStepSize\n"); return -1;
 	}
 };
+
+//! Set field along a certain edge.
+/*!
+	Inputs: \n
+	fieldStr: string of format "Ex", "Bz", etc \n
+	dim: dimension along which to apply boundary condition \n
+	edge: side along which to apply boundary condition
+*/
+int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double fieldVal) {
+	int ret;
+	if ( fieldStr == "Ex") {
+		if (edge) {
+			// last index to touch grid depends on whether edge lies along dimension
+			// if x, last index borders grid at nx - nghosts
+			// otherwise, last index borders grid at nx - nghosts + 1
+			switch (dim) {
+				case 0:
+					ret = setFieldInPlane_( dim, nx_ - nGhosts_, Ex_, fieldVal);
+					break;
+				case 1:
+					ret = setFieldInPlane_( dim, ny_ + 1 - nGhosts_, Ex_, fieldVal);
+					break;
+				case 2:
+					ret = setFieldInPlane_( dim, nz_ + 1 - nGhosts_, Ex_, fieldVal);
+					break;
+				default:
+					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
+					return 1;
+			}
+		} else {
+			ret = setFieldInPlane_( dim, nGhosts_, Ex_, fieldVal);
+		}
+		return ret;
+	}
+	if ( fieldStr == "Ey") {
+		if (edge) {
+			switch (dim) {
+				case 0:
+					ret = setFieldInPlane_( dim, nx_ + 1 - nGhosts_, Ey_, fieldVal);
+					break;
+				case 1:
+					ret = setFieldInPlane_( dim, ny_ - nGhosts_, Ey_, fieldVal);
+					break;
+				case 2:
+					ret = setFieldInPlane_( dim, nz_ + 1 - nGhosts_, Ey_, fieldVal);
+					break;
+				default:
+					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
+					return 1;
+			}
+		} else {
+			ret = setFieldInPlane_( dim, nGhosts_, Ey_, fieldVal);
+		}
+		return ret;
+	}
+	if ( fieldStr == "Ez") {
+		if (edge) {
+			switch (dim) {
+				case 0:
+					ret = setFieldInPlane_( dim, nx_ + 1 - nGhosts_, Ez_, fieldVal);
+					break;
+				case 1:
+					ret = setFieldInPlane_( dim, ny_ + 1 - nGhosts_, Ez_, fieldVal);
+					break;
+				case 2:
+					ret = setFieldInPlane_( dim, nz_ - nGhosts_, Ez_, fieldVal);
+					break;
+				default:
+					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
+					return 1;
+			}
+		} else {
+			ret = setFieldInPlane_( dim, nGhosts_, Ez_, fieldVal);
+		}
+		return ret;
+	}
+	
+	if ( fieldStr == "Bx") {
+		if (edge) {
+			// last index to touch grid depends on whether face lies perpendicular to dimension
+			// if x, last index borders grid at nx - nghosts + 1
+			// otherwise, last index borders grid at nx - nghosts
+			// note this is consistent with edge conventions above, since perp-to-x plane contains y and z edges
+			switch (dim) {
+				case 0:
+					ret = setFieldInPlane_( dim, nx_ + 1 - nGhosts_ , Bx_, fieldVal);
+					break;
+				case 1:
+					ret = setFieldInPlane_( dim, ny_ - nGhosts_, Bx_, fieldVal);
+					break;
+				case 2:
+					ret = setFieldInPlane_( dim, nz_ - nGhosts_, Bx_, fieldVal);
+					break;
+				default:
+					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
+					return 1;
+			}
+		} else {
+			ret = setFieldInPlane_( dim, nGhosts_, Bx_, fieldVal);
+		}
+		return ret;
+	}
+	if ( fieldStr == "By") {
+		if (edge) {
+			switch (dim) {
+				case 0:
+					ret = setFieldInPlane_( dim, nx_ - nGhosts_, By_, fieldVal);
+					break;
+				case 1:
+					ret = setFieldInPlane_( dim, ny_ + 1 - nGhosts_, By_, fieldVal);
+					break;
+				case 2:
+					ret = setFieldInPlane_( dim, nz_ - nGhosts_, By_, fieldVal);
+					break;
+				default:
+					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
+					return 1;
+			}
+		} else {
+			ret = setFieldInPlane_( dim, nGhosts_, By_, fieldVal);
+		}
+		return ret;
+	}
+	if ( fieldStr == "Bz") {
+		if (edge) {
+			switch (dim) {
+				case 0:
+					ret = setFieldInPlane_( dim, nx_ - nGhosts_, Bz_, fieldVal);
+					break;
+				case 1:
+					ret = setFieldInPlane_( dim, ny_ - nGhosts_, Bz_, fieldVal);
+					break;
+				case 2:
+					ret = setFieldInPlane_( dim, nz_ + 1 - nGhosts_, Bz_, fieldVal);
+					break;
+				default:
+					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
+					return 1;
+			}
+		} else {
+			ret = setFieldInPlane_( dim, nGhosts_, Bz_, fieldVal);
+		}
+		return ret;
+	}
+
+	printf("Invalid field specification in Grid::setFieldAlongEdge\n");
+	return 2;
+
+};
+
+//! Internal method to set field along a plane.
+/*!
+	Inputs: \n
+	dimension perpendicular to plane \n
+	indx along dimenstion perpendicular to plane \n
+	field to set along dimension \n
+	value to set field
+*/
+int Grid::setFieldInPlane_( int dim, int indx, double *** field, double fieldVal) {
+	switch (dim) {
+		case 0:
+			for ( int i = 0; i < ny_ + 1; i++) {
+				for ( int j = 0; j < nz_ + 1; j++) {
+					field[indx][i][j] = fieldVal;
+				}
+			}
+			break;
+		case 1:
+			for ( int i = 0; i < nx_ + 1; i++) {
+				for ( int j = 0; j < nz_ + 1; j++) {
+					field[i][indx][j] = fieldVal;
+				}
+			}
+			break;
+		case 2:
+			for ( int i = 0; i < nx_ + 1; i++) {
+				for ( int j = 0; j < ny_ + 1; j++) {
+					field[i][j][indx] = fieldVal;
+				}
+			}
+			break;
+		default:
+			printf("Invalid dimension in Grid::setFieldInPlane_\n");
+			return 1;
+
+	}
+
+	return 0;
+};
+
 
