@@ -103,7 +103,7 @@ Domain::Domain(Input_Info_t *input_info)
 }
 
 Domain::~Domain(){
-    if(debug) printf("rank=%d: call Domain destructor\n",rank_);
+    if(debug) fprintf(stderr,"rank=%d: call Domain destructor\n",rank_);
     delete[] nxyz_;
     delete[] n2xyz_;
     delete[] xyz0_;

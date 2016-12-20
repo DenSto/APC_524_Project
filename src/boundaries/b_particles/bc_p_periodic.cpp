@@ -25,8 +25,12 @@ BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isLeft, std::s
 	:	dim_index_(dim_Index),
 		isRight_((isLeft+1)%2),// factory use isLeft
 		type_(type)
-		{
-		if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,periodic BC\n",rank_MPI,dim_Index,isRight_); 	
+{
+	assert(dim_index_ < 3);
+	xMin_ = domain->getxyz0()[dim_index_];
+	xMax_ = xMin_+domain->getLxyz()[dim_index_];
+	if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,periodic_BC,xMin=%f,xMax=%f\n",
+                                   rank_MPI,dim_index_,isRight_,xMin_,xMax_); 	
 
 }
 

@@ -201,8 +201,11 @@ void Particle_Handler::clearGhosts(){
 
 void Particle_Handler::executeParticleBoundaryConditions(){
 	for(int i = 0; i < 6; i++){
+		// determine whether particles are ghost
 		boundaries_[i]->computeParticleBCs(parts_);
+                // place ghost particles
 		int inc = boundaries_[i]->completeBC(parts_);
+                // change the number of particles np_ in each domain
 		incrementNParticles(inc);
 	}
 }
