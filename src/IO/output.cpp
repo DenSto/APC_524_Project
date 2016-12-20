@@ -4,7 +4,7 @@
 #include "../globals.hpp"
 #include "output.hpp"
 
-void writeoutput(double t, Grid *grids, Particle_Handler *parts_fields){
+void writeoutput(Grid *grids, Particle_Handler *parts_fields){
     //printf("rank %d: writing output files...\n",rank);
 }
 

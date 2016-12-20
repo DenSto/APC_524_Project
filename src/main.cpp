@@ -200,7 +200,7 @@ int main(int argc, char *argv[]){
 
 
     /* output, finalize ***********************************/
-    writeoutput(t,grids,part_handler); //MPI
+    writeoutput(grids,part_handler); //MPI
     if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
 
     domain->freeGhosts();
