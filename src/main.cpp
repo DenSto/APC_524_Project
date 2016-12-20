@@ -134,7 +134,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
-    //part_handler->Load(input_info,domain);
+    part_handler->Load(&input_info,domain);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
@@ -203,8 +203,10 @@ int main(int argc, char *argv[]){
     writeoutput(grids,part_handler); //MPI
     if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
 
-    domain->freeGhosts();
-    delete domain;
+    // free memory
+    domain->freeGhosts(); // Ghost for field MPI
+    delete domain; 
+    delete [] bc; // particle boundary condition
     delete part_handler;
     delete grids;
     if(debug) fprintf(stderr,"rank=%d: Finish free\n",rank);   

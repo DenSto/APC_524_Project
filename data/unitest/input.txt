@@ -23,7 +23,7 @@ runtime:
 initialization:
 {
   # whether this is restart of a previous run
-  restart = 0
+  restart = 1
 
   # particle initialization
   particles:
