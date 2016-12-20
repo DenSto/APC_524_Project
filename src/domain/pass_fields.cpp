@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "domain.hpp"
 #include "../IO/output.hpp"
+#include "../globals.hpp"
 
 #if USE_MPI
 #include "mpi.h"
@@ -18,20 +19,22 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info){
     /* x field boundaries *********************************/
     int xgsize = grids->getGhostVecSize(); // ghost size in x direction
     assert(xgsize>0);   
-    //fprintf(stderr,"rank=%d: xgsize=%d\n",rank_,xgsize);
+    if(debug>1) fprintf(stderr,"rank=%d: xgsize=%d\n",rank_,xgsize);
     int offl=0;
     int offr=xgsize;
 
     // load buffer xghost_send_
     grids->getGhostVec(-1, &(xghost_send_[offl]));// left
     grids->getGhostVec(1, &(xghost_send_[offr]));// right
-    //fprintf(stderr,"rank=%d:checking send\n",rank_);
-    //checkMPI("xsend.dat",xghost_send_,2*xgsize);
-    //fprintf(stderr,"rank=%d:finished checking send\n",rank_);
+    if(debug>2){
+       fprintf(stderr,"rank=%d:checking send\n",rank_);
+       checkMPI("xsend.dat",xghost_send_,2*xgsize);
+       fprintf(stderr,"rank=%d:finished checking send\n",rank_);
+    }
 
     // left boundary
     if(rank_>rank_xl_ || strcmp(bound[0],"periodic")==0){// left boundary is MPI
-       //fprintf(stderr,"rank=%d: xl is MPI\n",rank_);
+       if(debug) fprintf(stderr,"rank=%d: xl is MPI\n",rank_);
 #if USE_MPI
        // send to left neighbor
        MPI_Isend(&(xghost_send_[offl]),xgsize,MPI_DOUBLE,rank_xl_,
@@ -45,13 +48,13 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info){
 #endif
     }
     else{// left boundary is physical
-       //fprintf(stderr,"rank=%d: xl is physical\n",rank_);
+       if(debug) fprintf(stderr,"rank=%d: xl is physical\n",rank_);
        // load boundary conditions to xghost_recv_
     }
 
     // right boundary
     if(rank_<rank_xr_ || strcmp(bound[1],"periodic")==0){// right boundary is MPI
-       //fprintf(stderr,"rank=%d: xr is MPI\n",rank_);
+       if(debug) fprintf(stderr,"rank=%d: xr is MPI\n",rank_);
 #if USE_MPI
        // send to right neighbor
        MPI_Isend(&(xghost_send_[offr]),xgsize,MPI_DOUBLE,rank_xr_,
@@ -65,7 +68,7 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info){
 #endif
     }
     else{// left boundary is physical
-       //fprintf(stderr,"rank=%d: xr is physical\n",rank_);
+       if(debug) fprintf(stderr,"rank=%d: xr is physical\n",rank_);
        // load boundary conditions to xghost_recv_
     }
  
@@ -75,12 +78,14 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info){
 #endif
 
     // load ghost cells
-    //fprintf(stderr,"rank=%d:checking revc\n",rank_);
-    //checkMPI("xrecv.dat",xghost_send_,2*xgsize);
-    //fprintf(stderr,"rank=%d:finished checking recv\n",rank_);
+    if(debug>2){
+       fprintf(stderr,"rank=%d:checking revc\n",rank_);
+       checkMPI("xrecv.dat",xghost_send_,2*xgsize);
+       fprintf(stderr,"rank=%d:finished checking recv\n",rank_);
+    }
     grids->setGhostVec(-1,&(xghost_recv_[offl])); // left
     grids->setGhostVec(1,&(xghost_recv_[offr])); // right
-    //fprintf(stderr,"rank=%d:Finished loading x Ghosts!\n",rank_);
+    if(debug) fprintf(stderr,"rank=%d:Finished loading x Ghosts!\n",rank_);
 
     /* y field boundaries *********************************/
     // yz field boundaries 

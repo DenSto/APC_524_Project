@@ -38,7 +38,7 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isLeft, std::string type
 		isRight_((isLeft+1)%2),// factory use isLeft
 		type_(type)
 		{
-			fprintf(stderr,"rank=%d:dim=%d,isRight=%d,MPI_BC\n",rank_MPI,dim_Index,isRight_); 	
+			if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,MPI_BC\n",rank_MPI,dim_Index,isRight_); 	
 			assert(dim_index_ < 3);
 
 			toSend_ = 0;

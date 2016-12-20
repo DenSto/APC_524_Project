@@ -24,7 +24,7 @@ BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, st
 		isRight_((isLeft+1)%2),// factory use isLeft
 		type_(type)
 		{
-		fprintf(stderr,"rank=%d:dim=%d,isRight=%d,reflect BC\n",rank_MPI,dim_Index,isRight_); 	
+		if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,reflect BC\n",rank_MPI,dim_Index,isRight_); 	
 
 }
 

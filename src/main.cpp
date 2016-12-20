@@ -87,6 +87,8 @@ int main(int argc, char *argv[]){
     Input_Info_t input_info;
     if(rank==0){
       int err = readinput(argv[1],&input_info);
+      // Test whether input parameters are self-consistent
+//    testinput(&input_info);
       if(err!=0) {
         std::cerr << "Terminating..." << std::endl;
 #if USE_MPI
@@ -107,12 +109,12 @@ int main(int argc, char *argv[]){
     MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
     //fprintf(stderr,"rank=%d:after MPI_Bcast\n",rank);
-    checkinput(&input_info);
 #endif
     int restart = input_info.restart; // restart=0: initial run
                                       // restart=3: third restart
     //fprintf(stderr,"rank=%d,restart=%d\n",rank,restart);
-    int debug = input_info.debug;
+    debug = input_info.debug; // global debug flag
+    if(debug>1) checkinput(&input_info);
 
     /* Initial setup **************************************/
     // Domain decomposition

@@ -1,6 +1,7 @@
 #ifndef BC_FACTORY
 #define BC_FACTORY
 
+#include <stdio.h>
 #include <map>
 #include <vector>
 #include <sstream>
@@ -91,6 +92,7 @@ public:
   void declare(const std::string &type, // the type of particle
                Factory factory             // a factory function to make the desired integrator
               ) {
+    //fprintf(stderr,"call declare\n");
     registry_.insert(std::make_pair(type, factory));
   }
 

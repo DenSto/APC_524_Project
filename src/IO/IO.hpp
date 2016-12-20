@@ -30,7 +30,7 @@ typedef struct {
 } Input_Info_t;
 
 #if USE_MPI
-  #include "mpi.h"
+#include "mpi.h"
 
 //! Type infomation for passing Input_Info_t in MPI
 /*! When Input_Info_t is modified, constructor of this 

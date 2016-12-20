@@ -9,7 +9,7 @@ Domain::Domain(Input_Info_t *input_info)
       : size_(size_MPI),
         rank_(rank_MPI){
 
-       //fprintf(stderr,"rank=%d: call Domain constructor\n",rank_);
+       if(debug) fprintf(stderr,"rank=%d: call Domain constructor\n",rank_);
        nGhosts_ = 1;
 
        /* partition domain ********************************/
@@ -22,15 +22,15 @@ Domain::Domain(Input_Info_t *input_info)
        nProcxyz_ = new int[3];// procs in each direction
        assert(nProcxyz_!=NULL);
 
-       //fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
+       if(debug>1) fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
        int* nCell = input_info->nCell; 
        int* nProc = input_info->nProc;
-       //fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d,%d,%d\n",rank_,size_,nProc[0],nProc[1],nProc[2]); 
+       if(debug>1) fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d,%d,%d\n",rank_,size_,nProc[0],nProc[1],nProc[2]); 
        assert(size_ == nProc[0]*nProc[1]*nProc[2]);
 
        // assign private variables
        n3xyz_=(nCell[0]*nCell[1]*nCell[2])/size_; // local grid volume
-       //fprintf(stderr,"rank=%d,n3xyz=%d\n",rank,n3xyz_);
+       if(debug>1) fprintf(stderr,"rank=%d,n3xyz=%d\n",rank_MPI,n3xyz_);
        assert(n3xyz_>0);
 
        for (int i=0;i<3;i++){
@@ -99,11 +99,11 @@ Domain::Domain(Input_Info_t *input_info)
            xyz0_[i] = xyz0[i]+Lxyz_[i]*myijk_[i];
        }
 
-       //fprintf(stderr,"rank=%d: end Domain constructor\n",rank_);
+       if(debug) fprintf(stderr,"rank=%d: end Domain constructor\n",rank_);
 }
 
 Domain::~Domain(){
-    //printf("rank=%d: call Domain destructor\n",rank_);
+    if(debug) printf("rank=%d: call Domain destructor\n",rank_);
     delete[] nxyz_;
     delete[] n2xyz_;
     delete[] xyz0_;
@@ -124,7 +124,7 @@ int Domain::ijkToRank(int i, int j, int k){
     myrank+= j*nProcxyz_[2];
     myrank+= k;
 
-    //fprintf(stderr,"rank=%d:i=%d,j=%d,k=%d,myrank=%d\n",rank_,i,j,k,myrank); 
+    if(debug>1) fprintf(stderr,"rank=%d:i=%d,j=%d,k=%d,myrank=%d\n",rank_,i,j,k,myrank); 
     assert(myrank>=0 && myrank<=size_);   
  
     return myrank; 
