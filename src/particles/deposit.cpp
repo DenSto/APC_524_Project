@@ -7,8 +7,8 @@ Depositor::Depositor(){
 Depositor::~Depositor(){
 }
 
-void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellverts, double* RhoJObj) {
-  //Function returns an updated RhoJObj to include the current due to particle motion on the cell edges.
+void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellverts, double* JObj) {
+  //Function returns an updated JObj to include the current due to particle motion on the cell edges.
 
   double curIn1D = 0.0; //1D current
   double cur2AreaRatio = 0.0; //Current density to area ratio.
@@ -27,15 +27,15 @@ void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellve
     cellArea = lcell[j]*lcell[k];
     curIn1D = part->q * part->v[i];
     cur2AreaRatio = (curIn1D / cellVolume) / cellArea;
-    RhoJObj[4*i] += cur2AreaRatio * (lcell[j]-relpos[j]) * (lcell[k]-relpos[k]);
-    RhoJObj[4*i+1] += cur2AreaRatio * relpos[j] * (lcell[k]-relpos[k]);
-    RhoJObj[4*i+2] += cur2AreaRatio * relpos[j] * relpos[k];
-    RhoJObj[4*i+3] += cur2AreaRatio * (lcell[j]-relpos[j]) * relpos[k];
+    JObj[4*i] += cur2AreaRatio * (lcell[j]-relpos[j]) * (lcell[k]-relpos[k]);
+    JObj[4*i+1] += cur2AreaRatio * relpos[j] * (lcell[k]-relpos[k]);
+    JObj[4*i+2] += cur2AreaRatio * relpos[j] * relpos[k];
+    JObj[4*i+3] += cur2AreaRatio * (lcell[j]-relpos[j]) * relpos[k];
   }
 }
 
-void Depositor::deposit_particle_Rho(Particle *part, double* lcell, double* cellverts, double* RhoJObj) {
-  //Function returns an updated RhoJObj to include the charge due to particles on the cell edges.
+void Depositor::deposit_particle_Rho(Particle *part, double* lcell, double* cellverts, double* RhoObj) {
+  //Function returns an updated RhoObj to include the charge due to particles on the cell edges.
 
   double pcharge = 0.0; //1D current
   double charge2VolRatio = 0.0; //Current density to volume ratio.
@@ -47,12 +47,12 @@ void Depositor::deposit_particle_Rho(Particle *part, double* lcell, double* cell
   //Calculate charge and apply to entered (current) cell.
   pcharge = part->q;
   charge2VolRatio = (pcharge / cellVolume) / cellVolume;
-  RhoJObj[0] += charge2VolRatio * (lcell[0]-relpos[0]) * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[0 0 0]
-  RhoJObj[1] += charge2VolRatio * relpos[0] * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[1 0 0]
-  RhoJObj[2] += charge2VolRatio * relpos[0] * relpos[1] * (lcell[2]-relpos[2]); //[1 1 0]
-  RhoJObj[3] += charge2VolRatio * (lcell[0]-relpos[0]) * relpos[1] * (lcell[2]-relpos[2]); //[0 1 0]
-  RhoJObj[4] += charge2VolRatio * (lcell[0]-relpos[0]) * relpos[1] * relpos[2]; //[0 1 1]
-  RhoJObj[5] += charge2VolRatio * relpos[0] * relpos[1] * relpos[2]; //[1 1 1]
-  RhoJObj[6] += charge2VolRatio * relpos[0] * (lcell[1]-relpos[1]) * relpos[2]; //[1 0 1]
-  RhoJObj[7] += charge2VolRatio * (lcell[0]-relpos[0]) * (lcell[1]-relpos[1]) * relpos[2]; //[0 0 1]
+  RhoObj[0] += charge2VolRatio * (lcell[0]-relpos[0]) * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[0 0 0]
+  RhoObj[1] += charge2VolRatio * relpos[0] * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[1 0 0]
+  RhoObj[2] += charge2VolRatio * relpos[0] * relpos[1] * (lcell[2]-relpos[2]); //[1 1 0]
+  RhoObj[3] += charge2VolRatio * (lcell[0]-relpos[0]) * relpos[1] * (lcell[2]-relpos[2]); //[0 1 0]
+  RhoObj[4] += charge2VolRatio * (lcell[0]-relpos[0]) * relpos[1] * relpos[2]; //[0 1 1]
+  RhoObj[5] += charge2VolRatio * relpos[0] * relpos[1] * relpos[2]; //[1 1 1]
+  RhoObj[6] += charge2VolRatio * relpos[0] * (lcell[1]-relpos[1]) * relpos[2]; //[1 0 1]
+  RhoObj[7] += charge2VolRatio * (lcell[0]-relpos[0]) * (lcell[1]-relpos[1]) * relpos[2]; //[0 0 1]
 }
