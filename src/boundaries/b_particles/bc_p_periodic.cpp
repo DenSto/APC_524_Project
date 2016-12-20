@@ -4,6 +4,8 @@
 #include "../../domain/domain.hpp"
 #include <vector>
 
+#define PERSISTENT_PERIODIC
+
 
 class BC_P_Periodic : public BC_Particle {
 	public:
@@ -38,23 +40,24 @@ BC_P_Periodic::~BC_P_Periodic(){
 }
 
 int BC_P_Periodic::completeBC(std::vector<Particle> pl){
+#ifdef PERSISTENT_PERIODIC
 	pl.insert(pl.end(),ghostBuf_.begin(),ghostBuf_.end());
+#endif
 	return 0;
 }
 
 int BC_P_Periodic::particle_BC(Particle* p){
+#ifdef PERSISTENT_PERIODIC
 // Persistent particles (don't create new ones, but move the original around)
-/*
 	if(p->x[dim_index_] < xMin_ && isRight_)
 		p->x[dim_index_] += (xMax_-xMin_);
 	if(p->x[dim_index_] > xMax_ && !isRight_)
 		p->x[dim_index_] -= (xMax_-xMin_);
 	return 0;
-*/
-
+#else
 // Non-persistent particles (create new particles, delete the ones in ghost cells
 // at the end of the time step.
-	if(p->x[dim_index_] < xMin_ && !isRight_){
+	if(p->x[dim_index_] < xMin_ && !isRight_){ //l eft boundary
 		Particle newP = *p;
 		newP.x[dim_index_] += (xMax_-xMin_);
 		ghostBuf_.push_back(newP);
@@ -62,7 +65,7 @@ int BC_P_Periodic::particle_BC(Particle* p){
 		return 1;
 	}
 
-	if(p->x[dim_index_] > xMax_ && isRight_){
+	if(p->x[dim_index_] > xMax_ && isRight_){ // right boundary
 		Particle newP = *p;
 		newP.x[dim_index_] -= (xMax_-xMin_);
 		ghostBuf_.push_back(newP);
@@ -71,6 +74,8 @@ int BC_P_Periodic::particle_BC(Particle* p){
 	}
 		
 	return 0;
+#endif
 }
 
+// Registers bounary condition into BC_Factory dictionary
 static RegisterParticleBoundary instance("periodic", makeBCParticle<BC_P_Periodic>);
