@@ -159,7 +159,7 @@ int main(int argc, char *argv[]){
 
     // prepare time step
     int nt = input_info.nt; //number of steps to run
-    double t = input_info.t0; //initial time
+    time_phys = input_info.t0; //initial time
     double dt = 1/domain->getmindx(); //c=1, resolve EM wave
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]){
        part_handler->InterpolateEB(grids);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
 
-       t+=dt;
+       time_phys += dt;
      }  
 
 

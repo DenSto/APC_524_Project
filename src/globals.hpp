@@ -3,6 +3,7 @@
 		
 #ifdef MAIN_CPP
 int rank_MPI, size_MPI;
+double time_phys; // current physical time in simulation
 
 #else // MAIN_CPP
 
