@@ -138,7 +138,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
-    //part_handler->depositRhoJ(grids);
+    //part_handler->depositJ(grids);
     //if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
 
     // Solve initial fields from particle or read restart file
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
-       part_handler->depositRhoJ(grids);
+       part_handler->depositJ(grids);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields

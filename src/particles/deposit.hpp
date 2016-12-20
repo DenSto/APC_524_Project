@@ -9,6 +9,8 @@ public:
   ~Depositor();
   
   void deposit_particle_J(Particle *part, double* lcell, double* cellverts, double* RhoJObj); //deposit particle on cells' J
+
+  void deposit_particle_Rho(Particle *part, double* lcell, double* cellverts, double* RhoJObj); //deposit particle on cells' Rho
 };
 
 #endif

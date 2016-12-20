@@ -132,7 +132,7 @@ void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_Handler::depositRhoJ(Grid *grid){
+void Particle_Handler::depositJ(Grid *grid){
   Depositor *depositor = new Depositor();
 
   long cellID = -1; //cell id tracker.

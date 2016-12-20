@@ -34,7 +34,7 @@ public:
   void clearGhosts();	// remove all ghost particles in particle list
 
   void InterpolateEB(Grid* grid);
-  void depositRhoJ(Grid *grids); // deposit current and charge density from particles to grid
+  void depositJ(Grid *grids); // deposit current and charge density from particles to grid
 
   std::vector<Particle> getParticleVector(){return parts_;}
 

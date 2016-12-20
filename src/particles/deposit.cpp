@@ -33,3 +33,26 @@ void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellve
     RhoJObj[4*i+3] += cur2AreaRatio * (lcell[j]-relpos[j]) * relpos[k];
   }
 }
+
+void Depositor::deposit_particle_Rho(Particle *part, double* lcell, double* cellverts, double* RhoJObj) {
+  //Function returns an updated RhoJObj to include the charge due to particles on the cell edges.
+
+  double pcharge = 0.0; //1D current
+  double charge2VolRatio = 0.0; //Current density to volume ratio.
+  double cellVolume = lcell[0]*lcell[1]*lcell[2]; //Cell volume.
+  double relpos[3] = {}; //Relative position of particle to 'least' vertex of cell.
+
+  for (int i=0; i<3; i++) relpos[i] = part->x[i] - cellverts[i];
+
+  //Calculate charge and apply to entered (current) cell.
+  pcharge = part->q;
+  charge2VolRatio = (pcharge / cellVolume) / cellVolume;
+  RhoJObj[0] += charge2VolRatio * (lcell[0]-relpos[0]) * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[0 0 0]
+  RhoJObj[1] += charge2VolRatio * relpos[0] * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[1 0 0]
+  RhoJObj[2] += charge2VolRatio * relpos[0] * relpos[1] * (lcell[2]-relpos[2]); //[1 1 0]
+  RhoJObj[3] += charge2VolRatio * (lcell[0]-relpos[0]) * relpos[1] * (lcell[2]-relpos[2]); //[0 1 0]
+  RhoJObj[4] += charge2VolRatio * (lcell[0]-relpos[0]) * relpos[1] * relpos[2]; //[0 1 1]
+  RhoJObj[5] += charge2VolRatio * relpos[0] * relpos[1] * relpos[2]; //[1 1 1]
+  RhoJObj[6] += charge2VolRatio * relpos[0] * (lcell[1]-relpos[1]) * relpos[2]; //[1 0 1]
+  RhoJObj[7] += charge2VolRatio * (lcell[0]-relpos[0]) * (lcell[1]-relpos[1]) * relpos[2]; //[0 0 1]
+}
