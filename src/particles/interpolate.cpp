@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "interpolate.hpp"
 
 Interpolator::Interpolator(){
@@ -17,8 +18,8 @@ void Interpolator::interpolate_fields(double* pos, double* lcell, double* cellva
   }
 
   for (i=0; i < 3; i++) {
-    j = i+1 % 3; /*Modular arithmetic cycles over Cartesian directions*/
-    k = i+2 % 3;
+    j = (i+1) % 3; /*Modular arithmetic cycles over Cartesian directions*/
+    k = (i+2) % 3;
 
     eField = 0; /*Field additions are weighted by catercorner area.*/
     eField += (lcell[j]-ds[j]) * (lcell[k]-ds[k]) * cellvars[3+4*i]; /*1st edge*/
