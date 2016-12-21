@@ -1,12 +1,4 @@
-#include "pusher.hpp"
-
-class Boris : public Pusher {
-    public:
-        Boris();
-        ~Boris();
-        int Step(Particle *part, Field_part *field, double dt);
-		
-};
+#include "boris.hpp"
 
 Boris::Boris(){
 
