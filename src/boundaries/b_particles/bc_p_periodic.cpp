@@ -4,15 +4,15 @@
 #include "../../domain/domain.hpp"
 #include <vector>
 
-#define PERSISTENT_PERIODIC
+#define USE_GHOST
 
 
 class BC_P_Periodic : public BC_Particle {
 	public:
 		BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::string type);
 		~BC_P_Periodic();
-		void computeParticleBCs(std::vector<Particle> pl);
-		int completeBC(std::vector<Particle> pl);
+		void computeParticleBCs(std::vector<Particle> *pl);
+		int completeBC(std::vector<Particle> *pl);
 	private:
 		int particle_BC(Particle* p);
 		double xMin_;
@@ -20,7 +20,9 @@ class BC_P_Periodic : public BC_Particle {
 		int dim_index_;
 		short isRight_;
 		std::string type_;
+#ifdef USE_GHOST
 		std::vector<Particle> ghostBuf_;
+#endif
 };
 
 BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::string type) 
@@ -39,25 +41,21 @@ BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::
 BC_P_Periodic::~BC_P_Periodic(){
 }
 
-int BC_P_Periodic::completeBC(std::vector<Particle> pl){
-#ifdef PERSISTENT_PERIODIC
-	pl.insert(pl.end(),ghostBuf_.begin(),ghostBuf_.end());
+int BC_P_Periodic::completeBC(std::vector<Particle> *pl){
+#ifdef USE_GHOST
+	pl->insert(pl->end(),ghostBuf_.begin(),ghostBuf_.end());
+	ghostBuf_.clear();
 #endif
 	return 0;
 }
 
 int BC_P_Periodic::particle_BC(Particle* p){
-#ifdef PERSISTENT_PERIODIC
-// Persistent particles (don't create new ones, but move the original around)
-	if(p->x[dim_index_] < xMin_ && isRight_)
-		p->x[dim_index_] += (xMax_-xMin_);
-	if(p->x[dim_index_] > xMax_ && !isRight_)
-		p->x[dim_index_] -= (xMax_-xMin_);
-	return 0;
-#else
+	printf("index %lf %lf %lf %d\n]",p->x[dim_index_], xMin_,xMax_,isRight_);
+#ifdef USE_GHOST
 // Non-persistent particles (create new particles, delete the ones in ghost cells
 // at the end of the time step.
-	if(p->x[dim_index_] < xMin_ && !isRight_){ //l eft boundary
+	printf("farage\n");
+	if(p->x[dim_index_] < xMin_ && !isRight_){ //left boundary
 		Particle newP = *p;
 		newP.x[dim_index_] += (xMax_-xMin_);
 		ghostBuf_.push_back(newP);
@@ -73,6 +71,14 @@ int BC_P_Periodic::particle_BC(Particle* p){
 		return 1;
 	}
 		
+	return 0;
+#else
+// Persistent particles (don't create new ones, but move the original around)
+	printf("dorf\n");
+	if(p->x[dim_index_] < xMin_ && !isRight_)
+		p->x[dim_index_] += (xMax_-xMin_);
+	if(p->x[dim_index_] > xMax_ && isRight_)
+		p->x[dim_index_] -= (xMax_-xMin_);
 	return 0;
 #endif
 }

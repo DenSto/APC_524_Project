@@ -8,8 +8,8 @@ class BC_P_Reflecting : public BC_Particle {
 	public:
 		BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, std::string type);
 		~BC_P_Reflecting();
-		void computeParticleBCs(std::vector<Particle> pl);
-		int completeBC(std::vector<Particle> pl);
+		void computeParticleBCs(std::vector<Particle> *pl);
+		int completeBC(std::vector<Particle> *pl);
 	private:
 		int particle_BC(Particle* p);
 		double xMin_;
@@ -34,7 +34,7 @@ BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, s
 BC_P_Reflecting::~BC_P_Reflecting(){
 }
 
-int BC_P_Reflecting::completeBC(std::vector<Particle> pl){
+int BC_P_Reflecting::completeBC(std::vector<Particle> *pl){
 	// Nothing to do
 	return 0;
 }

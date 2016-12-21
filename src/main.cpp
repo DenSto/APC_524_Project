@@ -177,8 +177,6 @@ int main(int argc, char *argv[]){
 
        // Pass particle through MPI boundary, or physical boundary conditions
        part_handler->executeParticleBoundaryConditions();
-       // remove any particles left in the ghost cells
-       part_handler->clearGhosts();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
@@ -196,6 +194,9 @@ int main(int argc, char *argv[]){
        // Interpolate fields from grid to particle
        part_handler->InterpolateEB(grids);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
+
+       // remove any particles left in the ghost cells
+       part_handler->clearGhosts();
 
        time_phys += dt;
      }  

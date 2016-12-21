@@ -24,10 +24,10 @@ class BC_Particle {
 
 	public:
 		virtual ~BC_Particle() {};
-		int computeParticleBCs(std::vector<Particle> pl); // Cycle through particles. Returns the change in the number of particles
+		int computeParticleBCs(std::vector<Particle> *pl); // Cycle through particles. Returns the change in the number of particles
 	private:
 		virtual int particle_BC(Particle* p) = 0; // Returns 1 if particle is now ghost, 0 otherwise
-		virtual int completeBC(std::vector<Particle> pl) = 0; // Complete boundary conditions.
+		virtual int completeBC(std::vector<Particle> *pl) = 0; // Complete boundary conditions.
 															  // returns the change in the number of particles
 		std::string type_;
 };

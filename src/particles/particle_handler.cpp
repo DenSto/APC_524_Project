@@ -209,16 +209,13 @@ double Particle_Handler::computeCFLTimestep(Domain* domain){
 
 void Particle_Handler::clearGhosts(){
 	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
-		printf("part %lf %lf\n",iter->x[1],iter->v[1]);
 		if(iter->isGhost){
-			printf("whoa %ld\n",(long)parts_.size());
 			std::swap(*iter, parts_.back());
 			parts_.pop_back();
 		} else {
 			iter++;
 		}
 	}
-	printf("size %ld %ld\n",(long)np_,(long)parts_.size());
 	assert(parts_.size() == np_);
 //        std::cerr<<"parts_.size="<<parts_.size()<<", np_="<<np_<<".\n";
 }
@@ -229,7 +226,7 @@ void Particle_Handler::executeParticleBoundaryConditions(){
 		// determine whether particles are ghost
         // place ghost particles
         // change the number of particles np_ in each domain
-		int inc = boundaries_[i]->computeParticleBCs(parts_);
+		int inc = boundaries_[i]->computeParticleBCs(&parts_);
 		incrementNParticles(inc);
 	}
 }
