@@ -378,9 +378,14 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 //! Internal method to set field along a plane.
 /*!
 	Inputs: \n
-	dimension perpendicular to plane \n
-	indx along dimenstion perpendicular to plane \n
+	dimension perpendicular to plane. \n
+        For example, if dim=0 (x direction), then this program set field in one yz plane. \n\n
+
+	indx along dimenstion perpendicular to plane. \n
+        For example, if dim=0 and indx =14, then set field for the 14th yz plane. \n\n
+
 	field to set along dimension \n
+
 	value to set field
 */
 int Grid::setFieldInPlane_( int dim, int indx, double *** field, double fieldVal) {
