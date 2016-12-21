@@ -50,11 +50,9 @@ int BC_P_Periodic::completeBC(std::vector<Particle> *pl){
 }
 
 int BC_P_Periodic::particle_BC(Particle* p){
-	printf("index %lf %lf %lf %d\n]",p->x[dim_index_], xMin_,xMax_,isRight_);
 #ifdef USE_GHOST
 // Non-persistent particles (create new particles, delete the ones in ghost cells
 // at the end of the time step.
-	printf("farage\n");
 	if(p->x[dim_index_] < xMin_ && !isRight_){ //left boundary
 		Particle newP = *p;
 		newP.x[dim_index_] += (xMax_-xMin_);
@@ -74,7 +72,6 @@ int BC_P_Periodic::particle_BC(Particle* p){
 	return 0;
 #else
 // Persistent particles (don't create new ones, but move the original around)
-	printf("dorf\n");
 	if(p->x[dim_index_] < xMin_ && !isRight_)
 		p->x[dim_index_] += (xMax_-xMin_);
 	if(p->x[dim_index_] > xMax_ && isRight_)

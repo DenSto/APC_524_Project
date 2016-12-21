@@ -117,7 +117,7 @@ int BC_P_MPI::completeBC(std::vector<Particle> *pl){
 
 	// If we're to receive particles, allocate sufficient memory and wait for target to send them.
 	if(toReceive_ != 0){
-		recvBuf_ = (double*) realloc(recvBuf_,sizeof(double*)*MPI_P_SIZE*toReceive_);
+		recvBuf_ = (double*) realloc(recvBuf_,sizeof(double)*MPI_P_SIZE*toReceive_);
 		err=MPI_Recv(recvBuf_,toReceive_*MPI_P_SIZE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 		if(err) fprintf(stderr, "rank=%d MPI_Recv error on recvBuf_ = %d\n",rank_MPI,err);
 	
