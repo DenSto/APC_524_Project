@@ -40,7 +40,7 @@ $(PROGRAM): $(OBJ) $(LIBS)
 	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
 
 %.o: %.cpp 
-	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include
 
 IO/IO.o: IO/IO.cpp $(LCONFIG)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
