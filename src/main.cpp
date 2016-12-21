@@ -68,21 +68,6 @@ int main(int argc, char *argv[]){
 #endif 
     }
 
-    // Check input file exist 
-    if(rank==0){
-      FILE *fp = fopen(argv[1],"r");
-      if(fp==NULL){
-         fprintf(stderr,"Cannot open input file!\n");
-#if USE_MPI
-         MPI_Abort(MPI_COMM_WORLD,1);
-#else
-         exit(1);
-#endif
-      }
-      fclose(fp);
-    } 
-
-
     /* Read and broadcast input file **********************/
     Input_Info_t input_info;
     if(rank==0){
@@ -176,7 +161,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // Pass particle through MPI boundary, or physical boundary conditions
-       part_handler->executeParticleBoundaryConditions();
+//       part_handler->executeParticleBoundaryConditions();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid

@@ -5,7 +5,8 @@
 *~
 .depend
 EMOOPIC
-*latex/*.log
+*.log
+*.dvi
 *latex/*.tex
 *latex/*.md5
 *latex/*.gz
