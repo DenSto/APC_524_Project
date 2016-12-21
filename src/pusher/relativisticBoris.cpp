@@ -1,14 +1,14 @@
 #include "pusher.hpp"
 
-class Boris : public Pusher {
+class Relativistic_Boris : public Pusher {
     public:
-        Boris();
-        ~Boris();
+        Relativistic_Boris();
+        ~Relativistic_Boris();
         int Step(Particle *part, Field_part *field, double dt);
 		
 };
 
-Boris::Boris(){
+Relativistic_Boris::Relativistic_Boris(){
 
 }
 

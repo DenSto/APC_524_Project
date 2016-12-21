@@ -20,7 +20,7 @@
 
 class Particle_Handler {
 public:
-  Particle_Handler(long np); // list of np particles and their fields
+  Particle_Handler(); // list of np particles and their fields
   ~Particle_Handler();
   void Load(Input_Info_t *input_info, Domain* domain); // Initialize particles
   void Push(double dt);   // Push all particles
@@ -38,8 +38,8 @@ public:
 
   std::vector<Particle> getParticleVector(){return parts_;}
 
-  double maxVelocity(void); // return maximum velocity of particles 
-                                  // to determine size of time steps 
+  double computeCFLTimestep(Domain* domain); // return timestep computed from max velocity and grid size
+
 
   void setParticleBoundaries(BC_Particle** bc){boundaries_=bc;}
   void executeParticleBoundaryConditions();

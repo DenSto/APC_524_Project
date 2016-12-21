@@ -1,11 +1,10 @@
-#include <stdlib.h>
-#include "assert.h"
 #include "particle.hpp"
 
 Particle new_particle(){
 	Particle part;
 	part.q=1.0;
 	part.m=1.0;
+	part.isGhost=0;
 	part.field = new_particle_field();
 	return part;
 }

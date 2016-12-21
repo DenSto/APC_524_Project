@@ -10,13 +10,14 @@
 #include "../grid/grid.hpp"
 #include "../utils/RNG.hpp"
 #define _USE_MATH_DEFINES
+#if USE_MPI
+#include "mpi.h"
+#endif
 
-Particle_Handler::Particle_Handler(long np){
-    //fprintf(stderr,"new Particle_Handler\n");
-    np_=np;
-
-	parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 
-	                      // slosh room. Excessive maybe?
+Particle_Handler::Particle_Handler(){
+	np_=0;
+	//parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 
+                     // slosh room. Excessive maybe?
 }
 
 Particle_Handler::~Particle_Handler(){
@@ -29,10 +30,8 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double* x0 = domain->getxyz0();
 
     if(restart==0){// initial run
-/*	Random_Number_Generator *rng = new Random_Number_Generator(-1);
-	// electrons
-        for(long ip=0;ip<np_;ip++){
-                //fprintf(stderr,"rank=%d: np_=%ld,ip=%ld\n",rank_MPI,np_,ip);
+	Random_Number_Generator *rng = new Random_Number_Generator(-1);
+        for(long ip=0; ip < input_info->np;ip++){
 		Particle p = new_particle();
 		if(ip < np_/2) { // ions
 			p.q = 1;
@@ -45,30 +44,28 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.x[0]=rng->getUniform()*L[0]+x0[0];
 		p.x[1]=rng->getUniform()*L[1]+x0[1];
 		p.x[2]=rng->getUniform()*L[2]+x0[2];
-                //fprintf(stderr,"rank=%d: ip=%ld, getUniform\n",rank_MPI,ip);
-    
+
 		p.v[0]=rng->getGaussian(0.0,vth);
 		p.v[1]=rng->getGaussian(0.0,vth);
 		p.v[2]=rng->getGaussian(0.0,vth);
 
-                //fprintf(stderr,"rank=%d: ip=%ld, push back\n",rank_MPI,ip);
 		parts_.push_back(p);
-	}
-*/
-    }
+		np_++;
+    } }
     else{//read restart file
         //dummy code inserted by YShi for testing
         //insert a single particle at the center of the cell
 	Particle p = new_particle();
-	p.q = 1;
+	p.q = 0;
 	p.m = 1;
 	p.x[0]=L[0]/2+x0[0];
 	p.x[1]=L[1]/2+x0[1];
 	p.x[2]=L[2]/2+x0[2];
-	p.v[0]=0.1;
+//	p.v[0]=0.1;
 	p.v[1]=0.1;
-	p.v[2]=0.1;
+//	p.v[2]=0.1;
 	parts_.push_back(p);
+	np_++;
     }
 }
 
@@ -180,32 +177,59 @@ void Particle_Handler::depositJ(Grid *grid){
   grid->addJ(cellID,&RhoJObj[0]);
 }
 
-double Particle_Handler::maxVelocity(void){
-    return 0.1;
+double Particle_Handler::computeCFLTimestep(Domain* domain){
+/*	double maxV[3], mindt[3];
+
+	double *dx = domain->getdx();
+	for(int i = 0; i < 3; i++) maxV[i]=0.0;
+	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end(); iter++){
+		for(int i = 0; i < 3; i++){
+			if(fabs(iter->v[i]) > maxV[i])		
+				maxV[i] = fabs(iter->v[i]);
+		}			
+	}
+	for(int i = 0; i < 3; i++){
+		assert(maxV[i] > 0);
+		mindt[i] = dx[i]/maxV[i];
+	}
+	delete[] dx;
+	
+#if USE_MPI
+//	double mindtall[3];
+//	int ierr = MPI_Allreduce(mindt,mindtall,3,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
+	//return *std::min_element(mindtall,mindtall+3);
+	return *std::min_element(mindt,mindt+3);
+#else
+	return *std::min_element(mindt,mindt+3);
+#endif
+*/
+	return 0.01;
 }
 
 
 void Particle_Handler::clearGhosts(){
 	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
+		printf("part %lf %lf\n",iter->x[1],iter->v[1]);
 		if(iter->isGhost){
+			printf("whoa %ld\n",(long)parts_.size());
 			std::swap(*iter, parts_.back());
 			parts_.pop_back();
 		} else {
 			iter++;
 		}
 	}
+	printf("size %ld %ld\n",(long)np_,(long)parts_.size());
+	assert(parts_.size() == np_);
 //        std::cerr<<"parts_.size="<<parts_.size()<<", np_="<<np_<<".\n";
-//	assert(parts_.size() == np_);
 }
 
 
 void Particle_Handler::executeParticleBoundaryConditions(){
 	for(int i = 0; i < 6; i++){
 		// determine whether particles are ghost
-		boundaries_[i]->computeParticleBCs(parts_);
-                // place ghost particles
-		int inc = boundaries_[i]->completeBC(parts_);
-                // change the number of particles np_ in each domain
+        // place ghost particles
+        // change the number of particles np_ in each domain
+		int inc = boundaries_[i]->computeParticleBCs(parts_);
 		incrementNParticles(inc);
 	}
 }
