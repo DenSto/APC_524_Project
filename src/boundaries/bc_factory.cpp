@@ -28,10 +28,10 @@
 				// compare return 0 when equal
 				if(periodic.compare(types[2*i])==0 || inMiddle){ // Two MPI communication loops
 					// Left boundary condition
-					ret[2*i]=lookup(mpi)(domain,i,0,mpi);
+					ret[2*i]=lookup(mpi)(domain,i,0,types[2*i]);
 
 					// Right boundary condition
-					ret[2*i+1]=lookup(mpi)(domain,i,1,mpi);
+					ret[2*i+1]=lookup(mpi)(domain,i,1,types[2*i+1]);
 				} else { // One MPI communication loop
 					// Physical side (to be calculated first!!)
 					int MPIisRight = 0;	
@@ -43,7 +43,7 @@
 						MPIisRight=0;
 					}
 					// MPI side (left or right, compute second for efficiency)
-					ret[2*i + 1]=lookup(mpi)(domain,i,MPIisRight, mpi);
+					ret[2*i + 1]=lookup(mpi)(domain,i,MPIisRight, types[2*i + MPIisRight]);
 				}
  			} else // treat serially
 #endif

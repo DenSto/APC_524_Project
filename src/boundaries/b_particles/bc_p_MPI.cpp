@@ -8,6 +8,8 @@
 #include "assert.h"
 #include "mpi.h"
 
+#define DOUBLES_IN_PARTICLE 9
+
 class BC_P_MPI : public BC_Particle {
 	public:
 		BC_P_MPI(Domain* domain, int dim_Index, short isLeft, std::string type);
@@ -28,6 +30,7 @@ class BC_P_MPI : public BC_Particle {
 		std::vector<double> sendBuf_;
 		std::vector<Particle> ghostBuf_;
 		double* recvBuf_;
+		int rBufSize_;
 		void packParticle(Particle* p);
 		Particle unpackParticle(int offset);
 };
@@ -41,15 +44,18 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 	assert(dim_index_ < 3);
 
 	xMin_ = domain->getxyz0()[dim_index_];
-        xMax_ = xMin_+domain->getLxyz()[dim_index_];
+	xMax_ = xMin_ + domain->getLxyz()[dim_index_];
 	if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,MPI_BC,xMin=%f,xMax=%f\n",
                                    rank_MPI,dim_index_,isRight_,xMin_,xMax_); 	
 
 	toSend_ = 0;
 	toReceive_ = 0;
+	rBufSize_ = 1;
+	recvBuf_ = (double *) malloc(sizeof(double)*rBufSize_*DOUBLES_IN_PARTICLE);
+	assert(recvBuf_ != NULL);
 
 	std::string periodic ("periodic");
-	bool isPeriodic = periodic.compare(type);
+	bool isPeriodic = (periodic.compare(type) == 0);
 
 	lengthShift_ = new double[3];
 	for(int i = 0; i < 3; i++) lengthShift_[i] = 0.0;
@@ -111,18 +117,27 @@ int BC_P_MPI::completeBC(std::vector<Particle> *pl){
 		err=MPI_Wait(&req,MPI_STATUS_IGNORE);
 		if(err) fprintf(stderr, "rank=%d (1) MPI_Wait error = %d\n",rank_MPI,err);
 
-		err=MPI_Isend(&sendBuf_[0],toSend_*MPI_P_SIZE, MPI_DOUBLE, sendRank_,12,MPI_COMM_WORLD,&req);
+		err=MPI_Isend(&sendBuf_[0],toSend_*DOUBLES_IN_PARTICLE, MPI_DOUBLE, sendRank_,12,MPI_COMM_WORLD,&req);
 		if(err) fprintf(stderr, "rank=%d MPI_Isend error on sendBuf_ = %d\n",rank_MPI,err);
+
+		if(debug>1)fprintf(stderr,"rank=%d:dim=%d: Sending %ld particles.\n",
+                                   rank_MPI,dim_index_,toSend_); 	
 	}
 
 	// If we're to receive particles, allocate sufficient memory and wait for target to send them.
 	if(toReceive_ != 0){
-		recvBuf_ = (double*) realloc(recvBuf_,sizeof(double)*MPI_P_SIZE*toReceive_);
-		err=MPI_Recv(recvBuf_,toReceive_*MPI_P_SIZE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+
+		if(toReceive_ > rBufSize_){
+			recvBuf_ = (double*) realloc(recvBuf_,sizeof(double)*DOUBLES_IN_PARTICLE*toReceive_);
+			rBufSize_ = toReceive_;
+			assert(recvBuf_ != NULL);
+		}
+
+		err=MPI_Recv(recvBuf_,toReceive_*DOUBLES_IN_PARTICLE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 		if(err) fprintf(stderr, "rank=%d MPI_Recv error on recvBuf_ = %d\n",rank_MPI,err);
 	
 		for(int i = 0; i < toReceive_; i++){
-			ghostBuf_.push_back(unpackParticle(i*MPI_P_SIZE));
+			ghostBuf_.push_back(unpackParticle(i*DOUBLES_IN_PARTICLE));
 		}
 		pl->insert(pl->end(),ghostBuf_.begin(),ghostBuf_.end());
 		ghostBuf_.clear();

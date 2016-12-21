@@ -6,7 +6,6 @@ typedef struct Field_part {
   double b1, b2, b3; /* Magnetic field components */
 } Field_part;
 
-#define MPI_P_SIZE 9
 typedef struct Particle {
   double x[3];  /* coordinate in X,Y,Z */	
   double v[3];  /* velocity in X,Y,Z */	
