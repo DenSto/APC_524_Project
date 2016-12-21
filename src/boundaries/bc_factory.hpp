@@ -34,7 +34,7 @@ public:
     */
      //BC_Particle** constructConditions(Domain* domain, const std::string* types){
      BC_Particle** constructConditions(Domain* domain, const char (*bound)[32]){
-                // conver c string for MPI to std::string for BC_Particle
+                // convert c string for MPI to std::string for BC_Particle
                 // size 32 is in correspondence definition in Input_Info_t
 		std::string types[6];
 		for(int i=0;i<6;i++){
@@ -54,7 +54,8 @@ public:
 			if(nProc[i] > 1){ // needs MPI
 				int partitionIndex = myLoc[i];
 				short inMiddle = (partitionIndex != 0) && (partitionIndex != nProc[i] - 1);
-				if(periodic.compare(types[2*i]) || inMiddle){ // Two MPI communication loops
+				// compare return 0 when equal
+				if(periodic.compare(types[2*i])==0 || inMiddle){ // Two MPI communication loops
 					// Left condition
 					ret[2*i]=lookup(mpi)(domain,i,1,mpi);
 
