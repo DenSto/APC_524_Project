@@ -5,7 +5,7 @@
     */
      //BC_Particle** constructConditions(Domain* domain, const std::string* types){
      BC_Particle** BC_Factory::constructConditions(Domain* domain, const char (*bound)[32]){
-                // conver c string for MPI to std::string for BC_Particle
+                // convert c string for MPI to std::string for BC_Particle
                 // size 32 is in correspondence definition in Input_Info_t
 		std::string types[6];
 		for(int i=0;i<6;i++){
@@ -25,7 +25,8 @@
 			if(nProc[i] > 1){ // needs MPI (i.e. periodic BCs will be treated by MPI)
 				int partitionIndex = myLoc[i];
 				short inMiddle = (partitionIndex != 0) && (partitionIndex != nProc[i] - 1);
-				if(periodic.compare(types[2*i]) || inMiddle){ // Two MPI communication loops
+				// compare return 0 when equal
+				if(periodic.compare(types[2*i])==0 || inMiddle){ // Two MPI communication loops
 					// Left boundary condition
 					ret[2*i]=lookup(mpi)(domain,i,0,mpi);
 
@@ -38,11 +39,11 @@
 						ret[2*i]=lookup(types[2*i])(domain,i,0,types[2*i]);
 						MPIisRight=1;
 					} else { // Physical boundary on right
-						ret[2*i]=lookup(types[2*i+1])(domain,i,1,types[2*i+1]);
+						ret[2*i+1]=lookup(types[2*i+1])(domain,i,1,types[2*i+1]);
 						MPIisRight=0;
 					}
 					// MPI side (left or right, compute second for efficiency)
-					ret[2*i + 1]=lookup(mpi)(domain,i,MPIisRight, mpi);
+					ret[2*i + MPIisRight]=lookup(mpi)(domain,i,MPIisRight, mpi);
 				}
  			} else // treat serially
 #endif
