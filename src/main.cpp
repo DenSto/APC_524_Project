@@ -1,12 +1,12 @@
 //! Driver program for EMOOPIC
-/*! ******************************************************
- * To run the program use the following syntex
- *   Serial version:
- *       ./EMOOPIC <inputfile>
- *   MPI version
- *       mpirun -np <nproc> ./EMOOPIC <inputfile>
- *
- * The inputs are specified in <inputfile>
+/*! ****************************************************** \n
+ * To run the program use the following syntex             \n
+ *   Serial version:                                       \n
+ *       ./EMOOPIC <inputfile>                             \n
+ *   MPI version                                           \n
+ *       mpirun -np <nproc> ./EMOOPIC <inputfile>          \n
+ *                                                         \n
+ * The inputs are specified in <inputfile>                 \n
  **********************************************************/
 #define MAIN_CPP
 #include<stdio.h>
@@ -176,9 +176,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // Pass particle through MPI boundary, or physical boundary conditions
-//       part_handler->executeParticleBoundaryConditions();
-       // remove any particles left in the ghost cells
-//       part_handler->clearGhosts();
+       part_handler->executeParticleBoundaryConditions();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
@@ -196,6 +194,9 @@ int main(int argc, char *argv[]){
        // Interpolate fields from grid to particle
        part_handler->InterpolateEB(grids);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);   
+
+       // remove any particles left in the ghost cells
+       part_handler->clearGhosts();
 
        time_phys += dt;
      }  

@@ -12,8 +12,8 @@ class BC_P_MPI : public BC_Particle {
 	public:
 		BC_P_MPI(Domain* domain, int dim_Index, short isLeft, std::string type);
 		~BC_P_MPI();
-		void computeParticleBCs(std::vector<Particle> pl);
-		int completeBC(std::vector<Particle> pl);
+		void computeParticleBCs(std::vector<Particle> *pl);
+		int completeBC(std::vector<Particle> *pl);
 	private:
 		int particle_BC(Particle* p);
 		double xMin_;
@@ -26,6 +26,7 @@ class BC_P_MPI : public BC_Particle {
 		double* lengthShift_;
 		long toSend_, toReceive_;
 		std::vector<double> sendBuf_;
+		std::vector<Particle> ghostBuf_;
 		double* recvBuf_;
 		void packParticle(Particle* p);
 		Particle unpackParticle(int offset);
@@ -92,7 +93,7 @@ BC_P_MPI::~BC_P_MPI(){
 	delete[] lengthShift_;
 }
 
-int BC_P_MPI::completeBC(std::vector<Particle> pl){
+int BC_P_MPI::completeBC(std::vector<Particle> *pl){
 	// Send and receive particles.
 	MPI_Request req;
 	int err;
@@ -116,13 +117,15 @@ int BC_P_MPI::completeBC(std::vector<Particle> pl){
 
 	// If we're to receive particles, allocate sufficient memory and wait for target to send them.
 	if(toReceive_ != 0){
-		recvBuf_ = (double*) realloc(recvBuf_,sizeof(double*)*MPI_P_SIZE*toReceive_);
+		recvBuf_ = (double*) realloc(recvBuf_,sizeof(double)*MPI_P_SIZE*toReceive_);
 		err=MPI_Recv(recvBuf_,toReceive_*MPI_P_SIZE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 		if(err) fprintf(stderr, "rank=%d MPI_Recv error on recvBuf_ = %d\n",rank_MPI,err);
 	
 		for(int i = 0; i < toReceive_; i++){
-			unpackParticle(i*MPI_P_SIZE);
+			ghostBuf_.push_back(unpackParticle(i*MPI_P_SIZE));
 		}
+		pl->insert(pl->end(),ghostBuf_.begin(),ghostBuf_.end());
+		ghostBuf_.clear();
 	}
 
 	err=MPI_Wait(&req,MPI_STATUS_IGNORE);
