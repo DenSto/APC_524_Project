@@ -10,6 +10,7 @@ Depositor::~Depositor(){
 void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellverts, double* JObj) {
   //Function returns an updated JObj to include the current due to particle motion on the cell edges.
 
+  double pcharge = 0.0; //particle charge
   double curIn1D = 0.0; //1D current
   double cur2AreaRatio = 0.0; //Current density to area ratio.
   double cellArea = 0.0; //Cell face area.
@@ -18,6 +19,7 @@ void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellve
 
   for (int i=0; i<3; i++) relpos[i] = part->x[i] - cellverts[i];
 
+  pcharge = part->q;
   for (int i=0; i<3; i++) {
     int j, k;
     j = i+1 % 3; /*Modular arithmetic cycles over Cartesian directions*/
@@ -25,7 +27,7 @@ void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellve
 
     //Calculate current due to instantaneous velocity and apply to entered (current) cell.
     cellArea = lcell[j]*lcell[k];
-    curIn1D = part->q * part->v[i];
+    curIn1D = pcharge * part->v[i];
     cur2AreaRatio = (curIn1D / cellVolume) / cellArea;
     JObj[4*i] += cur2AreaRatio * (lcell[j]-relpos[j]) * (lcell[k]-relpos[k]);
     JObj[4*i+1] += cur2AreaRatio * relpos[j] * (lcell[k]-relpos[k]);
@@ -37,7 +39,7 @@ void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellve
 void Depositor::deposit_particle_Rho(Particle *part, double* lcell, double* cellverts, double* RhoObj) {
   //Function returns an updated RhoObj to include the charge due to particles on the cell edges.
 
-  double pcharge = 0.0; //1D current
+  double pcharge = 0.0; //particle charge
   double charge2VolRatio = 0.0; //Current density to volume ratio.
   double cellVolume = lcell[0]*lcell[1]*lcell[2]; //Cell volume.
   double relpos[3] = {}; //Relative position of particle to 'least' vertex of cell.
