@@ -14,6 +14,7 @@
 
 */
 #include <string>
+#include <gtest/gtest_prod.h>
 
 class Grid {
 
@@ -131,6 +132,15 @@ protected:
   void unsliceMatToVec_(double*** mat, const int side);
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
+
+
+  // for unit testing
+  friend class oGridInternalTest;
+  FRIEND_TEST( oGridInternalTest, EMWave);
+  FRIEND_TEST( oGridInternalTest, EMWaveLong);
+
+
+
 
  };
 #endif

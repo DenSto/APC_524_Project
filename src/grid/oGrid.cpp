@@ -43,13 +43,13 @@ int Grid::evolveFields (double dt) {
 	for (int ix = 1; ix < nx_; ix++) {
 		for (int iy = 1; iy < ny_; iy++) {
 			for (int iz = 1; iz < nz_; iz++) {
-				Bx_[ix][iy][iz] = Bx_[ix][iy][iz] + dt * 
+				Bx_[ix][iy][iz] = Bx_tm1_[ix][iy][iz] + dt * 
 								  (  ( Ey_[ix][iy][iz+1] - Ey_[ix][iy][iz] )/dz_  
 								   - ( Ez_[ix][iy+1][iz] - Ez_[ix][iy][iz] )/dy_ );
-				By_[ix][iy][iz] = By_[ix][iy][iz] + dt * 
+				By_[ix][iy][iz] = By_tm1_[ix][iy][iz] + dt * 
 								  (  ( Ez_[ix+1][iy][iz] - Ez_[ix][iy][iz] )/dx_  
 								   - ( Ex_[ix][iy][iz+1] - Ex_[ix][iy][iz] )/dz_ );
-				Bz_[ix][iy][iz] = Bz_[ix][iy][iz] + dt * 
+				Bz_[ix][iy][iz] = Bz_tm1_[ix][iy][iz] + dt * 
 								  (  ( Ex_[ix][iy+1][iz] - Ex_[ix][iy][iz] )/dy_  
 								   - ( Ey_[ix+1][iy][iz] - Ey_[ix][iy][iz] )/dx_ );
 			}
