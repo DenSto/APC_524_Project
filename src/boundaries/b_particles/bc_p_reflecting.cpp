@@ -6,7 +6,7 @@
 
 class BC_P_Reflecting : public BC_Particle {
 	public:
-		BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type);
+		BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, std::string type);
 		~BC_P_Reflecting();
 		void computeParticleBCs(std::vector<Particle> pl);
 		int completeBC(std::vector<Particle> pl);
@@ -19,9 +19,9 @@ class BC_P_Reflecting : public BC_Particle {
 		std::string type_;
 };
 
-BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type) 
+BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, std::string type) 
 	:	dim_index_(dim_Index),
-		isRight_((isLeft+1)%2),// factory use isLeft
+		isRight_(isRight),
 		type_(type)
 {
 	xMin_ = domain->getxyz0()[dim_index_];

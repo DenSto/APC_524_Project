@@ -9,7 +9,7 @@
 
 class BC_P_Periodic : public BC_Particle {
 	public:
-		BC_P_Periodic(Domain* domain, int dim_Index, short isLeft, std::string type);
+		BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::string type);
 		~BC_P_Periodic();
 		void computeParticleBCs(std::vector<Particle> pl);
 		int completeBC(std::vector<Particle> pl);
@@ -23,9 +23,9 @@ class BC_P_Periodic : public BC_Particle {
 		std::vector<Particle> ghostBuf_;
 };
 
-BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isLeft, std::string type) 
+BC_P_Periodic::BC_P_Periodic(Domain* domain, int dim_Index, short isRight, std::string type) 
 	:	dim_index_(dim_Index),
-		isRight_((isLeft+1)%2),// factory use isLeft
+		isRight_(isRight),
 		type_(type)
 {
 	assert(dim_index_ < 3);

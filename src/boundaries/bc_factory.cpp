@@ -32,7 +32,7 @@
 					// Right boundary condition
 					ret[2*i+1]=lookup(mpi)(domain,i,1,mpi);
 				} else { // One MPI communication loop
-					// Physical side (to be calculated first)
+					// Physical side (to be calculated first!!)
 					int MPIisRight = 0;	
 					if(partitionIndex == 0){ // Physical boundary on left
 						ret[2*i]=lookup(types[2*i])(domain,i,0,types[2*i]);
@@ -41,7 +41,7 @@
 						ret[2*i]=lookup(types[2*i+1])(domain,i,1,types[2*i+1]);
 						MPIisRight=0;
 					}
-					// MPI side (left or right, compute second)
+					// MPI side (left or right, compute second for efficiency)
 					ret[2*i + 1]=lookup(mpi)(domain,i,MPIisRight, mpi);
 				}
  			} else // treat serially

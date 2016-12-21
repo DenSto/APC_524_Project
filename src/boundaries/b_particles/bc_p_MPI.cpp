@@ -32,9 +32,9 @@ class BC_P_MPI : public BC_Particle {
 };
 
 
-BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isLeft, std::string type)
+BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string type)
 	:	dim_index_(dim_Index),
-		isRight_((isLeft+1)%2),// factory use isLeft
+		isRight_(isRight),
 		type_(type)
 {
 	assert(dim_index_ < 3);
