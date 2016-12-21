@@ -1,6 +1,5 @@
 #ifndef BORIS_HPP
 #define BORIS_HPP
-
 #include "pusher.hpp"
 
 class Boris : public Pusher {

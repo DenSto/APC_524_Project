@@ -6,7 +6,7 @@
 
 class BC_P_Reflecting : public BC_Particle {
 	public:
-		BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type);
+		BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, std::string type);
 		~BC_P_Reflecting();
 		void computeParticleBCs(std::vector<Particle> pl);
 		int completeBC(std::vector<Particle> pl);
@@ -19,9 +19,9 @@ class BC_P_Reflecting : public BC_Particle {
 		std::string type_;
 };
 
-BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isLeft, std::string type) 
+BC_P_Reflecting::BC_P_Reflecting(Domain* domain, int dim_Index, short isRight, std::string type) 
 	:	dim_index_(dim_Index),
-		isRight_((isLeft+1)%2),// factory use isLeft
+		isRight_(isRight),
 		type_(type)
 {
 	xMin_ = domain->getxyz0()[dim_index_];
@@ -35,6 +35,7 @@ BC_P_Reflecting::~BC_P_Reflecting(){
 }
 
 int BC_P_Reflecting::completeBC(std::vector<Particle> pl){
+	// Nothing to do
 	return 0;
 }
 
@@ -51,4 +52,5 @@ int BC_P_Reflecting::particle_BC(Particle* p){
 	return 0;
 }
 
+// Registers bounary condition into BC_Factory dictionary
 static RegisterParticleBoundary instance("reflecting", makeBCParticle<BC_P_Reflecting>);

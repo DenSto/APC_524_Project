@@ -1,11 +1,16 @@
-#include <stdlib.h>
-#include "assert.h"
 #include "particle.hpp"
 
 Particle new_particle(){
 	Particle part;
+	part.x[0]=0.0;
+	part.x[1]=0.0;
+	part.x[2]=0.0;
+	part.v[0]=0.0;
+	part.v[1]=0.0;
+	part.v[2]=0.0;
 	part.q=1.0;
 	part.m=1.0;
+	part.isGhost=0;
 	part.field = new_particle_field();
 	return part;
 }

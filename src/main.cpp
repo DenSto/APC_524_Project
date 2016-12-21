@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
     if(debug>1) checkdomain(domain);
 
     // Initialize particles
-    Particle_Handler *part_handler = new Particle_Handler(input_info.np); 
+    Particle_Handler *part_handler = new Particle_Handler(); 
     part_handler->setPusher(new Boris());
 
     // Set up particle boundary conditions
@@ -176,9 +176,9 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // Pass particle through MPI boundary, or physical boundary conditions
-//       part_handler->executeParticleBoundaryConditions();
+       part_handler->executeParticleBoundaryConditions();
        // remove any particles left in the ghost cells
-//       part_handler->clearGhosts();
+       part_handler->clearGhosts();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid

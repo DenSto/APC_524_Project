@@ -13,6 +13,8 @@
 	A set of getters are available to allow particles to interpolate electric fields based on their position.
 
 */
+#include <string>
+
 class Grid {
 
 public:
@@ -31,6 +33,8 @@ public:
   int getCellVertex(int cellID, double *xyz);
   int getNumberOfCells();
   double getStepSize(int dimension);
+
+  int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 
   void updatePeriodicGhostCells();
   int getGhostVecSize(); // called by main to size MPI Buffer
@@ -125,6 +129,8 @@ protected:
   void sliceMatToVec_(double*** const mat, const int side);
   // puts a 2D plane of ghost points from sliceTmp_ into mat
   void unsliceMatToVec_(double*** mat, const int side);
+
+  int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
 
  };
 #endif
