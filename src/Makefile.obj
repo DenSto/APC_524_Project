@@ -7,5 +7,6 @@ BOUNDARYOBJ = $(addprefix ./boundaries/, boundary_particles.o bc_factory.o \
 			  $(addprefix b_particles/, $(B_PARTICLEOBJ)))
 GRIDOBJ = $(addprefix ./grid/, grid.o oGrid.o spookyGrid.o)
 PARTOBJ = $(addprefix ./particles/, particle.o particle_handler.o interpolate.o deposit.o)
+POISSONOBJ = $(addprefix ./poisson/, poisson.o)
 
-OBJ = $(IOOBJ) $(DOMOBJ) $(UTILSOBJ) $(PUSHOBJ) $(BOUNDARYOBJ) $(GRIDOBJ) $(PARTOBJ) main.o
+OBJ = $(IOOBJ) $(DOMOBJ) $(UTILSOBJ) $(PUSHOBJ) $(BOUNDARYOBJ) $(GRIDOBJ) $(PARTOBJ) $(POISSONOBJ) main.o

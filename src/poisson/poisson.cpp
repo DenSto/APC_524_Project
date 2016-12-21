@@ -12,10 +12,11 @@ void Poisson_Solver::run_poisson_solver(Grid* grid, Domain* domain) {
 
   double lcell[3] = {}; //Vector of lengths of cells.                                                                             
 
-  //Get number of and lengths of grid cells. //EDIT: Are nx, ny, nz right???
-  long nx = grid->nx;
-  long ny = grid->ny;
-  long nz = grid->nz;
+  double ncells[3] = {};
+  int err = grid->getNumCells3D(ncells);
+  long nx = ncells[0];
+  long ny = ncells[1];
+  long nz = ncells[2];
 
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
 
@@ -38,8 +39,8 @@ void Poisson_Solver::run_poisson_solver(Grid* grid, Domain* domain) {
 	for ( int k=1; k<nz; k++ ) {
 	  if ( iternum % 2 == 0 ) {
 
-	    u1[i][j][k] = ax*(u0[i-1][j][k]+u0[i+1][j][k]) + ay*(u0[i][j-1][k]+u0[i][j+1][k]) + 
-	      az*(u0[i][j][k-1]+u0[i][j][k+1]) - af*Rho[i][j][k];
+	    //	    u1[i][j][k] = ax*(u0[i-1][j][k]+u0[i+1][j][k]) + ay*(u0[i][j-1][k]+u0[i][j+1][k]) + 
+	    //	      az*(u0[i][j][k-1]+u0[i][j][k+1]) - af*Rho[i][j][k];
 
 	  } else {
 	    //Once the above is finalized...implement the same here assiging u1 to u0...

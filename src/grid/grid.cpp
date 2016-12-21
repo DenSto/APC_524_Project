@@ -203,6 +203,22 @@ void Grid::zeroJ() {
     } 
 }; 
 
+/// sets all of Rho (Rhox,Rhoy,Rhoz) to be identically zero
+/*! Used during particle deposition.
+ */
+void Grid::zeroRho() {
+  int i,j,k; // iterators
+  for (i=0; i<nxTot_; ++i) {
+    for (j=0; j<nyTot_; ++j) {
+      for (k=0; k<nzTot_; ++k) {
+	rhox_[i][j][k]=0;
+	rhoy_[i][j][k]=0;
+	rhoz_[i][j][k]=0;
+      }
+    }
+  }
+};
+
 /// Initialize E and B fields
 /*! Use restart file to set values of initial E,B,J fields
  */ 

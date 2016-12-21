@@ -129,20 +129,22 @@ void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_Handler::depositJ(Grid *grid){
+void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho){
   Depositor *depositor = new Depositor();
 
   long cellID = -1; //cell id tracker.
   long tempCellID = 0; //particle's 'entered' cell id.
   double cellverts[3] = {};//Vector describing a cell's "least" vertex.
   double lcell[3] = {}; //Vector of lengths of cells.
-  double RhoJObj[12] = {}; //Array describing a cell's Jx (4), Jy (4), Jz (4).
+  double JObj[12] = {}; //Array describing a cell's Jx (4), Jy (4), Jz (4).
+  double RhoObj[8] = {}; //Array describing a cell's 8 Rho vertices.
 
   //Get lengths of grid cells.
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
 
   //Zero the grid's currents and charge densities.
   grid->zeroJ();
+  if (depositRho) grid->zeroRho();
 
   //Cycle through particles, depositing RhoJ for each one.
   for (long i=0; i<np_; i++) {
@@ -151,16 +153,18 @@ void Particle_Handler::depositJ(Grid *grid){
 
     //Only if particle ENDS in a 'real' (non-ghost) cell, do we 'deposit' it.
     if (tempCellID >= 0) {
-      //If list of particles continues to be in same cell, add current to existing RhoJObj object.
-      //Otherwise, deposit (add) RhoJ to the grid, and re-point (and zero out) the existing RhoJObj object.
+      //If list of particles continues to be in same cell, add current to existing JObj object.
+      //Otherwise, deposit (add) RhoJ to the grid, and re-point (and zero out) the existing JObj object.
       if (tempCellID != cellID) {
 	//If cellID has already been assigned...
 	if (cellID != -1) {
 	  //Deposit to grid
-	  grid->addJ(cellID,&RhoJObj[0]);
-	  //Zero RhoJObj
-	  for (int k=0; k<12; k++) {
-	    RhoJObj[k] = 0;
+	  grid->addJ(cellID,&JObj[0]);
+	  if (depositRho) grid->addRho(cellID,&RhoObj[0]);
+	  //Zero JObj
+	  for (int k=0; k<12; k++) JObj[k] = 0;
+	  if (depositRho) {
+	    for (int k=0; k<8; k++) RhoObj[k] = 0;
 	  }
 	}
 	//Get new cell vertex data.
@@ -169,12 +173,14 @@ void Particle_Handler::depositJ(Grid *grid){
       }
 
       //Generate currents at cell edges.
-      depositor->deposit_particle_J(&(parts_[i]), lcell, cellverts, RhoJObj);
+      depositor->deposit_particle_J(&(parts_[i]), lcell, cellverts, JObj);
+      if (depositRho) depositor->deposit_particle_Rho(&(parts_[i]), lcell, cellverts, RhoObj);
     }
   }
 
   //Add remaining current to the grid.
-  grid->addJ(cellID,&RhoJObj[0]);
+  grid->addJ(cellID,&JObj[0]);
+  if (depositRho) grid->addRho(cellID,&RhoObj[0]);
 }
 
 double Particle_Handler::computeCFLTimestep(Domain* domain){
