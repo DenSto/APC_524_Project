@@ -70,8 +70,8 @@ int Grid::evolveFields (double dt) {
 int Grid::addJ(int cellID, double *Jvec) {
 	// get indices for cellID
 	int iz = cellID % nz_;
-	int iy = ( cellID - iz) % (ny_*nz_);
-	int ix = ( cellID - iz - nz_*iy ) / (ny_ * nz_);
+	int iy = (( cellID - iz) /nz_) % ny_;
+	int ix = ((( cellID - iz)/nz_) - iy) / ny_;
 
 	// put down currents
 	Jx_[ix][iy][iz] += Jvec[0];
@@ -109,8 +109,8 @@ int Grid::addJ(int cellID, double *Jvec) {
 int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 	//invert from cellID to get indices in x, y, z
 	int iz = cellID % nz_;
-	int iy = ( cellID - iz) % (ny_*nz_);
-	int ix = ( cellID - iz - nz_*iy ) / (ny_ * nz_);
+	int iy = (( cellID - iz) /nz_) % ny_;
+	int ix = ((( cellID - iz)/nz_) - iy) / ny_;
 
 	// x, y, z
 	InterpolatorVec[0] = x0_ + dx_ * ix;
@@ -190,8 +190,8 @@ int Grid::getCellID(double x, double y, double z) {
 */
 int Grid::getCellVertex(int cellID, double *xyz) {
 	int iz = cellID % nz_;
-	int iy = ( cellID - iz) % (ny_*nz_);
-	int ix = ( cellID - iz - nz_*iy ) / (ny_ * nz_);
+	int iy = (( cellID - iz) /nz_) % ny_;
+	int ix = ((( cellID - iz)/nz_) - iy) / ny_;
 
 	// x, y, z
 	xyz[0] = x0_ + dx_ * ix;
