@@ -19,7 +19,7 @@
  */
 class BC_Factory {
 public:
-    typedef BC_Particle *(*Factory)(Domain* domain, int dim_Index, short isLeft, std::string type);
+    typedef BC_Particle *(*Factory)(Domain* domain, int dim_Index, short isRight, std::string type);
   /*  
    * Return the (singleton) BC_Factory object
    */
@@ -97,8 +97,8 @@ struct RegisterParticleBoundary {
  * A factory function for particle boudaries
  */
 template<typename T>
-BC_Particle *makeBCParticle(Domain* domain, int dim_Index, short isLeft, std::string type) {
-    return new T(domain,dim_Index,isLeft, type);
+BC_Particle *makeBCParticle(Domain* domain, int dim_Index, short isRight, std::string type) {
+    return new T(domain,dim_Index,isRight, type);
 }
 
 
