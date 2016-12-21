@@ -26,8 +26,10 @@ public:
   void InitializeFields(int restart); // Initialize E field by either solve Poisson's equation
                                       // or read restart file. Initialize B field with prescribed
                                       // geometry or read restart file. 
-  void zeroJ(); 
+  void zeroJ();
+  void zeroRho();
   int addJ(int cellID, double *Jvec);
+  int addRho(int cellID, double *Rhovec);
   int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
   int getCellID(double x, double y, double z);
   int getCellVertex(int cellID, double *xyz);

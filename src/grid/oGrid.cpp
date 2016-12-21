@@ -93,6 +93,31 @@ int Grid::addJ(int cellID, double *Jvec) {
 };
 
 
+//! Add charge from particle to grid
+//From Alex: as of now, this method is a place holder.  The implementation of rhox, rhoy and rhoz is strange
+//because rho is just a scalar.  It should live at vertices.  Each cell therefore has 8 vertices.  I have truncated
+//the code below, therefore, to only operate on 8 slots (now called rhox and rhoy).
+//We should discuss the order of the 8 vertices, when this is re-implemented below.
+int Grid::addRho(int cellID, double *Rhovec) {
+  // get indices for cellID
+  int iz = cellID % nz_;
+  int iy = (( cellID - iz) /nz_) % ny_;
+  int ix = ((( cellID - iz)/nz_) - iy) / ny_;
+
+  // put down currents
+  rhox_[ix][iy][iz] += Rhovec[0];
+  rhox_[ix][iy+1][iz] += Rhovec[1];
+  rhox_[ix][iy+1][iz+1] += Rhovec[2];
+  rhox_[ix][iy+1][iz] += Rhovec[3];
+
+  rhoy_[ix][iy][iz] += Rhovec[4];
+  rhoy_[ix][iy][iz+1] += Rhovec[5];
+  rhoy_[ix+1][iy][iz+1] += Rhovec[6];
+  rhoy_[ix+1][iy][iz] += Rhovec[7];
+
+  return 0;
+};
+
 
 //! Return vector for field interpolation
 /*!
