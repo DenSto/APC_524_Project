@@ -34,6 +34,7 @@ public:
   int getCellID(double x, double y, double z);
   int getCellVertex(int cellID, double *xyz);
   int getNumberOfCells();
+  int getNumCells3D(double *nvec);
   double getStepSize(int dimension);
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);

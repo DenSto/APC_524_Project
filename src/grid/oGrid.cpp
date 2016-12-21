@@ -234,6 +234,19 @@ int Grid::getNumberOfCells() {
 	return nx_*ny_*nz_;
 };
 
+
+//! Get # of cells in each dimension of grid.
+/*!
+        Includes ghost cells.
+*/
+int Grid::getNumCells3D(double *nvec) {
+  nvec[0] = nx_;
+  nvec[1] = ny_;
+  nvec[2] = nz_;
+  return 0;
+};
+
+
 //! Get step size along dimension in grid.
 /*!
 	Returns step size along dimension according to;
