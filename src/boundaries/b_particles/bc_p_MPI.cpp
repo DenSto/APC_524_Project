@@ -120,6 +120,8 @@ int BC_P_MPI::completeBC(std::vector<Particle> *pl){
 		err=MPI_Isend(&sendBuf_[0],toSend_*DOUBLES_IN_PARTICLE, MPI_DOUBLE, sendRank_,12,MPI_COMM_WORLD,&req);
 		if(err) fprintf(stderr, "rank=%d MPI_Isend error on sendBuf_ = %d\n",rank_MPI,err);
 
+		sendBuf_.clear();
+
 		if(debug>1)fprintf(stderr,"rank=%d:dim=%d: Sending %ld particles.\n",
                                    rank_MPI,dim_index_,toSend_); 	
 	}
