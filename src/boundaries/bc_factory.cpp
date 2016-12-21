@@ -39,11 +39,11 @@
 						ret[2*i]=lookup(types[2*i])(domain,i,0,types[2*i]);
 						MPIisRight=1;
 					} else { // Physical boundary on right
-						ret[2*i+1]=lookup(types[2*i+1])(domain,i,1,types[2*i+1]);
+						ret[2*i]=lookup(types[2*i+1])(domain,i,1,types[2*i+1]);
 						MPIisRight=0;
 					}
 					// MPI side (left or right, compute second for efficiency)
-					ret[2*i + MPIisRight]=lookup(mpi)(domain,i,MPIisRight, mpi);
+					ret[2*i + 1]=lookup(mpi)(domain,i,MPIisRight, mpi);
 				}
  			} else // treat serially
 #endif
