@@ -2,24 +2,43 @@
 #include <math.h>
 #include "poisson.hpp"
 
-Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz)
-  : Grid(nxyz, nGhosts, xyz0, Lxyz) {
+Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz) :
+  Grid(nxyz, nGhosts, xyz0, Lxyz),
+  phi1ID_(vertID_),
+  phi2ID_(vertID_),
+  Ax1ID_(edgeXID_),
+  Ay1ID_(edgeYID_),
+  Az1ID_(edgeZID_),
+  Ax2ID_(edgeXID_),
+  Ay2ID_(edgeYID_),
+  Az2ID_(edgeZID_)
+{
+  phi1_=newField_(++ifield_);
+  phi2_=newField_(++ifield_);
+  Ax1_=newField_(++ifield_);
+  Ay1_=newField_(++ifield_);
+  Az1_=newField_(++ifield_);
+  Ax2_=newField_(++ifield_);
+  Ay2_=newField_(++ifield_);
+  Az2_=newField_(++ifield_);
+}
 
-  //**  phi1_=newField_(++ifield);
-  //**  phi2_=newField_(++ifield);
-  //**  Ax1_=newField_(++ifield);
-  //**  Ay1_=newField_(++ifield);
-  //**  Az1_=newField_(++ifield);
-  //**  Ax2_=newField_(++ifield);
-  //**  Ay2_=newField_(++ifield);
-  //**  Az2_=newField_(++ifield);
+Poisson_Solver::~Poisson_Solver() {
+  deleteField_(Az2_,ifield_--);
+  deleteField_(Ay2_,ifield_--);
+  deleteField_(Ax2_,ifield_--);
+  deleteField_(Az1_,ifield_--);
+  deleteField_(Ay1_,ifield_--);
+  deleteField_(Ax1_,ifield_--);
+  deleteField_(phi2_,ifield_--);
+  deleteField_(phi1_,ifield_--);
 }
 
 void Poisson_Solver::initialize_poisson_fields() {
 
   double sourceMult = 4*3.1415926535898;
   double convTol = .01;
-  //**  run_poisson_solver_(phi1_,phi2_,rho_,convTol,sourceMult);
+  run_poisson_solver_(phi1_,phi2_,rho_,convTol,sourceMult);
   //Now solve for E from phi1_!
 
   sourceMult = 4*3.1415926535898;
