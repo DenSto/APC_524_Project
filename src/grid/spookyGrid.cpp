@@ -12,36 +12,36 @@
  * ghostVec can be unpacked with setGhostVec function 
  */ 
 void Grid::getGhostVec(const int side, double* ghostVec) {
+    // create a temporary vector to store slices in 
     int n = maxPointsInPlane_; 
     double tmpVec[n]; 
-    int ifield=-1; 
-    
-    sliceMatToVec_(Ex_,side,ExID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
 
-    sliceMatToVec_(Ey_,side,EyID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
+    // offset = 0 to get from the first/last physical cells 
+    int offset=0;
 
-    sliceMatToVec_(Ez_,side,EzID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
-
-    sliceMatToVec_(Bx_,side,BxID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
-
-    sliceMatToVec_(By_,side,ByID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
-
-    sliceMatToVec_(Bz_,side,BzID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
-
-    sliceMatToVec_(Jx_,side,JxID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
-
-    sliceMatToVec_(Jy_,side,JyID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
-
-    sliceMatToVec_(Jz_,side,JzID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
+    // "loop" over all fields to package 
+    int begdex; 
+    double**** fieldPtr; 
+    int fieldID; 
+    int i; 
+    for (i=0; i<nFieldsToSend_; ++i) { 
+        begdex=i*n; 
+        switch (i) { 
+            case 0: fieldPtr = &Ex_; fieldID = ExID_; break; 
+            case 1: fieldPtr = &Ey_; fieldID = EyID_; break; 
+            case 2: fieldPtr = &Ez_; fieldID = EzID_; break; 
+            case 3: fieldPtr = &Bx_; fieldID = BxID_; break; 
+            case 4: fieldPtr = &By_; fieldID = ByID_; break; 
+            case 5: fieldPtr = &Bz_; fieldID = BzID_; break; 
+            case 6: fieldPtr = &Jx_; fieldID = JxID_; break; 
+            case 7: fieldPtr = &Jy_; fieldID = JyID_; break; 
+            case 8: fieldPtr = &Jz_; fieldID = JzID_; break; 
+        }; 
+        // slice the given field 
+        sliceMatToVec_(*fieldPtr,side,fieldID,offset,tmpVec); 
+        // store the slice in ghostVec 
+        std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
+    };
 }; 
 
 /// unbundles the data in the ghost cells that have been received
@@ -51,44 +51,41 @@ void Grid::getGhostVec(const int side, double* ghostVec) {
  * ghostVec can be generated with getGhostVec function 
  */ 
 void Grid::setGhostVec(const int side, double* ghostVec) {
-    // this is the price of only 3 dimensions on field storage
-    int n = maxPointsInPlane_; 
+    // create a temporary vector to store slices in 
+    int n = maxPointsInPlane_;
     double tmpVec[n]; 
+    
+    // offset = +1 to set into the RHS ghost vectors
+    // offset = -1 to set into the LHS ghost vectors 
     int offset = 1; 
     if (side < 0) { 
         offset = -1; 
-    }; 
-    
-    // commented out because "0" should be replaced with ifield
-    // and "1" replaced with ++ifield, but compiler complained
-    //int ifield=0; 
-    
-    std::copy(ghostVec + (0 * n), ghostVec + (1 * n), tmpVec); 
-    unsliceMatToVec_(Ex_,side,ExID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (1 * n), ghostVec + (2 * n), tmpVec); 
-    unsliceMatToVec_(Ey_,side,EyID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (2 * n), ghostVec + (3 * n), tmpVec); 
-    unsliceMatToVec_(Ez_,side,EzID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (3 * n), ghostVec + (4 * n), tmpVec); 
-    unsliceMatToVec_(Bx_,side,BxID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (4 * n), ghostVec + (5 * n), tmpVec); 
-    unsliceMatToVec_(By_,side,ByID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (5 * n), ghostVec + (6 * n), tmpVec); 
-    unsliceMatToVec_(Bz_,side,BzID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (6 * n), ghostVec + (7 * n), tmpVec); 
-    unsliceMatToVec_(Jx_,side,JxID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (7 * n), ghostVec + (8 * n), tmpVec); 
-    unsliceMatToVec_(Jy_,side,JyID_,offset,tmpVec); 
-    
-    std::copy(ghostVec + (8 * n), ghostVec + (9 * n), tmpVec); 
-    unsliceMatToVec_(Jz_,side,JzID_,offset,tmpVec); 
+    };
+
+    // "loop" over all fields to unpackage 
+    int begdex,enddex; 
+    double**** fieldPtr; 
+    int fieldID; 
+    int i; 
+    for (i=0; i<nFieldsToSend_; ++i) { 
+        begdex=i*n; 
+        enddex=(i+1)*n; 
+        // store the relevant portion fo ghostVec into tmpVec
+        std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
+        switch (i) { 
+            case 0: fieldPtr = &Ex_; fieldID = ExID_; break; 
+            case 1: fieldPtr = &Ey_; fieldID = EyID_; break; 
+            case 2: fieldPtr = &Ez_; fieldID = EzID_; break; 
+            case 3: fieldPtr = &Bx_; fieldID = BxID_; break; 
+            case 4: fieldPtr = &By_; fieldID = ByID_; break; 
+            case 5: fieldPtr = &Bz_; fieldID = BzID_; break; 
+            case 6: fieldPtr = &Jx_; fieldID = JxID_; break; 
+            case 7: fieldPtr = &Jy_; fieldID = JyID_; break; 
+            case 8: fieldPtr = &Jz_; fieldID = JzID_; break; 
+        }; 
+        // unslice the given field 
+        unsliceMatToVec_(*fieldPtr,side,fieldID,offset,tmpVec); 
+    };
 }; 
 
 
@@ -205,5 +202,9 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
 // making use of fieldSize_, sideToIndex_, etc. 
 // (perhaps slice/unslicing)
 void Grid::updatePeriodicGhostCells() { 
+/*     
+    sliceMatToVec_(Ex_,side,ExID_,0,tmpVec); 
+    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
+   */  
     printf("suckers"); 
 }; 

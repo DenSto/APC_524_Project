@@ -91,19 +91,19 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
 Grid::~Grid() { 
     /* note: these must be deleted in the same order as they were created
      * since they use fieldIsContiguous_ to determine the create deletion method (contiguous vs noncontiguous) */ 
-    deleteField_(Ex_,ifield_--); 
-    deleteField_(Ey_,ifield_--); 
-    deleteField_(Ez_,ifield_--); 
-    deleteField_(Bx_,ifield_--); 
-    deleteField_(By_,ifield_--); 
-    deleteField_(Bz_,ifield_--); 
-    deleteField_(Jx_,ifield_--); 
-    deleteField_(Jy_,ifield_--); 
-    deleteField_(Jz_,ifield_--); 
-    deleteField_(Bx_tm1_,ifield_--); 
-    deleteField_(By_tm1_,ifield_--); 
-    deleteField_(Bz_tm1_,ifield_--); 
     deleteField_(rho_,ifield_--); 
+    deleteField_(Bz_tm1_,ifield_--); 
+    deleteField_(By_tm1_,ifield_--); 
+    deleteField_(Bx_tm1_,ifield_--); 
+    deleteField_(Jz_,ifield_--); 
+    deleteField_(Jy_,ifield_--); 
+    deleteField_(Jx_,ifield_--); 
+    deleteField_(Bz_,ifield_--); 
+    deleteField_(By_,ifield_--); 
+    deleteField_(Bx_,ifield_--); 
+    deleteField_(Ez_,ifield_--); 
+    deleteField_(Ey_,ifield_--); 
+    deleteField_(Ex_,ifield_--); 
 
     delete [] fieldIsContiguous_; 
     deleteFieldSize_(); 
