@@ -59,33 +59,35 @@ void Grid::setGhostVec(const int side, double* ghostVec) {
         offset = -1; 
     }; 
     
-    int ifield=0; 
+    // commented out because "0" should be replaced with ifield
+    // and "1" replaced with ++ifield, but compiler complained
+    //int ifield=0; 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (0 * n), ghostVec + (1 * n), tmpVec); 
     unsliceMatToVec_(Ex_,side,ExID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (1 * n), ghostVec + (2 * n), tmpVec); 
     unsliceMatToVec_(Ey_,side,EyID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (2 * n), ghostVec + (3 * n), tmpVec); 
     unsliceMatToVec_(Ez_,side,EzID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (3 * n), ghostVec + (4 * n), tmpVec); 
     unsliceMatToVec_(Bx_,side,BxID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (4 * n), ghostVec + (5 * n), tmpVec); 
     unsliceMatToVec_(By_,side,ByID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (5 * n), ghostVec + (6 * n), tmpVec); 
     unsliceMatToVec_(Bz_,side,BzID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (6 * n), ghostVec + (7 * n), tmpVec); 
     unsliceMatToVec_(Jx_,side,JxID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (7 * n), ghostVec + (8 * n), tmpVec); 
     unsliceMatToVec_(Jy_,side,JyID_,offset,tmpVec); 
     
-    std::copy(ghostVec + (ifield * n), ghostVec + (++ifield * n), tmpVec); 
+    std::copy(ghostVec + (8 * n), ghostVec + (9 * n), tmpVec); 
     unsliceMatToVec_(Jz_,side,JzID_,offset,tmpVec); 
 }; 
 
@@ -119,7 +121,7 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
 void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldID, const int offset, double* vec) { 
     assert(fieldID > -1 && fieldID < nIDs_); 
     assert(side != 0 && abs(side) < ndim_+1); 
-    int dex = sideToIndex_(side,fieldID) + offset; 
+    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
     assert(dex > 0); 
     int i,j,k; // iterators
     int iter=-1; 
@@ -162,7 +164,7 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
 void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec) { 
     assert(fieldID > -1 && fieldID < nIDs_); 
     assert(side != 0 && abs(side) < ndim_+1); 
-    int dex = sideToIndex_(side,fieldID) + offset; 
+    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
     assert(dex > 0); 
     int i,j,k; // iterators
     int iter=-1; 
@@ -198,3 +200,10 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
         } 
     } 
 };
+
+// jlestz: fix this later to update all fields 
+// making use of fieldSize_, sideToIndex_, etc. 
+// (perhaps slice/unslicing)
+void Grid::updatePeriodicGhostCells() { 
+    printf("suckers"); 
+}; 

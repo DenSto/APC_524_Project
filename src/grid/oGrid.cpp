@@ -104,6 +104,9 @@ int Grid::addRho(int cellID, double *Rhovec) {
   int iy = (( cellID - iz) /nz_) % ny_;
   int ix = ((( cellID - iz)/nz_) - iy) / ny_;
 
+  // dummy for now 
+  rho_[ix][iy][iz] = 0;
+  /*
   // put down currents
   rhox_[ix][iy][iz] += Rhovec[0];
   rhox_[ix][iy+1][iz] += Rhovec[1];
@@ -114,10 +117,9 @@ int Grid::addRho(int cellID, double *Rhovec) {
   rhoy_[ix][iy][iz+1] += Rhovec[5];
   rhoy_[ix+1][iy][iz+1] += Rhovec[6];
   rhoy_[ix+1][iy][iz] += Rhovec[7];
-
+*/ 
   return 0;
 };
-
 
 //! Return vector for field interpolation
 /*!
