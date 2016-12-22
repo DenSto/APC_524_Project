@@ -8,9 +8,11 @@ class Poisson_Solver : protected Grid{
 public:
   Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz);
 
-  void run_poisson_solver(double*** u0, double*** u1,double*** R,double convergenceTol);
+  void initialize_poisson_fields();
 
 protected:
+  void run_poisson_solver_(double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult);
+
   double ***rho_;
 
   double ***phi1_;

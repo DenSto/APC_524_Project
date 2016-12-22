@@ -17,7 +17,22 @@ Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxy
   Az2_=newField_(++ifield);
 }
 
-void Poisson_Solver::run_poisson_solver(double*** u0, double*** u1,double*** R,double convergenceTol) {
+void Poisson_Solver::initialize_poisson_fields() {
+
+  double sourceMult = 4*3.1415926535898;
+  double convTol = .01;
+  run_poisson_solver_(phi1_,phi2_,rho_,convTol,sourceMult);
+  //Now solve for E from phi1_!
+
+  sourceMult = 4*3.1415926535898;
+  convTol = .1;
+  run_poisson_solver_(Ax1_,Ax2_,Jx_,convTol,sourceMult);
+  run_poisson_solver_(Ay1_,Ay2_,Jy_,convTol,sourceMult);
+  run_poisson_solver_(Az1_,Az2_,Jz_,convTol,sourceMult);
+  //Now solve for B from Ai1_!
+}
+
+void Poisson_Solver::run_poisson_solver_(double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult) {
   //u0 is the first guess at a solution to Poisson's eqn
   //u1 is the work array of equal size
   //R is the 'source' array for Poisson's eqn
@@ -55,10 +70,10 @@ void Poisson_Solver::run_poisson_solver(double*** u0, double*** u1,double*** R,d
 	for ( int k=1; k<nz; k++ ) {
 	  if ( iternum % 2 == 0 ) {
 	    u1[i][j][k] = ax*(u0[i-1][j][k]+u0[i+1][j][k]) + ay*(u0[i][j-1][k]+u0[i][j+1][k]) + 
-	      az*(u0[i][j][k-1]+u0[i][j][k+1]) - af*R[i][j][k];
+	      az*(u0[i][j][k-1]+u0[i][j][k+1]) - af*R[i][j][k]*sourceMult;
 	  } else {
 	    u0[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) + ay*(u1[i][j-1][k]+u1[i][j+1][k]) +
-              az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k];
+              az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k]*sourceMult;
 	  }
 
 	  absDiff = abs(u1[i][j][k] - u0[i][j][k]);
