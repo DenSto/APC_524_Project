@@ -63,8 +63,6 @@ void Poisson_Solver::run_poisson_solver_(double*** u0, double*** u1,double*** R,
   long ny = ncells[1];
   long nz = ncells[2];
 
-  
-
   for (int i=0; i<3; i++) lcell[i] = getStepSize(i);
 
   //Define constants used to iterate Poisson's equation
@@ -95,7 +93,7 @@ void Poisson_Solver::run_poisson_solver_(double*** u0, double*** u1,double*** R,
               az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k]*sourceMult;
 	  }
 
-	  absDiff = abs(u1[i][j][k] - u0[i][j][k]);
+	  absDiff = fabs(u1[i][j][k] - u0[i][j][k]);
 	  if (absDiff > maxDiff) maxDiff = absDiff;
 	}
       }
