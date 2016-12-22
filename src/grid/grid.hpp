@@ -46,9 +46,7 @@ public:
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
   void getGhostVec(const int side, double* ghostVec); // called by main to get MPI
-  void getGhostVecAlt(const int side, double* ghostVec); // called by main to get MPI
-  void setGhostVec(const int side, const double* ghostVec);
-  void setGhostVecAlt(const int side, const double* ghostVec);
+  void setGhostVec(const int side, double* ghostVec);
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
 
@@ -75,9 +73,6 @@ protected:
   const int iBeg_; // indices marking beginning and end of physical
   const int jBeg_; // (non ghost) points in each direction
   const int kBeg_;
-  const int iEnd_;
-  const int jEnd_;
-  const int kEnd_; 
 
   const double dx_;
   const double dy_;
@@ -87,7 +82,7 @@ protected:
   const double idy_;
   const double idz_;
 
-  const int nRealPtsYZPlane_;
+  const int maxPointsInPlane_;
   const int nFieldsToSend_;
   const int nFieldsTotal_; 
   const int ghostVecSize_; /* total number of ghost field values in
@@ -110,12 +105,22 @@ protected:
   double ***Jy_;
   double ***Jz_;
 
-  double ***rhox_; 
-  double ***rhoy_; 
-  double ***rhoz_; 
+  const int ExID_; 
+  const int EyID_; 
+  const int EzID_; 
+  const int BxID_; 
+  const int ByID_; 
+  const int BzID_; 
+  const int Bx_tm1ID_; 
+  const int By_tm1ID_; 
+  const int Bz_tm1ID_; 
+  const int JxID_; 
+  const int JyID_; 
+  const int JzID_; 
 
-  // vector for storing temporary physical slices of scalar fields
-  double *sliceTmp_;
+  const int nIDs_; 
+  const int ndim_; 
+  int **fieldSize_;  
 
   double *fieldIsContiguous_; 
 
@@ -123,16 +128,17 @@ protected:
   double*** newField_(int ifield);
   // deallocates memory for nx*ny*nz array
   void deleteField_(double*** fieldPt,int ifield);
+  int** setFieldSize_(); 
+  void deleteFieldSize_(); 
 
-  // converts side = -/+ 1 into a real index
-  int sideToIndex_(const int side);
+  int sideToIndex_(const int side, const int fieldID);
   /* assert statements to check necessary conditions for initialized variables */
   void checkInput_();
 
   // stores a 2D plane of ghost points in sliceTmp_
-  void sliceMatToVec_(double*** const mat, const int side);
+  void sliceMatToVec_(double*** const mat, const int side, const int fieldID, const int offset, double* vec);
   // puts a 2D plane of ghost points from sliceTmp_ into mat
-  void unsliceMatToVec_(double*** mat, const int side);
+  void unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec);
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
 

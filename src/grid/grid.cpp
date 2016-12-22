@@ -1,5 +1,6 @@
 #include <stdio.h> 
 #include <stdlib.h>
+#include <math.h>
 #include <assert.h> 
 #include "grid.hpp"
 #include "../IO/IO.hpp"
@@ -27,24 +28,34 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     Lz_(Lxyz[2]), 
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 
-    kBeg_(nGhosts), 
-    iEnd_(nx_-nGhosts), // fields are length nx_+1, so last element is indexed as nx_, then subtract nGhosts to get index of last physical point
-    jEnd_(ny_-nGhosts), 
-    kEnd_(nz_-nGhosts),
+    kBeg_(nGhosts),
     dx_(Lxyz[0]/nxyz[0]), 
     dy_(Lxyz[1]/nxyz[1]), 
     dz_(Lxyz[2]/nxyz[2]),
     idx_(1.0/dx_), 
     idy_(1.0/dy_),
     idz_(1.0/dz_),
-    nRealPtsYZPlane_((nyTot_-2*nGhosts)*(nzTot_-2*nGhosts)), // fields have ni_+1-2*nGhosts physical points in ith direction
+    maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
     nFieldsToSend_(9),
-    nFieldsTotal_(15), 
-    ghostVecSize_(nFieldsToSend_*nRealPtsYZPlane_)
+    nFieldsTotal_(12), 
+    ghostVecSize_(nFieldsToSend_*maxPointsInPlane_), 
+    ExID_(0), 
+    EyID_(1), 
+    EzID_(2), 
+    BxID_(3), 
+    ByID_(4), 
+    BzID_(5), 
+    Bx_tm1ID_(3), 
+    By_tm1ID_(4), 
+    Bz_tm1ID_(5), 
+    JxID_(0), 
+    JyID_(1), 
+    JzID_(2),
+    nIDs_(6), 
+    ndim_(3)
 {
     checkInput_(); 
-
-    sliceTmp_ = new double[ghostVecSize_/nFieldsToSend_]; 
+    
     fieldIsContiguous_ = new double[nFieldsTotal_];
  
     int ifield = -1; 
@@ -60,9 +71,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     Bx_tm1_=newField_(++ifield); 
     By_tm1_=newField_(++ifield); 
     Bz_tm1_=newField_(++ifield); 
-    rhox_=newField_(++ifield); 
-    rhoy_=newField_(++ifield); 
-    rhoz_=newField_(++ifield); 
+
+    fieldSize_ = setFieldSize_(); 
+
 } 
 
 /// Grid destructor 
@@ -84,12 +95,12 @@ Grid::~Grid() {
     deleteField_(Bx_tm1_,++ifield); 
     deleteField_(By_tm1_,++ifield); 
     deleteField_(Bz_tm1_,++ifield); 
-    deleteField_(rhox_,++ifield); 
-    deleteField_(rhoy_,++ifield); 
-    deleteField_(rhoz_,++ifield); 
 
+    /* deprecated 
     delete [] sliceTmp_;
+    */ 
     delete [] fieldIsContiguous_; 
+    deleteFieldSize_(); 
 };
 
 /// allocates memory for a single field 
@@ -158,6 +169,58 @@ void Grid::deleteField_(double*** fieldPt, int ifield) {
     } 
 };
 
+// constructs and returns fieldSize_ array 
+// note: currently not contiguous in memory
+// (does not need to be since it will not be iterated over often)
+int** Grid::setFieldSize_() { 
+    int i,j; 
+    fieldSize_ = new int*[nIDs_]; 
+    assert(fieldSize_ != NULL); 
+    for (i=0; i<nIDs_; ++i) { 
+        fieldSize_[i] = new int[ndim_]; 
+        assert(fieldSize_[i] != NULL); 
+    };
+
+    // rows correspond to fieldID: 
+    // 0: Ex, 1: Ey, 2: Ez, 3: Bx, 4: By, 5: Bz
+    // J is the same as E, B_tm1 is the same as B
+    // columns correspond to the direction (0,1,2)=(x,y,z)
+    // such that fieldSize_[1,2] corresponds to the number of 
+    // grid points of Ey in the z direction. 
+    // general solution is size(A_i[j]) = nj + delta(A,1) + delta(i,j)*(-1)^delta(A,0)
+    // where:   delta(x,y) is kronecker delta
+    //          A is 0 for fields on faces (B) and 1 for fields on edges (E/J)
+    //          i is the ith component of the field 
+    //          j is the jth dimension of that component 
+    int nxyz[3] = {nx_,ny_,nz_}; 
+    int edge,dir; 
+    for (i=0; i<nIDs_; ++i) { 
+        if (i < ndim_) { 
+            edge=1; 
+        }
+        else { 
+            edge=0; 
+        };
+        dir = (i % ndim_); 
+        for (j=0; j<ndim_; ++j) { 
+            fieldSize_[i][j] = nxyz[j]+edge; 
+            if (j == dir) { 
+                fieldSize_[i][j] = fieldSize_[i][j] + pow(-1,1-edge); 
+            }; 
+        }; 
+    }; 
+    return fieldSize_; 
+};
+
+// deletes fieldSize_ array 
+void Grid::deleteFieldSize_() { 
+    int i; 
+    for (i=0; i<nIDs_; ++i) { 
+        delete [] fieldSize_[i]; 
+    }; 
+    delete [] fieldSize_; 
+}; 
+
 /// checks validity of input parameters for Grid constructor 
 /*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
  */ 
@@ -175,15 +238,12 @@ void Grid::checkInput_() {
     assert(iBeg_ > 0); 
     assert(jBeg_ > 0); 
     assert(kBeg_ > 0); 
-    assert(iEnd_ < nx_+1); 
-    assert(jEnd_ < ny_+1); 
-    assert(kEnd_ < nz_+1);
     assert(dx_ > 0); 
     assert(dy_ > 0); 
     assert(dz_ > 0);
-    assert(nRealPtsYZPlane_ > 0); 
+    assert(maxPointsInPlane_ > 0); 
     assert(nFieldsToSend_ == 9); 
-    assert(nFieldsTotal_ == 15); 
+    assert(nFieldsTotal_ == 12); 
     assert(ghostVecSize_ > 0); 
 }; 
 
@@ -201,22 +261,6 @@ void Grid::zeroJ() {
             } 
         } 
     } 
-}; 
-
-/// sets all of Rho (Rhox,Rhoy,Rhoz) to be identically zero
-/*! Used during particle deposition.
- */
-void Grid::zeroRho() {
-  int i,j,k; // iterators
-  for (i=0; i<nxTot_; ++i) {
-    for (j=0; j<nyTot_; ++j) {
-      for (k=0; k<nzTot_; ++k) {
-	rhox_[i][j][k]=0;
-	rhoy_[i][j][k]=0;
-	rhoz_[i][j][k]=0;
-      }
-    }
-  }
 };
 
 /// Initialize E and B fields
