@@ -13,8 +13,6 @@ public:
 protected:
   void run_poisson_solver_(double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult);
 
-  double ***rho_;
-
   double ***phi1_;
   double ***phi2_;
 

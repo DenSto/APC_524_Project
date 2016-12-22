@@ -5,23 +5,21 @@
 Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz)
   : Grid(nxyz, nGhosts, xyz0, Lxyz) {
 
-  int ifield = -1;
-  rho_=newField_(++ifield);
-  phi1_=newField_(++ifield);
-  phi2_=newField_(++ifield);
-  Ax1_=newField_(++ifield);
-  Ay1_=newField_(++ifield);
-  Az1_=newField_(++ifield);
-  Ax2_=newField_(++ifield);
-  Ay2_=newField_(++ifield);
-  Az2_=newField_(++ifield);
+  //**  phi1_=newField_(++ifield);
+  //**  phi2_=newField_(++ifield);
+  //**  Ax1_=newField_(++ifield);
+  //**  Ay1_=newField_(++ifield);
+  //**  Az1_=newField_(++ifield);
+  //**  Ax2_=newField_(++ifield);
+  //**  Ay2_=newField_(++ifield);
+  //**  Az2_=newField_(++ifield);
 }
 
 void Poisson_Solver::initialize_poisson_fields() {
 
   double sourceMult = 4*3.1415926535898;
   double convTol = .01;
-  run_poisson_solver_(phi1_,phi2_,rho_,convTol,sourceMult);
+  //**  run_poisson_solver_(phi1_,phi2_,rho_,convTol,sourceMult);
   //Now solve for E from phi1_!
 
   sourceMult = 4*3.1415926535898;
