@@ -39,10 +39,12 @@ void Poisson_Solver::run_poisson_solver_(double*** u0, double*** u1,double*** R,
   double lcell[3] = {}; //Vector of lengths of cells.                                                                             
 
   double ncells[3] = {};
-  int err = getNumCells3D(ncells);
+  getNumCells3D(ncells);
   long nx = ncells[0];
   long ny = ncells[1];
   long nz = ncells[2];
+
+  
 
   for (int i=0; i<3; i++) lcell[i] = getStepSize(i);
 
