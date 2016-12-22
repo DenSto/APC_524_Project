@@ -39,41 +39,50 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     nFieldsToSend_(9),
     nFieldsTotal_(12), 
     ghostVecSize_(nFieldsToSend_*maxPointsInPlane_), 
-    ExID_(0), 
-    EyID_(1), 
-    EzID_(2), 
-    BxID_(3), 
-    ByID_(4), 
-    BzID_(5), 
-    Bx_tm1ID_(3), 
-    By_tm1ID_(4), 
-    Bz_tm1ID_(5), 
-    JxID_(0), 
-    JyID_(1), 
-    JzID_(2),
-    nIDs_(6), 
+    edgeXID_(0), 
+    edgeYID_(1), 
+    edgeZID_(2), 
+    faceXID_(3),
+    faceYID_(4),
+    faceZID_(5),
+    vertID_(6),
+    ExID_(edgeXID_), 
+    EyID_(edgeYID_), 
+    EzID_(edgeZID_), 
+    BxID_(faceXID_), 
+    ByID_(faceYID_), 
+    BzID_(faceZID_), 
+    Bx_tm1ID_(faceXID_), 
+    By_tm1ID_(faceYID_), 
+    Bz_tm1ID_(faceZID_), 
+    JxID_(edgeXID_), 
+    JyID_(edgeYID_), 
+    JzID_(edgeZID_),
+    rhoID_(vertID_),
+    nIDs_(7), 
+
     ndim_(3)
 {
     checkInput_(); 
     
     fieldIsContiguous_ = new double[nFieldsTotal_];
  
-    int ifield = -1; 
-    Ex_=newField_(++ifield); 
-    Ey_=newField_(++ifield); 
-    Ez_=newField_(++ifield); 
-    Bx_=newField_(++ifield); 
-    By_=newField_(++ifield); 
-    Bz_=newField_(++ifield); 
-    Jx_=newField_(++ifield); 
-    Jy_=newField_(++ifield); 
-    Jz_=newField_(++ifield); 
-    Bx_tm1_=newField_(++ifield); 
-    By_tm1_=newField_(++ifield); 
-    Bz_tm1_=newField_(++ifield); 
-
+    ifield_ = -1; 
+    Ex_=newField_(++ifield_); 
+    Ey_=newField_(++ifield_); 
+    Ez_=newField_(++ifield_); 
+    Bx_=newField_(++ifield_); 
+    By_=newField_(++ifield_); 
+    Bz_=newField_(++ifield_); 
+    Jx_=newField_(++ifield_); 
+    Jy_=newField_(++ifield_); 
+    Jz_=newField_(++ifield_); 
+    Bx_tm1_=newField_(++ifield_); 
+    By_tm1_=newField_(++ifield_); 
+    Bz_tm1_=newField_(++ifield_); 
+    rho_=newField_(++ifield_); 
+    
     fieldSize_ = setFieldSize_(); 
-
 } 
 
 /// Grid destructor 
@@ -82,23 +91,20 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
 Grid::~Grid() { 
     /* note: these must be deleted in the same order as they were created
      * since they use fieldIsContiguous_ to determine the create deletion method (contiguous vs noncontiguous) */ 
-    int ifield=-1; 
-    deleteField_(Ex_,++ifield); 
-    deleteField_(Ey_,++ifield); 
-    deleteField_(Ez_,++ifield); 
-    deleteField_(Bx_,++ifield); 
-    deleteField_(By_,++ifield); 
-    deleteField_(Bz_,++ifield); 
-    deleteField_(Jx_,++ifield); 
-    deleteField_(Jy_,++ifield); 
-    deleteField_(Jz_,++ifield); 
-    deleteField_(Bx_tm1_,++ifield); 
-    deleteField_(By_tm1_,++ifield); 
-    deleteField_(Bz_tm1_,++ifield); 
+    deleteField_(Ex_,ifield_--); 
+    deleteField_(Ey_,ifield_--); 
+    deleteField_(Ez_,ifield_--); 
+    deleteField_(Bx_,ifield_--); 
+    deleteField_(By_,ifield_--); 
+    deleteField_(Bz_,ifield_--); 
+    deleteField_(Jx_,ifield_--); 
+    deleteField_(Jy_,ifield_--); 
+    deleteField_(Jz_,ifield_--); 
+    deleteField_(Bx_tm1_,ifield_--); 
+    deleteField_(By_tm1_,ifield_--); 
+    deleteField_(Bz_tm1_,ifield_--); 
+    deleteField_(rho_,ifield_--); 
 
-    /* deprecated 
-    delete [] sliceTmp_;
-    */ 
     delete [] fieldIsContiguous_; 
     deleteFieldSize_(); 
 };
@@ -106,7 +112,7 @@ Grid::~Grid() {
 /// allocates memory for a single field 
 /*! Returns double*** of size [nx_+1][ny_+1][nz_+1]. \n
  * First attempts to allocate contiguously. If that fails, issues a warning and attempts to allocate with several calls to new. 
- */ 
+*/ 
 double*** Grid::newField_(int ifield) { 
     int i,j; // iterators 
     
@@ -204,11 +210,16 @@ int** Grid::setFieldSize_() {
         dir = (i % ndim_); 
         for (j=0; j<ndim_; ++j) { 
             fieldSize_[i][j] = nxyz[j]+edge; 
-            if (j == dir) { 
-                fieldSize_[i][j] = fieldSize_[i][j] + pow(-1,1-edge); 
+            if (i < nIDs_-1) { 
+                if (j == dir) { 
+                    fieldSize_[i][j] = fieldSize_[i][j] + pow(-1,1-edge); 
+                }; 
+            } 
+            else { 
+                ++fieldSize_[i][j]; 
             }; 
         }; 
-    }; 
+    };
     return fieldSize_; 
 };
 
@@ -263,6 +274,20 @@ void Grid::zeroJ() {
     } 
 };
 
+/// sets all of rho to be identically zero
+/*! Used during particle deposition. 
+ */ 
+void Grid::zeroRho() { 
+    int i,j,k; // iterators 
+    for (i=0; i<nxTot_; ++i) { 
+        for (j=0; j<nyTot_; ++j) { 
+            for (k=0; k<nzTot_; ++k) { 
+                rho_[i][j][k]=0; 
+            } 
+        } 
+    } 
+};
+
 /// Initialize E and B fields
 /*! Use restart file to set values of initial E,B,J fields
  */ 
@@ -279,10 +304,9 @@ void Grid::InitializeFields(int restart){
                 Bx_[i][j][k]=0; 
                 By_[i][j][k]=0; 
                 Bz_[i][j][k]=0; 
-                Jx_[i][j][k]=0; 
-                Jy_[i][j][k]=0; 
-                Jz_[i][j][k]=0; 
             } 
         } 
     } 
+    zeroJ(); 
+    zeroRho(); 
 }; 

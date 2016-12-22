@@ -40,13 +40,13 @@ public:
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 
-  void updatePeriodicGhostCells();
   int getGhostVecSize(); // called by main to size MPI Buffer
   // side = +1: x right, side = -1: x left
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
   void getGhostVec(const int side, double* ghostVec); // called by main to get MPI
   void setGhostVec(const int side, double* ghostVec);
+  void updatePeriodicGhostCells(); 
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
 
@@ -83,9 +83,10 @@ protected:
   const double idz_;
 
   const int maxPointsInPlane_;
-  const int nFieldsToSend_;
-  const int nFieldsTotal_; 
-  const int ghostVecSize_; /* total number of ghost field values in
+  const int nFieldsToSend_;  
+  const int nFieldsTotal_;  
+  const int ghostVecSize_;  
+  /* total number of ghost field values in
                                     a single plane. All MPI communiation
                                     of fields send messages of this size */
 
@@ -105,6 +106,16 @@ protected:
   double ***Jy_;
   double ***Jz_;
 
+  double ***rho_; 
+
+  const int edgeXID_; 
+  const int edgeYID_; 
+  const int edgeZID_; 
+  const int faceXID_; 
+  const int faceYID_; 
+  const int faceZID_; 
+  const int vertID_; 
+
   const int ExID_; 
   const int EyID_; 
   const int EzID_; 
@@ -116,12 +127,14 @@ protected:
   const int Bz_tm1ID_; 
   const int JxID_; 
   const int JyID_; 
-  const int JzID_; 
-
+  const int JzID_;
+  const int rhoID_; 
+  
   const int nIDs_; 
   const int ndim_; 
   int **fieldSize_;  
 
+  int ifield_; 
   double *fieldIsContiguous_; 
 
   // allocates contiguous memory for nx*ny*nz array
