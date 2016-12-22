@@ -2,18 +2,17 @@
 #define POISSON_HPP
 
 #include "../grid/grid.hpp"
-//#include "../domain/domain.hpp"
+#include "../domain/domain.hpp"
 
 class Poisson_Solver : protected Grid{
 public:
   Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz);
+  ~Poisson_Solver();
 
   void initialize_poisson_fields();
 
 protected:
   void run_poisson_solver_(double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult);
-
-  double ***rho_;
 
   double ***phi1_;
   double ***phi2_;
@@ -24,6 +23,16 @@ protected:
   double ***Ax2_;
   double ***Ay2_;
   double ***Az2_;
+
+  const int phi1ID_;
+  const int phi2ID_;
+
+  const int Ax1ID_;
+  const int Ay1ID_;
+  const int Az1ID_;
+  const int Ax2ID_;
+  const int Ay2ID_;
+  const int Az2ID_;
 };
 
 #endif

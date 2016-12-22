@@ -2,19 +2,36 @@
 #include <math.h>
 #include "poisson.hpp"
 
-Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz)
-  : Grid(nxyz, nGhosts, xyz0, Lxyz) {
+Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz) :
+  Grid(nxyz, nGhosts, xyz0, Lxyz),
+  phi1ID_(vertID_),
+  phi2ID_(vertID_),
+  Ax1ID_(edgeXID_),
+  Ay1ID_(edgeYID_),
+  Az1ID_(edgeZID_),
+  Ax2ID_(edgeXID_),
+  Ay2ID_(edgeYID_),
+  Az2ID_(edgeZID_)
+{
+  phi1_=newField_(++ifield_);
+  phi2_=newField_(++ifield_);
+  Ax1_=newField_(++ifield_);
+  Ay1_=newField_(++ifield_);
+  Az1_=newField_(++ifield_);
+  Ax2_=newField_(++ifield_);
+  Ay2_=newField_(++ifield_);
+  Az2_=newField_(++ifield_);
+}
 
-  int ifield = -1;
-  rho_=newField_(++ifield);
-  phi1_=newField_(++ifield);
-  phi2_=newField_(++ifield);
-  Ax1_=newField_(++ifield);
-  Ay1_=newField_(++ifield);
-  Az1_=newField_(++ifield);
-  Ax2_=newField_(++ifield);
-  Ay2_=newField_(++ifield);
-  Az2_=newField_(++ifield);
+Poisson_Solver::~Poisson_Solver() {
+  deleteField_(Az2_,ifield_--);
+  deleteField_(Ay2_,ifield_--);
+  deleteField_(Ax2_,ifield_--);
+  deleteField_(Az1_,ifield_--);
+  deleteField_(Ay1_,ifield_--);
+  deleteField_(Ax1_,ifield_--);
+  deleteField_(phi2_,ifield_--);
+  deleteField_(phi1_,ifield_--);
 }
 
 void Poisson_Solver::initialize_poisson_fields() {
@@ -41,7 +58,7 @@ void Poisson_Solver::run_poisson_solver_(double*** u0, double*** u1,double*** R,
   double lcell[3] = {}; //Vector of lengths of cells.                                                                             
 
   double ncells[3] = {};
-  int err = getNumCells3D(ncells);
+  getNumCells3D(ncells);
   long nx = ncells[0];
   long ny = ncells[1];
   long nz = ncells[2];
@@ -76,7 +93,7 @@ void Poisson_Solver::run_poisson_solver_(double*** u0, double*** u1,double*** R,
               az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k]*sourceMult;
 	  }
 
-	  absDiff = abs(u1[i][j][k] - u0[i][j][k]);
+	  absDiff = fabs(u1[i][j][k] - u0[i][j][k]);
 	  if (absDiff > maxDiff) maxDiff = absDiff;
 	}
       }
