@@ -18,9 +18,10 @@ Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxy
 }
 
 void Poisson_Solver::run_poisson_solver(double*** u0, double*** u1,double*** R,double convergenceTol) {
-  //u0 is the first guess at a solution to Poisson's equation.
+  //u0 is the first guess at a solution to Poisson's eqn
   //u1 is the work array of equal size
   //R is the 'source' array for Poisson's eqn
+  //convergenceTol is the needed (absolute) solution accuracy
 
   double lcell[3] = {}; //Vector of lengths of cells.                                                                             
 
@@ -39,12 +40,12 @@ void Poisson_Solver::run_poisson_solver(double*** u0, double*** u1,double*** R,d
   double az = pow(lcell[0], 2.0) * pow(lcell[1], 2.0) / (2.0 * celldist2);
   double af = pow(lcell[0], 2.0) * pow(lcell[1], 2.0) * pow(lcell[2], 2.0) / (2.0 * celldist2);
 
-  //Understand how to get and use the u0, u1 and Rho arrays used below...
-
+  //initialize iteration variables
   bool jacobi_method_converged = false;
   double maxDiff = 0.0;
   double absDiff = 0.0;
 
+  //loop Jacobi method until convergence!
   int iternum = -1;
   do {
     iternum++;
@@ -66,7 +67,7 @@ void Poisson_Solver::run_poisson_solver(double*** u0, double*** u1,double*** R,d
       }
     }
 
-    //Pass and receive MPI for boundary!  Pass the boundary first and Receive the boundary last!
+    //EDIT HERE: Pass and receive MPI for boundary!  Pass the boundary first and Receive the boundary last!
     //Determine GLOBAL convergence of jacobi method across all MPI domains!!!
 
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
