@@ -13,6 +13,7 @@ public:
 
 protected:
   void run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult); 
+  void setPoissonFieldType_();
 
   double ***phi1_;
   double ***phi2_;
