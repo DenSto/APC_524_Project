@@ -11,7 +11,11 @@
  * Stores the data of the E,B,J fields along the specified boundary plane into a 1D array to be sent with a single MPI call. Stores in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
  * ghostVec can be unpacked with setGhostVec function 
  */ 
-void Grid::getGhostVec(const int side, double* ghostVec) {
+// if sendID is -1, send JEB fields altogether 
+// if sendID is any other value, send only that field
+void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
+    assert(sendID < nFieldsTotal_); 
+    
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
@@ -21,27 +25,38 @@ void Grid::getGhostVec(const int side, double* ghostVec) {
 
     // "loop" over all fields to package 
     int begdex; 
-    double**** fieldPtr; 
+    double*** field; 
     int fieldID; 
+
+    if (sendID < 0) { 
     int i; 
-    for (i=0; i<nFieldsToSend_; ++i) { 
-        begdex=i*n; 
-        switch (i) { 
-            case 0: fieldPtr = &Ex_; fieldID = ExID_; break; 
-            case 1: fieldPtr = &Ey_; fieldID = EyID_; break; 
-            case 2: fieldPtr = &Ez_; fieldID = EzID_; break; 
-            case 3: fieldPtr = &Bx_; fieldID = BxID_; break; 
-            case 4: fieldPtr = &By_; fieldID = ByID_; break; 
-            case 5: fieldPtr = &Bz_; fieldID = BzID_; break; 
-            case 6: fieldPtr = &Jx_; fieldID = JxID_; break; 
-            case 7: fieldPtr = &Jy_; fieldID = JyID_; break; 
-            case 8: fieldPtr = &Jz_; fieldID = JzID_; break; 
-        }; 
-        // slice the given field 
-        sliceMatToVec_(*fieldPtr,side,fieldID,offset,tmpVec); 
+        for (i=0; i<nFieldsToSend_; ++i) { 
+            begdex=i*n; 
+            switch (i) { 
+                case 0: fieldID = ExID_; break; 
+                case 1: fieldID = EyID_; break; 
+                case 2: fieldID = EzID_; break; 
+                case 3: fieldID = BxID_; break; 
+                case 4: fieldID = ByID_; break; 
+                case 5: fieldID = BzID_; break; 
+                case 6: fieldID = JxID_; break; 
+                case 7: fieldID = JyID_; break; 
+                case 8: fieldID = JzID_; break; 
+            }; 
+            field = fieldPtr_[fieldID]; 
+            // slice the given field 
+            sliceMatToVec_(field,side,fieldID,offset,tmpVec); 
+            // store the slice in ghostVec 
+            std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
+        };
+    } 
+    else { 
+        // slice the single field 
+        field = fieldPtr_[fieldID]; 
+        sliceMatToVec_(field,side,fieldID,offset,tmpVec); 
         // store the slice in ghostVec 
-        std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
-    };
+        std::copy(tmpVec,tmpVec + n ,ghostVec); 
+    } 
 }; 
 
 /// unbundles the data in the ghost cells that have been received
@@ -50,7 +65,9 @@ void Grid::getGhostVec(const int side, double* ghostVec) {
  * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array received from a single MPI call. Sets in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
  * ghostVec can be generated with getGhostVec function 
  */ 
-void Grid::setGhostVec(const int side, double* ghostVec) {
+void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
+    assert(sendID < nFieldsTotal_); 
+    
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
@@ -64,28 +81,39 @@ void Grid::setGhostVec(const int side, double* ghostVec) {
 
     // "loop" over all fields to unpackage 
     int begdex,enddex; 
-    double**** fieldPtr; 
+    double*** field; 
     int fieldID; 
-    int i; 
-    for (i=0; i<nFieldsToSend_; ++i) { 
-        begdex=i*n; 
-        enddex=(i+1)*n; 
-        // store the relevant portion fo ghostVec into tmpVec
-        std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
-        switch (i) { 
-            case 0: fieldPtr = &Ex_; fieldID = ExID_; break; 
-            case 1: fieldPtr = &Ey_; fieldID = EyID_; break; 
-            case 2: fieldPtr = &Ez_; fieldID = EzID_; break; 
-            case 3: fieldPtr = &Bx_; fieldID = BxID_; break; 
-            case 4: fieldPtr = &By_; fieldID = ByID_; break; 
-            case 5: fieldPtr = &Bz_; fieldID = BzID_; break; 
-            case 6: fieldPtr = &Jx_; fieldID = JxID_; break; 
-            case 7: fieldPtr = &Jy_; fieldID = JyID_; break; 
-            case 8: fieldPtr = &Jz_; fieldID = JzID_; break; 
-        }; 
-        // unslice the given field 
-        unsliceMatToVec_(*fieldPtr,side,fieldID,offset,tmpVec); 
-    };
+    
+    if (sendID < 0) { 
+        int i; 
+        for (i=0; i<nFieldsToSend_; ++i) { 
+            begdex=i*n; 
+            enddex=(i+1)*n; 
+            // store the relevant portion fo ghostVec into tmpVec
+            std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
+            switch (i) { 
+                case 0: fieldID = ExID_; break; 
+                case 1: fieldID = EyID_; break; 
+                case 2: fieldID = EzID_; break; 
+                case 3: fieldID = BxID_; break; 
+                case 4: fieldID = ByID_; break; 
+                case 5: fieldID = BzID_; break; 
+                case 6: fieldID = JxID_; break; 
+                case 7: fieldID = JyID_; break; 
+                case 8: fieldID = JzID_; break; 
+            }; 
+            field = fieldPtr_[fieldID]; 
+            // unslice the given field 
+            unsliceMatToVec_(field,side,fieldID,offset,tmpVec); 
+        };
+    } 
+    else { 
+        // store the slice in ghostVec 
+        std::copy(ghostVec,ghostVec + n ,tmpVec); 
+        // unslice the single field 
+        field = fieldPtr_[fieldID]; 
+        unsliceMatToVec_(field,side,fieldID,offset,tmpVec); 
+    }
 }; 
 
 
@@ -108,7 +136,8 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
     }
     else { 
         int type = fieldType_[fieldID]; 
-        int dir = abs(side)-1; 
+        // since side > 0 in this branch, side-1 converts (x,y,z = 1,2,3) --> (0,1,2)
+        int dir = side-1; 
         dex = fieldSize_[type][dir]; 
     } 
     return dex; 
@@ -213,12 +242,13 @@ void Grid::updatePeriodicGhostCells() {
     // create a temporary vector to store ghostVecs 
     double* tmpGhost = ghostTmp_;  
 
+    int sendID = -1; 
     int side; 
     for (side=-3; side<4; ++side) { 
         // to set periodic boundary conditions in y/z directions, simply get/set ghostVec for side=+/-2, +/-3
         if (abs(side)>1) { 
-            getGhostVec(side,tmpGhost); 
-            setGhostVec(-side,tmpGhost); 
+            getGhostVec(side,tmpGhost,sendID); 
+            setGhostVec(-side,tmpGhost,sendID); 
         };
     }; 
 }; 

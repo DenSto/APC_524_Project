@@ -22,7 +22,8 @@ Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxy
   Ay2_=newField_(Ay2ID_);
   Az2_=newField_(Az2ID_);
 
-  setPoissonFieldType_(); 
+  setPoissonFieldType_();
+  setPoissonFieldPtr_(); 
 }
 
 Poisson_Solver::~Poisson_Solver() {
@@ -36,7 +37,7 @@ Poisson_Solver::~Poisson_Solver() {
   deleteField_(Az2_,Az2ID_);
 }
 
-Poisson_Solver::setPoissonFieldType_() { 
+void Poisson_Solver::setPoissonFieldType_() { 
     fieldType_[phi1ID_]=vertID_; 
     fieldType_[phi2ID_]=vertID_; 
     fieldType_[Ax1ID_]=edgeXID_; 
@@ -45,6 +46,17 @@ Poisson_Solver::setPoissonFieldType_() {
     fieldType_[Ax2ID_]=edgeXID_; 
     fieldType_[Ay2ID_]=edgeYID_; 
     fieldType_[Az2ID_]=edgeZID_; 
+}; 
+
+void Poisson_Solver::setPoissonFieldPtr_() { 
+    fieldPtr_[phi1ID_]=phi1_; 
+    fieldPtr_[phi2ID_]=phi2_; 
+    fieldPtr_[Ax1ID_]=Ax1_; 
+    fieldPtr_[Ay1ID_]=Ay1_; 
+    fieldPtr_[Az1ID_]=Az1_; 
+    fieldPtr_[Ax2ID_]=Ax2_; 
+    fieldPtr_[Ay2ID_]=Ay2_; 
+    fieldPtr_[Az2ID_]=Az2_; 
 }; 
 
 void Poisson_Solver::initialize_poisson_fields() {

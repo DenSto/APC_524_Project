@@ -46,8 +46,8 @@ public:
   // side = +1: x right, side = -1: x left
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
-  void getGhostVec(const int side, double* ghostVec); // called by main to get MPI
-  void setGhostVec(const int side, double* ghostVec);
+  void getGhostVec(const int side, double* ghostVec, int sendID); // called by main to get MPI
+  void setGhostVec(const int side, double* ghostVec, int sendID);
   void updatePeriodicGhostCells(); 
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
@@ -134,6 +134,7 @@ protected:
 
   int *fieldType_; 
   int **fieldSize_;  
+  double ****fieldPtr_; 
 
   double *fieldIsContiguous_; 
 
@@ -145,6 +146,8 @@ protected:
   void deleteFieldSize_(); 
   int* setFieldType_(); 
   void deleteFieldType_();
+  double**** setFieldPtr_(); 
+  void deleteFieldPtr_(); 
 
   int sideToIndex_(const int side, const int fieldID);
   /* assert statements to check necessary conditions for initialized variables */

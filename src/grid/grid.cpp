@@ -79,8 +79,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     Bz_tm1_=newField_(Bz_tm1ID_); 
     rho_=newField_(rhoID_); 
     
-    fieldSize_ = setFieldSize_(); 
     fieldType_ = setFieldType_(); 
+    fieldSize_ = setFieldSize_(); 
+    fieldPtr_ = setFieldPtr_(); 
     sliceTmp_ = new double[maxPointsInPlane_]; 
     ghostTmp_ = new double[ghostVecSize_]; 
 } 
@@ -104,8 +105,9 @@ Grid::~Grid() {
     deleteField_(rho_,rhoID_); 
 
     delete [] fieldIsContiguous_; 
-    deleteFieldSize_(); 
     deleteFieldType_(); 
+    deleteFieldSize_(); 
+    deleteFieldPtr_();
     delete [] sliceTmp_; 
     delete [] ghostTmp_; 
 };
@@ -182,18 +184,18 @@ void Grid::deleteField_(double*** fieldPt, int fieldID) {
 int** Grid::setFieldSize_() { 
     int i,j; 
     int ndim=3; 
-    fieldSize_ = new int*[nTypes_]; 
-    assert(fieldSize_ != NULL); 
+    int** fieldSize = new int*[nTypes_]; 
+    assert(fieldSize != NULL); 
     for (i=0; i<nTypes_; ++i) { 
-        fieldSize_[i] = new int[ndim]; 
-        assert(fieldSize_[i] != NULL); 
+        fieldSize[i] = new int[ndim]; 
+        assert(fieldSize[i] != NULL); 
     };
 
     // rows correspond to fieldID: 
     // 0: Ex, 1: Ey, 2: Ez, 3: Bx, 4: By, 5: Bz
     // J is the same as E, B_tm1 is the same as B
     // columns correspond to the direction (0,1,2)=(x,y,z)
-    // such that fieldSize_[1,2] corresponds to the number of 
+    // such that fieldSize[1,2] corresponds to the number of 
     // grid points of Ey in the z direction. 
     // general solution is size(A_i[j]) = nj + delta(A,1) + delta(i,j)*(-1)^delta(A,0)
     // where:   delta(x,y) is kronecker delta
@@ -211,18 +213,18 @@ int** Grid::setFieldSize_() {
         };
         dir = (i % ndim); 
         for (j=0; j<ndim; ++j) { 
-            fieldSize_[i][j] = nxyz[j]+edge; 
+            fieldSize[i][j] = nxyz[j]+edge; 
             if (i < nTypes_-1) { 
                 if (j == dir) { 
-                    fieldSize_[i][j] = fieldSize_[i][j] + pow(-1,1-edge); 
+                    fieldSize[i][j] = fieldSize[i][j] + pow(-1,1-edge); 
                 }; 
             } 
             else { 
-                ++fieldSize_[i][j]; 
+                ++fieldSize[i][j]; 
             }; 
         }; 
     };
-    return fieldSize_; 
+    return fieldSize; 
 };
 
 // deletes fieldSize_ array 
@@ -235,28 +237,52 @@ void Grid::deleteFieldSize_() {
 }; 
 
 int* Grid::setFieldType_() { 
-    fieldType_ = new int[nFieldsTotal_];
+    int* fieldType = new int[nFieldsTotal_];
     
-    fieldType_[ExID_] = edgeXID_; 
-    fieldType_[EyID_] = edgeYID_; 
-    fieldType_[EzID_] = edgeZID_; 
-    fieldType_[BxID_] = faceXID_; 
-    fieldType_[ByID_] = faceYID_; 
-    fieldType_[BzID_] = faceZID_; 
-    fieldType_[JxID_] = edgeXID_; 
-    fieldType_[JyID_] = edgeYID_; 
-    fieldType_[JzID_] = edgeZID_; 
-    fieldType_[Bx_tm1ID_] = faceXID_; 
-    fieldType_[By_tm1ID_] = faceYID_; 
-    fieldType_[Bz_tm1ID_] = faceZID_; 
-    fieldType_[rhoID_] = vertID_; 
+    fieldType[ExID_] = edgeXID_; 
+    fieldType[EyID_] = edgeYID_; 
+    fieldType[EzID_] = edgeZID_; 
+    fieldType[BxID_] = faceXID_; 
+    fieldType[ByID_] = faceYID_; 
+    fieldType[BzID_] = faceZID_; 
+    fieldType[JxID_] = edgeXID_; 
+    fieldType[JyID_] = edgeYID_; 
+    fieldType[JzID_] = edgeZID_; 
+    fieldType[Bx_tm1ID_] = faceXID_; 
+    fieldType[By_tm1ID_] = faceYID_; 
+    fieldType[Bz_tm1ID_] = faceZID_; 
+    fieldType[rhoID_] = vertID_; 
 
-    return fieldType_; 
+    return fieldType; 
 };
 
 void Grid::deleteFieldType_() { 
     delete [] fieldType_; 
 };
+
+double**** Grid::setFieldPtr_() { 
+    double**** fieldPtr = new double***[nFieldsTotal_]; 
+    
+    fieldPtr[ExID_] = Ex_; 
+    fieldPtr[EyID_] = Ey_; 
+    fieldPtr[EzID_] = Ez_; 
+    fieldPtr[BxID_] = Bx_; 
+    fieldPtr[ByID_] = By_; 
+    fieldPtr[BzID_] = Bz_; 
+    fieldPtr[JxID_] = Jx_; 
+    fieldPtr[JyID_] = Jy_; 
+    fieldPtr[JzID_] = Jz_; 
+    fieldPtr[Bx_tm1ID_] = Bx_tm1_; 
+    fieldPtr[By_tm1ID_] = By_tm1_; 
+    fieldPtr[Bz_tm1ID_] = Bz_tm1_; 
+    fieldPtr[rhoID_] = rho_; 
+   
+    return fieldPtr; 
+}; 
+
+void Grid::deleteFieldPtr_() { 
+    delete [] fieldPtr_; 
+}; 
 
 /// checks validity of input parameters for Grid constructor 
 /*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
