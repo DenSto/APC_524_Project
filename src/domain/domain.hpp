@@ -23,7 +23,7 @@ class Domain {
         void mallocGhosts(int xgsize, int ygsize, int zgsize); // allocate ghostVec
         void freeGhosts(void); // free ghostVec
 
-        void PassFields(Grid *grids, Input_Info_t *input_info); // field boundary
+        void PassFields(Grid *grids, Input_Info_t *input_info, int sendID); // field boundary
  
 	int *getnProcxyz(void); // return pointer nProcxyz_
         int *getmyijk(void); 
