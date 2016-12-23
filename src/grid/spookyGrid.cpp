@@ -118,7 +118,7 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
 void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldID, const int offset, double* vec) { 
     assert(fieldID > -1 && fieldID < nIDs_); 
     assert(side != 0 && abs(side) < ndim_+1); 
-    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
+    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); // is this correct or off by 1? (0 vs 1 indexing) 
     assert(dex > 0); 
     int i,j,k; // iterators
     int iter=-1; 
@@ -161,7 +161,7 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
 void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec) { 
     assert(fieldID > -1 && fieldID < nIDs_); 
     assert(side != 0 && abs(side) < ndim_+1); 
-    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
+    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); // is this correct or off by 1? (0 vs 1 indexing)
     assert(dex > 0); 
     int i,j,k; // iterators
     int iter=-1; 

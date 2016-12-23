@@ -12,7 +12,7 @@ public:
   void initialize_poisson_fields();
 
 protected:
-  void run_poisson_solver_(double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult);
+  void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult); 
 
   double ***phi1_;
   double ***phi2_;
