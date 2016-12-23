@@ -13,8 +13,8 @@
  */ 
 void Grid::getGhostVec(const int side, double* ghostVec) {
     // create a temporary vector to store slices in 
-    int n = maxPointsInPlane_; 
-    double tmpVec[n]; 
+    int n = maxPointsInPlane_;
+    double* tmpVec = sliceTmp_; 
 
     // offset = 0 to get from the first/last physical cells 
     int offset=0;
@@ -53,7 +53,7 @@ void Grid::getGhostVec(const int side, double* ghostVec) {
 void Grid::setGhostVec(const int side, double* ghostVec) {
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
-    double tmpVec[n]; 
+    double* tmpVec = sliceTmp_; 
     
     // offset = +1 to set into the RHS ghost vectors
     // offset = -1 to set into the LHS ghost vectors 
@@ -210,14 +210,14 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
 // (perhaps slice/unslicing)
 void Grid::updatePeriodicGhostCells() { 
     // create a temporary vector to store ghostVecs 
-    double tmpVec[ghostVecSize_]; 
+    double* tmpGhost = ghostTmp_;  
 
     int side; 
     for (side=-3; side<4; ++side) { 
         // to set periodic boundary conditions in y/z directions, simply get/set ghostVec for side=+/-2, +/-3
         if (abs(side)>1) { 
-            getGhostVec(side,tmpVec); 
-            setGhostVec(-side,tmpVec); 
+            getGhostVec(side,tmpGhost); 
+            setGhostVec(-side,tmpGhost); 
         };
     }; 
 }; 

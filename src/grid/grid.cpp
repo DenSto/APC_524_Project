@@ -83,13 +83,15 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     rho_=newField_(++ifield_); 
     
     fieldSize_ = setFieldSize_(); 
+    sliceTmp_ = new double[maxPointsInPlane_]; 
+    ghostTmp_ = new double[ghostVecSize_]; 
 } 
 
 /// Grid destructor 
 /*! calls deleteField_ on each of the double*** fields 
  */ 
 Grid::~Grid() { 
-    /* note: these must be deleted in the same order as they were created
+    /* note: these must be deleted in the REVERSE order as they were created
      * since they use fieldIsContiguous_ to determine the create deletion method (contiguous vs noncontiguous) */ 
     deleteField_(rho_,ifield_--); 
     deleteField_(Bz_tm1_,ifield_--); 
@@ -107,6 +109,8 @@ Grid::~Grid() {
 
     delete [] fieldIsContiguous_; 
     deleteFieldSize_(); 
+    delete [] sliceTmp_; 
+    delete [] ghostTmp_; 
 };
 
 /// allocates memory for a single field 
@@ -295,25 +299,45 @@ void Grid::zeroRho() {
     } 
 };
 
+/// sets all of E to be identically zero
+void Grid::zeroE() { 
+    int i,j,k; // iterators 
+    for (i=0; i<nxTot_; ++i) { 
+        for (j=0; j<nyTot_; ++j) { 
+            for (k=0; k<nzTot_; ++k) { 
+                Ex_[i][j][k]=0; 
+                Ey_[i][j][k]=0; 
+                Ez_[i][j][k]=0;
+            } 
+        } 
+    } 
+};
+
+/// sets all of B to be identically zero
+void Grid::zeroB() { 
+    int i,j,k; // iterators 
+    for (i=0; i<nxTot_; ++i) { 
+        for (j=0; j<nyTot_; ++j) { 
+            for (k=0; k<nzTot_; ++k) { 
+                Bx_[i][j][k]=0; 
+                By_[i][j][k]=0; 
+                Bz_[i][j][k]=0;
+                Bx_tm1_[i][j][k]=0; 
+                By_tm1_[i][j][k]=0; 
+                Bz_tm1_[i][j][k]=0;
+            } 
+        } 
+    } 
+};
+
 /// Initialize E and B fields
 /*! Use restart file to set values of initial E,B,J fields
  */ 
 void Grid::InitializeFields(int restart){
     /* jlestz: dummy code setting all fields to zero
      * placeholder until restart file format is determined */ 
-    int i,j,k; 
-    for (i=0; i<nxTot_; ++i) { 
-        for (j=0; j<nyTot_; ++j) { 
-            for (k=0; k<nzTot_; ++k) { 
-                Ex_[i][j][k]=0; 
-                Ey_[i][j][k]=0; 
-                Ez_[i][j][k]=0; 
-                Bx_[i][j][k]=0; 
-                By_[i][j][k]=0; 
-                Bz_[i][j][k]=0; 
-            } 
-        } 
-    } 
+    zeroB(); 
+    zeroE(); 
     zeroJ(); 
     zeroRho(); 
 }; 

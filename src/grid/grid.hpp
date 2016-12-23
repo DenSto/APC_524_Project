@@ -29,6 +29,8 @@ public:
                                       // geometry or read restart file. 
   void zeroJ();
   void zeroRho();
+  void zeroE(); 
+  void zeroB(); 
   int addJ(int cellID, double *Jvec);
   int addRho(int cellID, double *Rhovec);
   int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
@@ -152,6 +154,9 @@ protected:
   void sliceMatToVec_(double*** const mat, const int side, const int fieldID, const int offset, double* vec);
   // puts a 2D plane of ghost points from sliceTmp_ into mat
   void unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec);
+
+  double* sliceTmp_; 
+  double* ghostTmp_; 
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
 
