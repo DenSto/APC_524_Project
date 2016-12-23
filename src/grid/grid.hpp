@@ -86,11 +86,34 @@ protected:
 
   const int maxPointsInPlane_;
   const int nFieldsToSend_;  
-  const int nFieldsTotal_;  
   const int ghostVecSize_;  
   /* total number of ghost field values in
                                     a single plane. All MPI communiation
                                     of fields send messages of this size */
+  
+  const int nFieldsTotal_;  
+  const int ExID_; 
+  const int EyID_; 
+  const int EzID_; 
+  const int BxID_; 
+  const int ByID_; 
+  const int BzID_; 
+  const int JxID_; 
+  const int JyID_; 
+  const int JzID_; 
+  const int Bx_tm1ID_; 
+  const int By_tm1ID_; 
+  const int Bz_tm1ID_;
+  const int rhoID_; 
+  
+  const int nTypes_; 
+  const int edgeXID_; 
+  const int edgeYID_; 
+  const int edgeZID_; 
+  const int faceXID_; 
+  const int faceYID_; 
+  const int faceZID_; 
+  const int vertID_; 
 
   double ***Ex_;
   double ***Ey_;
@@ -107,36 +130,11 @@ protected:
   double ***Jx_;
   double ***Jy_;
   double ***Jz_;
-
   double ***rho_; 
 
-  const int edgeXID_; 
-  const int edgeYID_; 
-  const int edgeZID_; 
-  const int faceXID_; 
-  const int faceYID_; 
-  const int faceZID_; 
-  const int vertID_; 
-
-  const int ExID_; 
-  const int EyID_; 
-  const int EzID_; 
-  const int BxID_; 
-  const int ByID_; 
-  const int BzID_; 
-  const int Bx_tm1ID_; 
-  const int By_tm1ID_; 
-  const int Bz_tm1ID_; 
-  const int JxID_; 
-  const int JyID_; 
-  const int JzID_;
-  const int rhoID_; 
-  
-  const int nIDs_; 
-  const int ndim_; 
+  int *fieldType_; 
   int **fieldSize_;  
 
-  int ifield_; 
   double *fieldIsContiguous_; 
 
   // allocates contiguous memory for nx*ny*nz array
@@ -145,6 +143,8 @@ protected:
   void deleteField_(double*** fieldPt,int ifield);
   int** setFieldSize_(); 
   void deleteFieldSize_(); 
+  int* setFieldType_(); 
+  void deleteFieldType_();
 
   int sideToIndex_(const int side, const int fieldID);
   /* assert statements to check necessary conditions for initialized variables */

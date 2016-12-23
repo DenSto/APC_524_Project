@@ -107,8 +107,9 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
         dex = 1; 
     }
     else { 
-        int dir=abs(side)-1; 
-        dex = fieldSize_[fieldID][dir]; 
+        int type = fieldType_[fieldID]; 
+        int dir = abs(side)-1; 
+        dex = fieldSize_[type][dir]; 
     } 
     return dex; 
 };
@@ -117,11 +118,12 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
 /*! mat is 3D array whose real (non-ghost) data on one side will be stored in vec as a 1D array. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). unsliceMatToVec_ is the inverse function. 
  */ 
 void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldID, const int offset, double* vec) { 
-    assert(fieldID > -1 && fieldID < nIDs_); 
-    assert(side != 0 && abs(side) < ndim_+1); 
+    assert(fieldID > -1 && fieldID < nTypes_); 
+    assert(side != 0 && abs(side) < 4); 
     int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1);  
     assert(dex > 0); 
     int i,j,k; // iterators
+    int type = fieldType_[fieldID]; 
     int xdir=0; 
     int ydir=1; 
     int zdir=2; 
@@ -129,8 +131,8 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
 
     if (abs(side)==1) {
         assert(dex < nxTot_);
-        int jEnd = fieldSize_[fieldID][ydir]; 
-        int kEnd = fieldSize_[fieldID][zdir]; 
+        int jEnd = fieldSize_[type][ydir]; 
+        int kEnd = fieldSize_[type][zdir]; 
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 vec[++iter] = mat[dex][j][k]; 
@@ -139,8 +141,8 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
     } 
     else if (abs(side)==2) { 
         assert(dex < nyTot_); 
-        int iEnd = fieldSize_[fieldID][xdir]; 
-        int kEnd = fieldSize_[fieldID][zdir]; 
+        int iEnd = fieldSize_[type][xdir]; 
+        int kEnd = fieldSize_[type][zdir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 vec[++iter] = mat[i][dex][k]; 
@@ -149,8 +151,8 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
     } 
     else if (abs(side)==3) { 
         assert(dex < nzTot_); 
-        int iEnd = fieldSize_[fieldID][xdir]; 
-        int jEnd = fieldSize_[fieldID][ydir]; 
+        int iEnd = fieldSize_[type][xdir]; 
+        int jEnd = fieldSize_[type][ydir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (j=jBeg_; j<jEnd; ++j) { 
                 vec[++iter] = mat[i][j][dex]; 
@@ -163,11 +165,12 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
 /*! mat is 3D array whose real (non-ghost) data on one side will be replaced by data in the 1D array vec. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). sliceMatToVec_ is the inverse function. 
  */ 
 void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec) { 
-    assert(fieldID > -1 && fieldID < nIDs_); 
-    assert(side != 0 && abs(side) < ndim_+1); 
+    assert(fieldID > -1 && fieldID < nTypes_); 
+    assert(side != 0 && abs(side) < 4); 
     int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
     assert(dex > 0); 
     int i,j,k; // iterators
+    int type = fieldType_[fieldID]; 
     int xdir=0; 
     int ydir=1; 
     int zdir=2; 
@@ -175,8 +178,8 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
 
     if (abs(side)==1) { 
         assert(dex < nxTot_); 
-        int jEnd = fieldSize_[fieldID][ydir]; 
-        int kEnd = fieldSize_[fieldID][zdir]; 
+        int jEnd = fieldSize_[type][ydir]; 
+        int kEnd = fieldSize_[type][zdir]; 
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 mat[dex][j][k]=vec[++iter];
@@ -185,8 +188,8 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
     } 
     else if (abs(side)==2) { 
         assert(dex < nyTot_); 
-        int iEnd = fieldSize_[fieldID][xdir]; 
-        int kEnd = fieldSize_[fieldID][zdir]; 
+        int iEnd = fieldSize_[type][xdir]; 
+        int kEnd = fieldSize_[type][zdir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 mat[i][dex][k]=vec[++iter]; 
@@ -195,8 +198,8 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
     } 
     else if (abs(side)==3) { 
         assert(dex < nzTot_); 
-        int iEnd = fieldSize_[fieldID][xdir]; 
-        int jEnd = fieldSize_[fieldID][ydir]; 
+        int iEnd = fieldSize_[type][xdir]; 
+        int jEnd = fieldSize_[type][ydir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (j=jBeg_; j<jEnd; ++j) { 
                 mat[i][j][dex]=vec[++iter]; 
@@ -205,9 +208,7 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
     } 
 };
 
-// jlestz: fix this later to update all fields 
-// making use of fieldSize_, sideToIndex_, etc. 
-// (perhaps slice/unslicing)
+/// updates J,E,B ghost cells in y/z directions with periodic boundary conditions 
 void Grid::updatePeriodicGhostCells() { 
     // create a temporary vector to store ghostVecs 
     double* tmpGhost = ghostTmp_;  

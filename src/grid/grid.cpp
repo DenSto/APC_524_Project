@@ -37,52 +37,50 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     idz_(1.0/dz_),
     maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
     nFieldsToSend_(9),
-    nFieldsTotal_(12), 
     ghostVecSize_(nFieldsToSend_*maxPointsInPlane_), 
+    nFieldsTotal_(21), 
+    ExID_(0),
+    EyID_(1),
+    EzID_(2),
+    BxID_(3),
+    ByID_(4),
+    BzID_(5),
+    JxID_(6),
+    JyID_(7),
+    JzID_(8),
+    Bx_tm1ID_(9),
+    By_tm1ID_(10),
+    Bz_tm1ID_(11),
+    rhoID_(12),
+    nTypes_(7), 
     edgeXID_(0), 
     edgeYID_(1), 
     edgeZID_(2), 
     faceXID_(3),
     faceYID_(4),
     faceZID_(5),
-    vertID_(6),
-    ExID_(edgeXID_), 
-    EyID_(edgeYID_), 
-    EzID_(edgeZID_), 
-    BxID_(faceXID_), 
-    ByID_(faceYID_), 
-    BzID_(faceZID_), 
-    Bx_tm1ID_(faceXID_), 
-    By_tm1ID_(faceYID_), 
-    Bz_tm1ID_(faceZID_), 
-    JxID_(edgeXID_), 
-    JyID_(edgeYID_), 
-    JzID_(edgeZID_),
-    rhoID_(vertID_),
-    nIDs_(7), 
-
-    ndim_(3)
+    vertID_(6)
 {
     checkInput_(); 
     
     fieldIsContiguous_ = new double[nFieldsTotal_];
  
-    ifield_ = -1; 
-    Ex_=newField_(++ifield_); 
-    Ey_=newField_(++ifield_); 
-    Ez_=newField_(++ifield_); 
-    Bx_=newField_(++ifield_); 
-    By_=newField_(++ifield_); 
-    Bz_=newField_(++ifield_); 
-    Jx_=newField_(++ifield_); 
-    Jy_=newField_(++ifield_); 
-    Jz_=newField_(++ifield_); 
-    Bx_tm1_=newField_(++ifield_); 
-    By_tm1_=newField_(++ifield_); 
-    Bz_tm1_=newField_(++ifield_); 
-    rho_=newField_(++ifield_); 
+    Ex_=newField_(ExID_); 
+    Ey_=newField_(EyID_); 
+    Ez_=newField_(EzID_); 
+    Bx_=newField_(BxID_); 
+    By_=newField_(ByID_); 
+    Bz_=newField_(BzID_); 
+    Jx_=newField_(JxID_); 
+    Jy_=newField_(JyID_); 
+    Jz_=newField_(JzID_); 
+    Bx_tm1_=newField_(Bx_tm1ID_); 
+    By_tm1_=newField_(By_tm1ID_); 
+    Bz_tm1_=newField_(Bz_tm1ID_); 
+    rho_=newField_(rhoID_); 
     
     fieldSize_ = setFieldSize_(); 
+    fieldType_ = setFieldType_(); 
     sliceTmp_ = new double[maxPointsInPlane_]; 
     ghostTmp_ = new double[ghostVecSize_]; 
 } 
@@ -91,24 +89,23 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
 /*! calls deleteField_ on each of the double*** fields 
  */ 
 Grid::~Grid() { 
-    /* note: these must be deleted in the REVERSE order as they were created
-     * since they use fieldIsContiguous_ to determine the create deletion method (contiguous vs noncontiguous) */ 
-    deleteField_(rho_,ifield_--); 
-    deleteField_(Bz_tm1_,ifield_--); 
-    deleteField_(By_tm1_,ifield_--); 
-    deleteField_(Bx_tm1_,ifield_--); 
-    deleteField_(Jz_,ifield_--); 
-    deleteField_(Jy_,ifield_--); 
-    deleteField_(Jx_,ifield_--); 
-    deleteField_(Bz_,ifield_--); 
-    deleteField_(By_,ifield_--); 
-    deleteField_(Bx_,ifield_--); 
-    deleteField_(Ez_,ifield_--); 
-    deleteField_(Ey_,ifield_--); 
-    deleteField_(Ex_,ifield_--); 
+    deleteField_(Ex_,ExID_); 
+    deleteField_(Ey_,EyID_); 
+    deleteField_(Ez_,EzID_); 
+    deleteField_(Bx_,BxID_); 
+    deleteField_(By_,ByID_); 
+    deleteField_(Bz_,BzID_); 
+    deleteField_(Jx_,JxID_); 
+    deleteField_(Jy_,JyID_); 
+    deleteField_(Jz_,JzID_); 
+    deleteField_(Bx_tm1_,Bx_tm1ID_); 
+    deleteField_(By_tm1_,By_tm1ID_); 
+    deleteField_(Bz_tm1_,Bz_tm1ID_); 
+    deleteField_(rho_,rhoID_); 
 
     delete [] fieldIsContiguous_; 
     deleteFieldSize_(); 
+    deleteFieldType_(); 
     delete [] sliceTmp_; 
     delete [] ghostTmp_; 
 };
@@ -117,7 +114,7 @@ Grid::~Grid() {
 /*! Returns double*** of size [nx_+1][ny_+1][nz_+1]. \n
  * First attempts to allocate contiguously. If that fails, issues a warning and attempts to allocate with several calls to new. 
 */ 
-double*** Grid::newField_(int ifield) { 
+double*** Grid::newField_(int fieldID) { 
     int i,j; // iterators 
     
     // try to allocate a contiguous block in memory 
@@ -125,7 +122,7 @@ double*** Grid::newField_(int ifield) {
     fieldPt[0] = new double* [nxTot_*nyTot_]; 
     fieldPt[0][0] = new double [nxTot_*nyTot_*nzTot_]; 
     if (fieldPt != NULL && fieldPt[0] != NULL && fieldPt[0][0] != NULL) { 
-        fieldIsContiguous_[ifield] = 1; 
+        fieldIsContiguous_[fieldID] = 1; 
         for (i=0; i<nxTot_; ++i) { 
             if (i < nxTot_-1) { 
                 fieldPt[0][(i+1)*nyTot_] = &(fieldPt[0][0][(i+1)*nyTot_*nzTot_]); 
@@ -142,7 +139,7 @@ double*** Grid::newField_(int ifield) {
         // if contiguous allocation failed, use a non contiguous allocation
         // e.g. there could be enough fragmented memory to use
         printf("WARNING: unable to allocate fields contiguously. Attempting to allocate noncontiguously. This may impact performance."); 
-        fieldIsContiguous_[ifield] = 0; 
+        fieldIsContiguous_[fieldID] = 0; 
         double*** fieldPt = new double**[nxTot_]; 
         assert( fieldPt != NULL ); 
         for (i=0; i<nxTot_; ++i) { 
@@ -160,9 +157,9 @@ double*** Grid::newField_(int ifield) {
 /// frees memory for a single field
 /*! Uses fieldIsContiguous_ to determine contiguous or noncontiguous deltion method
 */ 
-void Grid::deleteField_(double*** fieldPt, int ifield) { 
+void Grid::deleteField_(double*** fieldPt, int fieldID) { 
     int i,j; // iterators 
-    if (fieldIsContiguous_[ifield] == 1) { 
+    if (fieldIsContiguous_[fieldID] == 1) { 
         delete [] fieldPt[0][0]; 
         delete [] fieldPt[0]; 
         delete [] fieldPt; 
@@ -184,10 +181,11 @@ void Grid::deleteField_(double*** fieldPt, int ifield) {
 // (does not need to be since it will not be iterated over often)
 int** Grid::setFieldSize_() { 
     int i,j; 
-    fieldSize_ = new int*[nIDs_]; 
+    int ndim=3; 
+    fieldSize_ = new int*[nTypes_]; 
     assert(fieldSize_ != NULL); 
-    for (i=0; i<nIDs_; ++i) { 
-        fieldSize_[i] = new int[ndim_]; 
+    for (i=0; i<nTypes_; ++i) { 
+        fieldSize_[i] = new int[ndim]; 
         assert(fieldSize_[i] != NULL); 
     };
 
@@ -204,17 +202,17 @@ int** Grid::setFieldSize_() {
     //          j is the jth dimension of that component 
     int nxyz[3] = {nx_,ny_,nz_}; 
     int edge,dir; 
-    for (i=0; i<nIDs_; ++i) { 
-        if (i < ndim_) { 
+    for (i=0; i<nTypes_; ++i) { 
+        if (i < ndim) { 
             edge=1; 
         }
         else { 
             edge=0; 
         };
-        dir = (i % ndim_); 
-        for (j=0; j<ndim_; ++j) { 
+        dir = (i % ndim); 
+        for (j=0; j<ndim; ++j) { 
             fieldSize_[i][j] = nxyz[j]+edge; 
-            if (i < nIDs_-1) { 
+            if (i < nTypes_-1) { 
                 if (j == dir) { 
                     fieldSize_[i][j] = fieldSize_[i][j] + pow(-1,1-edge); 
                 }; 
@@ -227,21 +225,38 @@ int** Grid::setFieldSize_() {
     return fieldSize_; 
 };
 
-/* commented out until we figure out the Grid/Poisson interaction with these fields 
-int* Grid::setFieldType_() { 
-    fieldType_ = new int[nFieldsTotal_]
-    
-};
-*/ 
-
 // deletes fieldSize_ array 
 void Grid::deleteFieldSize_() { 
     int i; 
-    for (i=0; i<nIDs_; ++i) { 
+    for (i=0; i<nTypes_; ++i) { 
         delete [] fieldSize_[i]; 
     }; 
     delete [] fieldSize_; 
 }; 
+
+int* Grid::setFieldType_() { 
+    fieldType_ = new int[nFieldsTotal_];
+    
+    fieldType_[ExID_] = edgeXID_; 
+    fieldType_[EyID_] = edgeYID_; 
+    fieldType_[EzID_] = edgeZID_; 
+    fieldType_[BxID_] = faceXID_; 
+    fieldType_[ByID_] = faceYID_; 
+    fieldType_[BzID_] = faceZID_; 
+    fieldType_[JxID_] = edgeXID_; 
+    fieldType_[JyID_] = edgeYID_; 
+    fieldType_[JzID_] = edgeZID_; 
+    fieldType_[Bx_tm1ID_] = faceXID_; 
+    fieldType_[By_tm1ID_] = faceYID_; 
+    fieldType_[Bz_tm1ID_] = faceZID_; 
+    fieldType_[rhoID_] = vertID_; 
+
+    return fieldType_; 
+};
+
+void Grid::deleteFieldType_() { 
+    delete [] fieldType_; 
+};
 
 /// checks validity of input parameters for Grid constructor 
 /*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
@@ -265,7 +280,6 @@ void Grid::checkInput_() {
     assert(dz_ > 0);
     assert(maxPointsInPlane_ > 0); 
     assert(nFieldsToSend_ == 9); 
-    assert(nFieldsTotal_ == 12); 
     assert(ghostVecSize_ > 0); 
 }; 
 
