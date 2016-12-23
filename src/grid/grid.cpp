@@ -223,6 +223,13 @@ int** Grid::setFieldSize_() {
     return fieldSize_; 
 };
 
+/* commented out until we figure out the Grid/Poisson interaction with these fields 
+int* Grid::setFieldType_() { 
+    fieldType_ = new int[nFieldsTotal_]
+    
+};
+*/ 
+
 // deletes fieldSize_ array 
 void Grid::deleteFieldSize_() { 
     int i; 

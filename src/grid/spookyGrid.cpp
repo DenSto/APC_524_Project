@@ -107,7 +107,8 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
         dex = 1; 
     }
     else { 
-        dex = fieldSize_[fieldID][side-1]; 
+        int dir=abs(side)-1; 
+        dex = fieldSize_[fieldID][dir]; 
     } 
     return dex; 
 };
@@ -118,15 +119,18 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
 void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldID, const int offset, double* vec) { 
     assert(fieldID > -1 && fieldID < nIDs_); 
     assert(side != 0 && abs(side) < ndim_+1); 
-    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); // is this correct or off by 1? (0 vs 1 indexing) 
+    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1);  
     assert(dex > 0); 
     int i,j,k; // iterators
+    int xdir=0; 
+    int ydir=1; 
+    int zdir=2; 
     int iter=-1; 
 
     if (abs(side)==1) {
-        assert(dex < nxTot_); 
-        int jEnd = fieldSize_[fieldID][1]; 
-        int kEnd = fieldSize_[fieldID][2]; 
+        assert(dex < nxTot_);
+        int jEnd = fieldSize_[fieldID][ydir]; 
+        int kEnd = fieldSize_[fieldID][zdir]; 
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 vec[++iter] = mat[dex][j][k]; 
@@ -135,8 +139,8 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
     } 
     else if (abs(side)==2) { 
         assert(dex < nyTot_); 
-        int iEnd = fieldSize_[fieldID][0]; 
-        int kEnd = fieldSize_[fieldID][2]; 
+        int iEnd = fieldSize_[fieldID][xdir]; 
+        int kEnd = fieldSize_[fieldID][zdir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 vec[++iter] = mat[i][dex][k]; 
@@ -145,8 +149,8 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
     } 
     else if (abs(side)==3) { 
         assert(dex < nzTot_); 
-        int iEnd = fieldSize_[fieldID][0]; 
-        int jEnd = fieldSize_[fieldID][1]; 
+        int iEnd = fieldSize_[fieldID][xdir]; 
+        int jEnd = fieldSize_[fieldID][ydir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (j=jBeg_; j<jEnd; ++j) { 
                 vec[++iter] = mat[i][j][dex]; 
@@ -161,15 +165,18 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
 void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec) { 
     assert(fieldID > -1 && fieldID < nIDs_); 
     assert(side != 0 && abs(side) < ndim_+1); 
-    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); // is this correct or off by 1? (0 vs 1 indexing)
+    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
     assert(dex > 0); 
     int i,j,k; // iterators
+    int xdir=0; 
+    int ydir=1; 
+    int zdir=2; 
     int iter=-1; 
 
     if (abs(side)==1) { 
         assert(dex < nxTot_); 
-        int jEnd = fieldSize_[fieldID][1]; 
-        int kEnd = fieldSize_[fieldID][2]; 
+        int jEnd = fieldSize_[fieldID][ydir]; 
+        int kEnd = fieldSize_[fieldID][zdir]; 
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 mat[dex][j][k]=vec[++iter];
@@ -178,8 +185,8 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
     } 
     else if (abs(side)==2) { 
         assert(dex < nyTot_); 
-        int iEnd = fieldSize_[fieldID][0]; 
-        int kEnd = fieldSize_[fieldID][2]; 
+        int iEnd = fieldSize_[fieldID][xdir]; 
+        int kEnd = fieldSize_[fieldID][zdir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 mat[i][dex][k]=vec[++iter]; 
@@ -188,8 +195,8 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
     } 
     else if (abs(side)==3) { 
         assert(dex < nzTot_); 
-        int iEnd = fieldSize_[fieldID][0]; 
-        int jEnd = fieldSize_[fieldID][1]; 
+        int iEnd = fieldSize_[fieldID][xdir]; 
+        int jEnd = fieldSize_[fieldID][ydir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (j=jBeg_; j<jEnd; ++j) { 
                 mat[i][j][dex]=vec[++iter]; 
@@ -202,9 +209,15 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
 // making use of fieldSize_, sideToIndex_, etc. 
 // (perhaps slice/unslicing)
 void Grid::updatePeriodicGhostCells() { 
-/*     
-    sliceMatToVec_(Ex_,side,ExID_,0,tmpVec); 
-    std::copy(tmpVec,tmpVec + n ,ghostVec + (++ifield * n)); 
-   */  
-    printf("suckers"); 
+    // create a temporary vector to store ghostVecs 
+    double tmpVec[ghostVecSize_]; 
+
+    int side; 
+    for (side=-3; side<4; ++side) { 
+        // to set periodic boundary conditions in y/z directions, simply get/set ghostVec for side=+/-2, +/-3
+        if (abs(side)>1) { 
+            getGhostVec(side,tmpVec); 
+            setGhostVec(-side,tmpVec); 
+        };
+    }; 
 }; 
