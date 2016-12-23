@@ -154,9 +154,9 @@ protected:
   void checkInput_();
 
   // stores a 2D plane of ghost points in sliceTmp_
-  void sliceMatToVec_(double*** const mat, const int side, const int fieldID, const int offset, double* vec);
+  void sliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
   // puts a 2D plane of ghost points from sliceTmp_ into mat
-  void unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec);
+  void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
 
   double* sliceTmp_; 
   double* ghostTmp_; 

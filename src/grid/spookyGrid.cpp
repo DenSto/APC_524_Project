@@ -45,7 +45,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
             }; 
             field = fieldPtr_[fieldID]; 
             // slice the given field 
-            sliceMatToVec_(field,side,fieldID,offset,tmpVec); 
+            sliceMatToVec_(fieldID,side,offset,tmpVec); 
             // store the slice in ghostVec 
             std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
         };
@@ -53,7 +53,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     else { 
         // slice the single field 
         field = fieldPtr_[fieldID]; 
-        sliceMatToVec_(field,side,fieldID,offset,tmpVec); 
+        sliceMatToVec_(fieldID,side,offset,tmpVec); 
         // store the slice in ghostVec 
         std::copy(tmpVec,tmpVec + n ,ghostVec); 
     } 
@@ -104,7 +104,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
             }; 
             field = fieldPtr_[fieldID]; 
             // unslice the given field 
-            unsliceMatToVec_(field,side,fieldID,offset,tmpVec); 
+            unsliceMatToVec_(fieldID,side,offset,tmpVec); 
         };
     } 
     else { 
@@ -112,7 +112,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
         std::copy(ghostVec,ghostVec + n ,tmpVec); 
         // unslice the single field 
         field = fieldPtr_[fieldID]; 
-        unsliceMatToVec_(field,side,fieldID,offset,tmpVec); 
+        unsliceMatToVec_(fieldID,side,offset,tmpVec); 
     }
 }; 
 
@@ -146,22 +146,35 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
 /// slices a physical plane in the specified direction (excludes ghosts) 
 /*! mat is 3D array whose real (non-ghost) data on one side will be stored in vec as a 1D array. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). unsliceMatToVec_ is the inverse function. 
  */ 
-void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldID, const int offset, double* vec) { 
-    assert(fieldID > -1 && fieldID < nTypes_); 
+void Grid::sliceMatToVec_(const int fieldID, const int side, const int offset, double* vec) { 
+    // check for legal fieldID and side parameters 
+    assert(fieldID > -1 && fieldID < nFieldsTotal_); 
     assert(side != 0 && abs(side) < 4); 
+
+    // get the index to slice from
     int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1);  
     assert(dex > 0); 
-    int i,j,k; // iterators
+    
+    // use fieldID to get the field type and pointer to the field 
+    double*** mat = fieldPtr_[fieldID]; 
     int type = fieldType_[fieldID]; 
+   
+    // directions 
     int xdir=0; 
     int ydir=1; 
     int zdir=2; 
-    int iter=-1; 
+    
+    // limits 
+    int iEnd = fieldSize_[type][xdir]; 
+    int jEnd = fieldSize_[type][ydir]; 
+    int kEnd = fieldSize_[type][zdir]; 
+    
+    // iterators 
+    int i,j,k; 
+    int iter=-1;
 
     if (abs(side)==1) {
         assert(dex < nxTot_);
-        int jEnd = fieldSize_[type][ydir]; 
-        int kEnd = fieldSize_[type][zdir]; 
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 vec[++iter] = mat[dex][j][k]; 
@@ -170,8 +183,6 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
     } 
     else if (abs(side)==2) { 
         assert(dex < nyTot_); 
-        int iEnd = fieldSize_[type][xdir]; 
-        int kEnd = fieldSize_[type][zdir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 vec[++iter] = mat[i][dex][k]; 
@@ -180,8 +191,6 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
     } 
     else if (abs(side)==3) { 
         assert(dex < nzTot_); 
-        int iEnd = fieldSize_[type][xdir]; 
-        int jEnd = fieldSize_[type][ydir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (j=jBeg_; j<jEnd; ++j) { 
                 vec[++iter] = mat[i][j][dex]; 
@@ -193,22 +202,35 @@ void Grid::sliceMatToVec_(double *** const mat, const int side, const int fieldI
 /// unslices a physical plane in the specified direction (excludes ghosts) 
 /*! mat is 3D array whose real (non-ghost) data on one side will be replaced by data in the 1D array vec. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). sliceMatToVec_ is the inverse function. 
  */ 
-void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, const int offset, double* vec) { 
-    assert(fieldID > -1 && fieldID < nTypes_); 
+void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec) { 
+    // check for legal fieldID and side parameters 
+    assert(fieldID > -1 && fieldID < nFieldsTotal_); 
     assert(side != 0 && abs(side) < 4); 
+
+    // get the index to unslice from 
     int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
     assert(dex > 0); 
-    int i,j,k; // iterators
+
+    // use fieldID to get the field type and pointer to the field 
+    double*** mat = fieldPtr_[fieldID]; 
     int type = fieldType_[fieldID]; 
-    int xdir=0; 
+    
+    // directions 
+    int xdir=0;  
     int ydir=1; 
     int zdir=2; 
+   
+    // limits 
+    int iEnd = fieldSize_[type][xdir]; 
+    int jEnd = fieldSize_[type][ydir]; 
+    int kEnd = fieldSize_[type][zdir]; 
+    
+    // iterators 
+    int i,j,k; 
     int iter=-1; 
 
     if (abs(side)==1) { 
         assert(dex < nxTot_); 
-        int jEnd = fieldSize_[type][ydir]; 
-        int kEnd = fieldSize_[type][zdir]; 
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 mat[dex][j][k]=vec[++iter];
@@ -217,8 +239,6 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
     } 
     else if (abs(side)==2) { 
         assert(dex < nyTot_); 
-        int iEnd = fieldSize_[type][xdir]; 
-        int kEnd = fieldSize_[type][zdir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (k=kBeg_; k<kEnd; ++k) { 
                 mat[i][dex][k]=vec[++iter]; 
@@ -227,8 +247,6 @@ void Grid::unsliceMatToVec_(double*** mat, const int side, const int fieldID, co
     } 
     else if (abs(side)==3) { 
         assert(dex < nzTot_); 
-        int iEnd = fieldSize_[type][xdir]; 
-        int jEnd = fieldSize_[type][ydir]; 
         for (i=iBeg_; i<iEnd; ++i) { 
             for (j=jBeg_; j<jEnd; ++j) { 
                 mat[i][j][dex]=vec[++iter]; 
