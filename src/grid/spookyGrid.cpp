@@ -152,7 +152,10 @@ void Grid::sliceMatToVec_(const int fieldID, const int side, const int offset, d
     assert(side != 0 && abs(side) < 4); 
 
     // get the index to slice from
-    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1);  
+    int dex = sideToIndex_(side,fieldID) + offset; 
+    if (side > 0) { 
+        dex -= (nGhosts_ + 1); 
+    }; 
     assert(dex > 0); 
     
     // use fieldID to get the field type and pointer to the field 
@@ -207,8 +210,11 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
     assert(fieldID > -1 && fieldID < nFieldsTotal_); 
     assert(side != 0 && abs(side) < 4); 
 
-    // get the index to unslice from 
-    int dex = sideToIndex_(side,fieldID) + offset - (nGhosts_ + 1); 
+    // get the index to unslice from
+    int dex = sideToIndex_(side,fieldID) + offset; 
+    if (side > 0) { 
+        dex -= (nGhosts_ + 1); 
+    }; 
     assert(dex > 0); 
 
     // use fieldID to get the field type and pointer to the field 
