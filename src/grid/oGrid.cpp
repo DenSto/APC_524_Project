@@ -59,6 +59,27 @@ int Grid::evolveFields (double dt) {
 	return 0;
 };
 
+//! Evolve Electric Fields Electrostatically
+/*!
+	Ignores "light wave" contribution (curl terms), 
+	effectively only solves poisson equation.
+*/
+int Grid::evolveFieldsES (double dt) {
+
+	// calculate E 
+	for (int ix = 1; ix < nx_; ix++) {
+		for (int iy = 1; iy < ny_; iy++) {
+			for (int iz = 1; iz < nz_; iz++) {
+				Ex_[ix][iy][iz] = - dt * (  4*M_PI*Jx_[ix][iy][iz]  );
+				Ey_[ix][iy][iz] = - dt * (  4*M_PI*Jy_[ix][iy][iz]  );
+				Ez_[ix][iy][iz] = - dt * (  4*M_PI*Jz_[ix][iy][iz]  );
+			}
+		}
+	}
+
+	return 0;
+};
+
 
 //! Add currents from particle to grid
 /*!

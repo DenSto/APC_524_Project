@@ -23,6 +23,7 @@ public:
   virtual ~Grid();
 
   int evolveFields (double dt);
+  int evolveFieldsES (double dt);
 
   void InitializeFields(int restart); // Initialize E field by either solve Poisson's equation
                                       // or read restart file. Initialize B field with prescribed
