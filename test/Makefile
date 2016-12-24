@@ -40,7 +40,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = IO_unittests oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests
+TESTS = IO_unittests oGrid_unittests grid_unittests RNG_unittests
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -114,12 +114,6 @@ grid_unittests.o : $(TESTSRC_DIR)/grid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(
 
 grid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) grid_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
-
-spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) spookyGrid_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
-
-spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/spookyGrid_unittests.cc  -I $(SRC_DIR)/grid 
 
 run_tests: $(TESTS)
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	

@@ -170,6 +170,9 @@ protected:
   FRIEND_TEST( oGridInternalTest, EMWave);
   FRIEND_TEST( oGridInternalTest, EMWaveLong);
 
+  // unit testing in grid_unittests.cc 
+  friend class gridPrivateTest; 
+  FRIEND_TEST(gridPrivateTest, fieldSizeTest); 
 
 
 

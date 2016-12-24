@@ -61,8 +61,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     faceZID_(5),
     vertID_(6)
 {
+   
     checkInput_(); 
-    
+
     fieldIsContiguous_ = new double[nFieldsTotal_];
  
     Ex_=newField_(ExID_); 
@@ -216,7 +217,7 @@ int** Grid::setFieldSize_() {
             fieldSize[i][j] = nxyz[j]+edge; 
             if (i < nTypes_-1) { 
                 if (j == dir) { 
-                    fieldSize[i][j] = fieldSize[i][j] + pow(-1,1-edge); 
+                    fieldSize[i][j] += pow(-1,edge); 
                 }; 
             } 
             else { 
@@ -288,9 +289,9 @@ void Grid::deleteFieldPtr_() {
 /*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
  */ 
 void Grid::checkInput_() { 
-    assert(nx_ > 0); 
-    assert(ny_ > 0); 
-    assert(nz_ > 0); 
+    assert(nx_ > 2*nGhosts_); // to guarantee there is at least 1 physical cell
+    assert(ny_ > 2*nGhosts_); 
+    assert(nz_ > 2*nGhosts_); 
     assert(nGhosts_ == 1); // currently some grid functions assume this, though they can be generalized later to allow fo rmore 
     assert(nxTot_ > nx_); 
     assert(nyTot_ > ny_); 
