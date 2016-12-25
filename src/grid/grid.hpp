@@ -173,8 +173,9 @@ protected:
   // unit testing in grid_unittests.cc 
   friend class gridPrivateTest; 
   FRIEND_TEST(gridPrivateTest, fieldSizeTest); 
-
-
+  FRIEND_TEST(gridPrivateTest, fieldPtrTest); 
+  FRIEND_TEST(gridPrivateTest, zeroFields); 
+  FRIEND_TEST(gridPrivateTest, periodicUpdateTest); 
 
  };
 #endif
