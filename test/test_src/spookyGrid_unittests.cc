@@ -63,16 +63,39 @@ class gridPrivateTest : public ::testing::Test {
 
 };
 
+// test sideToIndex
+TEST_F(gridPrivateTest, sideToIndexTest) { 
+    int ID = grid->ExID_; 
+
+    int xside=1; 
+    int yside=2; 
+    int zside=3; 
+
+    // hard-coded values for Ex
+    int xLeftReal = 1; 
+    int yLeftReal = 1; 
+    int zLeftReal = 1; 
+    int xRightReal = grid->nx_-2; 
+    int yRightReal = grid->ny_-1; 
+    int zRightReal = grid->nz_-1; 
+
+    EXPECT_EQ(xLeftReal,grid->sideToIndex_(-xside,ID)); 
+    EXPECT_EQ(xRightReal,grid->sideToIndex_(xside,ID)); 
+    EXPECT_EQ(yLeftReal,grid->sideToIndex_(-yside,ID)); 
+    EXPECT_EQ(yRightReal,grid->sideToIndex_(yside,ID)); 
+    EXPECT_EQ(zLeftReal,grid->sideToIndex_(-zside,ID)); 
+    EXPECT_EQ(zRightReal,grid->sideToIndex_(zside,ID)); 
+}; 
+
 // test updatePeriodicGhostCells in Ex
 TEST_F(gridPrivateTest, periodicUpdateTest) {
-    // choose to test Ex
-    int ID = grid->ExID_; 
-    int type = grid->fieldType_[ID]; 
+    // choose to test Jz (all of JEB are sent in updatePeriodic)
+    int ID = grid->JzID_; 
     double*** field = grid->fieldPtr_[ID]; 
 
     // store incremented value at each point 
     int i,j,k; 
-    int iter=-1; 
+    double iter=0; 
     for (i = 0; i<grid->nxTot_; ++i) { 
         for (j=0; j<grid->nyTot_; ++j) { 
             for (k=0; k<grid->nzTot_; ++k) { 
@@ -80,6 +103,12 @@ TEST_F(gridPrivateTest, periodicUpdateTest) {
             } 
         } 
     } 
+
+    // debug: verify the field is being filled up as expected 
+    int n = grid->nxTot_*grid->nyTot_*grid->nzTot_; 
+    int anSum = n*(n+1)/2; 
+    double sumTot = sumField(field); 
+    EXPECT_EQ(sumTot,anSum); 
 
     // get the initial sums of the relevant rows and columns
     double sumYLeftGhost = 0; 
@@ -93,51 +122,73 @@ TEST_F(gridPrivateTest, periodicUpdateTest) {
     double sumZRightReal = 0; 
 
     // indices for directions 
-    int ydir=1; 
-    int zdir=2; 
+    int xside=1; 
+    int yside=2; 
+    int zside=3; 
 
-    int dexYLeftGhost = 0; 
-    int dexYRightGhost = grid->fieldSize_[type][ydir] - 1; 
-    int dexYLeftReal = ++dexYLeftGhost; 
-    int dexYRightReal = --dexYRightGhost; 
+    int dexXLeftReal = grid->sideToIndex_(-xside,ID); 
+    int dexXRightReal = grid->sideToIndex_(xside,ID); 
+    
+    int dexYLeftReal = grid->sideToIndex_(-yside,ID); 
+    int dexYRightReal = grid->sideToIndex_(yside,ID); 
+    int dexYLeftGhost = dexYLeftReal - 1; 
+    int dexYRightGhost = dexYRightReal + 1; 
 
-    int dexZLeftGhost = 0; 
-    int dexZRightGhost = grid->fieldSize_[type][zdir] - 1; 
-    int dexZLeftReal = ++dexZLeftGhost; 
-    int dexZRightReal = --dexZRightGhost; 
+    int dexZLeftReal = grid->sideToIndex_(-zside,ID); 
+    int dexZRightReal = grid->sideToIndex_(zside,ID); 
+    int dexZLeftGhost = dexZLeftReal - 1; 
+    int dexZRightGhost = dexZRightReal + 1; 
 
-    int val = 0; 
-    for (i = 0; i<grid->nxTot_; ++i) { 
-        for (j=0; j<grid->nyTot_; ++j) { 
-            for (k=0; k<grid->nzTot_; ++k) { 
+    double val = 0;
+    int jreal, kreal; 
+    for (i = dexXLeftReal; i < dexXRightReal+1; ++i) { 
+        for (j = dexYLeftGhost; j < dexYRightGhost+1; ++j) { 
+            if (j==dexYLeftGhost || j==dexYRightGhost) { 
+                jreal=0; 
+            } 
+            else { 
+                jreal=1;
+            } 
+            for (k = dexZLeftGhost; k < dexZRightGhost+1; ++k) { 
+                if (k==dexZLeftGhost || k==dexZRightGhost) { 
+                    kreal=0; 
+                } 
+                else { 
+                    kreal=1;
+                } 
+
                 val = field[i][j][k]; 
                 
-                // sums for constant y 
-                if (j==dexYLeftGhost) { 
-                    sumYLeftGhost += val; 
-                } 
-                else if (j==dexYLeftReal) { 
-                    sumYLeftReal += val; 
-                } 
-                else if (j==dexYRightReal) { 
-                    sumYRightReal += val; 
-                } 
-                else if (j==dexYRightGhost) { 
-                    sumYRightGhost += val; 
+                // sums for constant y
+                if (kreal==1) { 
+                    if (j==dexYLeftGhost) { 
+                        sumYLeftGhost += val; 
+                    } 
+                    else if (j==dexYLeftReal) { 
+                        sumYLeftReal += val; 
+                    } 
+                    else if (j==dexYRightReal) { 
+                        sumYRightReal += val; 
+                    } 
+                    else if (j==dexYRightGhost) { 
+                        sumYRightGhost += val; 
+                    }
                 }
 
                 // sums for constant z 
-                if (k==dexZLeftGhost) { 
-                    sumZLeftGhost += val; 
-                } 
-                else if (k==dexZLeftReal) { 
-                    sumZLeftReal += val; 
-                } 
-                else if (k==dexZRightReal) { 
-                    sumZRightReal += val; 
-                } 
-                else if (k==dexZRightGhost) { 
-                    sumZRightGhost += val; 
+                if (jreal==1) { 
+                    if (k==dexZLeftGhost) { 
+                        sumZLeftGhost += val; 
+                    } 
+                    else if (k==dexZLeftReal) { 
+                        sumZLeftReal += val; 
+                    } 
+                    else if (k==dexZRightReal) { 
+                        sumZRightReal += val; 
+                    } 
+                    else if (k==dexZRightGhost) { 
+                        sumZRightGhost += val; 
+                    }
                 }
             } 
         } 
@@ -157,37 +208,54 @@ TEST_F(gridPrivateTest, periodicUpdateTest) {
     double newSumZRightGhost = 0; 
     double newSumZRightReal = 0; 
 
-    for (i = 0; i<grid->nxTot_; ++i) { 
-        for (j=0; j<grid->nyTot_; ++j) { 
-            for (k=0; k<grid->nzTot_; ++k) { 
+    for (i = dexXLeftReal; i < dexXRightReal+1; ++i) { 
+        for (j = dexYLeftGhost; j < dexYRightGhost+1; ++j) { 
+            if (j==dexYLeftGhost || j==dexYRightGhost) { 
+                jreal=0; 
+            } 
+            else { 
+                jreal=1;
+            } 
+            for (k = dexZLeftGhost; k < dexZRightGhost+1; ++k) { 
+                if (k==dexZLeftGhost || k==dexZRightGhost) { 
+                    kreal=0; 
+                } 
+                else { 
+                    kreal=1;
+                } 
+                
                 val = field[i][j][k]; 
                 
                 // newSums for constant y 
-                if (j==dexYLeftGhost) { 
-                    newSumYLeftGhost += val; 
-                } 
-                else if (j==dexYLeftReal) { 
-                    newSumYLeftReal += val; 
-                } 
-                else if (j==dexYRightReal) { 
-                    newSumYRightReal += val; 
-                } 
-                else if (j==dexYRightGhost) { 
-                    newSumYRightGhost += val; 
+                if (kreal==1) { 
+                    if (j==dexYLeftGhost) { 
+                        newSumYLeftGhost += val; 
+                    } 
+                    else if (j==dexYLeftReal) { 
+                        newSumYLeftReal += val; 
+                    } 
+                    else if (j==dexYRightReal) { 
+                        newSumYRightReal += val; 
+                    } 
+                    else if (j==dexYRightGhost) { 
+                        newSumYRightGhost += val; 
+                    }
                 }
 
                 // newSums for constant z 
-                if (k==dexZLeftGhost) { 
-                    newSumZLeftGhost += val; 
-                } 
-                else if (k==dexZLeftReal) { 
-                    newSumZLeftReal += val; 
-                } 
-                else if (k==dexZRightReal) { 
-                    newSumZRightReal += val; 
-                } 
-                else if (k==dexZRightGhost) { 
-                    newSumZRightGhost += val; 
+                if (jreal==1) { 
+                    if (k==dexZLeftGhost) { 
+                        newSumZLeftGhost += val; 
+                    } 
+                    else if (k==dexZLeftReal) { 
+                        newSumZLeftReal += val; 
+                    } 
+                    else if (k==dexZRightReal) { 
+                        newSumZRightReal += val; 
+                    } 
+                    else if (k==dexZRightGhost) { 
+                        newSumZRightGhost += val; 
+                    }
                 }
             } 
         } 
@@ -203,9 +271,5 @@ TEST_F(gridPrivateTest, periodicUpdateTest) {
     EXPECT_EQ(newSumYLeftReal,sumYLeftReal); 
     EXPECT_EQ(newSumYRightReal,sumYRightReal); 
     EXPECT_EQ(newSumZLeftReal,sumZLeftReal); 
-    EXPECT_EQ(newSumYRightReal,sumYRightReal); 
+    EXPECT_EQ(newSumZRightReal,sumZRightReal); 
 }
-
-
-
-

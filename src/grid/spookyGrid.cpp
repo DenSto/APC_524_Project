@@ -52,7 +52,6 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     } 
     else { 
         // slice the single field 
-        field = fieldPtr_[fieldID]; 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
         // store the slice in ghostVec 
         std::copy(tmpVec,tmpVec + n ,ghostVec); 
@@ -111,7 +110,6 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
         // store the slice in ghostVec 
         std::copy(ghostVec,ghostVec + n ,tmpVec); 
         // unslice the single field 
-        field = fieldPtr_[fieldID]; 
         unsliceMatToVec_(fieldID,side,offset,tmpVec); 
     }
 }; 
@@ -137,8 +135,11 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
     else { 
         int type = fieldType_[fieldID]; 
         // since side > 0 in this branch, side-1 converts (x,y,z = 1,2,3) --> (0,1,2)
-        int dir = side-1; 
-        dex = fieldSize_[type][dir]; 
+        int dir = side-1;
+        // fieldSize_ is the total number of points
+        // -1 to convert to 0 indexing 
+        // -nGhosts to subtract ghost cells 
+        dex = fieldSize_[type][dir]-(nGhosts_+1); 
     } 
     return dex; 
 };
@@ -153,24 +154,20 @@ void Grid::sliceMatToVec_(const int fieldID, const int side, const int offset, d
 
     // get the index to slice from
     int dex = sideToIndex_(side,fieldID) + offset; 
-    if (side > 0) { 
-        dex -= (nGhosts_ + 1); 
-    }; 
     assert(dex > -1); 
     
-    // use fieldID to get the field type and pointer to the field 
+    // use fieldID to get the pointer to the field 
     double*** mat = fieldPtr_[fieldID]; 
-    int type = fieldType_[fieldID]; 
    
     // directions 
-    int xdir=0; 
-    int ydir=1; 
-    int zdir=2; 
+    int xside=1; 
+    int yside=2; 
+    int zside=3; 
     
     // limits 
-    int iEnd = fieldSize_[type][xdir]; 
-    int jEnd = fieldSize_[type][ydir]; 
-    int kEnd = fieldSize_[type][zdir]; 
+    int iEnd = sideToIndex_(xside,fieldID)+1;  
+    int jEnd = sideToIndex_(yside,fieldID)+1; 
+    int kEnd = sideToIndex_(zside,fieldID)+1; 
     
     // iterators 
     int i,j,k; 
@@ -212,24 +209,20 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
 
     // get the index to unslice from
     int dex = sideToIndex_(side,fieldID) + offset; 
-    if (side > 0) { 
-        dex -= (nGhosts_ + 1); 
-    }; 
     assert(dex > -1); 
 
-    // use fieldID to get the field type and pointer to the field 
+    // use fieldID to get the pointer to the field 
     double*** mat = fieldPtr_[fieldID]; 
-    int type = fieldType_[fieldID]; 
     
     // directions 
-    int xdir=0;  
-    int ydir=1; 
-    int zdir=2; 
-   
+    int xside=1; 
+    int yside=2; 
+    int zside=3; 
+    
     // limits 
-    int iEnd = fieldSize_[type][xdir]; 
-    int jEnd = fieldSize_[type][ydir]; 
-    int kEnd = fieldSize_[type][zdir]; 
+    int iEnd = sideToIndex_(xside,fieldID)+1;  
+    int jEnd = sideToIndex_(yside,fieldID)+1; 
+    int kEnd = sideToIndex_(zside,fieldID)+1; 
     
     // iterators 
     int i,j,k; 

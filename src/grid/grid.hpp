@@ -175,6 +175,9 @@ protected:
   FRIEND_TEST(gridPrivateTest, fieldSizeTest); 
   FRIEND_TEST(gridPrivateTest, fieldPtrTest); 
   FRIEND_TEST(gridPrivateTest, zeroFields); 
+
+  // unit testing in spookyGrid_unittests.cc
+  FRIEND_TEST(gridPrivateTest, sideToIndexTest); 
   FRIEND_TEST(gridPrivateTest, periodicUpdateTest); 
 
  };
