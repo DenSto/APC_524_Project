@@ -173,6 +173,7 @@ void Random_Number_Generator::loadUserPDFfromFile(char* fname){
 
 void Random_Number_Generator::computeUserCDF(){
 	// Given PDF, calculate CDF
+	userCDF_[0] = 0.0;
 	for(int i = 1; i < userSize_; i++){
 		userCDF_[i] += userCDF_[i-1];
 	}
