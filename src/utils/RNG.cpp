@@ -1,6 +1,8 @@
 #include "RNG.hpp"
 #include <stdlib.h>
+#include <stdio.h>
 #include <float.h>
+#include "assert.h"
 #include <cmath>
 #include <limits>
 
@@ -16,9 +18,11 @@
 #define IR2 3791
 #define NDIV (1+IMM1/RNG_NTAB)
 #define RNMX (1.0-DBL_EPSILON)
+#define LINE_LENGTH 2000
 
 Random_Number_Generator::Random_Number_Generator(long int seed){
 	state_ = (RNG_State*) malloc(sizeof(RNG_State));
+	state_->initialSeed = seed;
   	long int* idum=&(state_->idum);
 	state_->idum2=123456789;
     state_->iy=0;
@@ -39,6 +43,10 @@ Random_Number_Generator::Random_Number_Generator(long int seed){
 
 Random_Number_Generator::~Random_Number_Generator(){
 	free(state_);
+	if(userVal_ != NULL)
+		free(userVal_);
+	if(userCDF_ != NULL)
+		free(userCDF_);
 }
 
 double Random_Number_Generator::getUniform(){
@@ -115,4 +123,84 @@ void Random_Number_Generator::setRNGState(RNG_State* state){
 
 RNG_State* Random_Number_Generator::getRNGState(){
 	return state_;
+}
+
+
+void Random_Number_Generator::setUserPDF(long size, double* userVal, double* userProb){
+	userVal_ = (double*) calloc(size,sizeof(double));	
+	userCDF_ = (double*) calloc(size,sizeof(double));	
+	userSize_ = size;
+	for(int i = 0; i < size; i++){
+		assert(userVal[i] >= 0);
+		userVal_[i] = userVal[i];
+		userCDF_[i] = userProb[i];
+	}
+	computeUserCDF();
+}
+
+void Random_Number_Generator::loadUserPDFfromFile(char* fname){
+	FILE* in = fopen(fname,"r");
+	char buf[LINE_LENGTH];
+	assert(in != NULL);
+
+	userSize_=0;
+
+	//get line count excluding comments
+	fgets(buf,LINE_LENGTH,in);
+	while(buf[0] != '\0' && !feof(in)){
+		if(buf[0] != '#'){
+			userSize_++;
+		}
+	}
+
+	userVal_ = (double*) calloc(userSize_,sizeof(double));	
+	userCDF_ = (double*) calloc(userSize_,sizeof(double));	
+
+	rewind(in);
+
+	fgets(buf,LINE_LENGTH,in);
+	int i =0;
+	while(buf[0] != '\0' && !feof(in)){
+		if(buf[0] != '#'){
+			if(i == 0)
+				sscanf(buf,"%lf %lf\n",&userVal_[i],&userCDF_[i]);
+			i++;
+		}
+	}
+	computeUserCDF();
+	fclose(in);
+}
+
+void Random_Number_Generator::computeUserCDF(){
+	// Given PDF, calculate CDF
+	for(int i = 1; i < userSize_; i++){
+		userCDF_[i] += userCDF_[i-1];
+	}
+
+	// Ensure normalization (0 to 1)
+	for(int i = 0; i < userSize_; i++){
+		userCDF_[i] /= userCDF_[userSize_ - 1];	
+	}
+}
+
+double  Random_Number_Generator::getUserNumber(){
+	assert(userVal_ != NULL && userCDF_ != NULL);
+
+	int L = 0, R = userSize_ - 1;
+	int i = (R + L)/2;
+	double uni = getUniform();
+	//Binary Search
+	while(!(userCDF_[i] <= uni && userCDF_[i + 1] > uni)){
+		if(uni < userCDF_[i])
+			R = i;
+		else
+			L = i;
+		i = (R + L)/2;
+	}
+
+	//Linear Interpolation
+	double len = userCDF_[i+1] - userCDF_[i];
+ 	double f = (uni - userCDF_[i])/len;
+
+	return (1.0 - f)*userVal_[i] + f*userVal_[i+1];
 }
