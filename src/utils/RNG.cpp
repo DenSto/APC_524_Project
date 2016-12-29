@@ -23,6 +23,7 @@
 Random_Number_Generator::Random_Number_Generator(long int seed){
 	state_ = (RNG_State*) malloc(sizeof(RNG_State));
 	state_->initialSeed = seed;
+	state_->idum = seed;
   	long int* idum=&(state_->idum);
 	state_->idum2=123456789;
     state_->iy=0;
@@ -47,6 +48,8 @@ Random_Number_Generator::~Random_Number_Generator(){
 		free(userVal_);
 	if(userCDF_ != NULL)
 		free(userCDF_);
+	if(userPDF_ != NULL)
+		free(userPDF_);
 }
 
 double Random_Number_Generator::getUniform(){
@@ -83,6 +86,10 @@ double Random_Number_Generator::getUniform(){
 #undef IR2
 #undef NDIV
 #undef RNMX
+
+long Random_Number_Generator::getInteger(long min, long max){
+	return min + (long)floor((max + 1.0 - min)*getUniform());
+}
 
 double Random_Number_Generator::getStandardNormal(){
 	return getGaussian(0.0,1.0);
@@ -126,60 +133,89 @@ RNG_State* Random_Number_Generator::getRNGState(){
 }
 
 
-void Random_Number_Generator::setUserPDF(long size, double* userVal, double* userProb){
+void Random_Number_Generator::setUserPDF(bool isDiscrete, long size, double* userVal, double* userProb){
 	userVal_ = (double*) calloc(size,sizeof(double));	
 	userCDF_ = (double*) calloc(size,sizeof(double));	
 	userSize_ = size;
+	userIsDiscrete_ = isDiscrete;
+
+	if(!isDiscrete) 
+		userPDF_ = (double*) calloc(size,sizeof(double));	
+
 	for(int i = 0; i < size; i++){
-		assert(userVal[i] >= 0);
+		assert(userProb[i] >= 0);
 		userVal_[i] = userVal[i];
 		userCDF_[i] = userProb[i];
+		if(!isDiscrete) 
+			userPDF_[i] = userProb[i];
 	}
 	computeUserCDF();
 }
 
-void Random_Number_Generator::loadUserPDFfromFile(char* fname){
+void Random_Number_Generator::loadUserPDFfromFile(const bool isDiscrete,const char* fname){
 	FILE* in = fopen(fname,"r");
 	char buf[LINE_LENGTH];
 	assert(in != NULL);
 
 	userSize_=0;
+	userIsDiscrete_ = isDiscrete;
 
 	//get line count excluding comments
+	//ensure we allocate the correct amount of memory
 	fgets(buf,LINE_LENGTH,in);
 	while(buf[0] != '\0' && !feof(in)){
 		if(buf[0] != '#'){
 			userSize_++;
 		}
+		fgets(buf,LINE_LENGTH,in);
 	}
 
+	// allocate the memory
 	userVal_ = (double*) calloc(userSize_,sizeof(double));	
 	userCDF_ = (double*) calloc(userSize_,sizeof(double));	
+	if(!isDiscrete)
+		userPDF_ = (double*) calloc(userSize_,sizeof(double));	
 
 	rewind(in);
 
+	// read in actual data
 	fgets(buf,LINE_LENGTH,in);
 	int i =0;
 	while(buf[0] != '\0' && !feof(in)){
 		if(buf[0] != '#'){
-			if(i == 0)
-				sscanf(buf,"%lf %lf\n",&userVal_[i],&userCDF_[i]);
+			sscanf(buf,"%lf %lf\n",&userVal_[i],&userCDF_[i]);
+			assert(userCDF_[i] >= 0);
+			if(!isDiscrete) 
+				userPDF_[i] = userCDF_[i];
 			i++;
 		}
+		fgets(buf,LINE_LENGTH,in);
 	}
+
+	// calculate CDF from PDF
 	computeUserCDF();
+
 	fclose(in);
 }
 
 void Random_Number_Generator::computeUserCDF(){
 	// Given PDF, calculate CDF
-	userCDF_[0] = 0.0;
-	for(int i = 1; i < userSize_; i++){
-		userCDF_[i] += userCDF_[i-1];
+	if(userIsDiscrete_){ // Discrete, use bins
+		for(int i = 1; i < userSize_; i++){
+			userCDF_[i] += userCDF_[i-1];
+		}
+	} else { // Continuous, use trapezoidal rule
+
+		userCDF_[0] = 0.0;
+		for(int i = 1; i < userSize_; i++){
+			userCDF_[i] = 0.5*(userPDF_[i] + userPDF_[i-1]) + userCDF_[i-1];
+		}
 	}
 
 	// Ensure normalization (0 to 1)
 	for(int i = 0; i < userSize_; i++){
+		if(!userIsDiscrete_)
+			userPDF_[i] /= userCDF_[userSize_ - 1];	
 		userCDF_[i] /= userCDF_[userSize_ - 1];	
 	}
 }
@@ -190,18 +226,46 @@ double  Random_Number_Generator::getUserNumber(){
 	int L = 0, R = userSize_ - 1;
 	int i = (R + L)/2;
 	double uni = getUniform();
-	//Binary Search
-	while(!(userCDF_[i] <= uni && userCDF_[i + 1] > uni)){
-		if(uni < userCDF_[i])
-			R = i;
-		else
-			L = i;
-		i = (R + L)/2;
+
+
+	if(userIsDiscrete_){//the the bin number
+		while(L != R){
+			if(uni < userCDF_[i])
+				R = i;
+			else
+				L = i + 1;
+			i = (R + L)/2;
+		}
+		return userVal_[i];
+	} else {
+		//Binary Search
+		while(!(userCDF_[i] <= uni && userCDF_[i + 1] > uni)){
+			if(uni < userCDF_[i])
+				R = i;
+			else
+				L = i;
+			i = (R + L)/2;
+		}
+
+		// If continuous, quadractically interpolate 
+		// (partial integration of triangle rule) 
+
+		double c1,c2,a,b,cdf,dis,sqroot;
+
+		cdf= userCDF_[i];
+		c1 = userVal_[i];
+		c2 = userVal_[i+1];
+		a = userPDF_[i];
+		b = userPDF_[i+1];
+
+		// discriminant of quadratic equation 
+		dis = (c1-c2)*((a*a)*(c1-c2) + 2*(uni - cdf)*(a-b)); 
+		assert(dis > 0); // this should always be true
+		sqroot = sqrt(dis);	
+
+		// we need the positive root here
+		return (b*c1 - a*c2 + sqroot)/(b-a);
 	}
-
-	//Linear Interpolation
-	double len = userCDF_[i+1] - userCDF_[i];
- 	double f = (uni - userCDF_[i])/len;
-
-	return (1.0 - f)*userVal_[i] + f*userVal_[i+1];
 }
+
+#undef LINE_LENGTH
