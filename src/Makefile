@@ -1,7 +1,7 @@
 # for serial version:
-#USE_MPI = 0
+USE_MPI = 0
 # for parallel version:
-USE_MPI = 1
+#USE_MPI = 1
 #Note: be sure to make clean after changing USE_MPI!
 
 # run test:
@@ -42,7 +42,7 @@ $(PROGRAM): $(OBJ) $(LIBS)
 %.o: %.cpp 
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include
 
-IO/IO.o: IO/IO.cpp $(LCONFIG)
+IO/input.o: IO/input.cpp $(LCONFIG)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
 
 $(LCONFIG):

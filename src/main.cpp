@@ -16,7 +16,7 @@
 
 
 #include "./globals.hpp"
-#include "./IO/IO.hpp"
+#include "./IO/input.hpp"
 #include "./IO/output.hpp"
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
@@ -69,11 +69,14 @@ int main(int argc, char *argv[]){
     }
 
     /* Read and broadcast input file **********************/
-    Input_Info_t input_info;
+    Input *input =  new Input();
+    // Master read input file 
+    // Master allocate input_info while reading file
     if(rank==0){
-      int err = readinput(argv[1],&input_info);
-      // Test whether input parameters are self-consistent
-//    testinput(&input_info);
+      printf("Master reading input file...\n");
+      int err = input->readinfo(argv[1]);
+      // Check input self-consistency
+      input->checkinfo();
       if(err!=0) {
         std::cerr << "Terminating..." << std::endl;
 #if USE_MPI
@@ -83,27 +86,23 @@ int main(int argc, char *argv[]){
 #endif
       }
     }
-#if USE_MPI
-    Input_Type itype;
-    MPI_Datatype infotype; // new type
 
-    MPI_Type_create_struct(itype.getcount(),itype.getlens(),itype.getdisps(),
-                           itype.gettypes(),&infotype);
-    MPI_Type_commit(&infotype);
-    //fprintf(stderr,"rank=%d:before MPI_Bcast\n",rank);
-    MPI_Bcast(&input_info,1,infotype,0,MPI_COMM_WORLD);
-    MPI_Barrier(MPI_COMM_WORLD);
-    //fprintf(stderr,"rank=%d:after MPI_Bcast\n",rank);
+    Input_Info_t *input_info = input->getinfo();
+#if USE_MPI
+    if(rank==0)printf("Master broadcasting input infomation...\n");
+    // Master broadcast input info
+    int nspecies = input_info->nspecies;
+    MPI_Bcast(&nspecies,1,MPI_INT,0,MPI_COMM_WORLD);
+    if(rank!=0)input->mallocinfo(nspecies);
+    input->passinfo(nspecies);
 #endif
-    int restart = input_info.restart; // restart=0: initial run
-                                      // restart=3: third restart
-    //fprintf(stderr,"rank=%d,restart=%d\n",rank,restart);
-    debug = input_info.debug; // global debug flag
-    if(debug>1) checkinput(&input_info);
+    debug = input_info->debug; // global debug flag
+    int restart = input_info->restart;
+    //if(debug>1) checkinput(input_info);
 
     /* Initial setup **************************************/
     // Domain decomposition
-    Domain *domain = new Domain(&input_info);
+    Domain *domain = new Domain(input_info);
     if(debug>1) checkdomain(domain);
 
     // Initialize particles
@@ -111,7 +110,7 @@ int main(int argc, char *argv[]){
     part_handler->setPusher(new Boris());
 
     // Set up particle boundary conditions
-    BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info.parts_bound);
+    BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info->parts_bound);
     part_handler->setParticleBoundaries(bc);
     if(debug) fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
@@ -121,7 +120,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
-    part_handler->Load(&input_info,domain);
+    part_handler->Load(input_info,domain);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposite initial charge and current from particles to grid
@@ -145,8 +144,8 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);   
 
     // prepare time step
-    int nt = input_info.nt; //number of steps to run
-    time_phys = input_info.t0; //initial time
+    int nt = input_info->nt; //number of steps to run
+    time_phys = input_info->t0; //initial time
     double dt = 1/domain->getmindx(); //c=1, resolve EM wave
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
@@ -173,7 +172,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
-       domain->PassFields(grids,&input_info,-1);
+       domain->PassFields(grids,input_info,-1);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle
@@ -197,6 +196,7 @@ int main(int argc, char *argv[]){
     delete [] bc; // particle boundary condition
     delete part_handler;
     delete grids;
+    //delete input;
     if(debug) fprintf(stderr,"rank=%d: Finish free\n",rank);   
 
 #if USE_MPI

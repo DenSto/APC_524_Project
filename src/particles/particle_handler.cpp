@@ -40,7 +40,8 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 			p.q = -1;
 			p.m = 1;
 		}
-		double vth= sqrt(8 * input_info->temp / (p.m * M_PI));
+		//double vth= sqrt(8 * input_info->temp / (p.m * M_PI));
+		double vth=1.0;
 		p.x[0]=rng->getUniform()*L[0]+x0[0];
 		p.x[1]=rng->getUniform()*L[1]+x0[1];
 		p.x[2]=rng->getUniform()*L[2]+x0[2];

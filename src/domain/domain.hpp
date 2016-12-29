@@ -2,7 +2,7 @@
 #define DOMAIN_HPP_
 
 #include "../grid/grid.hpp"
-#include "../IO/IO.hpp"
+#include "../IO/input.hpp"
 
 #if USE_MPI
 #include "mpi.h"

@@ -3,7 +3,7 @@
 #include <math.h>
 #include <assert.h> 
 #include "grid.hpp"
-#include "../IO/IO.hpp"
+#include "../IO/input.hpp"
 
 /// Grid constructor 
 /*! Input arguments: \n 
