@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include "boundary_particles.hpp"
+#include "../IO/input.hpp"
 #include "../domain/domain.hpp"
 #include "assert.h"
 
@@ -29,7 +30,7 @@ public:
   }
 
 
-  BC_Particle** constructConditions(Domain* domain, const char (*bound)[32]);
+  BC_Particle** constructConditions(Domain* domain, const char (*bound)[NCHAR]);
 
   /*  
    * Declare an particle boundary by type

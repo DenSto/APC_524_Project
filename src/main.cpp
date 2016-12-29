@@ -71,7 +71,6 @@ int main(int argc, char *argv[]){
     /* Read and broadcast input file **********************/
     Input *input =  new Input();
     // Master read input file 
-    // Master allocate input_info while reading file
     if(rank==0){
       printf("Master reading input file...\n");
       int err = input->readinfo(argv[1]);
@@ -89,18 +88,16 @@ int main(int argc, char *argv[]){
 
     Input_Info_t *input_info = input->getinfo();
 #if USE_MPI
-    if(rank==0)printf("Master broadcasting input infomation...\n");
     // Master broadcast input info
-    int nspecies = input_info->nspecies;
-    MPI_Bcast(&nspecies,1,MPI_INT,0,MPI_COMM_WORLD);
-    if(rank!=0)input->mallocinfo(nspecies);
-    input->passinfo(nspecies);
+    if(rank==0)printf("Master broadcasting input infomation...\n");
+    input->passinfo();
 #endif
     debug = input_info->debug; // global debug flag
     int restart = input_info->restart;
-    //if(debug>1) checkinput(input_info);
+    if(debug>1) checkinput(input_info);
 
     /* Initial setup **************************************/
+    if(rank==0)printf("Initial set up...\n");
     // Domain decomposition
     Domain *domain = new Domain(input_info);
     if(debug>1) checkdomain(domain);
@@ -150,6 +147,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     /* Advance time step **********************************/
+    if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
        // check and write restart files
@@ -187,6 +185,7 @@ int main(int argc, char *argv[]){
 
 
     /* output, finalize ***********************************/
+    if(rank==0)printf("Writing output files...\n");
     writeoutput(grids,part_handler); //MPI
     if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
 
@@ -196,7 +195,7 @@ int main(int argc, char *argv[]){
     delete [] bc; // particle boundary condition
     delete part_handler;
     delete grids;
-    //delete input;
+    delete input;
     if(debug) fprintf(stderr,"rank=%d: Finish free\n",rank);   
 
 #if USE_MPI

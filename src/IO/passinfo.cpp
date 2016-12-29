@@ -10,15 +10,15 @@
 //! Send input_info from master to other nodes 
 /*! When Input_Info_t is modified, this method 
  *  needs to be modified correspondingly */
-void Input::passinfo(int nspecies){
+void Input::passinfo(void){
 
     // parameters specific to Input_Info_t
     int count = 4; // three types
 
-    int nint = 2*3+5*1; //2 of len 3 + 5 of len 1
+    int nint = 2*NDIM+5*1; //2 of len NDIM + 5 of len 1
     int nlong = 1; // 1 of len 1
-    int ndouble = 1*1+4*nspecies+2*3; //1 of len 1 + 4 of nspecies+ 2 of len 3
-    int nchar = 50+2*6*32; //char 50 + 2*6 boundaries each of 32
+    int ndouble = 1*1+4*NSPEC+2*NDIM; //1 of len 1 + 4 of nspecies+ 2 of len NDIM
+    int nchar = (1+2*2*NDIM)*NCHAR; //filename + 2 sets boundaries conditions
 
     // specify what are the MPI data types
     MPI_Datatype *types; // MPI type of elements in each block 
@@ -57,7 +57,6 @@ void Input::passinfo(int nspecies){
     MPI_Bcast(input_info_,1,infotype,0,MPI_COMM_WORLD);
     //MPI_Barrier(MPI_COMM_WORLD);
     fprintf(stderr,"rank=%d:after MPI_Bcast\n",rank_MPI);
-    assert(nspecies==input_info_->nspecies);
     
     // Delete temporary arrays
     delete[] types;

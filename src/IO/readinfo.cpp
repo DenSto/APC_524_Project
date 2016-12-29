@@ -35,16 +35,16 @@ int Input::readinfo(char *fname){
     try
     {
       const Setting &nCell = cfg.lookup("domain.nCell");
-      if(nCell.getLength() == 3) {
-        input_info_->nCell[0] = nCell[0];
-        input_info_->nCell[1] = nCell[1];
-        input_info_->nCell[2] = nCell[2];
+      if(nCell.getLength() == NDIM) {
+        for(int i=0;i<NDIM;i++){
+          input_info_->nCell[i] = nCell[i];
+        }
       } else {
-        input_info_->nCell[0] = nCell[0];
-        input_info_->nCell[1] = nCell[0];
-        input_info_->nCell[2] = nCell[0];
-        cerr << "Error: nCell is not a 3 element array in input file."
-           << endl << "Assuming nCell[0]=nCell[1]=nCell[2]=" 
+        for(int i=0;i<nCell.getLength();i++){
+          input_info_->nCell[i] = nCell[0];
+        }
+        cerr << "Error: nCell is not a " << NDIM << " element array in input file."
+           << endl << "Assuming nCell[i]=" 
            << input_info_->nCell[0] << "." << endl;
       }
     }
@@ -68,10 +68,10 @@ int Input::readinfo(char *fname){
     try
     {
       const Setting &nProc = cfg.lookup("domain.nProc");
-      if(nProc.getLength() == 3) {
-        input_info_->nProc[0] = nProc[0];
-        input_info_->nProc[1] = nProc[1];
-        input_info_->nProc[2] = nProc[2];
+      if(nProc.getLength() == NDIM) {
+        for(int i=0;i<NDIM;i++){
+          input_info_->nProc[i] = nProc[i];
+        }
       } else if(nProc.getLength()==1) {
         input_info_->nProc[0] = nProc[0];
         input_info_->nProc[1] = 1;
@@ -152,6 +152,11 @@ int Input::readinfo(char *fname){
         cerr << "Error: no species in simulation ..." << endl;
         return(EXIT_FAILURE); 
       }
+      if(nspecies > NSPEC) {
+        cerr << "Error: More species are specified than NSPEC!" << endl
+             << "Change NSPCE to reserve more memory and recompile!" << endl;
+        return(EXIT_FAILURE); 
+      }
     }
     catch(const SettingNotFoundException &nfex)
     {
@@ -159,19 +164,17 @@ int Input::readinfo(char *fname){
       return(EXIT_FAILURE);
     }
 
-    // allocate input_info
-    mallocinfo(nspecies);
-    //cerr << "mallocinfo in readinfo.cpp" << endl;
-
     try
     {
       const Setting &mass_ratio = 
            cfg.lookup("initialization.particles.mass_ratio");
-      for(int i=0;i<nspecies;i++){
-        input_info_->mass_ratio[i] = mass_ratio[i];
-      }
-      if(mass_ratio.getLength() > nspecies) {
-        cerr << "Error: More mass ratios are specified than nspecies!" << endl;
+      if(mass_ratio.getLength() != nspecies) {
+        cerr << "Error: length of mass ratios does not match nspecies!" << endl;
+        return(EXIT_FAILURE);
+      } else {
+        for(int i=0;i<nspecies;i++){
+          input_info_->mass_ratio[i] = mass_ratio[i];
+        }
       }
     }
     catch(const SettingNotFoundException &nfex)
@@ -184,11 +187,13 @@ int Input::readinfo(char *fname){
     {
       const Setting &charge_ratio = 
            cfg.lookup("initialization.particles.charge_ratio");
-      for(int i=0;i<nspecies;i++){
-        input_info_->charge_ratio[i] = charge_ratio[i];
-      }
-      if(charge_ratio.getLength() > nspecies) {
-        cerr << "Error: More charge ratios are specified than nspecies!" << endl;
+      if(charge_ratio.getLength() != nspecies) {
+        cerr << "Error: length of charge ratios does not match nspecies!" << endl;
+        return(EXIT_FAILURE);
+      } else {
+        for(int i=0;i<nspecies;i++){
+          input_info_->charge_ratio[i] = charge_ratio[i];
+        }
       }
     }
     catch(const SettingNotFoundException &nfex)
@@ -201,11 +206,13 @@ int Input::readinfo(char *fname){
     {
       const Setting &dens_frac = 
            cfg.lookup("initialization.particles.dens_frac");
-      for(int i=0;i<nspecies;i++){
-        input_info_->dens_frac[i] = dens_frac[i];
-      }
-      if(dens_frac.getLength() > nspecies) {
-        cerr << "Error: More fractional densities are specified than nspecies!" << endl;
+      if(dens_frac.getLength() != nspecies) {
+        cerr << "Error: length of fractional densities does not match nspecies!" << endl;
+        return(EXIT_FAILURE);
+      } else {
+        for(int i=0;i<nspecies;i++){
+          input_info_->dens_frac[i] = dens_frac[i];
+        }
       }
     }
     catch(const SettingNotFoundException &nfex)
@@ -247,7 +254,7 @@ int Input::readinfo(char *fname){
     sprintf(input_info_->distname,"distribution.dat");
 
     // MPI can only Bcast C strings
-    char (*parts_bound)[32] = input_info_->parts_bound;
+    char (*parts_bound)[NCHAR] = input_info_->parts_bound;
     strcpy(parts_bound[0], "periodic"); // x -> Left
     strcpy(parts_bound[1], "periodic"); // x -> Right
     strcpy(parts_bound[2], "periodic"); // y -> Left
@@ -255,7 +262,7 @@ int Input::readinfo(char *fname){
     strcpy(parts_bound[4], "periodic"); // z -> Left
     strcpy(parts_bound[5], "periodic"); // z -> Right
  
-    char (*fields_bound)[32] = input_info_->fields_bound;
+    char (*fields_bound)[NCHAR] = input_info_->fields_bound;
     strcpy(fields_bound[0], "periodic"); // x -> Left
     strcpy(fields_bound[1], "periodic"); // x -> Right
     strcpy(fields_bound[2], "periodic"); // y -> Left

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "domain.hpp"
+#include "../IO/input.hpp"
 #include "../IO/output.hpp"
 #include "../globals.hpp"
 
@@ -14,7 +15,7 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID){
     int tagl=1; // MPI tag: to left, or from right
     int tagr=2; // MPI tag: to right, or from left
 #endif
-    char (*bound)[32] = input_info->fields_bound;
+    char (*bound)[NCHAR] = input_info->fields_bound;
     
     /* x field boundaries *********************************/
     int xgsize = grids->getGhostVecSize(); // ghost size in x direction
