@@ -29,17 +29,25 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double* L = domain->getLxyz();
     double* x0 = domain->getxyz0();
 
+    int nspec      = input_info->nspecies;
+    int npart      = input_info->np;
+    double *mass   = input_info->mass_ratio;
+    double *charge = input_info->charge_ratio;
+    double *dens   = input_info->dens_frac; 
+
     if(restart==0){// initial run
 	Random_Number_Generator *rng = new Random_Number_Generator(-1);
-        for(long ip=0; ip < input_info->np;ip++){
+        int ispec = 0; // temporaty counter
+        double cden = dens[0]; // cummulative density fraction
+        for(long ip=0; ip < npart;ip++){
 		Particle p = new_particle();
-		if(ip < np_/2) { // ions
-			p.q = 1;
-			p.m = 1;
-		} else { // electrons
-			p.q = -1;
-			p.m = 1;
+                if(ip >= cden*npart){
+			ispec += 1;
+                        cden  += dens[ispec];
 		}
+		p.q = charge[ispec];
+		p.m = mass[ispec];
+
 		//double vth= sqrt(8 * input_info->temp / (p.m * M_PI));
 		double vth=1.0;
 		p.x[0]=rng->getUniform()*L[0]+x0[0];
