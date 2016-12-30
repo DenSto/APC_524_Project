@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "IO.hpp"
+#include "input.hpp"
 
 TEST(ReadinputTest, ValuesCorrect) {
   Input_Info_t input_info;

@@ -4,9 +4,9 @@
 	* Takes in an array of size 6.
     */
      //BC_Particle** constructConditions(Domain* domain, const std::string* types){
-     BC_Particle** BC_Factory::constructConditions(Domain* domain, const char (*bound)[32]){
+     BC_Particle** BC_Factory::constructConditions(Domain* domain, const char (*bound)[NCHAR]){
                 // convert c string for MPI to std::string for BC_Particle
-                // size 32 is in correspondence definition in Input_Info_t
+                // size NCHAR is in correspondence definition in Input_Info_t
 		std::string types[6];
 		for(int i=0;i<6;i++){
 		    types[i].assign(bound[i]);

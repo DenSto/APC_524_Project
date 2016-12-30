@@ -91,7 +91,7 @@ $(SRC_DIR)/%.o:
 	make EMOOPIC; \
 	cd $(ROOT_DIR)/test
 
-IO_unittests.o : $(TESTSRC_DIR)/IO_unittests.cc $(SRC_DIR)/IO/IO.hpp $(GTEST_HEADERS)
+IO_unittests.o : $(TESTSRC_DIR)/IO_unittests.cc $(SRC_DIR)/IO/input.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/IO_unittests.cc -I $(SRC_DIR)/IO 
 
 IO_unittests : $(addprefix $(SRC_DIR)/, $(IOOBJ)) IO_unittests.o gtest_main.a
