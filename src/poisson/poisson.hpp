@@ -19,7 +19,8 @@ protected:
   void phiToE_(); 
   void AToB_(); 
 
-  void phiToESingleComp_(const int fieldID, const int dir, const double h); 
+  void phiToESingleComp_(const int fieldID, const int dir); 
+  void AToBSingleComp_(const int fieldID, const int dir); 
 
   double ***phi1_;
   double ***phi2_;
