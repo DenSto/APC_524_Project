@@ -179,9 +179,20 @@ void Grid::deleteField_(double*** fieldPt, int fieldID) {
     } 
 };
 
-// constructs and returns fieldSize_ array 
-// note: currently not contiguous in memory
-// (does not need to be since it will not be iterated over often)
+/// constructs and returns fieldSize_ array 
+/*! fieldSize_ is an ntypes by ndim array storing the number 
+ * of physical + ghost points in each direction. This is necessary 
+ * because although all field arrays are allocated to be the same 
+ * size (nx+1,ny+1,nz+1), due to the different locations of each 
+ * type of field on the grid (3 types of edge locations, 3 types of 
+ * face locations, vertices) which leads to differences in the number
+ * of points needed for nx,ny,nz cells. \n
+ * rows correspond to fieldType: 
+ * 0: x edge (Ex/Jx), 1: y edge (Ey/Jy), 2: z edge (Ez/Jz), \n
+ * 3: x face (Bx)   , 4: y face (By)   , 5: z face (Bz), \n
+ * 6: vertices (rho) \n
+ * columns correspond to the direction (0,1,2)=(x,y,z)
+ */ 
 int** Grid::setFieldSize_() { 
     int i,j; 
     int ndim=3; 
@@ -192,17 +203,7 @@ int** Grid::setFieldSize_() {
         assert(fieldSize[i] != NULL); 
     };
 
-    // rows correspond to fieldID: 
-    // 0: Ex, 1: Ey, 2: Ez, 3: Bx, 4: By, 5: Bz
-    // J is the same as E, B_tm1 is the same as B
-    // columns correspond to the direction (0,1,2)=(x,y,z)
-    // such that fieldSize[1,2] corresponds to the number of 
-    // grid points of Ey in the z direction. 
-    // general solution is size(A_i[j]) = nj + delta(A,1) + delta(i,j)*(-1)^delta(A,0)
-    // where:   delta(x,y) is kronecker delta
-    //          A is 0 for fields on faces (B) and 1 for fields on edges (E/J)
-    //          i is the ith component of the field 
-    //          j is the jth dimension of that component 
+    // set the actual values 
     int nxyz[3] = {nx_,ny_,nz_}; 
     int edge,dir; 
     for (i=0; i<nTypes_; ++i) { 
@@ -228,7 +229,7 @@ int** Grid::setFieldSize_() {
     return fieldSize; 
 };
 
-// deletes fieldSize_ array 
+///  deletes fieldSize_ array 
 void Grid::deleteFieldSize_() { 
     int i; 
     for (i=0; i<nTypes_; ++i) { 
@@ -237,6 +238,11 @@ void Grid::deleteFieldSize_() {
     delete [] fieldSize_; 
 }; 
 
+/// constructs and returns fieldType_ array 
+/*! fieldType_ is an nFieldsTotal_ array of ints storing 
+ * the type of each field (edgeX, faceZ, vertex, etc). \n
+ * e.g. int typeOfBx = fieldType_[BxID_]; 
+ */ 
 int* Grid::setFieldType_() { 
     int* fieldType = new int[nFieldsTotal_];
     
@@ -257,10 +263,17 @@ int* Grid::setFieldType_() {
     return fieldType; 
 };
 
+/// deletes fieldType_ array 
 void Grid::deleteFieldType_() { 
     delete [] fieldType_; 
 };
 
+/// constructs and returns fieldPtr__ array 
+/*! fieldPtr_ is an nFieldsTotal_ array storing each field, 
+ * so that they can be accessed via fieldID \n 
+ * e.g. int fieldID = ExID_; \n 
+ * double*** field = fieldPtr_[fieldID]; 
+ */ 
 double**** Grid::setFieldPtr_() { 
     double**** fieldPtr = new double***[nFieldsTotal_]; 
     
@@ -281,6 +294,7 @@ double**** Grid::setFieldPtr_() {
     return fieldPtr; 
 }; 
 
+/// deletes fieldPtr_ array
 void Grid::deleteFieldPtr_() { 
     delete [] fieldPtr_; 
 }; 
@@ -310,9 +324,7 @@ void Grid::checkInput_() {
     assert(ghostVecSize_ > 0); 
 }; 
 
-/// sets all of J (Jx,Jy,Jz) to be identically zero
-/*! Used during particle deposition. 
- */ 
+/// sets all components of J to be identically zero
 void Grid::zeroJ() { 
     int i,j,k; // iterators 
     for (i=0; i<nxTot_; ++i) { 
@@ -326,9 +338,7 @@ void Grid::zeroJ() {
     } 
 };
 
-/// sets all of rho to be identically zero
-/*! Used during particle deposition. 
- */ 
+/// sets rho to be identically zero
 void Grid::zeroRho() { 
     int i,j,k; // iterators 
     for (i=0; i<nxTot_; ++i) { 
@@ -340,7 +350,7 @@ void Grid::zeroRho() {
     } 
 };
 
-/// sets all of E to be identically zero
+/// sets all components of E to be identically zero
 void Grid::zeroE() { 
     int i,j,k; // iterators 
     for (i=0; i<nxTot_; ++i) { 
@@ -354,7 +364,7 @@ void Grid::zeroE() {
     } 
 };
 
-/// sets all of B to be identically zero
+/// sets all components of B and B_tm1 to be identically zero
 void Grid::zeroB() { 
     int i,j,k; // iterators 
     for (i=0; i<nxTot_; ++i) { 
@@ -375,8 +385,7 @@ void Grid::zeroB() {
 /*! Use restart file to set values of initial E,B,J fields
  */ 
 void Grid::InitializeFields(int restart){
-    /* jlestz: dummy code setting all fields to zero
-     * placeholder until restart file format is determined */ 
+     // placeholder until restart files exist 
     zeroB(); 
     zeroE(); 
     zeroJ(); 

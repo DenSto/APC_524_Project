@@ -171,14 +171,15 @@ protected:
   FRIEND_TEST( oGridInternalTest, EMWaveLong);
 
   // unit testing in grid_unittests.cc 
-  friend class gridPrivateTest; 
-  FRIEND_TEST(gridPrivateTest, fieldSizeTest); 
-  FRIEND_TEST(gridPrivateTest, fieldPtrTest); 
-  FRIEND_TEST(gridPrivateTest, zeroFields); 
+  friend class GridPrivateTest; 
+  FRIEND_TEST(GridPrivateTest, fieldSizeTest); 
+  FRIEND_TEST(GridPrivateTest, fieldPtrTest); 
+  FRIEND_TEST(GridPrivateTest, zeroFields); 
 
   // unit testing in spookyGrid_unittests.cc
-  FRIEND_TEST(gridPrivateTest, sideToIndexTest); 
-  FRIEND_TEST(gridPrivateTest, periodicUpdateTest); 
+  FRIEND_TEST(GridPrivateTest, sideToIndexTest); 
+  FRIEND_TEST(GridPrivateTest, periodicUpdateTest); 
+  FRIEND_TEST(GridPrivateTest, ghostVecSizeTest); 
 
  };
 #endif

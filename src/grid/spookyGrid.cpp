@@ -8,11 +8,10 @@
 /// bundles the data in the ghost cells to send
 /*! side = -/+ 1 for left/right x direction, -/+ 2 for y, -/+ 3 for z \n
  * ghostVec is the vector to store the data in, which must be of length ghostVecSize_ (can be determined with getGhostVecSize() ) \n
- * Stores the data of the E,B,J fields along the specified boundary plane into a 1D array to be sent with a single MPI call. Stores in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
- * ghostVec can be unpacked with setGhostVec function 
+ * sendID = -1 to get JEB fields, or sendID = an individual field ID (e.g. ExID_) to get just that field (used for Poisson updating for example) \n
+ * Stores the data of the E,B,J fields along the specified boundary plane into a 1D array to be sent with a single MPI call. If sendID = -1 (as used in each time step update), stores in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
+ * ghostVec can (and should) be unpacked with setGhostVec function 
  */ 
-// if sendID is -1, send JEB fields altogether 
-// if sendID is any other value, send only that field
 void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     assert(sendID < nFieldsTotal_); 
     
@@ -58,11 +57,12 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     } 
 }; 
 
-/// unbundles the data in the ghost cells that have been received
+/// unbundles the data in the ghost cells to send
 /*! side = -/+ 1 for left/right x direction, -/+ 2 for y, -/+ 3 for z \n
  * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ (can be determined with getGhostVecSize() ) \n
- * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array received from a single MPI call. Sets in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
- * ghostVec can be generated with getGhostVec function 
+ * sendID = -1 to set JEB fields, or sendID = an individual field ID (e.g. ExID_) to set just that field (used for Poisson updating for example) \n
+ * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be received with a single MPI call. If sendID = -1 (as used in each time step update), fields are read and set in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
+ * ghostVec can (and should) be generated with setGhostVec function 
  */ 
 void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
     assert(sendID < nFieldsTotal_); 
@@ -116,16 +116,22 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
 
 
 /// returns size of ghost cell data to send
-/*! this size is stored in the protected int ghostVecSize_
+/*! This size is stored in the protected int ghostVecSize_ \n 
+ * It is of length equal to the maximum number of total points in any plane, so that it will be large enough to send the maximum amount of data in a single plane of any of the fields. 
  */ 
 int Grid::getGhostVecSize() { 
-    // must bundle 9 scalar fields
-    // each of size of the physical zy plane
     return ghostVecSize_; 
 }; 
 
 /// function to convert -/+ 1 left/right side indicator to index in x direction (description out of date) 
 /*! For use with ghost cell methods. side=-1 indicates operations on the left side of the domain, side=+1 indicates operations on the right side of the domain. This method converts side into the correct index i to reference ghost cells on that side of the domain. For instance, called by getGhostVec and setGhostVec. Generalizes to any number of ghost cells so long as iBeg_ and iEnd_ are initialized correctly. 
+ */
+/// function to convert (-/+)(1,2,3) side indicator into (left/right)(x,y,z) index of boundary physical data point 
+/*! Helper function for public ghost cell methods which accept side indicator as argument. \n 
+ * Side < 0 will return index of first physical point, side > 0 will return index of last physical point \n 
+ * abs(side) == 1 returns value in x direction, 2 in y, 3 in z \n 
+ * This function is necessary because different field types have a different number of physical grid points in each direction. \n
+ * fieldID is a private fieldID such as ExID_
  */ 
 int Grid::sideToIndex_(const int side, const int fieldID) { 
     int dex; 
@@ -255,6 +261,8 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
 };
 
 /// updates J,E,B ghost cells in y/z directions with periodic boundary conditions 
+/*! Makes 4 calls each to get/setGhostVec for JEB fields all at once
+ */ 
 void Grid::updatePeriodicGhostCells() { 
     // create a temporary vector to store ghostVecs 
     double* tmpGhost = ghostTmp_;  

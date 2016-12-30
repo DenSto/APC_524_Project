@@ -6,7 +6,7 @@
 class GridTest : public ::testing::Test {
    protected:
       virtual void SetUp() {
-         int nxyz [3] = {3,5,7};
+         int nxyz [3] = {4,6,8};  
          int nGhosts = 1; 
          double xyz0 [3] = {0,0,0};
          double Lxyz [3] = {1,1,1};
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
 
 // tests requiring internal examination
-class gridPrivateTest : public ::testing::Test {
+class GridPrivateTest : public ::testing::Test {
    protected:
       virtual void SetUp() {
          int nxyz [3] = {4,6,8};
@@ -64,7 +64,7 @@ class gridPrivateTest : public ::testing::Test {
 };
 
 // test sideToIndex
-TEST_F(gridPrivateTest, sideToIndexTest) { 
+TEST_F(GridPrivateTest, sideToIndexTest) { 
     int ID = grid->ExID_; 
 
     int xside=1; 
@@ -87,8 +87,10 @@ TEST_F(gridPrivateTest, sideToIndexTest) {
     EXPECT_EQ(zRightReal,grid->sideToIndex_(zside,ID)); 
 }; 
 
-// test updatePeriodicGhostCells in Ex
-TEST_F(gridPrivateTest, periodicUpdateTest) {
+// tests updateGhostCells for one of the fields 
+// passing this test also implies that slice/unslice methods work
+// passing this test also implies that get/set ghost methods work 
+TEST_F(GridPrivateTest, periodicUpdateTest) {
     // choose to test Jz (all of JEB are sent in updatePeriodic)
     int ID = grid->JzID_; 
     double*** field = grid->fieldPtr_[ID]; 
@@ -273,3 +275,22 @@ TEST_F(gridPrivateTest, periodicUpdateTest) {
     EXPECT_EQ(newSumZLeftReal,sumZLeftReal); 
     EXPECT_EQ(newSumZRightReal,sumZRightReal); 
 }
+
+// test correct ghostVecSize
+// compile error: says nxyz is out of scope even though it is in SetUp()?
+TEST_F(GridPrivateTest, ghostVecSizeTest) { 
+    int nx = grid->nxTot_; 
+    int ny = grid->nyTot_; 
+    int nz = grid->nzTot_; 
+
+    int maxPlane = std::max(nx*ny,ny*nz); 
+    maxPlane = std::max(maxPlane,nx*nz); 
+
+    int nfields = 9; 
+
+    int size = nfields*maxPlane; 
+
+    EXPECT_EQ(size, grid->getGhostVecSize()); 
+} 
+
+

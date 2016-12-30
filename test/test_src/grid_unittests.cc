@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
 
 // tests requiring internal examination
-class gridPrivateTest : public ::testing::Test {
+class GridPrivateTest : public ::testing::Test {
    protected:
       virtual void SetUp() {
          int nxyz [3] = {3,5,7};
@@ -64,7 +64,7 @@ class gridPrivateTest : public ::testing::Test {
 };
 
 // test that fieldSize is correct  
-TEST_F(gridPrivateTest, fieldSizeTest) {
+TEST_F(GridPrivateTest, fieldSizeTest) {
     int xdir=0; 
     int ydir=1; 
     int zdir=2; 
@@ -86,7 +86,7 @@ TEST_F(gridPrivateTest, fieldSizeTest) {
 }
 
 // test that fieldPtr works 
-TEST_F(gridPrivateTest, fieldPtrTest) {
+TEST_F(GridPrivateTest, fieldPtrTest) {
     double Exval = 1; 
     double Byval = 2; 
     double rhoval = 3; 
@@ -113,7 +113,7 @@ TEST_F(gridPrivateTest, fieldPtrTest) {
 
 
 // test that zeroField methods work 
-TEST_F(gridPrivateTest,zeroFields) {
+TEST_F(GridPrivateTest,zeroFields) {
  
     // zero all fields 
     grid->zeroE(); 
