@@ -1,7 +1,7 @@
 IOOBJ = $(addprefix ./IO/, input.o readinfo.o passinfo.o check.o output.o)
 DOMOBJ = $(addprefix ./domain/, domain.o ghosts.o pass_fields.o)
 UTILSOBJ = $(addprefix ./utils/, RNG.o)
-PUSHOBJ = $(addprefix ./pusher/, boris.o)
+PUSHOBJ = $(addprefix ./pusher/, boris.o relativisticBoris.o)
 B_PARTICLEOBJ = bc_p_MPI.o bc_p_periodic.o bc_p_reflecting.o
 BOUNDARYOBJ = $(addprefix ./boundaries/, boundary_particles.o bc_factory.o \
 			  $(addprefix b_particles/, $(B_PARTICLEOBJ)))
