@@ -10,6 +10,8 @@ typedef struct Particle {
   double x[3];  /* coordinate in X,Y,Z */	
   double v[3];  /* velocity in X,Y,Z */	
 
+  double gamma; /* relativistic parameter gamma */
+
   double xo[3];  /* LAST coordinate in X,Y,Z */
   double vo[3];  /* LAST velocity in X,Y,Z */
 

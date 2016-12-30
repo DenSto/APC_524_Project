@@ -1,102 +1,142 @@
 #include "pusher.hpp"
+#include <math.h>
+
+//! Relativistic Boris pusher
+/*!
+ * 	Uses the pusher described in "Simulation of beams or
+ * 	plasmas crossing at relativistic velocity"
+ *
+ * J.-L. Vay, Phys. Plasmas 15 (5) 2007
+ *
+ */
+
 
 class Relativistic_Boris : public Pusher {
-    public:
-        Relativistic_Boris();
-        ~Relativistic_Boris();
-        int Step(Particle *part, Field_part *field, double dt);
-		
+	public:
+		Relativistic_Boris();
+		~Relativistic_Boris();
+		int Step(Particle *part, Field_part *field, double dt);
 };
 
 Relativistic_Boris::Relativistic_Boris(){
-
 }
 
-Boris::~Boris(){
+Relativistic_Boris::~Relativistic_Boris(){
 }
 
-int Boris::Step(Particle* part, Field_part* field, double dt){
-  double x,y,z,vx,vy,vz;
-  double v_mx,v_my,v_mz,v_px,v_py,v_pz;
-  double v_ix,v_iy,v_iz;
-  double bx,by,bz,ex,ey,ez,bsqr;
-  double tx,ty,tz,sx,sy,sz,tsqr;
-  double x_new, y_new,z_new, vx_new, vy_new,vz_new;
-  double m,q,q_p;
+int Relativistic_Boris::Step(Particle* part, Field_part* field, double dt){
+	double x,y,z,vx,vy,vz;
+	double bx,by,bz,ex,ey,ez;
+	double tx,ty,tz;
+	double x_new, y_new,z_new, vx_new, vy_new,vz_new;
+	double m,q,q_p;
+	double upx,upy,upz;
+	double taux,tauy,tauz,tau_sq;
+	double s,sigma,ustar,udott;
+	double uint_x,uint_y,uint_z;
+	double uhx,uhy,uhz;
+	double vXbx,vXby,vXbz;
+	double upXt_x,upXt_y,upXt_z;
+	double gamma,gammap_sq,gamma_int;
 
-  x = part->x[0];
-  y = part->x[1];
-  z = part->x[2];
-  vx = part->v[0];
-  vy = part->v[1];
-  vz = part->v[2];
+	x = part->x[0];
+	y = part->x[1];
+	z = part->x[2];
+	vx = part->v[0];
+	vy = part->v[1];
+	vz = part->v[2];
+	gamma = part->gamma;
 
-  q = part->q;
-  m = part->m;
-  q_p = (0.5 * dt * q)/m;
+	q = part->q;
+	m = part->m;
+	q_p = (0.5 * dt * q)/m;
 
-  ex = field->e1;
-  ey = field->e2;
-  ez = field->e3;
+	ex = field->e1;
+	ey = field->e2;
+	ez = field->e3;
 
-  bx = field->b1;
-  by = field->b2;
-  bz = field->b3;
+	bx = field->b1;
+	by = field->b2;
+	bz = field->b3;
 
-  tx = q_p*bx;
-  ty = q_p*by;
-  tz = q_p*bz;
+	vXbx = vy*bz - vz*by;
+	vXby = vz*bx - vx*bz;
+	vXbz = vx*by - vy*bx;
 
-  bsqr = bx*bx + by*by + bz*bz;
-  tsqr = 2.0/(1.0 + q_p*q_p*bsqr);
+	uhx = gamma*vx + q_p*(ex + vXbx);
+	uhy = gamma*vy + q_p*(ey + vXby);
+	uhz = gamma*vz + q_p*(ez + vXbz);
 
-  sx = tsqr*tx;
-  sy = tsqr*ty;
-  sz = tsqr*tz;
+	upx = uhx + q_p*ex;
+	upy = uhy + q_p*ey;
+	upz = uhz + q_p*ez;
 
-  v_mx = vx + q_p*ex; 
-  v_my = vy + q_p*ey; 
-  v_mz = vz + q_p*ez; 
+	gammap_sq = 1.0 + upx*upx + upy*upy + upz*upz;
 
-  v_ix = v_mx + v_my*tz - v_mz*ty; 
-  v_iy = v_my + v_mz*tx - v_mx*tz; 
-  v_iz = v_mz + v_mx*ty - v_my*tx; 
+	taux = q_p*bx;
+	tauy = q_p*by;
+	tauz = q_p*bz;
 
-  v_px = v_mx + v_iy*sz - v_iz*sy; 
-  v_py = v_my + v_iz*sx - v_ix*sz; 
-  v_pz = v_mz + v_ix*sy - v_iy*sx; 
+	tau_sq = taux*taux + tauy*tauy + tauz*tauz;
 
-  vx_new = v_px + q_p*ex; 
-  vy_new = v_py + q_p*ey; 
-  vz_new = v_pz + q_p*ez; 
+	sigma = gammap_sq - tau_sq;
 
-  x_new = x + dt*vx_new;
-  y_new = y + dt*vy_new;
-  z_new = z + dt*vz_new;
+	ustar = upx*taux + upy*tauy + upz*tauz;
 
-  //Update last particle position.
-  part->xo[0] = x;
-  part->xo[1] = y;
-  part->xo[2] = z;
+	gamma_int = sqrt(sigma*sigma + 4*(tau_sq + ustar*ustar));
+	gamma_int = sqrt(0.5*(sigma + gamma_int));
 
-  //Update particle step length
-  part->dx[0] = x_new-x;
-  part->dx[1] = y_new-y;
-  part->dx[2] = z_new-z;
 
-  //Update last particle velocity.
-  part->vo[0] = vx;
-  part->vo[1] = vy;
-  part->vo[2] = vz;
+	tx = taux/gamma_int;
+	ty = tauy/gamma_int;
+	tz = tauz/gamma_int;
 
-  part->x[0] = x_new;
-  part->x[1] = y_new;
-  part->x[2] = z_new;
+	s = 1.0/(1.0 + tx*tx + ty*ty + tz*tz);
+ 
+	udott = ustar/gamma_int;
 
-  part->v[0] = vx_new;
-  part->v[1] = vy_new;
-  part->v[2] = vz_new;
+	upXt_x = upy * tz - upz * ty;
+	upXt_y = upz * tx - upx * tz;
+	upXt_z = upx * ty - upy * tx;
 
-  return 1;
+	uint_x = s*(upx + udott*tx + upXt_x);
+	uint_y = s*(upy + udott*ty + upXt_y);
+	uint_z = s*(upz + udott*tz + upXt_z);
+
+	vx_new = uint_x/gamma_int; 
+	vy_new = uint_y/gamma_int; 
+	vz_new = uint_z/gamma_int; 
+
+	x_new = x + dt*vx_new;
+	y_new = y + dt*vy_new;
+	z_new = z + dt*vz_new;
+
+	//Update last particle position.
+	part->xo[0] = x;
+	part->xo[1] = y;
+	part->xo[2] = z;
+
+	//Update particle step length
+	part->dx[0] = x_new-x;
+	part->dx[1] = y_new-y;
+	part->dx[2] = z_new-z;
+
+
+	//Update last particle velocity.
+	part->vo[0] = vx;
+	part->vo[1] = vy;
+	part->vo[2] = vz;
+
+	part->x[0] = x_new;
+	part->x[1] = y_new;
+	part->x[2] = z_new;
+
+	part->v[0] = vx_new;
+	part->v[1] = vy_new;
+	part->v[2] = vz_new;
+
+	part->gamma = gamma_int;
+
+	return 1;
 }
 

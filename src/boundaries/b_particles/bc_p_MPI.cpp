@@ -8,7 +8,7 @@
 #include "assert.h"
 #include "mpi.h"
 
-#define DOUBLES_IN_PARTICLE 9
+#define DOUBLES_IN_PARTICLE 10
 
 class BC_P_MPI : public BC_Particle {
 	public:
@@ -179,6 +179,7 @@ void BC_P_MPI::packParticle(Particle* p){
 	sendBuf_.push_back(p->v[0]);
 	sendBuf_.push_back(p->v[1]);
 	sendBuf_.push_back(p->v[2]);
+	sendBuf_.push_back(p->gamma);
 	sendBuf_.push_back(p->q);
 	sendBuf_.push_back(p->m);
 	sendBuf_.push_back((double)p->my_id);
@@ -187,15 +188,17 @@ void BC_P_MPI::packParticle(Particle* p){
 
 Particle BC_P_MPI::unpackParticle(int offset){
 	Particle p;
-	p.x[0] = recvBuf_[offset+0] - lengthShift_[0];
-	p.x[1] = recvBuf_[offset+1] - lengthShift_[1];
-	p.x[2] = recvBuf_[offset+2] - lengthShift_[2];
-	p.v[0] = recvBuf_[offset+3];
-	p.v[1] = recvBuf_[offset+4];
-	p.v[2] = recvBuf_[offset+5];
-	p.q    = recvBuf_[offset+6];
-	p.m    = recvBuf_[offset+7];
-	p.my_id = (long) recvBuf_[offset+8];
+	int i =offset;
+	p.x[0] = recvBuf_[i++] - lengthShift_[0];
+	p.x[1] = recvBuf_[i++] - lengthShift_[1];
+	p.x[2] = recvBuf_[i++] - lengthShift_[2];
+	p.v[0] = recvBuf_[i++];
+	p.v[1] = recvBuf_[i++];
+	p.v[2] = recvBuf_[i++];
+	p.gamma= recvBuf_[i++];
+	p.q    = recvBuf_[i++];
+	p.m    = recvBuf_[i++];
+	p.my_id = (long) recvBuf_[i++];
 	p.isGhost = 0;
 
 	return p;
