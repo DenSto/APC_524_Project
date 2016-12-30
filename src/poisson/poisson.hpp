@@ -16,6 +16,11 @@ protected:
   void setPoissonFieldType_();
   void setPoissonFieldPtr_(); 
 
+  void phiToE_(); 
+  void AToB_(); 
+
+  void phiToESingleComp_(const int fieldID, const int dir, const double h); 
+
   double ***phi1_;
   double ***phi2_;
 
