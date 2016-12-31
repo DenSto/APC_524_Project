@@ -6,7 +6,7 @@
 /// derives E from scalar potential phi: E = -grad phi
 /*! Makes three calls to phiToESingleComp which performs actual computation
  */ 
-void Poisson_Solver::phiToE_() { 
+void Poisson_Solver::phiToE() { 
     int xdir=0; 
     int ydir=1; 
     int zdir=2; 
@@ -68,7 +68,7 @@ void Poisson_Solver::phiToESingleComp_(const int fieldID, const int dir) {
 /// derives A from vector potential A: B = curl A 
 /*! Makes three separate calls to AToBSingleComp to perform calculation
  */ 
-void Poisson_Solver::AToB_() { 
+void Poisson_Solver::AToB() { 
     int xdir=0; 
     int ydir=1; 
     int zdir=2; 

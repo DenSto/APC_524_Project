@@ -57,6 +57,20 @@ void Poisson_Solver::setPoissonFieldPtr_() {
     fieldPtr_[Ax2ID_]=Ax2_; 
     fieldPtr_[Ay2ID_]=Ay2_; 
     fieldPtr_[Az2ID_]=Az2_; 
+};
+
+void Poisson_Solver::zeroA() { 
+  zeroField_(Ax1ID_);
+  zeroField_(Ay1ID_);
+  zeroField_(Az1ID_);
+  zeroField_(Ax2ID_);
+  zeroField_(Ay2ID_);
+  zeroField_(Az2ID_);
+}; 
+
+void Poisson_Solver::zeroPhi() { 
+  zeroField_(phi1ID_); 
+  zeroField_(phi2ID_); 
 }; 
 
 void Poisson_Solver::initialize_poisson_fields() {

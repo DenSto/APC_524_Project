@@ -150,6 +150,8 @@ protected:
   double**** setFieldPtr_(); 
   void deleteFieldPtr_(); 
 
+  void zeroField_(const int fieldID); 
+
   int sideToIndex_(const int side, const int fieldID);
   /* assert statements to check necessary conditions for initialized variables */
   void checkInput_();

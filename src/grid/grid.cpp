@@ -324,61 +324,47 @@ void Grid::checkInput_() {
     assert(ghostVecSize_ > 0); 
 }; 
 
-/// sets all components of J to be identically zero
-void Grid::zeroJ() { 
+/// sets field corresponding to fieldID to zero
+void Grid::zeroField_(const int fieldID) { 
+    assert (fieldID > -1 && fieldID < nFieldsTotal_); 
+    double*** field = fieldPtr_[fieldID]; 
     int i,j,k; // iterators 
     for (i=0; i<nxTot_; ++i) { 
         for (j=0; j<nyTot_; ++j) { 
             for (k=0; k<nzTot_; ++k) { 
-                Jx_[i][j][k]=0; 
-                Jy_[i][j][k]=0; 
-                Jz_[i][j][k]=0;
+                field[i][j][k]=0; 
             } 
         } 
     } 
+} 
+
+/// sets all components of J to be identically zero
+void Grid::zeroJ() { 
+    zeroField_(JxID_); 
+    zeroField_(JyID_); 
+    zeroField_(JzID_); 
 };
 
 /// sets rho to be identically zero
 void Grid::zeroRho() { 
-    int i,j,k; // iterators 
-    for (i=0; i<nxTot_; ++i) { 
-        for (j=0; j<nyTot_; ++j) { 
-            for (k=0; k<nzTot_; ++k) { 
-                rho_[i][j][k]=0; 
-            } 
-        } 
-    } 
+    zeroField_(rhoID_); 
 };
 
 /// sets all components of E to be identically zero
 void Grid::zeroE() { 
-    int i,j,k; // iterators 
-    for (i=0; i<nxTot_; ++i) { 
-        for (j=0; j<nyTot_; ++j) { 
-            for (k=0; k<nzTot_; ++k) { 
-                Ex_[i][j][k]=0; 
-                Ey_[i][j][k]=0; 
-                Ez_[i][j][k]=0;
-            } 
-        } 
-    } 
+    zeroField_(ExID_); 
+    zeroField_(EyID_); 
+    zeroField_(EzID_); 
 };
 
 /// sets all components of B and B_tm1 to be identically zero
 void Grid::zeroB() { 
-    int i,j,k; // iterators 
-    for (i=0; i<nxTot_; ++i) { 
-        for (j=0; j<nyTot_; ++j) { 
-            for (k=0; k<nzTot_; ++k) { 
-                Bx_[i][j][k]=0; 
-                By_[i][j][k]=0; 
-                Bz_[i][j][k]=0;
-                Bx_tm1_[i][j][k]=0; 
-                By_tm1_[i][j][k]=0; 
-                Bz_tm1_[i][j][k]=0;
-            } 
-        } 
-    } 
+    zeroField_(BxID_); 
+    zeroField_(ByID_); 
+    zeroField_(BzID_); 
+    zeroField_(Bx_tm1ID_); 
+    zeroField_(By_tm1ID_); 
+    zeroField_(Bz_tm1ID_); 
 };
 
 /// Initialize E and B fields

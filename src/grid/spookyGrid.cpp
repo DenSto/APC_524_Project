@@ -50,6 +50,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
         };
     } 
     else { 
+        fieldID = sendID; 
         // slice the single field 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
         // store the slice in ghostVec 
@@ -107,6 +108,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
         };
     } 
     else { 
+        fieldID = sendID; 
         // store the slice in ghostVec 
         std::copy(ghostVec,ghostVec + n ,tmpVec); 
         // unslice the single field 
