@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include "poisson.hpp"
+#include "convertFields.cpp"
+#include "../domain/domain.hpp"
 
-Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxyz) :
-  Grid(nxyz, nGhosts, xyz0, Lxyz),
+Poisson_Solver::Poisson_Solver(Domain *domain) :
+  Grid(domain->getnxyz(), domain->getnGhosts(), domain->getxyz0(), domain->getLxyz()),
   phi1ID_(13),
   phi2ID_(14),
   Ax1ID_(15),
@@ -23,7 +25,7 @@ Poisson_Solver::Poisson_Solver(int *nxyz, int nGhosts, double *xyz0, double *Lxy
   Az2_=newField_(Az2ID_);
 
   setPoissonFieldType_();
-  setPoissonFieldPtr_(); 
+  setPoissonFieldPtr_();
 }
 
 Poisson_Solver::~Poisson_Solver() {
@@ -78,14 +80,14 @@ void Poisson_Solver::initialize_poisson_fields() {
   double sourceMult = 4*3.1415926535898;
   double convTol = .01;
   run_poisson_solver_(phi1ID_,phi1_,phi2_,rho_,convTol,sourceMult);
-  //Now solve for E from phi1_!
+  phiToE();
 
   sourceMult = 4*3.1415926535898;
   convTol = .1;
   run_poisson_solver_(Ax1ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
   run_poisson_solver_(Ay1ID_,Ay1_,Ay2_,Jy_,convTol,sourceMult);
   run_poisson_solver_(Az1ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
-  //Now solve for B from Ai1_!
+  AToB();
 }
 
 void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult) {
@@ -129,10 +131,9 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
       }
     }
 
+    //Use domain::PassFields, so must keep the pointer to the domain in this object at initialization!
     //EDIT HERE: Pass and receive MPI for boundary!  Pass the boundary first and Receive the boundary last!
     //Determine GLOBAL convergence of jacobi method across all MPI domains!!!
-    
-
 
 
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
