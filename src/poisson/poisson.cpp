@@ -42,6 +42,7 @@ Poisson_Solver::~Poisson_Solver() {
   deleteField_(Az2_,Az2ID_);
 }
 
+/// Same as Grid::setFieldType_ for phi,A arrays unique to Poisson
 void Poisson_Solver::setPoissonFieldType_() { 
     fieldType_[phi1ID_]=vertID_; 
     fieldType_[phi2ID_]=vertID_; 
@@ -53,6 +54,7 @@ void Poisson_Solver::setPoissonFieldType_() {
     fieldType_[Az2ID_]=edgeZID_; 
 }; 
 
+/// Same as Grid::setFieldPtr_ for phi,A arrays unique to Poisson
 void Poisson_Solver::setPoissonFieldPtr_() { 
     fieldPtr_[phi1ID_]=phi1_; 
     fieldPtr_[phi2ID_]=phi2_; 
@@ -64,6 +66,8 @@ void Poisson_Solver::setPoissonFieldPtr_() {
     fieldPtr_[Az2ID_]=Az2_; 
 };
 
+/// Set all components of vector potential to zero
+/*! Ax1,Ax2,Ay1,Ay2,Az1,Az2 all zero */ 
 void Poisson_Solver::zeroA() { 
   zeroField_(Ax1ID_);
   zeroField_(Ay1ID_);
@@ -73,6 +77,8 @@ void Poisson_Solver::zeroA() {
   zeroField_(Az2ID_);
 }; 
 
+/// Set all components of scalar potential to zero 
+/*! phi1 and phi2 both zero */ 
 void Poisson_Solver::zeroPhi() { 
   zeroField_(phi1ID_); 
   zeroField_(phi2ID_); 
@@ -94,7 +100,7 @@ void Poisson_Solver::initialize_poisson_fields() {
 }
 
 void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult) {
-  //fieldID is the field's ID, e.g. fieldID for Ax_ is AxID_
+  //fieldID is the field's ID, e.g. fieldID for Ax_ is Ax1ID_
   //u0 is the first guess at a solution to Poisson's eqn
   //u1 is the work array of equal size
   //R is the 'source' array for Poisson's eqn

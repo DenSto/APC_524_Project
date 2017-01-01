@@ -59,6 +59,11 @@ void Poisson_Solver::phiToESingleComp_(const int fieldID, const int dir) {
                         nextVal = phi1_[i][j][k+1];
                         break; 
                 } 
+                /* although this exression resembles a forward
+                 * difference, it is actually a correct center
+                 * difference. E is located a half step between 
+                 * the next and prev phi points, and the indexing
+                 * of phi and E are also offset */ 
                 field[i][j][k] = -(nextVal - phi1_[i][j][k])/h;  
             } 
         } 
@@ -143,7 +148,12 @@ void Poisson_Solver::AToBSingleComp_(const int fieldID, const int dir) {
                         nextValk = Ak[i+1][j][k]; 
                         nextValj = Ak[i][j+1][k]; 
                         break; 
-                } 
+                }
+                /* although this exression resembles a forward
+                 * difference, it is actually a correct center
+                 * difference. B is located a half step between 
+                 * the next and prev A points, and the indexing
+                 * of A and B are also offset */ 
                 field[i][j][k] = (nextValk - Ak[i][j][k])/hj + 
                     (nextValj - Aj[i][j][k])/hk;  
             } 
