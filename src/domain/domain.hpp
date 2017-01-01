@@ -24,6 +24,7 @@ class Domain {
         void freeGhosts(void); // free ghostVec
 
         void PassFields(Grid *grids, Input_Info_t *input_info, int sendID); // field boundary
+        double GetMaxValueAcrossDomains(double send_val);
  
 	int *getnProcxyz(void); // return pointer nProcxyz_
         int *getmyijk(void); 

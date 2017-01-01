@@ -6,7 +6,7 @@
 
 class Poisson_Solver : protected Grid{
 public:
-  Poisson_Solver(Domain *domain);
+  Poisson_Solver(Domain *domain, Input_Info_t *input_info);
   ~Poisson_Solver();
 
   void initialize_poisson_fields();
@@ -22,6 +22,9 @@ protected:
 
   void phiToESingleComp_(const int fieldID, const int dir); 
   void AToBSingleComp_(const int fieldID, const int dir); 
+
+  Domain *domain_;
+  Input_Info_t *input_info_;
 
   double ***phi1_;
   double ***phi2_;

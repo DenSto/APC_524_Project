@@ -4,7 +4,7 @@
 #include "convertFields.cpp"
 #include "../domain/domain.hpp"
 
-Poisson_Solver::Poisson_Solver(Domain *domain) :
+Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   Grid(domain->getnxyz(), domain->getnGhosts(), domain->getxyz0(), domain->getLxyz()),
   phi1ID_(13),
   phi2ID_(14),
@@ -26,6 +26,9 @@ Poisson_Solver::Poisson_Solver(Domain *domain) :
 
   setPoissonFieldType_();
   setPoissonFieldPtr_();
+
+  domain_ = domain;
+  input_info_ = input_info;
 }
 
 Poisson_Solver::~Poisson_Solver() {
@@ -131,10 +134,18 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
       }
     }
 
-    //Use domain::PassFields, so must keep the pointer to the domain in this object at initialization!
-    //EDIT HERE: Pass and receive MPI for boundary!  Pass the boundary first and Receive the boundary last!
-    //Determine GLOBAL convergence of jacobi method across all MPI domains!!!
+    //Pass fields' data via MPI.
+    domain_->PassFields(this, input_info_, phi1ID_);
+    domain_->PassFields(this, input_info_, phi2ID_);
+    domain_->PassFields(this, input_info_, Ax1ID_);
+    domain_->PassFields(this, input_info_, Ay1ID_);
+    domain_->PassFields(this, input_info_, Az1ID_);
+    domain_->PassFields(this, input_info_, Ax2ID_);
+    domain_->PassFields(this, input_info_, Ay2ID_);
+    domain_->PassFields(this, input_info_, Az2ID_);
 
+    //Determine global convergence of jacobi method across all MPI domains
+    domain_->GetMaxValueAcrossDomains(maxDiff);
 
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
   }while( !jacobi_method_converged );
