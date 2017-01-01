@@ -151,7 +151,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
     domain_->PassFields(this, input_info_, Az2ID_);
 
     //Determine global convergence of jacobi method across all MPI domains
-    domain_->GetMaxValueAcrossDomains(maxDiff);
+    maxDiff = domain_->GetMaxValueAcrossDomains(maxDiff);
 
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
   }while( !jacobi_method_converged );
