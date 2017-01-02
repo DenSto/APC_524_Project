@@ -202,6 +202,21 @@ double Domain::getmindx(void){
     return *std::min_element(dxyz,dxyz+3);
 }
 
+//! Find maximum of values across MPI domains
+double Domain::GetMaxValueAcrossDomains(double send_val){
+
+  double rcv_val = 0.0;
+#if USE_MPI
+  // all-reduce number
+  MPI_Allreduce(&send_val,&rcv_val,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+#else
+  // stick with local number
+  rcv_val = send_val;
+#endif
+
+  return rcv_val;
+}
+
 void checkdomain(Domain *domain){
 
       int rank = rank_MPI;

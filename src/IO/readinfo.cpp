@@ -255,6 +255,8 @@ int Input::readinfo(char *fname){
 
     // MPI can only Bcast C strings
     char (*parts_bound)[NCHAR] = input_info_->parts_bound;
+//    strcpy(parts_bound[0], "reflecting"); // x -> Left
+//    strcpy(parts_bound[1], "reflecting"); // x -> Right
     strcpy(parts_bound[0], "periodic"); // x -> Left
     strcpy(parts_bound[1], "periodic"); // x -> Right
     strcpy(parts_bound[2], "periodic"); // y -> Left
@@ -263,6 +265,8 @@ int Input::readinfo(char *fname){
     strcpy(parts_bound[5], "periodic"); // z -> Right
  
     char (*fields_bound)[NCHAR] = input_info_->fields_bound;
+//    strcpy(fields_bound[0], "conducting"); // x -> Left
+//    strcpy(fields_bound[1], "conducting"); // x -> Right
     strcpy(fields_bound[0], "periodic"); // x -> Left
     strcpy(fields_bound[1], "periodic"); // x -> Right
     strcpy(fields_bound[2], "periodic"); // y -> Left

@@ -75,9 +75,9 @@ int main(int argc, char *argv[]){
       printf("Master reading input file...\n");
       int err = input->readinfo(argv[1]);
       // Check input self-consistency
-      input->checkinfo();
+      err += input->checkinfo();
       if(err!=0) {
-        std::cerr << "Terminating..." << std::endl;
+        std::cerr << "Input Error. Terminating..." << std::endl;
 #if USE_MPI
          MPI_Abort(MPI_COMM_WORLD,1);
 #else

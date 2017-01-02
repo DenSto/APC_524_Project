@@ -5,8 +5,80 @@
 #include "input.hpp"
 #include "../globals.hpp"
 
+//! Check input self-consistency and sufficiency
 int Input::checkinfo(void){
-    return 0;
+    int err = 0;
+
+    /* Check domain input *********************************/
+    // check nCell is divisible by nProc
+    int *nCell = input_info_->nCell;
+    int *nProc = input_info_->nProc;
+    int reset = 0;
+    int resid;
+    for(int i=0;i<3;i++){
+        resid=nCell[i]%nProc[i];
+        if(resid!=0){
+           reset+=1;
+           nCell[i]-=resid;
+        }
+     }
+     if(reset>0){
+        printf("    nCell not devisible by nProc\n");
+        printf("        Reset nCell to [%d, %d, %d]\n",nCell[0],nCell[1],nCell[2]);
+    } 
+           
+    /* Check run time inputs *******************************/
+    // check nTimesteps
+    if(input_info_->nt<0){
+        input_info_->nt = 1;
+        printf("    nTimesteps is negative!\n");
+        printf("        Reset nTimesteps = 1\n");
+    }
+
+    /* Check particle input *******************************/
+    // check particle dens, mass
+    // normalize charge to proper unit 
+    int nspec = input_info_->nspecies;
+    printf("    There are %d species in this simulation\n",nspec);
+
+    double *dens = input_info_->dens_frac; 
+    double *mass = input_info_->mass_ratio;
+    double *charge = input_info_->charge_ratio;
+    double cden = 0.0;
+    for(int i=0;i<nspec;i++){
+        cden += dens[i];
+    }
+
+    for(int i=0;i<nspec;i++){
+        dens[i]/=cden;
+        printf("        Species %d: density %6.3f%%, mass %9.3f, charge %6.3f\n",
+                        i,dens[i],mass[i],charge[i]);
+        // normalize charge to proper unit
+        charge[i]*=UNIT_CHARGE;
+    }
+
+    /* Check boundary conditions **************************/
+    char (*parts_bound)[NCHAR] = input_info_->parts_bound;
+    char (*fields_bound)[NCHAR] = input_info_->fields_bound;
+
+    // check periodic boundary condition
+    int fleft,fright,pleft,pright;
+    for(int i=0;i<3;i++){
+        fleft = strcmp(fields_bound[2*i],"periodic");            
+        fright= strcmp(fields_bound[2*i+1],"periodic");            
+        pleft = strcmp(parts_bound[2*i],"periodic");            
+        pright= strcmp(parts_bound[2*i+1],"periodic");            
+        if(fleft==0 && fright ==0 && pleft ==0 && pright ==0){
+           printf("    Boundary conditions are periodic in %d-direction\n",i); 
+        } else if(fleft!=0 && fright!=0 && pleft!=0 && pright!=0){
+           printf("    No boundary condition is periodic in %d-direction\n",i);
+        } else {
+           err += 1;
+           fprintf(stderr,"Inconsistent boundary conditions in %d-direction!\n",i);
+        }
+    }
+
+    return err;
 }
 
 /* Check MPI broadcast **********************************/

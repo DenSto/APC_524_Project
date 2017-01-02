@@ -1,7 +1,7 @@
 domain:
 {
   # number of cells in each dimension
-  nCell = [ 16, 8, 8 ]
+  nCell = [ 18, 8, 8 ]
 
   # number of processors in each dimension (parallel version only)
   #nProc = [ 4, 2, 2 ]
