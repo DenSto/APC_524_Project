@@ -55,6 +55,8 @@ int Input::readinfo(char *fname){
     }
 
 // dummy code to be replaced ///////////////////////////////
+    input_info_->relativity = 0;
+
     input_info_->xyz0[0]=  0.0;
     input_info_->xyz0[1]=  0.0;
     input_info_->xyz0[2]=  0.0;
@@ -248,8 +250,8 @@ int Input::readinfo(char *fname){
     }
 
 // dummy code to be replaced //////////////////////////////////
-    //input_info->dens    = 0.2;
-    //input_info->temp    = 1.5;
+    input_info_->temp[0] = 1.5; 
+    input_info_->temp[1] = 0.1; 
 
     sprintf(input_info_->distname,"distribution.dat");
 

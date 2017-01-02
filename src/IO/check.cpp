@@ -57,6 +57,17 @@ int Input::checkinfo(void){
         charge[i]*=UNIT_CHARGE;
     }
 
+    // check positivity of mass and temp
+    double *temp = input_info_->temp;
+    for(int i=0;i<nspec;i++){
+       if(temp[i]<0)temp[i]=-temp[i];
+       if(mass[i]<0)mass[i]=-mass[i];
+       if(mass[i]==0){
+          fprintf(stderr,"Mass cannot be zero!\n");
+          err += 1;
+       }
+    }      
+
     /* Check boundary conditions **************************/
     char (*parts_bound)[NCHAR] = input_info_->parts_bound;
     char (*fields_bound)[NCHAR] = input_info_->fields_bound;

@@ -27,6 +27,7 @@
 #include "./boundaries/boundary_particles.hpp"
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
+#include "./pusher/relativisticBoris.hpp"
 
 #if USE_MPI
     #include "mpi.h"  
@@ -102,9 +103,16 @@ int main(int argc, char *argv[]){
     Domain *domain = new Domain(input_info);
     if(debug>1) checkdomain(domain);
 
-    // Initialize particles
+    // Initialize particles and pusher
     Particle_Handler *part_handler = new Particle_Handler(); 
-    part_handler->setPusher(new Boris());
+    int relat = input_info->relativity;
+    if(relat==0){
+       if(rank==0)printf("    Use non-relativistic pusher\n");
+       part_handler->setPusher(new Boris());
+    }else{
+       if(rank==0)printf("    Use relativistic pusher\n");
+       part_handler->setPusher(new Relativistic_Boris());
+    } 
 
     // Set up particle boundary conditions
     BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info->parts_bound);

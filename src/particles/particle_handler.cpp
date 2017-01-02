@@ -39,6 +39,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 	Random_Number_Generator *rng = new Random_Number_Generator(-1);
         int ispec = 0; // temporaty counter
         double cden = dens[0]; // cummulative density fraction
+        double vth;
         for(long ip=0; ip < npart;ip++){
 		Particle p = new_particle();
                 if(ip >= cden*npart){
@@ -49,7 +50,8 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.m = mass[ispec];
 
 		//double vth= sqrt(8 * input_info->temp / (p.m * M_PI));
-		double vth=1.0;
+		vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
+
 		p.x[0]=rng->getUniform()*L[0]+x0[0];
 		p.x[1]=rng->getUniform()*L[1]+x0[1];
 		p.x[2]=rng->getUniform()*L[2]+x0[2];
