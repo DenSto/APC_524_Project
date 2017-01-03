@@ -10,7 +10,9 @@ public:
   Poisson_Solver(Domain *domain, Input_Info_t *input_info);
   ~Poisson_Solver();
 
-  void initialize_poisson_fields();
+  //void initialize_poisson_fields();
+  void InitializeFields();
+
   void phiToE();
   void AToB();
   void zeroA();

@@ -133,15 +133,20 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
+    if(rank==0)printf("    Loading particles...\n");
     part_handler->Load(input_info,domain);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
-    // Deposite initial charge and current from particles to grid
-    //part_handler->depositJ(grids);
-    //if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
+    // if initial run, Deposite charge and current from particles to grid
+    if(restart==0){
+        if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
+        part_handler->depositRhoJ(grids,true);
+        if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
+    }
 
     // Solve initial fields from particle or read restart file
-    grids->InitializeFields(restart); 
+    if(rank==0)printf("    Initializing fields...\n");
+    grids->InitializeFields(); 
     if(debug) fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
 
     // Interpolate fields from grid to particle

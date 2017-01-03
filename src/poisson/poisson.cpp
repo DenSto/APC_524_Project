@@ -1,7 +1,8 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "poisson.hpp"
-#include "convertFields.cpp"
+#include "../globals.hpp"
 #include "../domain/domain.hpp"
 
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
@@ -84,7 +85,10 @@ void Poisson_Solver::zeroPhi() {
   zeroField_(phi2ID_); 
 }; 
 
-void Poisson_Solver::initialize_poisson_fields() {
+//void Poisson_Solver::initialize_poisson_fields() {
+void Poisson_Solver::InitializeFields() {
+
+  if(rank_MPI==0)printf("        Initializing fields by solving Poisson's equation...\n");
 
   double sourceMult = 4*3.1415926535898;
   double convTol = .01;
@@ -151,8 +155,9 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
     domain_->PassFields(this, input_info_, Az2ID_);
 
     //Determine global convergence of jacobi method across all MPI domains
+#if USE_MPI
     maxDiff = domain_->GetMaxValueAcrossDomains(maxDiff);
-
+#endif
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
   }while( !jacobi_method_converged );
 
