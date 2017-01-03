@@ -1,4 +1,4 @@
-#include "boundary_particles.hpp"
+#include "particles_boundary.hpp"
 
 // cycle through all particles
 int BC_Particle::computeParticleBCs(std::vector<Particle> *pl) {

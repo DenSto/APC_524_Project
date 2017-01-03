@@ -9,7 +9,19 @@
 #include "mpi.h"
 #endif
 
-//! Pass fields across MPI boundaries, or execute physical boundary conditions
+//! Pass fields across boundaries, or execute physical boundary conditions
+/*void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID){
+    // assign ghost pointers
+
+    // load buffer
+
+    // pass buffer
+    
+    // unload buffer
+
+}*/
+
+
 void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID){
 #if USE_MPI
     int tagl=1; // MPI tag: to left, or from right

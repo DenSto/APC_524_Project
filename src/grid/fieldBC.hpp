@@ -12,7 +12,7 @@ class Grid;
    Boundary conditions are of form: \n
    amp * cos( omega * t + phase) \n
    along plane perpendicular to dimension dim (0 = x, 1 = y, 2 = z)
-   on edge ( false = low, true = high) \n
+   on edge ( false = left, true = right) \n
    fieldStr one of Ex, Ey, Ez, Bx, By, Bz
 */
 class FieldBC {

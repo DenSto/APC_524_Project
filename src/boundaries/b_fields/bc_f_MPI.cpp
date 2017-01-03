@@ -1,8 +1,8 @@
 #if USE_MPI
 
 #include "../../globals.hpp"
-#include "../particles_boundary.hpp"
-#include "../particle_bc_factory.hpp"
+#include "../fields_boundary.hpp"
+#include "../field_bc_factory.hpp"
 #include <vector>
 #include <stdlib.h>
 #include "assert.h"
@@ -10,21 +10,21 @@
 
 #define DOUBLES_IN_PARTICLE 10
 
-class BC_P_MPI : public BC_Particle {
+class BC_F_MPI : public BC_Field {
 	public:
-		BC_P_MPI(Domain* domain, int dim_Index, short isLeft, std::string type);
-		~BC_P_MPI();
-		void computeParticleBCs(std::vector<Particle> *pl);
-		int completeBC(std::vector<Particle> *pl);
+		BC_F_MPI(Domain* domain, int dim_Index, short isLeft, std::string type);
+		~BC_F_MPI();
+		int completeBC();
+//		void computeParticleBCs(std::vector<Particle> *pl);
 	private:
-		int particle_BC(Particle* p);
+//		int particle_BC(Particle* p);
 		double xMin_;
 		double xMax_;
 		int dim_index_;
 		short isRight_;
 		std::string type_;
 
-		int sendRank_, recvRank_;
+/*		int sendRank_, recvRank_;
 		double* lengthShift_;
 		long toSend_, toReceive_;
 		std::vector<double> sendBuf_;
@@ -33,15 +33,16 @@ class BC_P_MPI : public BC_Particle {
 		int rBufSize_;
 		void packParticle(Particle* p);
 		Particle unpackParticle(int offset);
+*/
 };
 
 
-BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string type)
+BC_F_MPI::BC_F_MPI(Domain* domain, int dim_Index, short isRight, std::string type)
 	:	dim_index_(dim_Index),
 		isRight_(isRight),
 		type_(type)
 {
-	assert(dim_index_ < 3);
+/*	assert(dim_index_ < 3);
 
 	xMin_ = domain->getxyz0()[dim_index_];
 	xMax_ = xMin_ + domain->getLxyz()[dim_index_];
@@ -90,17 +91,19 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 			recvRank_ = neigh[2*dim_index_]; // receive from left
 		}
 	}
+*/
 }
 
-
-BC_P_MPI::~BC_P_MPI(){
+BC_F_MPI::~BC_F_MPI(){
+/*
 	if(recvBuf_ != NULL)
 		free(recvBuf_);
 	delete[] lengthShift_;
+*/
 }
 
-int BC_P_MPI::completeBC(std::vector<Particle> *pl){
-	// Send and receive particles.
+int BC_F_MPI::completeBC(){
+/*	// Send and receive particles.
 	MPI_Request req;
 	int err;
 
@@ -154,8 +157,10 @@ int BC_P_MPI::completeBC(std::vector<Particle> *pl){
 	toReceive_=0;
 
 	return ret;
+*/
+    return 0;
 }
-
+/*
 int BC_P_MPI::particle_BC(Particle* p){
 	if(p->x[dim_index_] < xMin_ && !isRight_){
 		packParticle(p);
@@ -204,7 +209,7 @@ Particle BC_P_MPI::unpackParticle(int offset){
 	return p;
 }
 
-
+*/
 // Registers bounary condition into BC_Factory dictionary
-static RegisterParticleBoundary instance("MPI", makeBCParticle<BC_P_MPI>);
+static RegisterFieldBoundary instance("MPI", makeBCField<BC_F_MPI>);
 #endif

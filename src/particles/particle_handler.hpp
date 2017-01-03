@@ -14,7 +14,7 @@
 #include "../grid/grid.hpp"
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
-#include "../boundaries/boundary_particles.hpp"
+#include "../boundaries/particles_boundary.hpp"
 #include "interpolate.hpp"
 #include "deposit.hpp"
 

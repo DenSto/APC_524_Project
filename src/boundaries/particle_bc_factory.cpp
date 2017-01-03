@@ -1,10 +1,10 @@
-#include "bc_factory.hpp"
+#include "particle_bc_factory.hpp"
    /*
    	* Construct the boundary condition array (must be freed!)
 	* Takes in an array of size 6.
     */
      //BC_Particle** constructConditions(Domain* domain, const std::string* types){
-     BC_Particle** BC_Factory::constructConditions(Domain* domain, const char (*bound)[NCHAR]){
+     BC_Particle** Part_BC_Factory::constructConditions(Domain* domain, const char (*bound)[NCHAR]){
                 // convert c string for MPI to std::string for BC_Particle
                 // size NCHAR is in correspondence definition in Input_Info_t
 		std::string types[6];

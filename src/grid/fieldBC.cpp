@@ -1,4 +1,3 @@
-
 #include <string>
 #include <math.h>
 #include "fieldBC.hpp"

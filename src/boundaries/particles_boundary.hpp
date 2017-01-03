@@ -1,5 +1,5 @@
-#ifndef BOUNDARY_PARTICLES_HPP
-#define BOUNDARY_PARTICLES_HPP
+#ifndef PARTICLES_BOUNDARY_HPP
+#define PARTICLES_BOUNDARY_HPP
 
 
 #include "../grid/grid.hpp"

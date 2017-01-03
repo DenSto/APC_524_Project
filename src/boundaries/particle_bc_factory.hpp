@@ -1,12 +1,12 @@
-#ifndef BC_FACTORY
-#define BC_FACTORY
+#ifndef PART_BC_FACTORY
+#define PART_BC_FACTORY
 
 #include <stdio.h>
 #include <map>
 #include <vector>
 #include <sstream>
 #include <stdexcept>
-#include "boundary_particles.hpp"
+#include "particles_boundary.hpp"
 #include "../IO/input.hpp"
 #include "../domain/domain.hpp"
 #include "assert.h"
@@ -18,14 +18,14 @@
 /*!
  * A singleton class to handle registration of particle boundaries
  */
-class BC_Factory {
+class Part_BC_Factory {
 public:
     typedef BC_Particle *(*Factory)(Domain* domain, int dim_Index, short isRight, std::string type);
   /*  
-   * Return the (singleton) BC_Factory object
+   * Return the (singleton) Part_BC_Factory object
    */
-  static BC_Factory& getInstance() {
-    static BC_Factory instance; // Guaranteed to be destroyed; Instantiated on first use.
+  static Part_BC_Factory& getInstance() {
+    static Part_BC_Factory instance; // Guaranteed to be destroyed; Instantiated on first use.
     return instance;
   }
 
@@ -71,11 +71,11 @@ public:
     return types;
   }
 private:
-  BC_Factory() {}
-  ~BC_Factory() {} 
+  Part_BC_Factory() {}
+  ~Part_BC_Factory() {} 
   // Not implemented --- can't be called
-  BC_Factory(const BC_Factory&);
-  void operator=(const BC_Factory&);
+  Part_BC_Factory(const Part_BC_Factory&);
+  void operator=(const Part_BC_Factory&);
 
   typedef std::map<std::string, Factory> MapType;
   MapType registry_; // BC_particle registry  registry
@@ -87,10 +87,10 @@ private:
  */
 struct RegisterParticleBoundary {
   RegisterParticleBoundary(const std::string &type, // type of boundary
-                 BC_Factory::Factory factory   // factory function for integrator
+                 Part_BC_Factory::Factory factory   // factory function for integrator
                 )
     {
-      BC_Factory::getInstance().declare(type, factory);
+      Part_BC_Factory::getInstance().declare(type, factory);
     }
 };
 

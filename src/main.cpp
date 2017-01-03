@@ -24,8 +24,8 @@
 #include "./particles/particle.hpp"
 #include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
-#include "./boundaries/bc_factory.hpp"
-#include "./boundaries/boundary_particles.hpp"
+#include "./boundaries/particle_bc_factory.hpp"
+#include "./boundaries/particles_boundary.hpp"
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
 #include "./pusher/relativisticBoris.hpp"
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
     } 
 
     // Set up particle boundary conditions
-    BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info->parts_bound);
+    BC_Particle** bc = Part_BC_Factory::getInstance().constructConditions(domain,input_info->parts_bound);
     part_handler->setParticleBoundaries(bc);
     if(debug) fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
