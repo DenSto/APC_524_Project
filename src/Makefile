@@ -9,7 +9,6 @@ USE_MPI = 1
 # only compile:
 RUN_TEST = 0
 
-
 ifeq ($(USE_MPI),0)
   CC = g++
   OMPFLAGS = -DUSE_MPI=0
@@ -25,10 +24,14 @@ PROGRAM = EMOOPIC
 include Makefile.obj
 
 SRCDIR = $(PWD)
-LCONFIG_DIR = ../libconfig-1.5
-LCONFIG = $(LCONFIG_DIR)/lib/libconfig++.a
 
-LIBS = $(LCONFIG)
+LCONFIG_DIR = $(SRCDIR)/../libconfig-1.5
+LCONFIG_LIB = $(LCONFIG_DIR)/lib/libconfig++.a
+
+HDF5_DIR = $(SRCDIR)/../hdf5-1.8.12
+HDF5_LIB = $(HDF5_DIR)/hdf5/lib/libhdf5.a
+
+LIBS = $(LCONFIG_LIB) $(HDF5_LIB)
 
 ifeq ($(RUN_TEST),1)
   all: $(PROGRAM) run_tests
@@ -42,10 +45,10 @@ $(PROGRAM): $(OBJ) $(LIBS)
 %.o: %.cpp 
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include
 
-IO/input.o: IO/input.cpp $(LCONFIG)
+IO/input.o: IO/input.cpp $(LCONFIG_LIB)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
 
-$(LCONFIG):
+$(LCONFIG_LIB):
 	cd ..; \
 	tar xf libconfig-1.5.tar.gz; \
 	cd libconfig-1.5; \
@@ -53,6 +56,16 @@ $(LCONFIG):
 	make; \
 	make install; \
 	cd $(SRCDIR)
+
+$(HDF5_LIB):
+	cd ..; \
+	[ -d $(HDF5_DIR) ] || tar xfv hdf5-1.8.12.tar.gz; \
+	cd $(HDF5_DIR); \
+	CC=mpic++ ./configure --enable-parallel --prefix=$(HDF5_DIR); \
+	make; \
+	make install; \
+	cd $(SRCDIR)
+
 depend:
 	$(CC) -MM $(CFLAGS) *.cpp > .depend
 
@@ -60,14 +73,12 @@ clean:
 	rm -f $(PROGRAM) $(OBJ) .depend
 
 
-ifeq ($(RUN_TEST),1)
 run_tests:
 ifeq ($(USE_MPI),0)
 	cd ../test; \
 	make; \
 	make run_tests; \
 	cd ../src;
-endif
 endif
 
 -include .depend

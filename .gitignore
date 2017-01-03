@@ -19,3 +19,4 @@ libconfig-1.5
 test/*unittests
 *.bundle
 .DS_store
+hdf5-1.8.12
