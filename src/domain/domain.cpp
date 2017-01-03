@@ -25,7 +25,8 @@ Domain::Domain(Input_Info_t *input_info)
        if(debug>1) fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
        int* nCell = input_info->nCell; 
        int* nProc = input_info->nProc;
-       if(debug>1) fprintf(stderr,"rank=%d,size=%d,nproc[0]=%d,%d,%d\n",rank_,size_,nProc[0],nProc[1],nProc[2]); 
+       if(debug>1) fprintf(stderr,"rank=%d,size=%d,nproc=%d,%d,%d\n",
+                              rank_,size_,nProc[0],nProc[1],nProc[2]); 
        assert(size_ == nProc[0]*nProc[1]*nProc[2]);
 
        // assign private variables
@@ -46,8 +47,8 @@ Domain::Domain(Input_Info_t *input_info)
        /* determine location on map ***********************/
        // my location
        myijk_ =  new int[3];
-	   neighbours_ = new int[6];
-       assert(myijk_!=NULL);
+       neighbours_ = new int[6];
+       //assert(myijk_!=NULL);
        RankToijk(rank_, myijk_);
 
        int itmp;

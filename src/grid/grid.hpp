@@ -25,9 +25,9 @@ public:
   int evolveFields (double dt);
   int evolveFieldsES (double dt);
 
-  void InitializeFields(int restart); // Initialize E field by either solve Poisson's equation
-                                      // or read restart file. Initialize B field with prescribed
-                                      // geometry or read restart file. 
+  // Initialize fields by either solve Poisson's equation or read restart file.  
+  virtual void InitializeFields(void);
+
   void zeroJ();
   void zeroRho();
   void zeroE(); 

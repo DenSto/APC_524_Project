@@ -20,6 +20,7 @@
 #include "./IO/output.hpp"
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
+#include "./poisson/poisson.hpp"
 #include "./particles/particle.hpp"
 #include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
@@ -27,6 +28,7 @@
 #include "./boundaries/boundary_particles.hpp"
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
+#include "./pusher/relativisticBoris.hpp"
 
 #if USE_MPI
     #include "mpi.h"  
@@ -92,8 +94,9 @@ int main(int argc, char *argv[]){
     if(rank==0)printf("Master broadcasting input infomation...\n");
     input->passinfo();
 #endif
-    debug = input_info->debug; // global debug flag
     int restart = input_info->restart;
+    int relativity = input_info->relativity;
+    debug = input_info->debug; // global debug flag
     if(debug>1) checkinput(input_info);
 
     /* Initial setup **************************************/
@@ -102,9 +105,15 @@ int main(int argc, char *argv[]){
     Domain *domain = new Domain(input_info);
     if(debug>1) checkdomain(domain);
 
-    // Initialize particles
+    // Initialize particles and pusher
     Particle_Handler *part_handler = new Particle_Handler(); 
-    part_handler->setPusher(new Boris());
+    if(relativity==0){
+       if(rank==0)printf("    Use non-relativistic pusher\n");
+       part_handler->setPusher(new Boris());
+    }else{
+       if(rank==0)printf("    Use relativistic pusher\n");
+       part_handler->setPusher(new Relativistic_Boris());
+    } 
 
     // Set up particle boundary conditions
     BC_Particle** bc = BC_Factory::getInstance().constructConditions(domain,input_info->parts_bound);
@@ -112,20 +121,32 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
     // Initialize grid
-    Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
+    Grid *grids;
+    if(restart>0){//no need to solve Poisson's equation
+        if(rank==0)printf("    Grid initialing...\n");
+        grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
+    }else{//need to solve Poisson's equation
+        if(rank==0)printf("    Grid initialing: will solve Poisson's equations...\n");
+        grids = new Poisson_Solver(domain,input_info);
+    }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart
+    if(rank==0)printf("    Loading particles...\n");
     part_handler->Load(input_info,domain);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
-    // Deposite initial charge and current from particles to grid
-    //part_handler->depositJ(grids);
-    //if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
+    // if initial run, Deposite charge and current from particles to grid
+    if(restart==0){
+        if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
+        part_handler->depositRhoJ(grids,true);
+        if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
+    }
 
     // Solve initial fields from particle or read restart file
-    grids->InitializeFields(restart); 
+    if(rank==0)printf("    Initializing fields...\n");
+    grids->InitializeFields(); 
     if(debug) fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
 
     // Interpolate fields from grid to particle

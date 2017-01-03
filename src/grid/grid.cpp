@@ -3,6 +3,7 @@
 #include <math.h>
 #include <assert.h> 
 #include "grid.hpp"
+#include "../globals.hpp"
 #include "../IO/input.hpp"
 
 /// Grid constructor 
@@ -370,8 +371,10 @@ void Grid::zeroB() {
 /// Initialize E and B fields
 /*! Use restart file to set values of initial E,B,J fields
  */ 
-void Grid::InitializeFields(int restart){
-     // placeholder until restart files exist 
+void Grid::InitializeFields(void){
+
+    if(rank_MPI==0)printf("        Initializing fields by reading files...\n");
+    // placeholder until restart files exist 
     zeroB(); 
     zeroE(); 
     zeroJ(); 
