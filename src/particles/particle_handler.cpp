@@ -49,7 +49,6 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.q = charge[ispec];
 		p.m = mass[ispec];
 
-		//double vth= sqrt(8 * input_info->temp / (p.m * M_PI));
 		vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
 
 		p.x[0]=rng->getUniform()*L[0]+x0[0];

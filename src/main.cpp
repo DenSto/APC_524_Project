@@ -20,6 +20,7 @@
 #include "./IO/output.hpp"
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
+#include "./poisson/poisson.hpp"
 #include "./particles/particle.hpp"
 #include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
@@ -93,8 +94,9 @@ int main(int argc, char *argv[]){
     if(rank==0)printf("Master broadcasting input infomation...\n");
     input->passinfo();
 #endif
-    debug = input_info->debug; // global debug flag
     int restart = input_info->restart;
+    int relativity = input_info->relativity;
+    debug = input_info->debug; // global debug flag
     if(debug>1) checkinput(input_info);
 
     /* Initial setup **************************************/
@@ -105,8 +107,7 @@ int main(int argc, char *argv[]){
 
     // Initialize particles and pusher
     Particle_Handler *part_handler = new Particle_Handler(); 
-    int relat = input_info->relativity;
-    if(relat==0){
+    if(relativity==0){
        if(rank==0)printf("    Use non-relativistic pusher\n");
        part_handler->setPusher(new Boris());
     }else{
@@ -120,8 +121,15 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
 
     // Initialize grid
-    Grid* grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
+    Grid *grids;
+    if(restart>0){//no need to solve Poisson's equation
+        if(rank==0)printf("    Grid initialing...\n");
+        grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
+    }else{//need to solve Poisson's equation
+        if(rank==0)printf("    Grid initialing: will solve Poisson's equations...\n");
+        grids = new Poisson_Solver(domain,input_info);
+    }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Load particles, allow restart

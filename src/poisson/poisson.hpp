@@ -4,7 +4,8 @@
 #include "../grid/grid.hpp"
 #include "../domain/domain.hpp"
 
-class Poisson_Solver : protected Grid{
+//class Poisson_Solver : protected Grid{
+class Poisson_Solver : public Grid{
 public:
   Poisson_Solver(Domain *domain, Input_Info_t *input_info);
   ~Poisson_Solver();
