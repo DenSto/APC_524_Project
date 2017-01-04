@@ -88,12 +88,12 @@ void Poisson_Solver::InitializeFields() {
 
   if(rank_MPI==0)printf("        Initializing fields by solving Poisson's equation...\n");
 
-  double sourceMult = 4*3.1415926535898;
+  double sourceMult = -4*3.1415926535898;
   double convTol = .01;
   run_poisson_solver_(phi1ID_,phi1_,phi2_,rho_,convTol,sourceMult);
   phiToE();
 
-  sourceMult = 4*3.1415926535898;
+  sourceMult = -4*3.1415926535898;
   convTol = .1;
   run_poisson_solver_(Ax1ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
   run_poisson_solver_(Ay1ID_,Ay1_,Ay2_,Jy_,convTol,sourceMult);
