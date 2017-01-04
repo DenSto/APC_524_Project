@@ -326,48 +326,48 @@ void Grid::checkInput_() {
     assert(ghostVecSize_ > 0); 
 }; 
 
-/// sets field corresponding to fieldID to zero
-void Grid::zeroField_(const int fieldID) { 
+/// sets field corresponding to fieldID to specified value
+void Grid::constField_(const int fieldID, const double val) { 
     assert (fieldID > -1 && fieldID < nFieldsTotal_); 
     double*** field = fieldPtr_[fieldID]; 
     int i,j,k; // iterators 
     for (i=0; i<nxTot_; ++i) { 
         for (j=0; j<nyTot_; ++j) { 
             for (k=0; k<nzTot_; ++k) { 
-                field[i][j][k]=0; 
+                field[i][j][k]=val; 
             } 
         } 
     } 
 } 
 
-/// sets all components of J to be identically zero
-void Grid::zeroJ() { 
-    zeroField_(JxID_); 
-    zeroField_(JyID_); 
-    zeroField_(JzID_); 
-};
+/// sets B to a constant value 
+void Grid::constB(double vx, double vy, double vz) { 
+    constField_(BxID_,vx); 
+    constField_(ByID_,vy); 
+    constField_(BzID_,vz); 
+    constField_(Bx_tm1ID_,vx); 
+    constField_(By_tm1ID_,vy); 
+    constField_(Bz_tm1ID_,vz); 
+} 
 
-/// sets rho to be identically zero
-void Grid::zeroRho() { 
-    zeroField_(rhoID_); 
-};
+/// sets E to a constant value 
+void Grid::constE(double vx, double vy, double vz) { 
+    constField_(ExID_,vx); 
+    constField_(EyID_,vy); 
+    constField_(EzID_,vz); 
+} 
 
-/// sets all components of E to be identically zero
-void Grid::zeroE() { 
-    zeroField_(ExID_); 
-    zeroField_(EyID_); 
-    zeroField_(EzID_); 
-};
+/// sets J to a constant value 
+void Grid::constJ(double vx, double vy, double vz) { 
+    constField_(JxID_,vx); 
+    constField_(JyID_,vy); 
+    constField_(JzID_,vz); 
+} 
 
-/// sets all components of B and B_tm1 to be identically zero
-void Grid::zeroB() { 
-    zeroField_(BxID_); 
-    zeroField_(ByID_); 
-    zeroField_(BzID_); 
-    zeroField_(Bx_tm1ID_); 
-    zeroField_(By_tm1ID_); 
-    zeroField_(Bz_tm1ID_); 
-};
+/// sets rho to a constant value 
+void Grid::constRho(double vx, double vy, double vz) { 
+    constField_(rhoID_,vx); 
+} 
 
 /// Initialize E and B fields
 /*! Use restart file to set values of initial E,B,J fields
@@ -376,10 +376,10 @@ void Grid::InitializeFields(void){
 
     if(rank_MPI==0)printf("        Initializing fields by reading files...\n");
     // placeholder until restart files exist 
-    zeroB(); 
-    zeroE(); 
-    zeroJ(); 
-    zeroRho(); 
+    constJ(0,0,0); 
+    constE(0,0,0); 
+    constB(0,0,0); 
+    constRho(0,0,0); 
 }; 
 
 //! Execute field boundary conditions

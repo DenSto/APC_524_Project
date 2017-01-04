@@ -96,7 +96,7 @@ TEST_F(oGridInternalTest, EMWave) {
 
    double dt = T / 100;
 
-   grid->zeroJ();
+   grid->constJ(0,0,0);
    for (int i = 0; i < 100; i++) {
       grid->evolveFields( dt);
       grid->updatePeriodicGhostCells();

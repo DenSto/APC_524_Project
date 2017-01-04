@@ -116,10 +116,10 @@ TEST_F(GridPrivateTest, fieldPtrTest) {
 TEST_F(GridPrivateTest,zeroFields) {
  
     // zero all fields 
-    grid->zeroE(); 
-    grid->zeroB(); 
-    grid->zeroJ(); 
-    grid->zeroRho(); 
+    grid->constE(0,0,0); 
+    grid->constB(0,0,0); 
+    grid->constJ(0,0,0); 
+    grid->constRho(0,0,0); 
 
     // sum each field 
     double ExSum = sumField(grid->Ex_); 
@@ -140,7 +140,7 @@ TEST_F(GridPrivateTest,zeroFields) {
     // verify that the sum is no longer zero 
     EXPECT_EQ(ExSum,addval); 
     // zero E again 
-    grid->zeroE(); 
+    grid->constE(0,0,0); 
     // verify that E again sums to zero 
     ExSum = sumField(grid->Ex_); 
     EXPECT_EQ(ExSum,0); 

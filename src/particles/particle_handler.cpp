@@ -154,8 +154,8 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho){
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
 
   //Zero the grid's currents and charge densities.
-  grid->zeroJ();
-  if (depositRho) grid->zeroRho();
+  grid->constJ(0,0,0);
+  if (depositRho) grid->constRho(0,0,0);
 
   //Cycle through particles, depositing RhoJ for each one.
   for (long i=0; i<np_; i++) {

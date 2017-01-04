@@ -15,8 +15,8 @@ public:
 
   void phiToE();
   void AToB();
-  void zeroA();
-  void zeroPhi();
+  void constA(const double vx, const double vy, const double vz);
+  void constPhi(const double v);
 
 protected:
   void run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult); 

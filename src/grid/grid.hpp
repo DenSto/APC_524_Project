@@ -28,11 +28,12 @@ public:
 
   // Initialize fields by either solve Poisson's equation or read restart file.  
   virtual void InitializeFields(void);
-
-  void zeroJ();
-  void zeroRho();
-  void zeroE(); 
-  void zeroB(); 
+  
+  void constJ(double vx, double vy, double vz); 
+  void constE(double vx, double vy, double vz); 
+  void constB(double vx, double vy, double vz); 
+  void constRho(double vx, double vy, double vz); 
+  
   int addJ(int cellID, double *Jvec);
   int addRho(int cellID, double *Rhovec);
   int getFieldInterpolatorVec (int cellID, double* InterpolatorVec);
@@ -159,7 +160,7 @@ protected:
   double**** setFieldPtr_(); 
   void deleteFieldPtr_(); 
 
-  void zeroField_(const int fieldID); 
+  void constField_(const int fieldID, const double val); 
 
   int sideToIndex_(const int side, const int fieldID);
   /* assert statements to check necessary conditions for initialized variables */

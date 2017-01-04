@@ -67,23 +67,21 @@ void Poisson_Solver::setPoissonFieldPtr_() {
     fieldPtr_[Az2ID_]=Az2_; 
 };
 
-/// Set all components of vector potential to zero
-/*! Ax1,Ax2,Ay1,Ay2,Az1,Az2 all zero */ 
-void Poisson_Solver::zeroA() { 
-  zeroField_(Ax1ID_);
-  zeroField_(Ay1ID_);
-  zeroField_(Az1ID_);
-  zeroField_(Ax2ID_);
-  zeroField_(Ay2ID_);
-  zeroField_(Az2ID_);
-}; 
+/// Set vector potential to constant values
+void Poisson_Solver::constA(const double vx, const double vy, const double vz) { 
+    constField_(Ax1ID_,vx); 
+    constField_(Ay1ID_,vy); 
+    constField_(Az1ID_,vz); 
+    constField_(Ax2ID_,vx); 
+    constField_(Ay2ID_,vy); 
+    constField_(Az2ID_,vz); 
+} 
 
-/// Set all components of scalar potential to zero 
-/*! phi1 and phi2 both zero */ 
-void Poisson_Solver::zeroPhi() { 
-  zeroField_(phi1ID_); 
-  zeroField_(phi2ID_); 
-}; 
+/// Set scalar potential to constant value
+void Poisson_Solver::constPhi(const double v) { 
+    constField_(phi1ID_,v); 
+    constField_(phi2ID_,v); 
+} 
 
 //void Poisson_Solver::initialize_poisson_fields() {
 void Poisson_Solver::InitializeFields() {
