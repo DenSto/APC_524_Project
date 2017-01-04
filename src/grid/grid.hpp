@@ -15,6 +15,7 @@
 */
 #include <string>
 #include <gtest/gtest_prod.h>
+#include "../boundaries/fields_boundary.hpp"
 
 class Grid {
 
@@ -53,7 +54,15 @@ public:
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
 
+  double* sliceTmp; 
+  double* ghostTmp;  
+
+  void executeBC(void); // execute field boundary conditions
+  void setBoundaries(BC_Field** bc){boundaries_=bc;}
+ 
+
 protected:
+  BC_Field** boundaries_; // field boundary conditions
 
   const int nx_;     // number of (physical + ghost) gridpoints
   const int ny_;
@@ -137,7 +146,7 @@ protected:
   int **fieldSize_;  
   double ****fieldPtr_; 
 
-  double *fieldIsContiguous_; 
+  double *fieldIsContiguous_;
 
   // allocates contiguous memory for nx*ny*nz array
   double*** newField_(int ifield);
@@ -160,9 +169,6 @@ protected:
   void sliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
   // puts a 2D plane of ghost points from sliceTmp_ into mat
   void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
-
-  double* sliceTmp_; 
-  double* ghostTmp_; 
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
 

@@ -12,17 +12,12 @@
 
 class BC_F_MPI : public BC_Field {
 	public:
-		BC_F_MPI(Domain* domain, int dim_Index, short isLeft, std::string type);
+		BC_F_MPI(Domain* domain, Grid *grids, int side);
 		~BC_F_MPI();
 		int completeBC();
 //		void computeParticleBCs(std::vector<Particle> *pl);
 	private:
 //		int particle_BC(Particle* p);
-		double xMin_;
-		double xMax_;
-		int dim_index_;
-		short isRight_;
-		std::string type_;
 
 /*		int sendRank_, recvRank_;
 		double* lengthShift_;
@@ -37,11 +32,7 @@ class BC_F_MPI : public BC_Field {
 };
 
 
-BC_F_MPI::BC_F_MPI(Domain* domain, int dim_Index, short isRight, std::string type)
-	:	dim_index_(dim_Index),
-		isRight_(isRight),
-		type_(type)
-{
+BC_F_MPI::BC_F_MPI(Domain* domain, Grid *grids, int side){
 /*	assert(dim_index_ < 3);
 
 	xMin_ = domain->getxyz0()[dim_index_];

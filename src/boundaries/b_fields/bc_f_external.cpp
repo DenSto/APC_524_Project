@@ -6,27 +6,18 @@
 
 class BC_F_External : public BC_Field {
 	public:
-		BC_F_External(Domain* domain, int dim_Index, short isRight, std::string type);
+		BC_F_External(Domain* domain, Grid *grids, int side);
 		~BC_F_External();
 		int completeBC();
 //		void computeParticleBCs(std::vector<Particle> *pl);
 	private:
 //		int particle_BC(Particle* p);
-		double xMin_;
-		double xMax_;
-		int dim_index_;
-		short isRight_;
-		std::string type_;
 };
 
 BC_F_External::~BC_F_External(){
 }
 
-BC_F_External::BC_F_External(Domain* domain, int dim_Index, short isRight, std::string type) 
-	:	dim_index_(dim_Index),
-		isRight_(isRight),
-		type_(type)
-{
+BC_F_External::BC_F_External(Domain* domain, Grid *gids, int side){
 /*
 	xMin_ = domain->getxyz0()[dim_index_];
         xMax_ = xMin_+domain->getLxyz()[dim_index_];

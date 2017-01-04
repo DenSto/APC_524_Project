@@ -84,8 +84,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     fieldType_ = setFieldType_(); 
     fieldSize_ = setFieldSize_(); 
     fieldPtr_ = setFieldPtr_(); 
-    sliceTmp_ = new double[maxPointsInPlane_]; 
-    ghostTmp_ = new double[ghostVecSize_]; 
+
+    sliceTmp = new double[maxPointsInPlane_]; 
+    ghostTmp = new double[ghostVecSize_]; 
 } 
 
 /// Grid destructor 
@@ -110,8 +111,8 @@ Grid::~Grid() {
     deleteFieldType_(); 
     deleteFieldSize_(); 
     deleteFieldPtr_();
-    delete [] sliceTmp_; 
-    delete [] ghostTmp_; 
+    delete [] sliceTmp; 
+    delete [] ghostTmp; 
 };
 
 /// allocates memory for a single field 
@@ -380,3 +381,13 @@ void Grid::InitializeFields(void){
     zeroJ(); 
     zeroRho(); 
 }; 
+
+//! Execute field boundary conditions
+void Grid::executeBC(void){
+    // loop through dimensions
+    for(int i=0;i<3;i++){
+        // left and right boundary in each dimension
+        boundaries_[2*i]->completeBC();
+        boundaries_[2*i+1]->completeBC();
+    }
+};

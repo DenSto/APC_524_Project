@@ -16,16 +16,22 @@
 
 
 #include "./globals.hpp"
-#include "./IO/input.hpp"
-#include "./IO/output.hpp"
 #include "./domain/domain.hpp"
 #include "./grid/grid.hpp"
 #include "./poisson/poisson.hpp"
+
+#include "./IO/input.hpp"
+#include "./IO/output.hpp"
+
 #include "./particles/particle.hpp"
 #include "./particles/particle_handler.hpp"
 #include "./particles/particle_utils.hpp"
+
 #include "./boundaries/particle_bc_factory.hpp"
 #include "./boundaries/particles_boundary.hpp"
+#include "./boundaries/field_bc_factory.hpp"
+#include "./boundaries/fields_boundary.hpp"
+
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"
 #include "./pusher/relativisticBoris.hpp"
@@ -118,7 +124,7 @@ int main(int argc, char *argv[]){
     // Set up particle boundary conditions
     BC_Particle** bc = Part_BC_Factory::getInstance().constructConditions(domain,input_info->parts_bound);
     part_handler->setParticleBoundaries(bc);
-    if(debug) fprintf(stderr,"rank=%d:Finish assigning boundary condition\n",rank);
+    if(debug) fprintf(stderr,"rank=%d:Finish assigning particle boundary condition\n",rank);
 
     // Initialize grid
     Grid *grids;
@@ -131,6 +137,10 @@ int main(int argc, char *argv[]){
         grids = new Poisson_Solver(domain,input_info);
     }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
+
+    // Set up field boundary conditions
+    Field_BC_Factory::getInstance().constructConditions(domain,grids,input_info->fields_bound);
+    if(debug) fprintf(stderr,"rank=%d:Finish assigning field boundary condition\n",rank);
 
     // Load particles, allow restart
     if(rank==0)printf("    Loading particles...\n");
@@ -191,7 +201,8 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
-       domain->PassFields(grids,input_info,-1);
+       grids->executeBC();
+       //domain->PassFields(grids,input_info,-1);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle

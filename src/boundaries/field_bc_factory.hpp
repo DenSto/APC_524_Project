@@ -9,6 +9,7 @@
 #include "fields_boundary.hpp"
 #include "../IO/input.hpp"
 #include "../domain/domain.hpp"
+#include "../grid/grid.hpp"
 #include "assert.h"
 
 //! A singleton class to handle registration of field boundaries/
@@ -20,9 +21,9 @@ class Field_BC_Factory {
             return instance;
         }
        
-        BC_Field** constructConditions(Domain* domain, const char (*bound)[NCHAR]);
+        void constructConditions(Domain* domain, Grid *grids, const char (*bound)[NCHAR]);
        
-        typedef BC_Field *(*Factory)(Domain* domain,int dim,short isRight,std::string type);
+        typedef BC_Field *(*Factory)(Domain* domain, Grid *grids, int side);
        
         // Declare an particle boundary by type
         void declare(const std::string &type, // the type of particle
@@ -77,8 +78,8 @@ struct RegisterFieldBoundary {
 
 //! A factory function for particle boudaries
 template<typename T>
-BC_Field *makeBCField(Domain* domain, int dim, short isRight, std::string type) {
-    return new T(domain,dim,isRight,type);
+BC_Field *makeBCField(Domain* domain, Grid *grids, int side) {
+    return new T(domain,grids,side);
 }
 
 #endif

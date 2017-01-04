@@ -46,6 +46,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 			ispec += 1;
                         cden  += dens[ispec];
 		}
+                assert(ispec<nspec);
 		p.q = charge[ispec];
 		p.m = mass[ispec];
 
@@ -232,7 +233,7 @@ void Particle_Handler::clearGhosts(){
 			iter++;
 		}
 	}
-	assert(parts_.size() == np_);
+	assert((long)parts_.size() == np_);
 //        std::cerr<<"parts_.size="<<parts_.size()<<", np_="<<np_<<".\n";
 }
 
