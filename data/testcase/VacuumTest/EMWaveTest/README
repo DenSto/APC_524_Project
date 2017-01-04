@@ -1,0 +1,4 @@
+This test case inject EM wave from the boundary and calculate
+how fields eveolve in the interior. The dispersion relation of 
+the EM wave should be the vacuum EM wave dispersion when the
+grid size and time step size are small enough.

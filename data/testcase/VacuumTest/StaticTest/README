@@ -1,0 +1,4 @@
+This test case tests that the vacuum fields remain static
+in the absence of perturbation. This test verifies that 
+the field boundary conditions have been handled correctly,
+and that the field solve does not evolve static fields.

@@ -1,0 +1,6 @@
+This test case tests what happens when fields at the boundary are
+switched on in time in a step-function manner. Physically, under such
+circumstance, the boundary values should propagate across the grids
+at the speed of light, before becoming constants. No unphysical 
+oscillation should be observed when time step size and grid size are
+chosen appropriately.

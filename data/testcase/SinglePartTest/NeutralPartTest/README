@@ -1,0 +1,4 @@
+This test case puts a single neutral particle in the domain and
+let the neutral particle free stream. This verifies that particle
+boundary conditions, namely, periodic or reflective, have been
+implemented correctly.

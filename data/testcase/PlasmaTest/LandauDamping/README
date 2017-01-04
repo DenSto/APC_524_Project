@@ -1,0 +1,3 @@
+This test case simulate Landau damping of an electrostatic wave.
+The linear damping rate, nonlinear phase space structure should
+agree with what is expected from analytic theory.
