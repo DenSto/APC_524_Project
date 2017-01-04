@@ -55,6 +55,16 @@ public:
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
 
+  void EFieldOut(); 
+  void BFieldOut(); 
+  void JFieldOut(); 
+  void RhoFieldOut(); 
+  
+  void ESliceOut(); 
+  void BSliceOut(); 
+  void JSliceOut(); 
+  void RhoSliceOut(); 
+  
   double* sliceTmp; 
   double* ghostTmp;  
 
@@ -172,6 +182,9 @@ protected:
   void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
+
+  void physFieldOut_(const int fieldID);
+  void physSliceOut_(const int fieldID, const int side, const int offset); 
 
 
   // for unit testing

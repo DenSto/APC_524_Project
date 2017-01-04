@@ -374,7 +374,7 @@ void Grid::constRho(double vx, double vy, double vz) {
  */ 
 void Grid::InitializeFields(void){
 
-    if(rank_MPI==0)printf("        Initializing fields by reading files...\n");
+//    if(rank_MPI==0)printf("        Initializing fields by reading files...\n");
     // placeholder until restart files exist 
     constJ(0,0,0); 
     constE(0,0,0); 
