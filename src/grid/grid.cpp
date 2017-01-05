@@ -64,7 +64,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
    
     checkInput_(); 
 
-    fieldIsContiguous_ = new double[nFieldsTotal_];
+    fieldIsContiguous_ = new int[nFieldsTotal_];
  
     Ex_=newField_(ExID_); 
     Ey_=newField_(EyID_); 

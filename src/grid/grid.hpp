@@ -151,7 +151,7 @@ protected:
   int **fieldSize_;  
   double ****fieldPtr_; 
 
-  double *fieldIsContiguous_;
+  int *fieldIsContiguous_;
   
   double* sliceTmp_; 
   double* ghostTmp_;  
