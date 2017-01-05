@@ -7,8 +7,9 @@
 
 #define NDIM 3 // spatial dimension
 #define NCHAR 64 // characters reserved for MPI
-#define NSPEC 36 // mas nspecies reserved for MPI_BCast
+#define NSPEC 32 // max nspecies reserved for MPI_BCast
                  // MPI cannot send structure containing unallocated pointers
+#define NWAVE 32 // max nwaves for MPI_BCase
 
 //! Structure storing info in the input file
 typedef struct {
@@ -28,6 +29,17 @@ typedef struct {
 
     int nspecies; /// How many species of particles
                   /// eg. nspecies=2 in electron-proton plasma 
+                  /// nspecies <=NSPEC
+
+    int nwaves; /// How many waves to inject into the system
+                /// nwave<=NWAVE
+    int inSide[NWAVE]; /// from which sides are waves injected
+                       /// eg. inSide[0]=-1: 1st wave injected in x direction(1) from left(-)
+                       ///     inside[1]=+3: 2nd wave injected in z direction(3) from right(+)
+    int inPolE[NWAVE]; /// polarization of E field of injected waves
+                       /// eg. inPolE[0]=2: 1st wave E field is in y direction(2)
+                       ///     inPolE[1]=3: 2nd wave E field is in Z direction(3)
+                       ///     inPolE should only take value of 1,2,3
 
     long np; /// number of particles in each domain
 
@@ -54,9 +66,15 @@ typedef struct {
                   /// eq. in cold ion and hot electron plasma, possible value
                   ///     temp[0]=100; temp[1]=1.2;
 
+    double amps[NWAVE]; // wave amplitudes(in program unit) injected at the boundary
+    double omegas[NWAVE]; // corresponding wave frequencies (in program unit)
+    double phases[NWAVE]; // corresponding wave phase (in unit of rad)
 
-    double xyz0[NDIM];
-    double Lxyz[NDIM]; 
+    double durations[NWAVE]; // Gaussian pulse width in time (in program unit)
+    double delays[NWAVE]; // time delay of Gaussian pulse center w.r.t. time_phys
+
+    double xyz0[NDIM]; // origin of simulation
+    double Lxyz[NDIM]; // physical length of simulation
 
     // MPI can only send c_str!
     char distname[NCHAR]; /// name of file containing distribution function 

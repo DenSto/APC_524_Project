@@ -43,16 +43,16 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 
     if(restart==0){// initial run
 	Random_Number_Generator *rng = new Random_Number_Generator(-1);
-        int ispec = 0; // temporaty counter
-        double cden = dens[0]; // cummulative density fraction
-        double vth;
-        for(long ip=0; ip < npart;ip++){
+	int ispec = 0; // temporaty counter	
+	double cden = dens[0]; // cummulative density fraction
+	double vth;
+	for(long ip=0; ip < npart;ip++){
 		Particle p = new_particle();
-                if(ip >= cden*npart){
+		if(ip >= cden*npart){
 			ispec += 1;
-                        cden  += dens[ispec];
+			cden  += dens[ispec];
 		}
-                assert(ispec<nspec);
+		assert(ispec<nspec);
 		p.q = charge[ispec];
 		p.m = mass[ispec];
 
@@ -65,6 +65,9 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.v[0]=rng->getGaussian(0.0,vth);
 		p.v[1]=rng->getGaussian(0.0,vth);
 		p.v[2]=rng->getGaussian(0.0,vth);
+
+		p.my_id=np;
+		p.initRank=rank_MPI;
 
 		parts_.push_back(p);
 		np_++;
@@ -280,7 +283,7 @@ void Particle_Handler::outputParticles(double t, long step){
 	FILE *pout;
 	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
 		if(iter->my_id < outputCount_){
-			sprintf(fname,"./tracks/track_%ld_%ld\n",iter->initRank,iter->my_id);	
+			sprintf(fname,"./tracks/track_%d_%ld\n",iter->initRank,iter->my_id);	
 			pout=fopen(fname,"a");
 			assert(pout != NULL);
 			fprintf(pout,"%e %e %e %e %e %e %e\n",t,iter->x[0],iter->x[1],iter->x[2],
