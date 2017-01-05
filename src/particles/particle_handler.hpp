@@ -53,9 +53,9 @@ private:
 
 
   	// Output parameters (should be in its own class)
-  	double dT_, nextT_;
-	long   dstep_, nextStep_;
-	long outputCount_;
+  	double dT_, nextT_; // variables for time cadencing
+	long   dstep_, nextStep_; //variables for step cadencing
+	long outputCount_; // How many particles per core to output
 	int lz1,lz2;  // leading zeros for output filename
 };
 
