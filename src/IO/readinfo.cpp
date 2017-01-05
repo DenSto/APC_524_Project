@@ -386,7 +386,7 @@ int Input::readinfo(char *fname){
     }
     
     if(isexternal>0){
-      cout << "There are " << isexternal << " external field boundaries" << endl;
+      cout << "    There are " << isexternal << " external field boundaries" << endl;
       // reading external fields parameters    
 
       int nwaves;
