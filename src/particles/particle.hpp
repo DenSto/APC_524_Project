@@ -21,6 +21,7 @@ typedef struct Particle {
   double m;		  /* mass */
 
   long my_id; 		  /* particle id */
+  int initRank; 	/* initial MPI rank */
   short isGhost;    /* is particle in ghost cell? */
 
   Field_part field; /* interpolated field */
