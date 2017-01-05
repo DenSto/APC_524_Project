@@ -17,7 +17,7 @@ BC_F_Periodic::BC_F_Periodic(int side, Domain* domain, Grid *grids, Input_Info_t
     if(debug)fprintf(stderr,"rank=%d:boundary side %d is periodic\n",rank_MPI,side);
 
     grids_ = grids;
-    ghostTmp_ = grids_->ghostTmp; 
+    ghostTmp_ = grids_->ghostTmp_; 
 }
 
 

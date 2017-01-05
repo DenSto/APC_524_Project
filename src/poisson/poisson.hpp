@@ -21,6 +21,10 @@ public:
   void constA(const double vx, const double vy, const double vz);
   void constPhi(const double v);
 
+  int getGhostVecSize(int sendID); 
+  void getGhostVec(int side, double *ghostVec, int sendID);
+  void setGhostVec(const int side, double* ghostVec, int sendID);
+
 protected:
   void run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult); 
   void setPoissonFieldType_();

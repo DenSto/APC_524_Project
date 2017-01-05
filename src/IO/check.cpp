@@ -86,6 +86,7 @@ int Input::checkinfo(void){
         } else {
            err += 1;
            fprintf(stderr,"Inconsistent boundary conditions in %d-direction!\n",i);
+           fprintf(stderr,"fleft=%d,fright=%d,pleft=%d,pright=%d\n",fleft,fright,pleft,pright);
         }
     }
 
@@ -117,7 +118,7 @@ void checkinput(Input_Info_t *input_info){
 
    /* particle ************************/
    fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
-   fprintf(stderr,"rank=%d,output_Count=%d\n",rank,input_info->output_Count);
+   fprintf(stderr,"rank=%d,output_Count=%d\n",rank,input_info->output_pCount);
    fprintf(stderr,"rank=%d,relativity=%d\n",rank,input_info->relativity);
 
    int nspecies = input_info->nspecies;
@@ -137,6 +138,8 @@ void checkinput(Input_Info_t *input_info){
    //fprintf(stderr,"rank=%d,temp=%f\n",rank,input_info->temp);
 
    /* fields **************************/
+   fprintf(stderr,"rank=%d,electrostatic=%d\n",rank,input_info->electrostatic);
+ 
    int nwaves = input_info->nwaves;
    fprintf(stderr,"rank=%d,nwaves=%d\n",rank,nwaves);
 

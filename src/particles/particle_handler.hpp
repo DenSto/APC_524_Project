@@ -44,7 +44,7 @@ public:
   void setParticleBoundaries(BC_Particle** bc){boundaries_=bc;}
   void executeParticleBoundaryConditions();
 
-  void outputParticles(double t, long nstep); //should be in its own class.
+  void outputParticles(long nstep, Input_Info_t *input_info); //should be in its own class.
 private:
   long np_;
   BC_Particle** boundaries_; /* Particle Boundary Conditions */

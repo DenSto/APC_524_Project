@@ -26,8 +26,10 @@ typedef struct {
                /// 3: write debug files
     int relativity; /// 1: use relativistic pusher
                     /// 0: use nonrelativistic pusher
+    int electrostatic; /// 1: use electrostatic field solve
+                       /// 0: use electromagnetic field solve 
 
-    int output_Count; // how many particles per core to print
+    int output_pCount; // how many particles per core to print
 
     int nspecies; /// How many species of particles
                   /// eg. nspecies=2 in electron-proton plasma 
