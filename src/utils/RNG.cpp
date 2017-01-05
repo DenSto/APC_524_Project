@@ -52,6 +52,11 @@ Random_Number_Generator::~Random_Number_Generator(){
 		free(userPDF_);
 }
 
+//! Get a random number in the range (0,1), exclusive
+/*!
+ *  Uses Numerical Recipes ran2 algorithm.
+ *
+ */
 double Random_Number_Generator::getUniform(){
   int j;
   long int k;
@@ -87,15 +92,18 @@ double Random_Number_Generator::getUniform(){
 #undef NDIV
 #undef RNMX
 
+//! Draw a random number, inclusive of both min and max
 long Random_Number_Generator::getInteger(long min, long max){
 	return min + (long)floor((max + 1.0 - min)*getUniform());
 }
 
+//! Draw a number from a standard normal distribution.
 double Random_Number_Generator::getStandardNormal(){
 	return getGaussian(0.0,1.0);
 }
 
-/* Adapted from Wikipedia, annotated by Denis St-Onge
+//! Draw a number from a normal distribution.
+/*! Adapted from Wikipedia, annotated by Denis St-Onge
  * Box Mueller generates numbers in pairs, 
  * so store both, return one at a time.
  */
@@ -152,6 +160,16 @@ void Random_Number_Generator::setUserPDF(bool isDiscrete, long size, double* use
 	computeUserCDF();
 }
 
+//! Load a user distribution from file.
+/*!
+ *	File is in ascii format with two columns. First column representes the value while 
+ *	the second column represents the probability associated with that value. 
+ *
+ *  Values do not need to be equally spaced.
+ *
+ *  Continous PDFs are treated as piecewise linear between points. Therefore the resulting CDFs
+ *  are continuous in both the zeroth and first derivatives.
+ */
 void Random_Number_Generator::loadUserPDFfromFile(const bool isDiscrete,const char* fname){
 	FILE* in = fopen(fname,"r");
 	char buf[LINE_LENGTH];
@@ -220,6 +238,12 @@ void Random_Number_Generator::computeUserCDF(){
 	}
 }
 
+//! Get a random number from the user distribution.
+/*!
+ *	Uses binary search ( O(log n) ) and quadratic interpolation for 
+ *	continuous distributions.
+ *
+ */
 double  Random_Number_Generator::getUserNumber(){
 	assert(userVal_ != NULL && userCDF_ != NULL);
 

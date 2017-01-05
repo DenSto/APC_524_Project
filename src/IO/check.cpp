@@ -92,10 +92,11 @@ int Input::checkinfo(void){
     return err;
 }
 
-/* Check MPI broadcast **********************************/
+//! Check MPI broadcast **********************************/
 void checkinput(Input_Info_t *input_info){
    int rank = rank_MPI;
 
+   /* domain **************************/
    fprintf(stderr,"rank=%d:checkinput\n",rank); 
    const int *nCell = input_info->nCell;
    fprintf(stderr,"rank=%d,nCell=%d,%d,%d\n",rank,nCell[0],nCell[1],nCell[2]);
@@ -103,11 +104,21 @@ void checkinput(Input_Info_t *input_info){
    const int *nProc = input_info->nProc;
    fprintf(stderr,"rank=%d,nProc=%d,%d,%d\n",rank,nProc[0],nProc[1],nProc[2]);
 
-   fprintf(stderr,"rank=%d,nt=%d\n",rank,input_info->nt);
-   fprintf(stderr,"rank=%d,restart=%d\n",rank,input_info->restart);
-   fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
+   const double *xyz0 = input_info->xyz0;
+   fprintf(stderr,"rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
 
+   const double *Lxyz = input_info->Lxyz;
+   fprintf(stderr,"rank=%d,Lxyz=%f,%f,%f\n",rank,Lxyz[0],Lxyz[1],Lxyz[2]);
+
+   /* runtime *************************/
+   fprintf(stderr,"rank=%d,nt=%d\n",rank,input_info->nt);
    fprintf(stderr,"rank=%d,t0=%f\n",rank,input_info->t0);
+   fprintf(stderr,"rank=%d,restart=%d\n",rank,input_info->restart);
+
+   /* particle ************************/
+   fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
+   fprintf(stderr,"rank=%d,output_Count=%d\n",rank,input_info->output_Count);
+   fprintf(stderr,"rank=%d,relativity=%d\n",rank,input_info->relativity);
 
    int nspecies = input_info->nspecies;
    fprintf(stderr,"rank=%d,nspecies=%d\n",rank,nspecies);
@@ -125,12 +136,37 @@ void checkinput(Input_Info_t *input_info){
 
    //fprintf(stderr,"rank=%d,temp=%f\n",rank,input_info->temp);
 
-   const double *xyz0 = input_info->xyz0;
-   fprintf(stderr,"rank=%d,xyz0=%f,%f,%f\n",rank,xyz0[0],xyz0[1],xyz0[2]);
+   /* fields **************************/
+   int nwaves = input_info->nwaves;
+   fprintf(stderr,"rank=%d,nwaves=%d\n",rank,nwaves);
 
-   const double *Lxyz = input_info->Lxyz;
-   fprintf(stderr,"rank=%d,Lxyz=%f,%f,%f\n",rank,Lxyz[0],Lxyz[1],Lxyz[2]);
+   const int *inSide = input_info->inSide;
+   assert(inSide!=NULL);
+   const int *inPolE = input_info->inPolE;
+   assert(inPolE!=NULL);
 
+   const double *amps = input_info->amps;
+   assert(amps!=NULL);
+   const double *omegas = input_info->omegas;
+   assert(omegas!=NULL);
+   const double *phases = input_info->phases;
+   assert(phases!=NULL);
+   const double *invWidths = input_info->invWidths;
+   assert(invWidths!=NULL);
+   const double *delays = input_info->delays;
+   assert(delays!=NULL);
+
+   for(int i=0;i<nwaves;i++){
+      fprintf(stderr,"rank=%d,side,pol[%d]=%d,%d\n",rank,i,inSide[i],inPolE[i]);
+      fprintf(stderr,"rank=%d,amp,omega,phase,invWidth,delay[%d]=%f,%f,%f,%f,%f\n",
+                      rank,i,amps[i],omegas[i],phases[i],invWidths[i],delays[i]);
+   }
+
+   /* outputs *************************/
+   fprintf(stderr,"rank=%d,output_dStep=%ld,output_dT=%f\n",
+                   rank,input_info->output_dStep,input_info->output_dT);
+
+   /* strings *************************/
    fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);
    fprintf(stderr,"rank=%d,parts_bound=%s\n",rank,input_info->parts_bound[0]);
    fprintf(stderr,"rank=%d,fields_bound=%s\n",rank,input_info->fields_bound[0]);

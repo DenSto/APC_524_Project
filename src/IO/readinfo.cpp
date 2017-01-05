@@ -253,6 +253,8 @@ int Input::readinfo(char *fname){
     input_info_->temp[0] = 1.5; 
     input_info_->temp[1] = 0.1; 
 
+    input_info_->nwaves = 1;
+
     sprintf(input_info_->distname,"distribution.dat");
 
     // MPI can only Bcast C strings
