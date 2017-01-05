@@ -60,10 +60,10 @@ public:
   void JFieldOut(); 
   void RhoFieldOut(); 
   
-  void ESliceOut(); 
-  void BSliceOut(); 
-  void JSliceOut(); 
-  void RhoSliceOut(); 
+  void ESliceOut(const int side, const int offset); 
+  void BSliceOut(const int side, const int offset); 
+  void JSliceOut(const int side, const int offset); 
+  void RhoSliceOut(const int side, const int offset); 
   
   double* sliceTmp; 
   double* ghostTmp;  

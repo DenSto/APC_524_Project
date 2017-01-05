@@ -81,6 +81,12 @@ typedef struct {
     char parts_bound[2*NDIM][NCHAR]; /// particle boundary conditions for 6 sides of box
     char fields_bound[2*NDIM][NCHAR];/// field boundary conditions for 6 sides of the box
 
+	// Output parameters for various things
+	// Particles
+	double dT; 	// Cadence on time 
+	long dStep; // Cadence on step
+	int outputCount; // how many particles per core to print
+
 } Input_Info_t;
 
 

@@ -183,6 +183,9 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
+		
+	   // output if needed
+	   part_handler->outputParticles(time_phys,ti);
 
        // push particles
        part_handler->Push(dt);

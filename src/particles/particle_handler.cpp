@@ -1,9 +1,11 @@
 #include "../globals.hpp"
 #include "particle_handler.hpp"
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include <cmath>
 #include <algorithm>
+#include <sys/stat.h>
 #include "particle_utils.hpp"
 #include "../pusher/pusher.hpp"
 #include "../pusher/boris.hpp"
@@ -16,6 +18,10 @@
 
 Particle_Handler::Particle_Handler(){
 	np_=0;
+	dT_=-1;
+	dstep_=-1;
+	nextT_=0;
+	nextStep_=0;
 	//parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 
                      // slosh room. Excessive maybe?
 }
@@ -247,4 +253,41 @@ void Particle_Handler::executeParticleBoundaryConditions(){
 		incrementNParticles(inc);
 	}
 }
+
+void Particle_Handler::outputParticles(double t, long step){
+	static bool init = true;
+	bool needsOutput=false;
+	if(init){
+		init=false;
+		mkdir("./tracks", 0775); //create the particle directory
+	}
+
+	// cadence on i or t
+	if(dT_ > 0 && t  >= nextT_){
+		needsOutput=true;
+		nextT_ += dT_;
+	}
+	
+	if(dstep_ > 0 && step > nextStep_){
+		needsOutput=true;
+		nextStep_+=dstep_;
+	}
+
+	if(!needsOutput)
+		return;
+
+	char fname[100];
+	FILE *pout;
+	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
+		if(iter->my_id < outputCount_){
+			sprintf(fname,"./tracks/track_%ld_%ld\n",iter->initRank,iter->my_id);	
+			pout=fopen(fname,"a");
+			assert(pout != NULL);
+			fprintf(pout,"%e %e %e %e %e %e %e\n",t,iter->x[0],iter->x[1],iter->x[2],
+													iter->v[0],iter->v[1],iter->v[2]);
+			fclose(pout);
+		}
+	}
+}
+
 #undef _USE_MATH_DEFINES
