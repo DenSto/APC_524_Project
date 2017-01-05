@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include "poisson.hpp"
 #include "../globals.hpp"
 #include "../domain/domain.hpp"
@@ -195,7 +196,7 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
     
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
-    double* tmpVec = sliceTmp; 
+    double* tmpVec = sliceTmp_; 
 
     // offset = 0 to get from the first/last physical cells 
     int offset=0;
@@ -269,12 +270,13 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
  * If sendID = -2 (as used in Poisson iteration), fields are read and set in order: phi1,phi2,Ax1,Ay1,Az1,Ax2,Ay2,Az2,Jx,Jy,Jz,rho \n
  * ghostVec can (and should) be generated with getGhostVec function 
  */ 
-void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
+//void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
+void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID) {
     assert(-3 < sendID && sendID < nFieldsTotal_); 
     
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
-    double* tmpVec = sliceTmp; 
+    double* tmpVec = sliceTmp_; 
     
     // offset = +1 to set into the RHS ghost vectors
     // offset = -1 to set into the LHS ghost vectors 
@@ -294,7 +296,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
             enddex=(ifield+1)*n; 
             // store the relevant portion fo ghostVec into tmpVec
             std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
-            switch (i) { 
+            switch (ifield) { 
                 case 0: fieldID = phi1ID_; break; 
                 case 1: fieldID = phi2ID_; break; 
                 case 2: fieldID = Ax1ID_; break; 
@@ -321,7 +323,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
             enddex=(ifield+1)*n; 
             // store the relevant portion fo ghostVec into tmpVec
             std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
-            switch (i) { 
+            switch (ifield) { 
                 case 0: fieldID = ExID_; break; 
                 case 1: fieldID = EyID_; break; 
                 case 2: fieldID = EzID_; break; 

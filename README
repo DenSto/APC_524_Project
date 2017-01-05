@@ -35,16 +35,17 @@ Input file instructions
       restart: When >0, there should be restart files ready to be read
 
       # particle initialization
-        nSpecies: should be smaller than NSPEC defined in /src/IO/input.hpp 
+        nspecies: should be smaller than NSPEC defined in /src/IO/input.hpp 
 
         mass_ratio[ispec],charge_ratio[ispec],dens_frac[ispec], etc. specifies species ispec
+        The length of these vectors should be the same as nspecies.
 
       # field initialization
 
 
    ## boundary condition inputs
       conditions: in each direction, if on side is "periodic", then the other side must
-                  also be "periodic"
+                  also be "periodic", including both fields and particles.
 
       # particle boundary
 

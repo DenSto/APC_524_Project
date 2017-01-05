@@ -118,7 +118,7 @@ void checkinput(Input_Info_t *input_info){
 
    /* particle ************************/
    fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
-   fprintf(stderr,"rank=%d,output_Count=%d\n",rank,input_info->output_Count);
+   fprintf(stderr,"rank=%d,output_Count=%d\n",rank,input_info->output_pCount);
    fprintf(stderr,"rank=%d,relativity=%d\n",rank,input_info->relativity);
 
    int nspecies = input_info->nspecies;
