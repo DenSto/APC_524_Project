@@ -22,13 +22,12 @@ Particle_Handler::Particle_Handler(){
 	dstep_=-1;
 	nextT_=0;
 	nextStep_=0;
-	//parts_.reserve((long)1.5*np); // Have at least 1.5x the number of particles for 
-                     // slosh room. Excessive maybe?
 }
 
 Particle_Handler::~Particle_Handler(){
 }
 
+//! Load and initialize the particle handler. Should be called at the beginning of the run.
 void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 
     int restart = input_info->restart;
@@ -43,16 +42,16 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 
     if(restart==0){// initial run
 	Random_Number_Generator *rng = new Random_Number_Generator(-1);
-        int ispec = 0; // temporaty counter
-        double cden = dens[0]; // cummulative density fraction
-        double vth;
-        for(long ip=0; ip < npart;ip++){
+	int ispec = 0; // temporaty counter	
+	double cden = dens[0]; // cummulative density fraction
+	double vth;
+	for(long ip=0; ip < npart;ip++){
 		Particle p = new_particle();
-                if(ip >= cden*npart){
+		if(ip >= cden*npart){
 			ispec += 1;
-                        cden  += dens[ispec];
+			cden  += dens[ispec];
 		}
-                assert(ispec<nspec);
+		assert(ispec<nspec);
 		p.q = charge[ispec];
 		p.m = mass[ispec];
 
@@ -65,6 +64,9 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.v[0]=rng->getGaussian(0.0,vth);
 		p.v[1]=rng->getGaussian(0.0,vth);
 		p.v[2]=rng->getGaussian(0.0,vth);
+
+		p.my_id=np;
+		p.initRank=rank_MPI;
 
 		parts_.push_back(p);
 		np_++;
@@ -87,11 +89,9 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 }
 
 void Particle_Handler::Push(double dt){
-
     for(long ip=0;ip<np_;ip++){
         pusher_->Step(&(parts_[ip]),&(parts_[ip].field),dt);
     }
-
 }
 
 long Particle_Handler::nParticles(){
@@ -142,6 +142,11 @@ void Particle_Handler::InterpolateEB(Grid* grid){
   fprintf(stderr,"rank=%d,Finish InterpolateEB\n",rank_MPI);
 }
 
+//! Sort particles based on grid location. 
+/*
+ * Sorts particles based on grid location using std::sort which is O(n log n).
+ * This should be called often to ensure cache hits.  Should be emperically determined.
+ */
 void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
@@ -161,7 +166,7 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho){
 
   //Zero the grid's currents and charge densities.
   grid->constJ(0,0,0);
-  if (depositRho) grid->constRho(0,0,0);
+  if (depositRho) grid->constRho(0);
 
   //Cycle through particles, depositing RhoJ for each one.
   for (long i=0; i<np_; i++) {
@@ -229,7 +234,7 @@ double Particle_Handler::computeCFLTimestep(Domain* domain){
 	return 0.01;
 }
 
-
+//! Clear all ghost particles. Uses a swap-to-back and pop-last-element for speed.
 void Particle_Handler::clearGhosts(){
 	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
 		if(iter->isGhost){
@@ -240,7 +245,6 @@ void Particle_Handler::clearGhosts(){
 		}
 	}
 	assert((long)parts_.size() == np_);
-//        std::cerr<<"parts_.size="<<parts_.size()<<", np_="<<np_<<".\n";
 }
 
 
@@ -254,6 +258,17 @@ void Particle_Handler::executeParticleBoundaryConditions(){
 	}
 }
 
+//! Output particles
+/*!
+ *	Output particles. Currently outputs time, position and velocity.
+ *
+ *	Can work with either cadencing on time (output every dT) or 
+ *	cadencing on steps (output ever dsteps), or both. Either are 
+ *	optional parameters in the input file and will default to -1.
+ *
+ *  Particles are written to the tracks/ directory and 
+ *  named with initial rank and id.
+ */
 void Particle_Handler::outputParticles(double t, long step){
 	static bool init = true;
 	bool needsOutput=false;
