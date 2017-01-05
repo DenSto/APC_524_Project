@@ -82,8 +82,8 @@ int main(int argc, char *argv[]){
     if(rank==0){
       printf("Master reading input file...\n");
       int err = input->readinfo(argv[1]);
-      // Check input self-consistency
-      err += input->checkinfo();
+      // Check input self-consistency and load physical units to input
+      err += input->checkinfo(); // should not be commented out
       if(err!=0) {
         std::cerr << "Input Error. Terminating..." << std::endl;
 #if USE_MPI
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
     // Set up field boundary conditions
-    Field_BC_Factory::getInstance().constructConditions(domain,grids,input_info->fields_bound);
+    Field_BC_Factory::getInstance().Construct(domain,grids,input_info);
     if(debug) fprintf(stderr,"rank=%d:Finish assigning field boundary condition\n",rank);
 
     // Load particles, allow restart
@@ -226,6 +226,7 @@ int main(int argc, char *argv[]){
     delete domain; 
     delete [] bc; // particle boundary condition
     delete part_handler;
+    grids->freeBoundaries(); // field boundary conditions
     delete grids;
     delete input;
     if(debug) fprintf(stderr,"rank=%d: Finish free\n",rank);   

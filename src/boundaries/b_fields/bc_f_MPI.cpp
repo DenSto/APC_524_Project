@@ -1,18 +1,16 @@
 #if USE_MPI
 
+#include <stdlib.h>
+#include "mpi.h"
 #include "../../globals.hpp"
 #include "../fields_boundary.hpp"
 #include "../field_bc_factory.hpp"
-#include <vector>
-#include <stdlib.h>
-#include "assert.h"
-#include "mpi.h"
 
 #define DOUBLES_IN_PARTICLE 10
 
 class BC_F_MPI : public BC_Field {
 	public:
-		BC_F_MPI(Domain* domain, Grid *grids, int side);
+		BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info);
 		~BC_F_MPI();
 		int completeBC();
 //		void computeParticleBCs(std::vector<Particle> *pl);
@@ -32,7 +30,7 @@ class BC_F_MPI : public BC_Field {
 };
 
 
-BC_F_MPI::BC_F_MPI(Domain* domain, Grid *grids, int side){
+BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
 /*	assert(dim_index_ < 3);
 
 	xMin_ = domain->getxyz0()[dim_index_];

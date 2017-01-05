@@ -70,6 +70,7 @@ public:
 
   void executeBC(void); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
+  void freeBoundaries(void){delete [] boundaries_;}
  
 
 protected:
