@@ -2,7 +2,9 @@
 
 /*! Construct the boundary condition array (must be freed!)
  * Takes in an array of size 6. */
-void Field_BC_Factory::constructConditions(Domain* domain, Grid *grids, const char (*bound)[NCHAR]){
+void Field_BC_Factory::Construct(Domain* domain, Grid *grids, Input_Info_t *input_info){
+
+    const char (*bound)[NCHAR] = input_info->fields_bound; 
     // convert c string for MPI to std::string for BC_Particle
     // size NCHAR is in correspondence definition in Input_Info_t
     std::string types[6];
@@ -26,29 +28,29 @@ void Field_BC_Factory::constructConditions(Domain* domain, Grid *grids, const ch
 	    // compare return 0 when equal
 	    if(periodic.compare(types[2*i])==0 || inMiddle){ // Two MPI communication loops
 		// Left boundary condition
-		ret[2*i]=lookup(mpi)(domain,grids,-(i+1));
+		ret[2*i]=lookup(mpi)(-(i+1),domain,grids,input_info);
 		// Right boundary condition
-		ret[2*i+1]=lookup(mpi)(domain,grids,i+1);
+		ret[2*i+1]=lookup(mpi)(i+1,domain,grids,input_info);
             } else { // One MPI communication loop
 		int MPIisRight;	
 		// Physical side (to be calculated first!!)
 		if(partitionIndex == 0){ // Physical boundary on left
-                    ret[2*i]=lookup(types[2*i])(domain,grids,-(i+1));
+                    ret[2*i]=lookup(types[2*i])(-(i+1),domain,grids,input_info);
 		    MPIisRight=1;
 		} else { // Physical boundary on right
-		    ret[2*i]=lookup(types[2*i+1])(domain,grids,i+1);
+		    ret[2*i]=lookup(types[2*i+1])(i+1,domain,grids,input_info);
 		    MPIisRight=-1;
 		}
 		// MPI side (left or right, compute second for efficiency)
-		ret[2*i + 1]=lookup(mpi)(domain,grids,MPIisRight*(i+1));
+		ret[2*i + 1]=lookup(mpi)(MPIisRight*(i+1),domain,grids,input_info);
 	    }
  	} else // treat serially
 #endif
 	{
 	    // Left boundary condition
-	    ret[2*i]=lookup(types[2*i])(domain,grids,-(i+1));
+	    ret[2*i]=lookup(types[2*i])(-(i+1),domain,grids,input_info);
             // Right boundary condition
-	    ret[2*i+1]=lookup(types[2*i+1])(domain,grids,(i+1));
+	    ret[2*i+1]=lookup(types[2*i+1])(i+1,domain,grids,input_info);
 	}
     }			 
     

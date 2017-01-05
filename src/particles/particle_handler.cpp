@@ -283,7 +283,7 @@ void Particle_Handler::outputParticles(double t, long step){
 	FILE *pout;
 	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
 		if(iter->my_id < outputCount_){
-			sprintf(fname,"./tracks/track_%ld_%ld\n",iter->initRank,iter->my_id);	
+			sprintf(fname,"./tracks/track_%d_%ld\n",iter->initRank,iter->my_id);	
 			pout=fopen(fname,"a");
 			assert(pout != NULL);
 			fprintf(pout,"%e %e %e %e %e %e %e\n",t,iter->x[0],iter->x[1],iter->x[2],

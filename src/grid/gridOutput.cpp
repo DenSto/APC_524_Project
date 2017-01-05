@@ -1,3 +1,9 @@
+#include <stdio.h> 
+#include <stdlib.h>
+#include <math.h>
+#include <assert.h> 
+#include "grid.hpp"
+
 /// write all physical points of single field component to output 
 void Grid::physFieldOut_(const int fieldID) { 
     // check for legal fieldID and side parameters 
@@ -21,10 +27,12 @@ void Grid::physFieldOut_(const int fieldID) {
     for (i=iBeg_; i<iEnd; ++i) { 
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
-                
                 // physical value at grid point i,j,k
-                // probably do hdf5 stuff here 
-                mat[i][j][k]; 
+                // probably do hdf5 stuff here with 
+                // mat[i][j][k]; 
+                if (i==iBeg_ && k==kBeg_) {
+                    printf("in physFieldOut_"); 
+                } 
             }
         } 
     }
@@ -91,8 +99,11 @@ void Grid::physSliceOut_(const int fieldID, const int side, const int offset) {
         assert(dex < nxTot_);
         for (j=jBeg_; j<jEnd; ++j) { 
             for (k=kBeg_; k<kEnd; ++k) { 
-                // do stuff with hdf5 here
-                mat[dex][j][k]; 
+                // do stuff with hdf5 here with 
+                // mat[dex][j][k]; 
+                if (j==jBeg_ && k==kBeg_) {
+                    printf("in physSliceOut_"); 
+                } 
             }
         } 
     } 
@@ -105,7 +116,10 @@ void Grid::physSliceOut_(const int fieldID, const int side, const int offset) {
                 // note these cases are necessary because I'm not sure of any way 
                 // to "loop" over these cases when they place dex in different 
                 // orders of the [][][] notation 
-                mat[i][dex][k]; 
+                // mat[i][dex][k]; 
+                if (i==iBeg_ && k==kBeg_) {
+                    printf("in physSliceOut_"); 
+                } 
             }
         } 
     } 
@@ -115,7 +129,10 @@ void Grid::physSliceOut_(const int fieldID, const int side, const int offset) {
         for (i=iBeg_; i<iEnd; ++i) { 
             for (j=jBeg_; j<jEnd; ++j) { 
                 // do exact same stuff with hdf5 here 
-                mat[i][j][dex]; 
+                // mat[i][j][dex]; 
+                if (i==iBeg_ && j==jBeg_) {
+                    printf("in physSliceOut_"); 
+                } 
             }
         } 
     } 
@@ -123,27 +140,27 @@ void Grid::physSliceOut_(const int fieldID, const int side, const int offset) {
 
 /// writes a slice of physical points of J to output 
 void Grid::JSliceOut(const int side, const int offset) { 
-    physSliceOut_(JxID_); 
-    physSliceOut_(JyID_); 
-    physSliceOut_(JzID_); 
+    physSliceOut_(JxID_,side,offset); 
+    physSliceOut_(JyID_,side,offset); 
+    physSliceOut_(JzID_,side,offset); 
 } 
 
 /// writes a slice of physical points of E to output 
 void Grid::ESliceOut(const int side, const int offset) { 
-    physSliceOut_(ExID_); 
-    physSliceOut_(EyID_); 
-    physSliceOut_(EzID_);
+    physSliceOut_(ExID_,side,offset); 
+    physSliceOut_(EyID_,side,offset); 
+    physSliceOut_(EzID_,side,offset);
 } 
 
 /// writes a slice of physical points of B to output 
 void Grid::BSliceOut(const int side, const int offset) { 
-    physSliceOut_(BxID_); 
-    physSliceOut_(ByID_); 
-    physSliceOut_(BzID_); 
+    physSliceOut_(BxID_,side,offset); 
+    physSliceOut_(ByID_,side,offset); 
+    physSliceOut_(BzID_,side,offset); 
 } 
 
 /// writes a slice of  physical points of rho to output 
 void Grid::RhoSliceOut(const int side, const int offset) { 
-    physSliceOut_(rhoID_); 
+    physSliceOut_(rhoID_,side,offset); 
 } 
 

@@ -21,9 +21,9 @@ class Field_BC_Factory {
             return instance;
         }
        
-        void constructConditions(Domain* domain, Grid *grids, const char (*bound)[NCHAR]);
+        void Construct(Domain* domain, Grid *grids, Input_Info_t *input_info);
        
-        typedef BC_Field *(*Factory)(Domain* domain, Grid *grids, int side);
+        typedef BC_Field *(*Factory)(int side,Domain* domain,Grid *grids,Input_Info_t *info);
        
         // Declare an particle boundary by type
         void declare(const std::string &type, // the type of particle
@@ -78,8 +78,8 @@ struct RegisterFieldBoundary {
 
 //! A factory function for particle boudaries
 template<typename T>
-BC_Field *makeBCField(Domain* domain, Grid *grids, int side) {
-    return new T(domain,grids,side);
+BC_Field *makeBCField(int side, Domain* domain, Grid *grids, Input_Info_t *info) {
+    return new T(side,domain,grids,info);
 }
 
 #endif
