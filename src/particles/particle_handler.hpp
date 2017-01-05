@@ -43,11 +43,20 @@ public:
 
   void setParticleBoundaries(BC_Particle** bc){boundaries_=bc;}
   void executeParticleBoundaryConditions();
+
+  void outputParticles(double t, long nstep); //should be in its own class.
 private:
   long np_;
   BC_Particle** boundaries_; /* Particle Boundary Conditions */
   std::vector<Particle> parts_;    /* Vector of particles */
   Pusher* pusher_;
+
+
+  	// Output parameters (should be in its own class)
+  	double dT_, nextT_;
+	long   dstep_, nextStep_;
+	long outputCount_;
+	int lz1,lz2;  // leading zeros for output filename
 };
 
 #endif

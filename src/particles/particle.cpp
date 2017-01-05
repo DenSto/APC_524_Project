@@ -13,6 +13,8 @@ Particle new_particle(){
 	part.m=1.0;
 	part.isGhost=0;
 	part.field = new_particle_field();
+	part.my_id=0;
+	part.initRank=0;
 	return part;
 }
 
