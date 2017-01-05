@@ -65,7 +65,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.v[1]=rng->getGaussian(0.0,vth);
 		p.v[2]=rng->getGaussian(0.0,vth);
 
-		p.my_id=npart;
+		p.my_id=ip;
 		p.initRank=rank_MPI;
 
 		parts_.push_back(p);
