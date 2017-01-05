@@ -17,7 +17,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
-    double* tmpVec = sliceTmp; 
+    double* tmpVec = sliceTmp_; 
 
     // offset = 0 to get from the first/last physical cells 
     int offset=0;
@@ -70,7 +70,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
     
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
-    double* tmpVec = sliceTmp; 
+    double* tmpVec = sliceTmp_; 
     
     // offset = +1 to set into the RHS ghost vectors
     // offset = -1 to set into the LHS ghost vectors 
@@ -273,7 +273,7 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
  */ 
 void Grid::updatePeriodicGhostCells() { 
     // create a temporary vector to store ghostVecs 
-    double* tmpGhost = ghostTmp;  
+    double* tmpGhost = ghostTmp_;  
 
     int sendID = -1; 
     int side; 

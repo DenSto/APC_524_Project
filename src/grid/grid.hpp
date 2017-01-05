@@ -65,9 +65,6 @@ public:
   void JSliceOut(const int side, const int offset); 
   void RhoSliceOut(const int side, const int offset); 
   
-  double* sliceTmp; 
-  double* ghostTmp;  
-
   void executeBC(void); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
@@ -155,6 +152,10 @@ protected:
   double ****fieldPtr_; 
 
   double *fieldIsContiguous_;
+  
+  double* sliceTmp_; 
+  double* ghostTmp_;  
+
 
   // allocates contiguous memory for nx*ny*nz array
   double*** newField_(int ifield);

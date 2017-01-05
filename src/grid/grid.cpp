@@ -84,8 +84,8 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     fieldSize_ = setFieldSize_(); 
     fieldPtr_ = setFieldPtr_(); 
 
-    sliceTmp = new double[maxPointsInPlane_]; 
-    ghostTmp = new double[nFieldsJEB_*maxPointsInPlane_]; 
+    sliceTmp_ = new double[maxPointsInPlane_]; 
+    ghostTmp_ = new double[nFieldsJEB_*maxPointsInPlane_]; 
 } 
 
 /// Grid destructor 
@@ -110,8 +110,8 @@ Grid::~Grid() {
     deleteFieldType_(); 
     deleteFieldSize_(); 
     deleteFieldPtr_();
-    delete [] sliceTmp; 
-    delete [] ghostTmp; 
+    delete [] sliceTmp_; 
+    delete [] ghostTmp_; 
 };
 
 /// allocates memory for a single field 

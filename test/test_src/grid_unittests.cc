@@ -120,7 +120,7 @@ TEST_F(GridPrivateTest,zeroFields) {
     grid->constE(0,0,0); 
     grid->constB(0,0,0); 
     grid->constJ(0,0,0); 
-    grid->constRho(0,0,0); 
+    grid->constRho(0); 
 
     // sum each field 
     double ExSum = sumField(grid->Ex_); 
