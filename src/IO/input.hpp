@@ -27,6 +27,8 @@ typedef struct {
     int relativity; /// 1: use relativistic pusher
                     /// 0: use nonrelativistic pusher
 
+    int output_Count; // how many particles per core to print
+
     int nspecies; /// How many species of particles
                   /// eg. nspecies=2 in electron-proton plasma 
                   /// nspecies <=NSPEC
@@ -42,8 +44,10 @@ typedef struct {
                        ///     inPolE should only take value of 1,2,3
 
     long np; /// number of particles in each domain
+    long output_dStep; /// number of steps between outputs
 
     double t0;   /// start time of simulation
+    double output_dT; /// physical time between outputs 
 
     double mass_ratio[NSPEC];/// mass of each type of particle in unit of electron mass
                        /// array of length nspecies 
@@ -70,7 +74,7 @@ typedef struct {
     double omegas[NWAVE]; // corresponding wave frequencies (in program unit)
     double phases[NWAVE]; // corresponding wave phase (in unit of rad)
 
-    double durations[NWAVE]; // Gaussian pulse width in time (in program unit)
+    double invWidths[NWAVE]; // the inverse of Gaussian pulse width in time (in program unit)
     double delays[NWAVE]; // time delay of Gaussian pulse center w.r.t. time_phys
 
     double xyz0[NDIM]; // origin of simulation
@@ -80,12 +84,6 @@ typedef struct {
     char distname[NCHAR]; /// name of file containing distribution function 
     char parts_bound[2*NDIM][NCHAR]; /// particle boundary conditions for 6 sides of box
     char fields_bound[2*NDIM][NCHAR];/// field boundary conditions for 6 sides of the box
-
-	// Output parameters for various things
-	// Particles
-	double dT; 	// Cadence on time 
-	long dStep; // Cadence on step
-	int outputCount; // how many particles per core to print
 
 } Input_Info_t;
 
