@@ -37,7 +37,8 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     idy_(1.0/dy_),
     idz_(1.0/dz_),
     maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
-    nFieldsTotal_(21), 
+    nFieldsTotal_(21),
+    nFieldsJEB_(9),
     ExID_(0),
     EyID_(1),
     EzID_(2),
@@ -63,7 +64,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
    
     checkInput_(); 
 
-    fieldIsContiguous_ = new double[nFieldsTotal_];
+    fieldIsContiguous_ = new int[nFieldsTotal_];
  
     Ex_=newField_(ExID_); 
     Ey_=newField_(EyID_); 
@@ -83,8 +84,8 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     fieldSize_ = setFieldSize_(); 
     fieldPtr_ = setFieldPtr_(); 
 
-    sliceTmp = new double[maxPointsInPlane_]; 
-    ghostTmp = new double[9*maxPointsInPlane_]; 
+    sliceTmp_ = new double[maxPointsInPlane_]; 
+    ghostTmp_ = new double[nFieldsJEB_*maxPointsInPlane_]; 
 } 
 
 /// Grid destructor 
@@ -109,8 +110,8 @@ Grid::~Grid() {
     deleteFieldType_(); 
     deleteFieldSize_(); 
     deleteFieldPtr_();
-    delete [] sliceTmp; 
-    delete [] ghostTmp; 
+    delete [] sliceTmp_; 
+    delete [] ghostTmp_; 
 };
 
 /// allocates memory for a single field 

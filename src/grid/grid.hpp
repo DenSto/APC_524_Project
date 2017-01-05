@@ -49,8 +49,8 @@ public:
   // side = +1: x right, side = -1: x left
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
-  void getGhostVec(const int side, double* ghostVec, int sendID); // called by main to get MPI
-  void setGhostVec(const int side, double* ghostVec, int sendID);
+  virtual void getGhostVec(const int side, double* ghostVec, int sendID); // called by main to get MPI
+  virtual void setGhostVec(const int side, double* ghostVec, int sendID);
   void updatePeriodicGhostCells(); 
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
@@ -65,9 +65,6 @@ public:
   void JSliceOut(const int side, const int offset); 
   void RhoSliceOut(const int side, const int offset); 
   
-  double* sliceTmp; 
-  double* ghostTmp;  
-
   void executeBC(void); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
@@ -109,6 +106,7 @@ protected:
   const int maxPointsInPlane_;
   
   const int nFieldsTotal_;  
+  const int nFieldsJEB_;
   const int ExID_; 
   const int EyID_; 
   const int EzID_; 
@@ -153,7 +151,11 @@ protected:
   int **fieldSize_;  
   double ****fieldPtr_; 
 
-  double *fieldIsContiguous_;
+  int *fieldIsContiguous_;
+  
+  double* sliceTmp_; 
+  double* ghostTmp_;  
+
 
   // allocates contiguous memory for nx*ny*nz array
   double*** newField_(int ifield);
