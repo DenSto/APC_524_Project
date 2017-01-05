@@ -12,7 +12,7 @@ class BC_F_External : public BC_Field {
         Input_Info_t *input_info_;
 };
 
-BC_F_External::BC_F_External(int side, Domain* domain, Grid *gids, Input_Info_t *info){
+BC_F_External::BC_F_External(int side, Domain* domain, Grid *grids, Input_Info_t *info){
     side_ = side;
     assert((side_>0 && side_<=3)||(side_<0 && side_ >=-3));
     if(debug)fprintf(stderr,"rank=%d:boundary side %d is external\n",rank_MPI,side);
