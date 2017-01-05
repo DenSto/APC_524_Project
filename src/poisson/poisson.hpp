@@ -13,6 +13,9 @@ public:
   //void initialize_poisson_fields();
   void InitializeFields();
 
+  int getGhostVecSize(const int sendID); 
+  void getGhostVec(const int side, double* ghostVec, int sendID); 
+  void setGhostVec(const int side, double* ghostVec, int sendID); 
   void phiToE();
   void AToB();
   void constA(const double vx, const double vy, const double vz);
@@ -52,8 +55,10 @@ protected:
   const int Az2ID_;
 
   // unit testing in convertFields_unittests.cc
+  /* 
   friend class ConvertPrivateTest;
   FRIEND_TEST(ConvertPrivateTest, constantPhiTest); 
+  */ 
 
 };
 
