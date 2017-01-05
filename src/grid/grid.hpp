@@ -32,7 +32,7 @@ public:
   void constJ(double vx, double vy, double vz); 
   void constE(double vx, double vy, double vz); 
   void constB(double vx, double vy, double vz); 
-  void constRho(double vx, double vy, double vz); 
+  void constRho(double v); 
   
   int addJ(int cellID, double *Jvec);
   int addRho(int cellID, double *Rhovec);
@@ -45,7 +45,7 @@ public:
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 
-  int getGhostVecSize(); // called by main to size MPI Buffer
+  int getGhostVecSize(int sendID); // called by main to size MPI Buffer
   // side = +1: x right, side = -1: x left
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
@@ -107,11 +107,6 @@ protected:
   const double idz_;
 
   const int maxPointsInPlane_;
-  const int nFieldsToSend_;  
-  const int ghostVecSize_;  
-  /* total number of ghost field values in
-                                    a single plane. All MPI communiation
-                                    of fields send messages of this size */
   
   const int nFieldsTotal_;  
   const int ExID_; 

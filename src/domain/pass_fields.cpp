@@ -30,7 +30,7 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID){
     char (*bound)[NCHAR] = input_info->fields_bound;
     
     /* x field boundaries *********************************/
-    int xgsize = grids->getGhostVecSize(); // ghost size in x direction
+    int xgsize = grids->getGhostVecSize(sendID); // ghost size in x direction
     assert(xgsize>0);   
     if(debug>1) fprintf(stderr,"rank=%d: xgsize=%d\n",rank_,xgsize);
     int offl=0;

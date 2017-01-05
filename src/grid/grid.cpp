@@ -37,8 +37,6 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     idy_(1.0/dy_),
     idz_(1.0/dz_),
     maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
-    nFieldsToSend_(9),
-    ghostVecSize_(nFieldsToSend_*maxPointsInPlane_), 
     nFieldsTotal_(21), 
     ExID_(0),
     EyID_(1),
@@ -86,7 +84,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     fieldPtr_ = setFieldPtr_(); 
 
     sliceTmp = new double[maxPointsInPlane_]; 
-    ghostTmp = new double[ghostVecSize_]; 
+    ghostTmp = new double[9*maxPointsInPlane_]; 
 } 
 
 /// Grid destructor 
@@ -322,8 +320,6 @@ void Grid::checkInput_() {
     assert(dy_ > 0); 
     assert(dz_ > 0);
     assert(maxPointsInPlane_ > 0); 
-    assert(nFieldsToSend_ == 9); 
-    assert(ghostVecSize_ > 0); 
 }; 
 
 /// sets field corresponding to fieldID to specified value
@@ -365,8 +361,8 @@ void Grid::constJ(double vx, double vy, double vz) {
 } 
 
 /// sets rho to a constant value 
-void Grid::constRho(double vx, double vy, double vz) { 
-    constField_(rhoID_,vx); 
+void Grid::constRho(double v) { 
+    constField_(rhoID_,v); 
 } 
 
 /// Initialize E and B fields
@@ -379,7 +375,7 @@ void Grid::InitializeFields(void){
     constJ(0,0,0); 
     constE(0,0,0); 
     constB(0,0,0); 
-    constRho(0,0,0); 
+    constRho(0); 
 }; 
 
 //! Execute field boundary conditions
