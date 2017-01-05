@@ -37,7 +37,8 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     idy_(1.0/dy_),
     idz_(1.0/dz_),
     maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
-    nFieldsTotal_(21), 
+    nFieldsTotal_(21),
+    nFieldsJEB_(9),
     ExID_(0),
     EyID_(1),
     EzID_(2),
@@ -84,7 +85,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     fieldPtr_ = setFieldPtr_(); 
 
     sliceTmp = new double[maxPointsInPlane_]; 
-    ghostTmp = new double[9*maxPointsInPlane_]; 
+    ghostTmp = new double[nFieldsJEB_*maxPointsInPlane_]; 
 } 
 
 /// Grid destructor 

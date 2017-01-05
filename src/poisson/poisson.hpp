@@ -39,6 +39,8 @@ protected:
   double ***Ay2_;
   double ***Az2_;
 
+  const int nFieldsPoisson_; 
+  
   const int phi1ID_;
   const int phi2ID_;
 

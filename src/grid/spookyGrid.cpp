@@ -29,7 +29,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
 
     if (sendID == -1) { 
     int i; 
-        for (i=0; i<9; ++i) { 
+        for (i=0; i<nFieldsJEB_; ++i) { 
             begdex=i*n; 
             switch (i) { 
                 case 0: fieldID = ExID_; break; 
@@ -63,7 +63,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
  * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
  * sendID = -1 to set JEB fields, or sendID = an individual field ID (e.g. ExID_) to set just that field (used for Poisson updating for example) \n
  * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be received with a single MPI call. If sendID = -1 (as used in each time step update), fields are read and set in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
- * ghostVec can (and should) be generated with setGhostVec function 
+ * ghostVec can (and should) be generated with getGhostVec function 
  */ 
 void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
     assert(-2 < sendID && sendID < nFieldsTotal_); 
@@ -86,7 +86,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
     
     if (sendID == -1) { 
         int i; 
-        for (i=0; i<9; ++i) { 
+        for (i=0; i<nFieldsJEB_; ++i) { 
             begdex=i*n; 
             enddex=(i+1)*n; 
             // store the relevant portion fo ghostVec into tmpVec
@@ -118,16 +118,15 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
 
 
 /// returns size of ghost cell data to send
-/*! sendID is an integer specifying which fields are intended to be packaged into the ghost vector. -2 for Poisson fields (phi,A,J,rho), -1 for JEB fields, fieldID for any individual field (e.g. ExID_) \n 
+/*! sendID is an integer specifying which fields are intended to be packaged into the ghost vector. -1 for JEB fields, fieldID for any individual field (e.g. ExID_) \n 
  * It is of length equal to the number of fields being sent times the maximum number of total points in any plane, so that it will be large enough to send the maximum amount of data in a single plane of any of the fields. 
  */ 
 int Grid::getGhostVecSize(const int sendID) { 
+    assert(sendID > -2 && sendID < nFieldsTotal_); 
     switch (sendID) { 
         // sendID = -1, package JEB fields together (for time stepping) 
-        case -1: return 9*maxPointsInPlane_; break; 
-        // sendID = -2, package phi,A,rho,J fields together (for Poisson iteration)
-        case -2: return 12*maxPointsInPlane_; break; 
-        // sendID = 
+        case -1: return nFieldsJEB_*maxPointsInPlane_; break; 
+        // sendID > 0, return for single field 
         default: return maxPointsInPlane_; break; 
     } 
 }; 
