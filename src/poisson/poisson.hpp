@@ -58,11 +58,9 @@ protected:
   const int Ay2ID_;
   const int Az2ID_;
 
-  // unit testing in convertFields_unittests.cc
-  /* 
+  // unit testing in convertFields_unittests.cc 
   friend class ConvertPrivateTest;
   FRIEND_TEST(ConvertPrivateTest, constantPhiTest); 
-  */ 
 
 };
 
