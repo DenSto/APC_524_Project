@@ -1,4 +1,5 @@
 IO = input.o readinfo.o passinfo.o check.o output.o
+IOTEST = input.o readinfo.o passinfo.o
 DOM = domain.o ghosts.o pass_fields.o
 UTIL = RNG.o
 PUSH = boris.o relativisticBoris.o
@@ -12,6 +13,7 @@ BC = particles_boundary.o particle_bc_factory.o \
 
 
 IOOBJ = $(addprefix ./IO/, $(IO))
+IOTESTOBJ = $(addprefix ./IO/, $(IOTEST))
 DOMOBJ = $(addprefix ./domain/, $(DOM))
 UTILSOBJ = $(addprefix ./utils/, $(UTIL))
 PUSHOBJ = $(addprefix ./pusher/, $(PUSH))

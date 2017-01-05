@@ -1,20 +1,19 @@
+#define MAIN_CPP
 #include "gtest/gtest.h"
 #include "input.hpp"
 
 TEST(ReadinputTest, ValuesCorrect) {
-  Input_Info_t input_info;
-  
+  Input *input =  new Input();
   char filename[100];
-
   sprintf(filename, "data/test.txt");
+  int err = input->readinfo(filename);
+  Input_Info_t *input_info = input->getinfo();
 
-  readinput(filename, &input_info, 1);
+  EXPECT_EQ(8, input_info->nCell[0]);
+  EXPECT_EQ(8, input_info->nCell[1]);
+  EXPECT_EQ(8, input_info->nCell[2]);
 
-  EXPECT_EQ(8, input_info.nCell[0]);
-  EXPECT_EQ(8, input_info.nCell[1]);
-  EXPECT_EQ(8, input_info.nCell[2]);
-
-  EXPECT_EQ(16, input_info.np);
+  EXPECT_EQ(16, input_info->np);
 }
 
 
