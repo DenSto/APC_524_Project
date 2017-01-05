@@ -165,7 +165,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);   
 
     // prepare ghost cells: either MPI neighbors or physical boundary 
-    int xgsize = grids->getGhostVecSize();
+    int xgsize = grids->getGhostVecSize(-1);
     int ygsize = 1; //dummy
     int zgsize = 1; //dummy
     domain->mallocGhosts(xgsize,ygsize,zgsize);
