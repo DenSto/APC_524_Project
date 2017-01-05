@@ -65,7 +65,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.v[1]=rng->getGaussian(0.0,vth);
 		p.v[2]=rng->getGaussian(0.0,vth);
 
-		p.my_id=np;
+		p.my_id=npart;
 		p.initRank=rank_MPI;
 
 		parts_.push_back(p);
@@ -269,7 +269,13 @@ void Particle_Handler::executeParticleBoundaryConditions(){
  *  Particles are written to the tracks/ directory and 
  *  named with initial rank and id.
  */
-void Particle_Handler::outputParticles(double t, long step){
+void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
+
+       double t = time_phys;
+       dT_    = input_info->output_dT;
+       dstep_ = input_info->output_dStep;
+       outputCount_ = input_info->output_pCount;
+
 	static bool init = true;
 	bool needsOutput=false;
 	if(init){

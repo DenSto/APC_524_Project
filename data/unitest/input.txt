@@ -5,6 +5,13 @@ domain:
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
+
+  # origin of simulation domain
+  xyz0 = [0.0, 0.0, 0.0]
+
+  # physical length of simulation domain, in unit of cm
+  Lxyz = [0.5, 0.1, 0.1]
+
 }
 
 runtime: 
@@ -28,8 +35,11 @@ initialization:
   # particle initialization
   particles:
   {
+    # whether use relaticistic pusher
+    relativity = 0
+
     # number of species
-    nSpecies = 2
+    nspecies = 2
 
     # mass of each species in unit of electron mass
     mass_ratio = [1.0, 1836.13]
@@ -71,6 +81,9 @@ initialization:
  
   fields:
   {
+    # Whether to use electrostatic solver
+    electrostatic = 0
+
     init = "zero"
     #init = "poisson"
     #init = "file: fields.dat"
@@ -86,7 +99,7 @@ boundary:
   particles:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
-    conditions = ["periodic","periodic", 
+    conditions = ["reflecting","reflecting", 
                 "periodic","periodic",
                 "periodic","periodic"]
   }
@@ -96,7 +109,7 @@ boundary:
   fields:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
-    conditions = ["periodic","periodic", 
+    conditions = ["external","external", 
                 "periodic","periodic",
                 "periodic","periodic"]
 
@@ -122,9 +135,33 @@ boundary:
         # What are the wave frequencies? omegas=1 -> 190.40 GHz
         omegas = [1.2]
      
-        # What are the wave phases in rad?
-        phases = [0.0]
+        # What are the wave phases in degree?
+        phases = [90.0]
+
+        # What are the inverse Width of pulses? invWidths=0 -> pulse duration infinity
+        invWidths = [0.0]
+
+        # What are the delays of pulses? delyas=1 -> 33.4 ps, w.r.t time_phys
+        delays = [-0.2]
     }
   }
 }
 
+diagnostics:
+{
+  # How many time steps between each diagnostic
+  output_dStep = 10
+
+  # Alternatively, how long, in physical time, between each diagnostic
+  output_dT = 0.1
+
+  particles:
+  {
+    # How many particle/species to track by each core?
+    output_pCount = 1
+  }
+
+  fields:
+  {
+  }
+}

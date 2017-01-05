@@ -177,16 +177,14 @@ int main(int argc, char *argv[]){
     double dt = 1/domain->getmindx(); //c=1, resolve EM wave
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
+    // write initial restart files
+    // write initial diagnostic files
+//    part_handler->outputParticles(0,input_info);
+
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
-       // check and write restart files
-//       if(ti%ntcheck==0){check(t,domains,grids,parts);}
-		
-	   // output if needed
-	   part_handler->outputParticles(time_phys,ti);
-
        // push particles
        part_handler->Push(dt);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
@@ -214,8 +212,14 @@ int main(int argc, char *argv[]){
 
        // remove any particles left in the ghost cells
        part_handler->clearGhosts();
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish clearGhosts\n",rank,ti);   
 
        time_phys += dt;
+
+       // check and write restart files
+//       if(ti%ntcheck==0){check(t,domains,grids,parts);}
+       // output diagnostic files
+//       part_handler->outputParticles(ti+1,input_info);
      }  
 
 
