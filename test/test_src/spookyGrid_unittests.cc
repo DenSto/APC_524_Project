@@ -1,3 +1,4 @@
+#define MAIN_CPP
 #include "gtest/gtest.h"
 #include "grid.hpp"
 #include "math.h"

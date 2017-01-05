@@ -94,7 +94,7 @@ $(SRC_DIR)/%.o:
 IO_unittests.o : $(TESTSRC_DIR)/IO_unittests.cc $(SRC_DIR)/IO/input.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/IO_unittests.cc -I $(SRC_DIR)/IO 
 
-IO_unittests : $(addprefix $(SRC_DIR)/, $(IOOBJ)) IO_unittests.o gtest_main.a
+IO_unittests : $(addprefix $(SRC_DIR)/, $(IOTESTOBJ)) IO_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LCONFIG)
 
 RNG_unittests.o : $(TESTSRC_DIR)/RNG_unittests.cc $(SRC_DIR)/utils/RNG.hpp $(GTEST_HEADERS)
@@ -121,10 +121,10 @@ spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(SRC_DIR)/grid/
 spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) spookyGrid_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
 
-convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(SRC_DIR)/poisson/poisson.hpp  $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc  -I $(SRC_DIR)/poisson
+convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(SRC_DIR)/domain/domain.hpp $(SRC_DIR)/grid/grid.hpp $(SRC_DIR)/poisson/poisson.hpp  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc -I $(SRC_DIR)/domain -I $(SRC_DIR)/grid -I $(SRC_DIR)/poisson
 
-convertFields_unittests : $(addprefix $(SRC_DIR)/, $(POISSOBJ)) convertFields_unittests.o gtest_main.a
+convertFields_unittests : $(addprefix $(SRC_DIR)/, $(DOMOBJ) $(GRIDOBJ) $(POISSONOBJ)) convertFields_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
 
 run_tests: $(TESTS)
