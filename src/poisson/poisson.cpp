@@ -145,14 +145,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
     }
 
     //Pass fields' data via MPI.
-    domain_->PassFields(this, input_info_, phi1ID_);
-    domain_->PassFields(this, input_info_, phi2ID_);
-    domain_->PassFields(this, input_info_, Ax1ID_);
-    domain_->PassFields(this, input_info_, Ay1ID_);
-    domain_->PassFields(this, input_info_, Az1ID_);
-    domain_->PassFields(this, input_info_, Ax2ID_);
-    domain_->PassFields(this, input_info_, Ay2ID_);
-    domain_->PassFields(this, input_info_, Az2ID_);
+    domain_->PassFields(this, input_info_, -2); //Uses -2 to bundle phi1(1), phi2(1), A1(3), and A2(3) fieldIDs.
 
     //Determine global convergence of jacobi method across all MPI domains
 #if USE_MPI
