@@ -359,8 +359,8 @@ void Grid::constField_(const int fieldID, const double val) {
     for (i=0; i<nxTot_; ++i) { 
         for (j=0; j<nyTot_; ++j) { 
             for (k=0; k<nzTot_; ++k) { 
-                //field[i][j][k]=val; 
-                field[i][j][k]=k+j*10+i*100; 
+                field[i][j][k]=val; 
+                //field[i][j][k]=k+j*10+i*100; 
             } 
         } 
     } 
