@@ -5,8 +5,8 @@
 TEST(ReadinputTest, ValuesCorrect) {
   Input *input =  new Input();
   char filename[100];
-  sprintf(filename, "data/test.txt");
-  int err = input->readinfo(filename);
+  sprintf(filename, "../data/unitest/input.txt");
+  input->readinfo(filename);
   Input_Info_t *input_info = input->getinfo();
 
   EXPECT_EQ(8, input_info->nCell[0]);
