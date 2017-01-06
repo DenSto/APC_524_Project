@@ -90,6 +90,16 @@ int Input::checkinfo(void){
         }
     }
 
+    // check wave injecttion
+    int nwaves = input_info_->nwaves;
+    assert(nwaves<NWAVE);
+
+    // polarization specified as x:1, y:2, z:3
+    int *pol = input_info_->inPolE;
+    for(int i=0;i<nwaves;i++){
+        assert(pol[i]>=0 && pol[i]<=3);
+    }     
+
     return err;
 }
 
