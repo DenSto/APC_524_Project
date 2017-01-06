@@ -345,6 +345,51 @@ int Input::readinfo(char *fname){
       input_info_->electrostatic = 0;
     }
 
+    try {
+      const Setting &fieldinit = cfg.lookup("initialization.fields.init"); 
+      if(fieldinit.getType() == Setting::TypeString){
+        strcpy(input_info_->fields_init, fieldinit); 
+      } else {
+        cerr << "Error: field initialization method should be a string!" << endl; 
+        return(EXIT_FAILURE);
+      }
+    } catch(const SettingNotFoundException &nfex){
+      cerr << "Error: field initialization method not set in input file!" << endl;
+      return(EXIT_FAILURE);
+    }
+
+    if(strcmp(input_info_->fields_init,"constant")==0){
+      cout << "    Fields initialize by constants." << endl;
+      // read constant fields
+      try{const Setting &B0 = cfg.lookup("initialization.fields.B0");
+        if(B0.getLength() == NDIM) {
+          for(int i=0;i<NDIM;i++){input_info_->B0[i] = B0[i];}
+        } else {
+          for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
+          cerr << "Caution: B0 is not a " << NDIM << " element array in input file."
+             << endl << "Assuming B0[i] = 0.0" << endl;
+        }
+      }catch(const SettingNotFoundException &nfex){
+        for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
+        cerr << "Caution: B0 not set in input file!" << endl
+             << "  Assuming B0[i]=0.0" << endl; 
+      }
+   
+      try{const Setting &E0 = cfg.lookup("initialization.fields.E0");
+        if(E0.getLength() == NDIM) {
+          for(int i=0;i<NDIM;i++){input_info_->E0[i] = E0[i];}
+        } else {
+          for(int i=0;i<NDIM;i++){input_info_->E0[i] = 0.0;}
+          cerr << "Caution: E0 is not a " << NDIM << " element array in input file."
+             << endl << "Assuming E0[i] = 0.0" << endl;
+        }
+      }catch(const SettingNotFoundException &nfex){
+        for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
+        cerr << "Caution: E0 not set in input file!" << endl
+             << "  Assuming E0[i]=0.0" << endl; 
+      }
+    }
+
     char (*fields_bound)[NCHAR] = input_info_->fields_bound;
     int isexternal = 0;
     try

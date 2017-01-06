@@ -79,11 +79,18 @@ typedef struct {
     double invWidths[NWAVE]; // the inverse of Gaussian pulse width in time (in program unit)
     double delays[NWAVE]; // time delay of Gaussian pulse center w.r.t. time_phys
 
+    double E0[NDIM]; /// background electric field
+    double B0[NDIM]; /// background magnetic field
+
     double xyz0[NDIM]; // origin of simulation
     double Lxyz[NDIM]; // physical length of simulation
 
     // MPI can only send c_str!
     char distname[NCHAR]; /// name of file containing distribution function 
+    
+    char parts_init[NCHAR]; /// particle initialization method
+    char fields_init[NCHAR]; /// field initialization method
+
     char parts_bound[2*NDIM][NCHAR]; /// particle boundary conditions for 6 sides of box
     char fields_bound[2*NDIM][NCHAR];/// field boundary conditions for 6 sides of the box
 
