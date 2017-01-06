@@ -35,7 +35,7 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID){
     if(debug>1) fprintf(stderr,"rank=%d: xgsize=%d\n",rank_,xgsize);
     int offl=0;
     int offr=xgsize;
-    
+
     // load buffer xghost_send_
     grids->getGhostVec(-1, &(xghost_send_[offl]),sendID);// left
     grids->getGhostVec(1, &(xghost_send_[offr]),sendID);// right

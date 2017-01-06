@@ -90,7 +90,7 @@ void Poisson_Solver::InitializeFields() {
 
   if(rank_MPI==0)printf("        Initializing fields by solving Poisson's equation...\n");
 
-  double sourceMult = -4*M_PI; 
+  double sourceMult = -4*M_PI;
   double convTol = .01;
   run_poisson_solver_(phi1ID_,phi1_,phi2_,rho_,convTol,sourceMult);
   phiToE();

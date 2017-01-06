@@ -120,16 +120,16 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
 /// returns size of ghost cell data to send
 /*! sendID is an integer specifying which fields are intended to be packaged into the ghost vector. -1 for JEB fields, fieldID for any individual field (e.g. ExID_) \n 
  * It is of length equal to the number of fields being sent times the maximum number of total points in any plane, so that it will be large enough to send the maximum amount of data in a single plane of any of the fields. 
- */ 
-int Grid::getGhostVecSize(const int sendID) { 
-    assert(sendID > -2 && sendID < nFieldsTotal_); 
-    switch (sendID) { 
-        // sendID = -1, package JEB fields together (for time stepping) 
-        case -1: return nFieldsJEB_*maxPointsInPlane_; break; 
-        // sendID > 0, return for single field 
-        default: return maxPointsInPlane_; break; 
-    } 
-}; 
+ */
+int Grid::getGhostVecSize(const int sendID) {
+    assert(sendID > -2 && sendID < nFieldsTotal_);
+    switch (sendID) {
+        // sendID = -1, package JEB fields together (for time stepping)
+        case -1: return nFieldsJEB_*maxPointsInPlane_; break;
+        // sendID > 0, return for single field
+        default: return maxPointsInPlane_; break;
+    }
+};
 
 /// function to convert -/+ 1 left/right side indicator to index in x direction (description out of date) 
 /*! For use with ghost cell methods. side=-1 indicates operations on the left side of the domain, side=+1 indicates operations on the right side of the domain. This method converts side into the correct index i to reference ghost cells on that side of the domain. For instance, called by getGhostVec and setGhostVec. Generalizes to any number of ghost cells so long as iBeg_ and iEnd_ are initialized correctly. 
