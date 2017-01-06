@@ -84,9 +84,16 @@ initialization:
     # Whether to use electrostatic solver
     electrostatic = 0
 
-    init = "zero"
+    # How to initialize fields?
+    init = "constant"
     #init = "poisson"
     #init = "file: fields.dat"
+
+    # if init="constant", read background magnetic field. 1->1kG
+    B0 = [0.0, 0.2, 1.0]
+
+    # i init="constant", read background electric field. 1->299.79KV/cm
+    E0 = [0.001, 0.0, 0.0]
 
   }
 }
@@ -115,7 +122,7 @@ boundary:
 
     ## If and only if conditions[i]="external", will the following be meaningful in i-direction 
     ## eg. if conditions[1]="periodic", conditions[3]="external", and inSide = [-1,2],
-    ## then inPolE[0], corresponding to inSide[0]=-1, namely, wave injecttion in xleft, will
+    ## then inPolE[0], corresponding to inSide[0]=-1, namely, wave injection in xleft, will
     ## be ignored; while inPolE[1], corresponding to inSide[1]=2, namely, wave injection
     ## in yright, will be meaninful to the program. 
     external:

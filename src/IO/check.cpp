@@ -139,7 +139,14 @@ void checkinput(Input_Info_t *input_info){
 
    /* fields **************************/
    fprintf(stderr,"rank=%d,electrostatic=%d\n",rank,input_info->electrostatic);
+   fprintf(stderr,"rank=%d,initialization method=%s\n",rank,input_info->fields_init);
  
+   const double *B0 = input_info->B0;
+   fprintf(stderr,"rank=%d,B0=%f,%f,%f\n",rank,B0[0],B0[1],B0[2]);
+   
+   const double *E0 = input_info->E0;
+   fprintf(stderr,"rank=%d,E0=%f,%f,%f\n",rank,E0[0],E0[1],E0[2]);
+
    int nwaves = input_info->nwaves;
    fprintf(stderr,"rank=%d,nwaves=%d\n",rank,nwaves);
 
