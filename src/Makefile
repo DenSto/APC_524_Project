@@ -18,7 +18,7 @@ else
   OMPFLAGS = -DUSE_MPI=1
 endif
 
-CFLAGS= -g -lm -lz -Wall 
+CFLAGS= -g -lm -lz -ldl -Wall 
 PROGRAM = EMOOPIC
 
 include Makefile.obj
