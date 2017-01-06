@@ -16,7 +16,10 @@ Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   Az1ID_(17),
   Ax2ID_(18),
   Ay2ID_(19),
-  Az2ID_(20)
+  Az2ID_(20), 
+  xdir_(1), 
+  ydir_(2),
+  zdir_(3)
 {
   phi1_=newField_(phi1ID_);
   phi2_=newField_(phi2ID_);

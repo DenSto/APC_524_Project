@@ -54,6 +54,10 @@ protected:
   const int Ay2ID_;
   const int Az2ID_;
 
+  const int xdir_; 
+  const int ydir_; 
+  const int zdir_; 
+
   // unit testing in convertFields_unittests.cc 
   friend class ConvertPrivateTest;
   FRIEND_TEST(ConvertPrivateTest, constantPhiTest); 
