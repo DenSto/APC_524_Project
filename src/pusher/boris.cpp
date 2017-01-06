@@ -1,4 +1,6 @@
 #include "boris.hpp"
+#include <stdio.h>
+#include "../globals.hpp"
 
 Boris::Boris(){
 
@@ -24,8 +26,13 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
   vz = part->v[2];
 
   q = part->q;
+  if(debug)fprintf(stderr,"Charge inside = %f\n",q);
+
   m = part->m;
+  if(debug)fprintf(stderr,"Mass inside = %f\n",m);
+
   q_p = (0.5 * dt * q)/m;
+  if(debug)fprintf(stderr,"q_p inside = %f\n",q_p);
 
   ex = field->e1;
   ey = field->e2;
@@ -34,6 +41,9 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
   bx = field->b1;
   by = field->b2;
   bz = field->b3;
+
+//  if(debug){
+//     fprintf(stderr,"
 
   tx = q_p*bx;
   ty = q_p*by;
@@ -89,6 +99,13 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
   part->v[1] = vy_new;
   part->v[2] = vz_new;
 
+  if(debug){
+      fprintf(stderr,"*************************\n");
+      fprintf(stderr,"old: x=%f,y=%f,x=%f,vx=%f,vy=%f,vz=%f\n",
+               x,y,z,vx,vy,vz);
+      fprintf(stderr,"new: x=%f,y=%f,x=%f,vx=%f,vy=%f,vz=%f\n",
+               x_new,y_new,z_new,vx_new,vy_new,vz_new);
+  }
   return 1;
 }
 

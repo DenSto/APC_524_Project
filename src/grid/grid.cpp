@@ -403,18 +403,20 @@ void Grid::InitializeFields(Input_Info_t *input_info){
 
     if(rank_MPI==0)printf("        Initializing fields by reading files...\n");
     int restart = input_info->restart;
+    double *E0 = input_info->E0;
+    double *B0 = input_info->B0;
     if(restart==0 && strcmp(input_info->fields_init,"constant")==0){
        if(rank_MPI==0)printf("          Initializing fields to constants in input file...\n");
-       double *E0 = input_info->E0;
-       double *B0 = input_info->B0;
+    //   double *E0 = input_info->E0;
+    //   double *B0 = input_info->B0;
        constE(E0[0],E0[1],E0[2]); 
        constB(B0[0],B0[1],B0[2]); 
     } else {
        if(rank_MPI==0)printf("          Initializing fields by reading restart files...\n");
        // placeholder until restart files exist 
        constJ(0,0,0); 
-       constE(0,0,0); 
-       constB(0,0,0); 
+       constE(E0[0],E0[1],E0[2]); 
+       constB(B0[0],B0[1],B0[2]); 
        constRho(0); 
     }
 }; 
