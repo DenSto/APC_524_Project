@@ -128,13 +128,15 @@ int main(int argc, char *argv[]){
 
     // Initialize grid
     Grid *grids;
-    if(restart>0){//no need to solve Poisson's equation
+    if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
+        //need to solve Poisson's equation
+        if(rank==0)printf("    Grid initialing: will solve Poisson's equations...\n");
+        grids = new Poisson_Solver(domain,input_info);
+    }else{
+        //no need to solve Poisson's equation
         if(rank==0)printf("    Grid initialing...\n");
         grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
-    }else{//need to solve Poisson's equation
-        if(rank==0)printf("    Grid initialing: will solve Poisson's equations...\n");
-        grids = new Poisson_Solver(domain,input_info);
     }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
@@ -148,7 +150,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // if initial run, Deposite charge and current from particles to grid
-    if(restart==0){
+    if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
         if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
         part_handler->depositRhoJ(grids,true,domain,input_info);
         if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
@@ -156,7 +158,7 @@ int main(int argc, char *argv[]){
 
     // Solve initial fields from particle or read restart file
     if(rank==0)printf("    Initializing fields...\n");
-    grids->InitializeFields(); 
+    grids->InitializeFields(input_info); 
     if(debug) fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
 
     // Interpolate fields from grid to particle

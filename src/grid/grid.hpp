@@ -16,6 +16,7 @@
 #include <string>
 #include <gtest/gtest_prod.h>
 #include "../boundaries/fields_boundary.hpp"
+#include "../IO/input.hpp"
 
 class Grid {
 
@@ -27,7 +28,7 @@ public:
   int evolveFieldsES (double dt);
 
   // Initialize fields by either solve Poisson's equation or read restart file.  
-  virtual void InitializeFields(void);
+  virtual void InitializeFields(Input_Info_t *input_info);
   
   void constJ(double vx, double vy, double vz); 
   void constE(double vx, double vy, double vz); 
