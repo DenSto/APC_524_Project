@@ -650,8 +650,8 @@ int Input::readinfo(char *fname){
     
 
 // dummy code to be replaced //////////////////////////////////
-    input_info_->temp[0] = 1.5; 
-    input_info_->temp[1] = 0.1; 
+    input_info_->temp[0] = 0.001; 
+    input_info_->temp[1] = 0.001; 
 
     sprintf(input_info_->distname,"distribution.dat");
 

@@ -183,6 +183,7 @@ int main(int argc, char *argv[]){
     int nt = input_info->nt; //number of steps to run
     time_phys = input_info->t0; //initial time
     dt_phys = 1/domain->getmindx(); //c=1, resolve EM wave
+    dt_phys /= 10000.0;
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     // write initial restart files
@@ -206,7 +207,7 @@ int main(int argc, char *argv[]){
        if(ti%nwrite==0) {
          iwrite = ti/nwrite;
          if(input_info->write_field_timeseries) {
-           field_tsio->writeFields(grids, input_info, iwrite);
+           //field_tsio->writeFields(grids, input_info, iwrite);
          }
        }
 
@@ -219,15 +220,15 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
-       part_handler->depositRhoJ(grids,false,domain,input_info);
+//       part_handler->depositRhoJ(grids,false,domain,input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
-       grids->evolveFields(dt_phys);
+//       grids->evolveFields(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
-       grids->executeBC();
+//       grids->executeBC();
        //domain->PassFields(grids,input_info,-1);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 

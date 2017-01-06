@@ -55,6 +55,8 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.q = charge[ispec];
 		p.m = mass[ispec];
 
+                if(debug)fprintf(stderr,"charge=%f\n",p.q);
+
 		vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
 
 		p.x[0]=rng->getUniform()*L[0]+x0[0];
@@ -75,14 +77,14 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
         //dummy code inserted by YShi for testing
         //insert a single particle at the center of the cell
 	Particle p = new_particle();
-	p.q = 0;
-	p.m = 1;
+	p.q = 1.0;
+	p.m = 1.0;
 	p.x[0]=L[0]/2+x0[0];
 	p.x[1]=L[1]/2+x0[1];
 	p.x[2]=L[2]/2+x0[2];
-//	p.v[0]=0.1;
-	p.v[1]=0.1;
-//	p.v[2]=0.1;
+	p.v[0]=0.01;
+	p.v[1]=0.001;
+	p.v[2]=0.001;
 	parts_.push_back(p);
 	np_++;
     }
