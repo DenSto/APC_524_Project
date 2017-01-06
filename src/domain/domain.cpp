@@ -26,7 +26,7 @@ Domain::Domain(Input_Info_t *input_info)
        int* nCell = input_info->nCell; 
        int* nProc = input_info->nProc;
        if(debug>1) fprintf(stderr,"rank=%d,size=%d,nproc=%d,%d,%d\n",
-                              rank_,size_,nProc[0],nProc[1],nProc[2]); 
+                              rank_,size_,nProc[0],nProc[1],nProc[2]);
        assert(size_ == nProc[0]*nProc[1]*nProc[2]);
 
        // assign private variables

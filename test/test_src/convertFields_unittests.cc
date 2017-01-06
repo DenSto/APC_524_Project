@@ -7,10 +7,14 @@
 class ConvertTest : public ::testing::Test {
 protected:
   virtual void SetUp() {
+    //Assumes USE_MPI=0
+    size_MPI=1;
+    rank_MPI=0;
+
     //Read input file
     Input *input =  new Input();
     char filename[100];
-    sprintf(filename, "data/test.txt");
+    sprintf(filename, "../data/unitest/input.txt");
     input->readinfo(filename);
     Input_Info_t *input_info = input->getinfo();
 
@@ -36,10 +40,14 @@ int main(int argc, char** argv) {
 class ConvertPrivateTest : public ::testing::Test {
 protected:
   virtual void SetUp() {
+    //Assumes USE_MPI=0
+    size_MPI=1;
+    rank_MPI=0;
+
     //Read input file
     Input *input =  new Input();
     char filename[100];
-    sprintf(filename, "data/test.txt");
+    sprintf(filename, "../data/unitest/input.txt");
     input->readinfo(filename);
     Input_Info_t *input_info = input->getinfo();
 
@@ -72,23 +80,23 @@ protected:
 // case: constant phi 
 TEST_F(ConvertPrivateTest, constantPhiTest) {
 
-    // set phi1 to constant 
-    int i,j,k; 
-    double phival = 1.0; 
-    for (i=0; i<grid->nxTot_; ++i) { 
-        for (j=0; j<grid->nyTot_; ++j) { 
-            for (k=0; k<grid->nzTot_; ++k) { 
-                grid->phi1_[i][j][k] = phival; 
-            } 
-        } 
+  // set phi1 to constant 
+  int i,j,k; 
+  double phival = 1.0; 
+  for (i=0; i<grid->nxTot_; ++i) { 
+    for (j=0; j<grid->nyTot_; ++j) { 
+      for (k=0; k<grid->nzTot_; ++k) { 
+	grid->phi1_[i][j][k] = phival; 
+      } 
     } 
+  } 
 
-    // derive E 
-    grid->constE(0,0,0); 
-    grid->phiToE(); 
+  // derive E
+  grid->constE(0,0,0);
+  grid->phiToE();
 
-    // for constant phi, E should vanish everywhere 
-    double  ExSum = sumField(grid->Ex_); 
-    EXPECT_EQ(ExSum,0); 
+  // for constant phi, E should vanish everywhere 
+  double  ExSum = sumField(grid->Ex_);
+  EXPECT_EQ(ExSum,0);
 }
 
