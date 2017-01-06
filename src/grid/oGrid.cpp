@@ -18,7 +18,6 @@ int Grid::evolveFields (double dt) {
 	std::swap(By_tm1_, By_);
 	std::swap(Bz_tm1_, Bz_);
 
-
 	// calculate E 
 	for (int ix = 1; ix < nx_; ix++) {
 		for (int iy = 1; iy < ny_; iy++) {
@@ -26,15 +25,15 @@ int Grid::evolveFields (double dt) {
 				Ex_[ix][iy][iz] = Ex_[ix][iy][iz] - dt * 
 								  (  ( By_tm1_[ix][iy][iz] - By_tm1_[ix][iy][iz-1] )/dz_  
 								   - ( Bz_tm1_[ix][iy][iz] - Bz_tm1_[ix][iy-1][iz] )/dy_ 
-								  + 4*M_PI*Jx_[ix][iy][iz]  );
+								     + 4*M_PI*Jx_[ix][iy][iz]  );
 				Ey_[ix][iy][iz] = Ey_[ix][iy][iz] - dt * 
 								  (  ( Bz_tm1_[ix][iy][iz] - Bz_tm1_[ix-1][iy][iz] )/dx_  
 								   - ( Bx_tm1_[ix][iy][iz] - Bx_tm1_[ix][iy][iz-1] )/dz_ 
-								 + 4*M_PI*Jy_[ix][iy][iz]  );
+								     + 4*M_PI*Jy_[ix][iy][iz]  );
 				Ez_[ix][iy][iz] = Ez_[ix][iy][iz] - dt * 
 								  (  ( Bx_tm1_[ix][iy][iz] - Bx_tm1_[ix][iy-1][iz] )/dy_  
 								   - ( By_tm1_[ix][iy][iz] - By_tm1_[ix-1][iy][iz] )/dx_ 
-								  + 4*M_PI*Jz_[ix][iy][iz]  );
+								     + 4*M_PI*Jz_[ix][iy][iz]  );
 			}
 		}
 	}
