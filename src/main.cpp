@@ -128,13 +128,15 @@ int main(int argc, char *argv[]){
 
     // Initialize grid
     Grid *grids;
-    if(restart>0){//no need to solve Poisson's equation
+    if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
+        //need to solve Poisson's equation
+        if(rank==0)printf("    Grid initialing: will solve Poisson's equations...\n");
+        grids = new Poisson_Solver(domain,input_info);
+    }else{
+        //no need to solve Poisson's equation
         if(rank==0)printf("    Grid initialing...\n");
         grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
                domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
-    }else{//need to solve Poisson's equation
-        if(rank==0)printf("    Grid initialing: will solve Poisson's equations...\n");
-        grids = new Poisson_Solver(domain,input_info);
     }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
@@ -148,7 +150,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // if initial run, Deposite charge and current from particles to grid
-    if(restart==0){
+    if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
         if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
         part_handler->depositRhoJ(grids,true,domain,input_info);
         if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
@@ -156,7 +158,7 @@ int main(int argc, char *argv[]){
 
     // Solve initial fields from particle or read restart file
     if(rank==0)printf("    Initializing fields...\n");
-    grids->InitializeFields(); 
+    grids->InitializeFields(input_info); 
     if(debug) fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);   
 
     // Interpolate fields from grid to particle
@@ -174,19 +176,19 @@ int main(int argc, char *argv[]){
     // prepare time step
     int nt = input_info->nt; //number of steps to run
     time_phys = input_info->t0; //initial time
-    double dt = 1/domain->getmindx(); //c=1, resolve EM wave
+    dt_phys = 1/domain->getmindx(); //c=1, resolve EM wave
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     // write initial restart files
     // write initial diagnostic files
-//    part_handler->outputParticles(0,input_info);
+    part_handler->outputParticles(0,input_info);
 
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
        // push particles
-       part_handler->Push(dt);
+       part_handler->Push(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // Pass particle through MPI boundary, or physical boundary conditions
@@ -198,7 +200,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
-       grids->evolveFields(dt);
+       grids->evolveFields(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
@@ -214,12 +216,12 @@ int main(int argc, char *argv[]){
        part_handler->clearGhosts();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish clearGhosts\n",rank,ti);   
 
-       time_phys += dt;
+       time_phys += dt_phys;
 
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
        // output diagnostic files
-//       part_handler->outputParticles(ti+1,input_info);
+       part_handler->outputParticles(ti+1,input_info);
      }  
 
     //Output particle velocities

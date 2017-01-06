@@ -3,6 +3,7 @@
 *.o
 *.out
 *~
+*.dat
 .depend
 EMOOPIC
 *.log

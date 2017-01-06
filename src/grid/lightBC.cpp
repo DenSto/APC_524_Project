@@ -33,7 +33,7 @@ LightBC::LightBC(int side, Input_Info_t *input_info){
         nwaves_[pid]+=1;
       }
    }
-   if(debug>1) cerr << "rank=" << rank_MPI << ": side" << side << " has " 
+   if(debug) cerr << "rank=" << rank_MPI << ": side" << side << " has " 
                     << nwaves_[0] << " waves injected with x polarization; "
                     << nwaves_[1] << " waves injected with y polarization; "
                     << nwaves_[2] << " waves injected with z polarization.\n";
@@ -65,10 +65,16 @@ LightBC::LightBC(int side, Input_Info_t *input_info){
       // the pointers are not assigned in pol directions where there is no wave  
       }
    }
+   if(debug>1) cerr << "rank=" << rank_MPI << ": finish loading pulses\n";
 
    // register transverse polarizations 
-   eString_.reserve(3);
-   bString_.reserve(3);
+   eString_.assign(3,"Ei");
+   bString_.assign(3,"Bi");
+   if(debug>1){
+      cerr << "rank=" << rank_MPI << ": finish reserving strings\n";
+      //     << "eString size = " << eString_.size() << endl
+      //     << "bString size = " << bString_.size() << endl;
+   }
 
    switch (dim_) {
       case 0: // in x direction
@@ -79,7 +85,7 @@ LightBC::LightBC(int side, Input_Info_t *input_info){
 
          Epol_[1]=2; 
          eString_[1]="Ez";
-         Bpol_[0]=1;
+         Bpol_[1]=1;
          bString_[1]="By";
 
          // self
@@ -127,8 +133,10 @@ LightBC::LightBC(int side, Input_Info_t *input_info){
       default:
          cerr << "Invalid dimension in LightBC\n";
    }
+   if(debug>1) cerr << "rank=" << rank_MPI << ": finish registrating transverse pulses\n";
 
    delete [] registry;
+   if(debug>1) cerr << "rank=" << rank_MPI << ": finish lightBC constructor\n";
 
 };
 
