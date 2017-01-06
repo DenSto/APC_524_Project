@@ -314,4 +314,11 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 	}
 }
 
+void Particle_Handler::outputParticleVel(){
+  for (long i=0; i<np_; i++) {
+    //Get velocity of particle and species
+    printf("Species = %f   Vel = %f\n",parts_[i].q,parts_[i].v[0]);
+  }
+}
+
 #undef _USE_MATH_DEFINES

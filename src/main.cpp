@@ -222,6 +222,8 @@ int main(int argc, char *argv[]){
 //       part_handler->outputParticles(ti+1,input_info);
      }  
 
+    //Output particle velocities
+    //part_handler->outputParticleVel();
 
     /* output, finalize ***********************************/
     if(rank==0)printf("Writing output files...\n");
