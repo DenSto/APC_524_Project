@@ -1,4 +1,4 @@
-#define MAIN_CPP
+//#define MAIN_CPP
 #include "gtest/gtest.h"
 #include "math.h"
 #include "poisson.hpp"

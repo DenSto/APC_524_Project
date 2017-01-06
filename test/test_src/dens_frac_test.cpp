@@ -3,10 +3,10 @@ using namespace std;
 
 int main(){
     int nspec;
-    cout << "Eneter number of species\n";
+    cout << "Enter number of species\n";
     cin >> nspec;
 
-    cout << "Enter fractional densities\n";
+    cout << "Enter (# of species) fractional densities\n";
     double *dens = new double[nspec];
     double cden = 0.0; // cummulative density
     for(int i=0;i<nspec;i++){
