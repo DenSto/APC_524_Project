@@ -1,5 +1,5 @@
 #include <iostream>
-#include "GaussianPulse.hpp"
+#include "../../src/utils/GaussianPulse.hpp"
 
 using namespace std;
 
@@ -50,7 +50,7 @@ int main(){
     do{
         cout << "Enter time to compute. To abort, enter t<-999.9\n";
         cin >> t;
-        cout << "pulse value = " << GaussianPulses(t,pulses) << endl; 
+        cout << "pulse value = " << GaussianPulses(t,0.0,pulses) << endl; 
     }while(t>-999.9);
 
     return 0;

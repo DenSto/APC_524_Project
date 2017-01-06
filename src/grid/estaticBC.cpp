@@ -10,6 +10,8 @@ using namespace std;
 ElectroStaticBC::ElectroStaticBC(int side, Input_Info_t *input_info){
 
    side_ = side;
+   dim_ = abs(side_)-1;
+   assert(dim_>=0 && dim_<3);
 
    input_info_ = input_info;
    assert(input_info_!=NULL);
@@ -21,7 +23,7 @@ ElectroStaticBC::ElectroStaticBC(int side, Input_Info_t *input_info){
    int *registry = new int[nwaves];
    int nw = 0;
    for(int i=0;i<nwaves;i++){
-      if(inSide[i]==side && inPolE[i]==abs(side)){
+      if(inSide[i]==side && inPolE[i]==dim_){
         registry[nw]=i;
         nw+=1;
       }
@@ -70,15 +72,16 @@ ElectroStaticBC::~ElectroStaticBC(void){
 /*!
    Uses setFieldAlongEdge method in grid to add field to grid.
 */
-void ElectroStaticBC::applyBCs(double t, Grid *grids) {
+void ElectroStaticBC::applyBCs(double t, double dt, Grid *grids) {
 
+   dt = 0.0; // no phase shift
    std::string str;
 
    // set constant background B-field
    double *B0 = input_info_->B0;
-   grids->setFieldAlongEdge(str.assign("Bx"),abs(side_),side_>0, B0[0]);
-   grids->setFieldAlongEdge(str.assign("By"),abs(side_),side_>0, B0[1]);
-   grids->setFieldAlongEdge(str.assign("Bz"),abs(side_),side_>0, B0[2]);
+   grids->setFieldAlongEdge(str.assign("Bx"),dim_,side_>0, B0[0]);
+   grids->setFieldAlongEdge(str.assign("By"),dim_,side_>0, B0[1]);
+   grids->setFieldAlongEdge(str.assign("Bz"),dim_,side_>0, B0[2]);
 
    // set e field superimposed on constant background
    double fieldVal;
@@ -87,12 +90,12 @@ void ElectroStaticBC::applyBCs(double t, Grid *grids) {
    for(int i=0;i<3;i++){E1[i] = E0[i];}
 
    if(nwaves_>0){// inject gaussian pulses on background
-      fieldVal = GaussianPulses(t,gaussian_pulses_);
-      E1[abs(side_)]+=fieldVal;
+      fieldVal = GaussianPulses(t,dt,gaussian_pulses_);
+      E1[dim_]+=fieldVal;
    }
 
-   grids->setFieldAlongEdge(str.assign("Ex"),abs(side_),side_>0, E1[0]);
-   grids->setFieldAlongEdge(str.assign("Ey"),abs(side_),side_>0, E1[1]);
-   grids->setFieldAlongEdge(str.assign("Ez"),abs(side_),side_>0, E1[2]);
+   grids->setFieldAlongEdge(str.assign("Ex"),dim_,side_>0, E1[0]);
+   grids->setFieldAlongEdge(str.assign("Ey"),dim_,side_>0, E1[1]);
+   grids->setFieldAlongEdge(str.assign("Ez"),dim_,side_>0, E1[2]);
 
 };

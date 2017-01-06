@@ -19,7 +19,8 @@ class ElectroStaticBC : public GridBC {
 public:
    ElectroStaticBC(int side, Input_Info_t *input_info);
    ~ElectroStaticBC(void);
-   void applyBCs(double t, Grid *grids);
+   // t: current time, dt=0: no phase shift
+   void applyBCs(double t, double dt, Grid *grids);
 
 private:
    int nwaves_;
