@@ -45,7 +45,7 @@ public:
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 
-  int getGhostVecSize(int sendID); // called by main to size MPI Buffer
+  virtual int getGhostVecSize(const int sendID); // called by main to size MPI Buffer
   // side = +1: x right, side = -1: x left
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left

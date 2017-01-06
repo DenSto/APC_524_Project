@@ -11,7 +11,7 @@ protected:
     Input *input =  new Input();
     char filename[100];
     sprintf(filename, "data/test.txt");
-    int err = input->readinfo(filename);
+    input->readinfo(filename);
     Input_Info_t *input_info = input->getinfo();
 
     //Initialize a domain and a grid
@@ -40,7 +40,7 @@ protected:
     Input *input =  new Input();
     char filename[100];
     sprintf(filename, "data/test.txt");
-    int err = input->readinfo(filename);
+    input->readinfo(filename);
     Input_Info_t *input_info = input->getinfo();
 
     //Initialize a domain and a grid

@@ -52,7 +52,7 @@ $(LCONFIG_LIB):
 	cd ..; \
 	tar xf libconfig-1.5.tar.gz; \
 	cd libconfig-1.5; \
-	./configure --prefix=$(PWD)/$(LCONFIG_DIR); \
+	./configure --prefix=$(LCONFIG_DIR); \
 	make; \
 	make install; \
 	cd $(SRCDIR)

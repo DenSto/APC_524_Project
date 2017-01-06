@@ -65,7 +65,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.v[1]=rng->getGaussian(0.0,vth);
 		p.v[2]=rng->getGaussian(0.0,vth);
 
-		p.my_id=npart;
+		p.my_id=ip;
 		p.initRank=rank_MPI;
 
 		parts_.push_back(p);
@@ -151,7 +151,7 @@ void Particle_Handler::SortParticles(Particle_Compare comp){
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
-void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho){
+void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, Input_Info_t* input_info){
   Depositor *depositor = new Depositor();
 
   long cellID = -1; //cell id tracker.
@@ -203,6 +203,9 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho){
   //Add remaining current to the grid.
   grid->addJ(cellID,&JObj[0]);
   if (depositRho) grid->addRho(cellID,&RhoObj[0]);
+
+  //Pass rho and J fields between domains.
+  domain->PassFields(grid, input_info, -3); //Uses -3 to bundle rho(1), and J(3) fieldIDs.
 }
 
 double Particle_Handler::computeCFLTimestep(Domain* domain){

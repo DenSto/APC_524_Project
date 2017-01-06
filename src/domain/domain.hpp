@@ -3,6 +3,7 @@
 
 #include "../grid/grid.hpp"
 #include "../IO/input.hpp"
+#include "../globals.hpp"
 
 #if USE_MPI
 #include "mpi.h"

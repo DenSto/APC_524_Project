@@ -34,7 +34,7 @@ public:
   void clearGhosts();	// remove all ghost particles in particle list
 
   void InterpolateEB(Grid* grid);
-  void depositRhoJ(Grid *grid, bool depositRho); // deposit current and charge density from particles to grid
+  void depositRhoJ(Grid *grid, bool depositRho, Domain* domain, Input_Info_t* input_info); // deposit current and charge density from particles to grid
 
   std::vector<Particle> getParticleVector(){return parts_;}
 
@@ -55,7 +55,7 @@ private:
   	// Output parameters (should be in its own class)
   	double dT_, nextT_; // variables for time cadencing
 	long   dstep_, nextStep_; //variables for step cadencing
-	long outputCount_; // How many particles per core to output
+	long outputCount_; // How many particles OF EACH SPECIES per core to output
 	int lz1,lz2;  // leading zeros for output filename
 };
 

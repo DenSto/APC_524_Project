@@ -13,14 +13,13 @@ public:
   //void initialize_poisson_fields();
   void InitializeFields();
 
+  int getGhostVecSize(const int sendID); 
+  void getGhostVec(const int side, double* ghostVec, int sendID); 
+  void setGhostVec(const int side, double* ghostVec, int sendID); 
   void phiToE();
   void AToB();
   void constA(const double vx, const double vy, const double vz);
   void constPhi(const double v);
-
-  int getGhostVecSize(int sendID); 
-  void getGhostVec(int side, double *ghostVec, int sendID);
-  void setGhostVec(const int side, double* ghostVec, int sendID);
 
 protected:
   void run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult); 
@@ -55,7 +54,7 @@ protected:
   const int Ay2ID_;
   const int Az2ID_;
 
-  // unit testing in convertFields_unittests.cc
+  // unit testing in convertFields_unittests.cc 
   friend class ConvertPrivateTest;
   FRIEND_TEST(ConvertPrivateTest, constantPhiTest); 
 
