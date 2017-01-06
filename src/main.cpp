@@ -150,7 +150,7 @@ int main(int argc, char *argv[]){
     // if initial run, Deposite charge and current from particles to grid
     if(restart==0){
         if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
-        part_handler->depositRhoJ(grids,true);
+        part_handler->depositRhoJ(grids,true,domain,input_info);
         if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
     }
 
@@ -194,7 +194,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
-       part_handler->depositRhoJ(grids,false);
+       part_handler->depositRhoJ(grids,false,domain,input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
