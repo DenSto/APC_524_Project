@@ -155,7 +155,7 @@ void checkinput(Input_Info_t *input_info){
    const int *inPolE = input_info->inPolE;
    assert(inPolE!=NULL);
 
-   const double *amps = input_info->amps;
+   const double *amps = input_info->peakamps;
    assert(amps!=NULL);
    const double *omegas = input_info->omegas;
    assert(omegas!=NULL);

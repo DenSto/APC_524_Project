@@ -358,37 +358,35 @@ int Input::readinfo(char *fname){
       return(EXIT_FAILURE);
     }
 
-    if(strcmp(input_info_->fields_init,"constant")==0){
-      cout << "    Fields initialize by constants." << endl;
-      // read constant fields
-      try{const Setting &B0 = cfg.lookup("initialization.fields.B0");
-        if(B0.getLength() == NDIM) {
-          for(int i=0;i<NDIM;i++){input_info_->B0[i] = B0[i];}
-        } else {
-          for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
-          cerr << "Caution: B0 is not a " << NDIM << " element array in input file."
-             << endl << "Assuming B0[i] = 0.0" << endl;
-        }
-      }catch(const SettingNotFoundException &nfex){
+    // read constant fields
+    try{const Setting &B0 = cfg.lookup("initialization.fields.B0");
+      if(B0.getLength() == NDIM) {
+        for(int i=0;i<NDIM;i++){input_info_->B0[i] = B0[i];}
+      } else {
         for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
-        cerr << "Caution: B0 not set in input file!" << endl
-             << "  Assuming B0[i]=0.0" << endl; 
+        cerr << "Caution: B0 is not a " << NDIM << " element array in input file."
+           << endl << "Assuming B0[i] = 0.0" << endl;
       }
-   
-      try{const Setting &E0 = cfg.lookup("initialization.fields.E0");
-        if(E0.getLength() == NDIM) {
-          for(int i=0;i<NDIM;i++){input_info_->E0[i] = E0[i];}
-        } else {
-          for(int i=0;i<NDIM;i++){input_info_->E0[i] = 0.0;}
-          cerr << "Caution: E0 is not a " << NDIM << " element array in input file."
-             << endl << "Assuming E0[i] = 0.0" << endl;
-        }
-      }catch(const SettingNotFoundException &nfex){
-        for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
-        cerr << "Caution: E0 not set in input file!" << endl
-             << "  Assuming E0[i]=0.0" << endl; 
-      }
+    }catch(const SettingNotFoundException &nfex){
+      for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
+      cerr << "Caution: B0 not set in input file!" << endl
+           << "  Assuming B0[i]=0.0" << endl; 
     }
+   
+    try{const Setting &E0 = cfg.lookup("initialization.fields.E0");
+      if(E0.getLength() == NDIM) {
+        for(int i=0;i<NDIM;i++){input_info_->E0[i] = E0[i];}
+      } else {
+        for(int i=0;i<NDIM;i++){input_info_->E0[i] = 0.0;}
+        cerr << "Caution: E0 is not a " << NDIM << " element array in input file."
+           << endl << "Assuming E0[i] = 0.0" << endl;
+      }
+    }catch(const SettingNotFoundException &nfex){
+      for(int i=0;i<NDIM;i++){input_info_->B0[i] = 0.0;}
+      cerr << "Caution: E0 not set in input file!" << endl
+           << "  Assuming E0[i]=0.0" << endl; 
+    }
+    
 
     char (*fields_bound)[NCHAR] = input_info_->fields_bound;
     int isexternal = 0;
@@ -493,15 +491,15 @@ int Input::readinfo(char *fname){
         return(EXIT_FAILURE);
       }
 
-      try{const Setting &amps= cfg.lookup("boundary.fields.external.amps");
-        if(amps.getLength() != nwaves) {
-          cerr << "Error: length of amps does not match nwaves!" << endl;
+      try{const Setting &peakamps= cfg.lookup("boundary.fields.external.peakamps");
+        if(peakamps.getLength() != nwaves) {
+          cerr << "Error: length of peakamps does not match nwaves!" << endl;
           return(EXIT_FAILURE);
         } else {
-          for(int i=0;i<nwaves;i++){input_info_->amps[i] = amps[i];}
+          for(int i=0;i<nwaves;i++){input_info_->peakamps[i] = peakamps[i];}
         }
       }catch(const SettingNotFoundException &nfex){
-        cerr << "Error: amps not set in input file" << endl; 
+        cerr << "Error: peakamps not set in input file" << endl; 
         return(EXIT_FAILURE);
       }
 

@@ -89,10 +89,10 @@ initialization:
     #init = "poisson"
     #init = "file: fields.dat"
 
-    # if init="constant", read background magnetic field. 1->1kG
+    # constant background/boundary magnetic field. 1->1kG
     B0 = [0.0, 0.2, 1.0]
 
-    # i init="constant", read background electric field. 1->299.79KV/cm
+    # constant background/boundary electric field. 1->299.79KV/cm
     E0 = [0.001, 0.0, 0.0]
 
   }
@@ -128,28 +128,28 @@ boundary:
     external:
     {
         # number of waves to inject
-        nwaves = 1
+        nwaves = 3
      
         # from which sides are waves injectes
-        inSide = [-1]
+        inSide = [-1, -1, 2]
      
         # Which direction are wave E fields aligned with?
-        inPolE = [2]
+        inPolE = [1, 2, 1]
      
         # What are the wave E field amplitudes? amps=1 -> E=299.79KV/cm
-        amps = [0.0001]
+        peakamps = [0.0001, 0.001, 0.0003]
      
         # What are the wave frequencies? omegas=1 -> 190.40 GHz
-        omegas = [1.2]
+        omegas = [1.2, 5.6, 3.7]
      
         # What are the wave phases in degree?
-        phases = [90.0]
+        phases = [90.0, 0.0, 45.0]
 
         # What are the inverse Width of pulses? invWidths=0 -> pulse duration infinity
-        invWidths = [0.0]
+        invWidths = [0.2, 0.0, 0.8]
 
         # What are the delays of pulses? delyas=1 -> 33.4 ps, w.r.t time_phys
-        delays = [-0.2]
+        delays = [-0.2, 0.0, 1.2]
     }
   }
 }

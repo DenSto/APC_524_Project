@@ -72,7 +72,7 @@ typedef struct {
                   /// eq. in cold ion and hot electron plasma, possible value
                   ///     temp[0]=100; temp[1]=1.2;
 
-    double amps[NWAVE]; // wave amplitudes(in program unit) injected at the boundary
+    double peakamps[NWAVE]; // wave amplitudes(in program unit) injected at the boundary
     double omegas[NWAVE]; // corresponding wave frequencies (in program unit)
     double phases[NWAVE]; // corresponding wave phase (in unit of rad)
 
