@@ -183,8 +183,8 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, 
 	//If cellID has already been assigned...
 	if (cellID != -1) {
 	  //Deposit to grid
-	  grid->addJ(cellID,&JObj[0]);
-	  if (depositRho) grid->addRho(cellID,&RhoObj[0]);
+	  grid->addJ(cellID,JObj);
+	  if (depositRho) grid->addRho(cellID,RhoObj);
 	  //Zero JObj
 	  for (int k=0; k<12; k++) JObj[k] = 0;
 	  if (depositRho) {
@@ -203,8 +203,8 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, 
   }
 
   //Add remaining current to the grid.
-  grid->addJ(cellID,&JObj[0]);
-  if (depositRho) grid->addRho(cellID,&RhoObj[0]);
+  grid->addJ(cellID,JObj);
+  if (depositRho) grid->addRho(cellID,RhoObj);
 
   //Pass rho and J fields between domains.
   domain->PassFields(grid, input_info, -2,1); //sendID=-3 to bundle rho(1), and J(3) fieldIDs, op=1 to sum
