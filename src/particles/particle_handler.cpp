@@ -283,7 +283,7 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 	bool needsOutput=false;
 	if(init){
 		init=false;
-		mkdir("./tracks", 0775); //create the particle directory
+		//mkdir("./tracks", 0775); //create the particle directory
 	}
 
 	// cadence on i or t
@@ -300,18 +300,26 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 	if(!needsOutput)
 		return;
 
+        if(debug){
+            fprintf(stderr,"rank=%d: writing particle tracks...\n",rank_MPI);
+            fprintf(stderr,"         writing trackes for %ld particles\n",outputCount_);
+        }
 	char fname[100];
 	FILE *pout;
-	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
+	for(std::vector<Particle>::iterator iter = parts_.begin();iter!=parts_.end();++iter){
 		if(iter->my_id < outputCount_){
-			sprintf(fname,"./tracks/track_%d_%ld\n",iter->initRank,iter->my_id);	
+			//sprintf(fname,"./tracks/track_%d_%ld\n",iter->initRank,iter->my_id);	
+			sprintf(fname,"./track_%d_%ld.dat",iter->initRank,iter->my_id);	
+                        if(debug>1)fprintf(stderr,"    track file name %s\n",fname);
 			pout=fopen(fname,"a");
 			assert(pout != NULL);
-			fprintf(pout,"%e %e %e %e %e %e %e\n",t,iter->x[0],iter->x[1],iter->x[2],
-													iter->v[0],iter->v[1],iter->v[2]);
+			fprintf(pout,"%e %e %e %e %e %e %e\n",t,
+					iter->x[0],iter->x[1],iter->x[2],
+					iter->v[0],iter->v[1],iter->v[2]);
 			fclose(pout);
 		}
 	}
+        if(debug)fprintf(stderr,"rank=%d: finish writing particle tracks!\n",rank_MPI);
 }
 
 void Particle_Handler::outputParticleVel(){

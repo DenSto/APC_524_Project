@@ -179,7 +179,7 @@ int main(int argc, char *argv[]){
 
     // write initial restart files
     // write initial diagnostic files
-//    part_handler->outputParticles(0,input_info);
+    part_handler->outputParticles(0,input_info);
 
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
@@ -219,7 +219,7 @@ int main(int argc, char *argv[]){
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}
        // output diagnostic files
-//       part_handler->outputParticles(ti+1,input_info);
+       part_handler->outputParticles(ti+1,input_info);
      }  
 
     //Output particle velocities
