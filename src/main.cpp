@@ -174,7 +174,7 @@ int main(int argc, char *argv[]){
     // prepare time step
     int nt = input_info->nt; //number of steps to run
     time_phys = input_info->t0; //initial time
-    double dt = 1/domain->getmindx(); //c=1, resolve EM wave
+    dt_phys = 1/domain->getmindx(); //c=1, resolve EM wave
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     // write initial restart files
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]){
     for(int ti=0;ti<nt;ti++){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
        // push particles
-       part_handler->Push(dt);
+       part_handler->Push(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // Pass particle through MPI boundary, or physical boundary conditions
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
-       grids->evolveFields(dt);
+       grids->evolveFields(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
@@ -214,7 +214,7 @@ int main(int argc, char *argv[]){
        part_handler->clearGhosts();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish clearGhosts\n",rank,ti);   
 
-       time_phys += dt;
+       time_phys += dt_phys;
 
        // check and write restart files
 //       if(ti%ntcheck==0){check(t,domains,grids,parts);}

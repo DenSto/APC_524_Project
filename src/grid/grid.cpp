@@ -381,6 +381,7 @@ void Grid::InitializeFields(void){
 //! Execute field boundary conditions
 void Grid::executeBC(void){
     // loop through dimensions
+    if(debug>1) fprintf(stderr,"rank=%d: executing field BC\n",rank_MPI);
     for(int i=0;i<3;i++){
         // left and right boundary in each dimension
         boundaries_[2*i]->completeBC();
