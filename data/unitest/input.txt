@@ -171,10 +171,6 @@ diagnostics:
   fields:
   {
   }
-}
-
-diagnostics:
-{
   nwrite = 1
   write_field_timeseries = true
   write_E = 1
@@ -182,3 +178,4 @@ diagnostics:
   write_J = 0
   write_rho = 0
 }
+
