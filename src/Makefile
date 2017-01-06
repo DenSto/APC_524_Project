@@ -28,9 +28,9 @@ SRCDIR = $(PWD)
 LCONFIG_DIR = $(SRCDIR)/../libconfig-1.5
 LCONFIG_LIB = $(LCONFIG_DIR)/lib/libconfig++.a
 
-HDF5_DIR = $(SRCDIR)/../hdf5-1.8.12/hdf5
-HDF5_INCL = $(HDF5_DIR)/include
-HDF5_LIB = $(HDF5_DIR)/lib/libhdf5.a
+HDF5_DIR = $(SRCDIR)/../hdf5-1.8.12
+HDF5_INCL = $(HDF5_DIR)/hdf5/include
+HDF5_LIB = $(HDF5_DIR)/hdf5/lib/libhdf5.a
 
 LIBS = $(LCONFIG_LIB) $(HDF5_LIB)
 
@@ -43,10 +43,10 @@ endif
 $(PROGRAM): $(OBJ) $(LIBS)
 	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
 
-%.o: %.cpp 
+%.o: %.cpp $(LIBS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include -I $(HDF5_INCL)
 
-IO/input.o: IO/input.cpp $(LCONFIG_LIB)
+IO/input.o: IO/input.cpp $(LIBS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
 
 $(LCONFIG_LIB):
