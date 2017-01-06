@@ -122,14 +122,24 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
   double maxDiff = 0.0;
   double absDiff = 0.0;
 
+  // directions 
+  int xside=1; 
+  int yside=2; 
+  int zside=3; 
+  
+  // limits 
+  int iEnd = sideToIndex_(xside,fieldID)+1;  
+  int jEnd = sideToIndex_(yside,fieldID)+1; 
+  int kEnd = sideToIndex_(zside,fieldID)+1; 
+  
   //loop Jacobi method until convergence!
   int iternum = -1;
   do {
     iternum++;
     //iterate over entire grid. Note boundary conditions must be supplied!
-    for ( int i=iBeg_; i<nx_; i++ ) {
-      for ( int j=jBeg_; j<ny_; j++ ) {
-    	for ( int k=kBeg_; k<nz_; k++ ) {
+    for ( int i=iBeg_; i<iEnd; i++ ) {
+      for ( int j=jBeg_; j<jEnd; j++ ) {
+    	for ( int k=kBeg_; k<kEnd; k++ ) {
           if ( iternum % 2 == 0 ) {
             u1[i][j][k] = ax*(u0[i-1][j][k]+u0[i+1][j][k]) + ay*(u0[i][j-1][k]+u0[i][j+1][k]) + 
               az*(u0[i][j][k-1]+u0[i][j][k+1]) - af*R[i][j][k]*sourceMult;
@@ -145,7 +155,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
     }
 
     //Pass fields' data via MPI.
-    domain_->PassFields(this, input_info_, -2); //Uses -2 to bundle phi1(1), phi2(1), A1(3), and A2(3) fieldIDs.
+    domain_->PassFields(this, input_info_,-3,0); // sendID=-3 to bundle phi1(1), phi2(1), A1(3), and A2(3) fieldIDs, op=0 to pass and replace
 
     //Determine global convergence of jacobi method across all MPI domains
 #if USE_MPI
@@ -160,27 +170,23 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
 }
 
 /// returns size of ghost cell data to send
-/*! sendID is an integer specifying which fields are intended to be packaged into the ghost vector. -3 for J,rho, -2 for Poisson fields (phi,A,J,rho), -1 for JEB fields, fieldID for any individual field (e.g. ExID_) \n 
+/*! sendID is an integer specifying which fields are intended to be packaged into the ghost vector. -3 for potentials (phi,A), -2 for sources (rho,J), -1 for fields (EB), fieldID for any individual field (e.g. ExID_) \n 
  * It is of length equal to the number of fields being sent times the maximum number of total points in any plane, so that it will be large enough to send the maximum amount of data in a single plane of any of the fields. 
  */ 
 int Poisson_Solver::getGhostVecSize(const int sendID) { 
-    assert(sendID > -4 && sendID < nFieldsTotal_); 
-    switch (sendID) { 
-        // sendID = -1, package JEB fields together (for time stepping) 
-        case -1: return nFieldsJEB_*maxPointsInPlane_; break; 
-        // sendID = -2, package phi,A fields together (for Poisson iteration)
-        case -2: return nFieldsPoisson_*maxPointsInPlane_; break; 
-        // sendID = -3, package rho,J fields together (for Poisson initialization)
-        case -3: return 4*maxPointsInPlane_; break; 
-        // sendID > 0, return for single field 
-        default: return maxPointsInPlane_; break; 
-    } 
+    assert(sendID > -4 && sendID < nFieldsTotal_);
+    switch (sendID) {
+        case -3: return nFieldsPoisson_*maxPointsInPlane_; break; // A,phi
+        case -2: return 4*maxPointsInPlane_; break; // J,rho
+        case -1: return 6*maxPointsInPlane_; break; // E,B
+        default: return maxPointsInPlane_; break; // single field
+    }
 }; 
 
 /// bundles the data in the ghost cells to send
 /*! side = -/+ 1 for left/right x direction, -/+ 2 for y, -/+ 3 for z \n
  * ghostVec is the vector to store the data in, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
- * sendID = -1 to get JEB fields, -2 for Poisson, or sendID = an individual field ID (e.g. ExID_) to get just that field (used for Poisson updating for example) \n
+ * sendID = -1 to get EB fields, -2 for rho/J sources, -3 for phi/A potentials, or sendID = an individual field ID (e.g. ExID_) to get just that field (used for Poisson updating for example) \n
  * Stores the data of the E,B,J fields along the specified boundary plane into a 1D array to be sent with a single MPI call. \n 
  * If sendID = -1 (as used in each time step update), stores in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
  * If sendID = -2 (as used in Poisson iteration), stores in order: phi1,phi2,Ax1,Ay1,Az1,Ax2,Ay2,Az2 \n
@@ -197,72 +203,60 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
     // offset = 0 to get from the first/last physical cells 
     int offset=0;
 
+    // determine number of fields being sent 
+    int nfields; 
+    switch (sendID) { 
+        case -3: nfields=nFieldsPoisson_; break; 
+        case -2: nfields=4; break; 
+        case -1: nfields=6; break; 
+        default: nfields=1; break; 
+    }
+    
     // "loop" over all fields to package 
     int begdex; 
     double*** field; 
-    int fieldID,ifield; 
-
-    if (sendID == -3) { 
-        for (ifield=0; ifield<4; ++ifield) { 
-            begdex=ifield*n; 
-            switch (ifield) { 
-                case 0: fieldID = JxID_; break; 
-                case 1: fieldID = JyID_; break; 
-                case 2: fieldID = JzID_; break; 
-                case 3: fieldID = rhoID_; break; 
-            }; 
-            field = fieldPtr_[fieldID]; 
-            // slice the given field 
-            sliceMatToVec_(fieldID,side,offset,tmpVec); 
-            // store the slice in ghostVec 
-            std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
-        };
-    } else if (sendID == -2) { 
-        for (ifield=0; ifield<nFieldsPoisson_; ++ifield) { 
-            begdex=ifield*n; 
-            switch (ifield) { 
-                case 0: fieldID = phi1ID_; break; 
-                case 1: fieldID = phi2ID_; break; 
-                case 2: fieldID = Ax1ID_; break; 
-                case 3: fieldID = Ay1ID_; break; 
-                case 4: fieldID = Az1ID_; break; 
-                case 5: fieldID = Ax2ID_; break; 
-                case 6: fieldID = Ay2ID_; break; 
-                case 7: fieldID = Az2ID_; break; 
-            }; 
-            field = fieldPtr_[fieldID]; 
-            // slice the given field 
-            sliceMatToVec_(fieldID,side,offset,tmpVec); 
-            // store the slice in ghostVec 
-            std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
-        };
-    } else if (sendID == -1) { 
-        for (ifield=0; ifield<nFieldsJEB_; ++ifield) { 
-            begdex=ifield*n; 
-            switch (ifield) { 
-                case 0: fieldID = ExID_; break; 
-                case 1: fieldID = EyID_; break; 
-                case 2: fieldID = EzID_; break; 
-                case 3: fieldID = BxID_; break; 
-                case 4: fieldID = ByID_; break; 
-                case 5: fieldID = BzID_; break; 
-                case 6: fieldID = JxID_; break; 
-                case 7: fieldID = JyID_; break; 
-                case 8: fieldID = JzID_; break; 
-            }; 
-            field = fieldPtr_[fieldID]; 
-            // slice the given field 
-            sliceMatToVec_(fieldID,side,offset,tmpVec); 
-            // store the slice in ghostVec 
-            std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
-        };
-    } else { 
-        fieldID = sendID; 
-        // slice the single field 
+    int fieldID,ifield;
+    for (ifield=0; ifield<nfields; ++ifield) { 
+        begdex=ifield*n; 
+        switch (sendID) { 
+            case -3: // send A/phi 
+                switch (ifield) { 
+                    case 0: fieldID = phi1ID_; break; 
+                    case 1: fieldID = phi2ID_; break; 
+                    case 2: fieldID = Ax1ID_; break; 
+                    case 3: fieldID = Ay1ID_; break; 
+                    case 4: fieldID = Az1ID_; break; 
+                    case 5: fieldID = Ax2ID_; break; 
+                    case 6: fieldID = Ay2ID_; break; 
+                    case 7: fieldID = Az2ID_; break; 
+                }; 
+                break; 
+            case -2: // send J/rho 
+                switch (ifield) { 
+                    case 0: fieldID = JxID_; break; 
+                    case 1: fieldID = JyID_; break; 
+                    case 2: fieldID = JzID_; break; 
+                    case 3: fieldID = rhoID_; break; 
+                }; 
+                break; 
+            case -1: // send E/B
+                switch (ifield) { 
+                    case 0: fieldID = ExID_; break; 
+                    case 1: fieldID = EyID_; break; 
+                    case 2: fieldID = EzID_; break; 
+                    case 3: fieldID = BxID_; break; 
+                    case 4: fieldID = ByID_; break; 
+                    case 5: fieldID = BzID_; break; 
+                }
+                break; 
+            default: fieldID = sendID; break; // send individual field 
+        }; 
+        field = fieldPtr_[fieldID]; 
+        // slice the given field 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
         // store the slice in ghostVec 
-        std::copy(tmpVec,tmpVec + n ,ghostVec); 
-    }; 
+        std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
+    } 
 }; 
 
 /// unbundles the data in the ghost cells to send
@@ -275,7 +269,7 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
  * If sendID = -3 (as used in Poisson initialization), stores in order: Jx,Jy,Jz,rho \n
  * ghostVec can (and should) be generated with getGhostVec function 
  */ 
-void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID) {
+void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
     assert(-4 < sendID && sendID < nFieldsTotal_); 
     
     // create a temporary vector to store slices in 
@@ -289,73 +283,59 @@ void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID) {
         offset = -1; 
     };
 
+    // determine number of fields being sent 
+    int nfields; 
+    switch (sendID) { 
+        case -3: nfields=nFieldsPoisson_; break; 
+        case -2: nfields=4; break; 
+        case -1: nfields=6; break; 
+        default: nfields=1; break; 
+    }
+    
     // "loop" over all fields to unpackage 
     int begdex,enddex; 
     double*** field; 
-    int fieldID,ifield; 
-   
-    if (sendID == -3) { 
-        for (ifield=0; ifield<4; ++ifield) { 
-            begdex=ifield*n; 
-            enddex=(ifield+1)*n; 
-            // store the relevant portion fo ghostVec into tmpVec
-            std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
-            switch (ifield) { 
-                case 0: fieldID = JxID_; break; 
-                case 1: fieldID = JyID_; break; 
-                case 2: fieldID = JzID_; break; 
-                case 3: fieldID = rhoID_; break; 
-            }; 
-            field = fieldPtr_[fieldID]; 
-            // unslice the given field 
-            unsliceMatToVec_(fieldID,side,offset,tmpVec); 
-        };
-    } else if (sendID == -2) { 
-        for (ifield=0; ifield<nFieldsPoisson_; ++ifield) { 
-            begdex=ifield*n; 
-            enddex=(ifield+1)*n; 
-            // store the relevant portion fo ghostVec into tmpVec
-            std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
-            switch (ifield) { 
-                case 0: fieldID = phi1ID_; break; 
-                case 1: fieldID = phi2ID_; break; 
-                case 2: fieldID = Ax1ID_; break; 
-                case 3: fieldID = Ay1ID_; break; 
-                case 4: fieldID = Az1ID_; break; 
-                case 5: fieldID = Ax2ID_; break; 
-                case 6: fieldID = Ay2ID_; break; 
-                case 7: fieldID = Az2ID_; break; 
-            }; 
-            field = fieldPtr_[fieldID]; 
-            // unslice the given field 
-            unsliceMatToVec_(fieldID,side,offset,tmpVec); 
-        };
-    } else if (sendID == -1) { 
-        for (ifield=0; ifield<nFieldsJEB_; ++ifield) { 
-            begdex=ifield*n; 
-            enddex=(ifield+1)*n; 
-            // store the relevant portion fo ghostVec into tmpVec
-            std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
-            switch (ifield) { 
-                case 0: fieldID = ExID_; break; 
-                case 1: fieldID = EyID_; break; 
-                case 2: fieldID = EzID_; break; 
-                case 3: fieldID = BxID_; break; 
-                case 4: fieldID = ByID_; break; 
-                case 5: fieldID = BzID_; break; 
-                case 6: fieldID = JxID_; break; 
-                case 7: fieldID = JyID_; break; 
-                case 8: fieldID = JzID_; break; 
-            }; 
-            field = fieldPtr_[fieldID]; 
-            // unslice the given field 
-            unsliceMatToVec_(fieldID,side,offset,tmpVec); 
-        };
-    } else { 
-        fieldID = sendID; 
-        // store the slice in ghostVec 
-        std::copy(ghostVec,ghostVec + n ,tmpVec); 
-        // unslice the single field 
-        unsliceMatToVec_(fieldID,side,offset,tmpVec); 
-    }
+    int fieldID,ifield;
+    for (ifield=0; ifield<nfields; ++ifield) { 
+        begdex=ifield*n; 
+        enddex=(ifield+1)*n; 
+        // store the relevant portion for ghostVec into tmpVec
+        std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
+        switch (sendID) { 
+            case -3: // send A/phi 
+                switch (ifield) { 
+                    case 0: fieldID = phi1ID_; break; 
+                    case 1: fieldID = phi2ID_; break; 
+                    case 2: fieldID = Ax1ID_; break; 
+                    case 3: fieldID = Ay1ID_; break; 
+                    case 4: fieldID = Az1ID_; break; 
+                    case 5: fieldID = Ax2ID_; break; 
+                    case 6: fieldID = Ay2ID_; break; 
+                    case 7: fieldID = Az2ID_; break; 
+                }; 
+                break; 
+            case -2: // send J/rho 
+                switch (ifield) { 
+                    case 0: fieldID = JxID_; break; 
+                    case 1: fieldID = JyID_; break; 
+                    case 2: fieldID = JzID_; break; 
+                    case 3: fieldID = rhoID_; break; 
+                }; 
+                break; 
+            case -1: // send E/B
+                switch (ifield) { 
+                    case 0: fieldID = ExID_; break; 
+                    case 1: fieldID = EyID_; break; 
+                    case 2: fieldID = EzID_; break; 
+                    case 3: fieldID = BxID_; break; 
+                    case 4: fieldID = ByID_; break; 
+                    case 5: fieldID = BzID_; break; 
+                }
+                break; 
+            default: fieldID = sendID; break; // send individual field 
+        }; 
+        field = fieldPtr_[fieldID]; 
+        // unslice the given field 
+        unsliceMatToVec_(fieldID,side,offset,tmpVec,op); 
+    } 
 }; 

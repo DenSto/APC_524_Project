@@ -22,7 +22,7 @@
 }*/
 
 
-void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID){
+void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID, int op){
 #if USE_MPI
     int tagl=1; // MPI tag: to left, or from right
     int tagr=2; // MPI tag: to right, or from left
@@ -96,8 +96,8 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID){
        checkMPI("xrecv.dat",xghost_send_,2*xgsize);
        fprintf(stderr,"rank=%d:finished checking recv\n",rank_);
     }
-    grids->setGhostVec(-1,&(xghost_recv_[offl]),sendID); // left
-    grids->setGhostVec(1,&(xghost_recv_[offr]),sendID); // right
+    grids->setGhostVec(-1,&(xghost_recv_[offl]),sendID,op); // left
+    grids->setGhostVec(1,&(xghost_recv_[offr]),sendID,op); // right
     if(debug) fprintf(stderr,"rank=%d:Finished loading x Ghosts!\n",rank_);
 
     /* y field boundaries *********************************/

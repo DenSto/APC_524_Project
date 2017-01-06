@@ -30,7 +30,7 @@ int BC_F_Periodic::completeBC(){
     // load the opposite side to tmp
     grids_->getGhostVec(-side_,ghostTmp_,-1);
     // unload this side fom tmp
-    grids_->setGhostVec(side_,ghostTmp_,-1);
+    grids_->setGhostVec(side_,ghostTmp_,-1,0);
 
     return 0;
 }

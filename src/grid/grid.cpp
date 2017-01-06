@@ -38,7 +38,6 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     idz_(1.0/dz_),
     maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
     nFieldsTotal_(21),
-    nFieldsJEB_(9),
     ExID_(0),
     EyID_(1),
     EzID_(2),
@@ -85,7 +84,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     fieldPtr_ = setFieldPtr_(); 
 
     sliceTmp_ = new double[maxPointsInPlane_]; 
-    ghostTmp_ = new double[nFieldsJEB_*maxPointsInPlane_]; 
+    ghostTmp_ = new double[nFieldsTotal_*maxPointsInPlane_]; 
 } 
 
 /// Grid destructor 
@@ -371,7 +370,7 @@ void Grid::constRho(double v) {
  */ 
 void Grid::InitializeFields(void){
 
-//    if(rank_MPI==0)printf("        Initializing fields by reading files...\n");
+    if(rank_MPI==0)printf("        Initializing fields by reading files...\n");
     // placeholder until restart files exist 
     constJ(0,0,0); 
     constE(0,0,0); 

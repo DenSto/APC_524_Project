@@ -30,7 +30,7 @@ void Grid::physFieldOut_(const int fieldID) {
                 // physical value at grid point i,j,k
                 // probably do hdf5 stuff here with 
                 // mat[i][j][k]; 
-                if (i==iBeg_ && k==kBeg_) {
+                if (i==iBeg_ && j==jBeg_ && k==kBeg_) {
                     printf("in physFieldOut_"); 
                 } 
             }

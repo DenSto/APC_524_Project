@@ -15,7 +15,7 @@ public:
 
   int getGhostVecSize(const int sendID); 
   void getGhostVec(const int side, double* ghostVec, int sendID); 
-  void setGhostVec(const int side, double* ghostVec, int sendID); 
+  void setGhostVec(const int side, double* ghostVec, int sendID, int op); 
   void phiToE();
   void AToB();
   void constA(const double vx, const double vy, const double vz);

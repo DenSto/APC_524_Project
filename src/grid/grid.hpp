@@ -50,7 +50,7 @@ public:
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
   virtual void getGhostVec(const int side, double* ghostVec, int sendID); // called by main to get MPI
-  virtual void setGhostVec(const int side, double* ghostVec, int sendID);
+  virtual void setGhostVec(const int side, double* ghostVec, int sendID, int op);
   void updatePeriodicGhostCells(); 
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
@@ -109,7 +109,6 @@ protected:
   const int maxPointsInPlane_;
   
   const int nFieldsTotal_;  
-  const int nFieldsJEB_;
   const int ExID_; 
   const int EyID_; 
   const int EzID_; 
@@ -177,7 +176,7 @@ protected:
   // stores a 2D plane of ghost points in sliceTmp_
   void sliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
   // puts a 2D plane of ghost points from sliceTmp_ into mat
-  void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
+  void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec, const int op);
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
 
