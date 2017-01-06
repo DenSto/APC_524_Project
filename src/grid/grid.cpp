@@ -3,8 +3,8 @@
 #include <math.h>
 #include <assert.h> 
 #include "grid.hpp"
-#include "../globals.hpp"
-#include "../IO/input.hpp"
+//#include "../globals.hpp"
+//#include "../IO/input.hpp"
 
 /// Grid constructor 
 /*! Input arguments: \n 
@@ -326,6 +326,34 @@ void Grid::checkInput_() {
     assert(ghostVecSize_ > 0); 
 }; 
 
+/// get total dimensions
+int Grid::getnxyzTot(int *nxyzTot) {
+  nxyzTot[0] = nxTot_;
+  nxyzTot[1] = nyTot_;
+  nxyzTot[2] = nzTot_;
+  return 0;
+};
+
+/// get dimensions of physical region of field
+void Grid::getDimPhys(const int fieldID, int* dim) {
+    // check for legal fieldID and side parameters 
+    assert(fieldID > -1 && fieldID < nFieldsTotal_); 
+    // directions 
+    int xside=1; 
+    int yside=2; 
+    int zside=3; 
+    
+    // limits 
+    int iEnd = sideToIndex_(xside,fieldID)+1;  
+    int jEnd = sideToIndex_(yside,fieldID)+1; 
+    int kEnd = sideToIndex_(zside,fieldID)+1; 
+
+    // local dims for this field
+    dim[0] = iEnd-iBeg_;
+    dim[1] = jEnd-jBeg_;
+    dim[2] = kEnd-kBeg_;
+};
+
 /// sets field corresponding to fieldID to specified value
 void Grid::constField_(const int fieldID, const double val) { 
     assert (fieldID > -1 && fieldID < nFieldsTotal_); 
@@ -334,7 +362,8 @@ void Grid::constField_(const int fieldID, const double val) {
     for (i=0; i<nxTot_; ++i) { 
         for (j=0; j<nyTot_; ++j) { 
             for (k=0; k<nzTot_; ++k) { 
-                field[i][j][k]=val; 
+                //field[i][j][k]=val; 
+                field[i][j][k]=k+j*10+i*100; 
             } 
         } 
     } 
@@ -355,6 +384,7 @@ void Grid::constE(double vx, double vy, double vz) {
     constField_(ExID_,vx); 
     constField_(EyID_,vy); 
     constField_(EzID_,vz); 
+    //printf("E = %f\n", fieldPtr_[ExID_][0][0][0]);
 } 
 
 /// sets J to a constant value 

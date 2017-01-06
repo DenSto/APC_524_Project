@@ -20,3 +20,4 @@ test/*unittests
 *.bundle
 .DS_store
 hdf5-1.8.12
+*.h5

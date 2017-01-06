@@ -9,6 +9,9 @@
 #include "../globals.hpp"
 #include "../../libconfig-1.5/lib/libconfig.h++"
 
+#define TRUE 1
+#define FALSE 0
+
 using namespace std;
 using namespace libconfig;
 
@@ -142,7 +145,7 @@ int Input::readinfo(char *fname){
     {
       cerr << "restart not set in input file... " 
            << "Assuming restart = 0" << endl;
-      input_info_->restart = 0.;
+      input_info_->restart = 0;
     }
 
     int nspecies;
@@ -248,6 +251,66 @@ int Input::readinfo(char *fname){
       cerr << "Error: nParticles not set in input file" << endl; 
       return(EXIT_FAILURE);
     }
+
+    // diagnostics parameters
+    try
+    {
+      input_info_->nwrite = cfg.lookup("diagnostics.nwrite");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      input_info_->nwrite = 10;
+    }
+    try
+    {
+      bool flag = cfg.lookup("diagnostics.write_field_timeseries");
+      input_info_->write_field_timeseries = flag; // cfg.lookup("diagnostics.write_field_timeseries");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      input_info_->write_field_timeseries = TRUE;
+    }
+    try
+    {
+      input_info_->write_E = cfg.lookup("diagnostics.write_E");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      input_info_->write_E = TRUE;
+    }
+    try
+    {
+      input_info_->write_B = cfg.lookup("diagnostics.write_B");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      input_info_->write_B = TRUE;
+    }
+    try
+    {
+      input_info_->write_J = cfg.lookup("diagnostics.write_J");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      input_info_->write_J = TRUE;
+    }
+    try
+    {
+      input_info_->write_rho = cfg.lookup("diagnostics.write_rho");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      input_info_->write_rho = TRUE;
+    }
+    try
+    {
+      input_info_->write_all_fields = cfg.lookup("diagnostics.write_all_fields");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      input_info_->write_all_fields = FALSE;
+    }
+    
 
 // dummy code to be replaced //////////////////////////////////
     input_info_->temp[0] = 1.5; 

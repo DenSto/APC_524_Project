@@ -7,7 +7,7 @@
 
 #define NDIM 3 // spatial dimension
 #define NCHAR 64 // characters reserved for MPI
-#define NSPEC 36 // mas nspecies reserved for MPI_BCast
+#define NSPEC 36 // max nspecies reserved for MPI_BCast
                  // MPI cannot send structure containing unallocated pointers
 
 //! Structure storing info in the input file
@@ -28,6 +28,15 @@ typedef struct {
 
     int nspecies; /// How many species of particles
                   /// eg. nspecies=2 in electron-proton plasma 
+
+    // diagnostics parameters
+    int nwrite;
+    int write_field_timeseries;
+    int write_all_fields;
+    int write_E;
+    int write_B;
+    int write_J;
+    int write_rho;
 
     long np; /// number of particles in each domain
 
@@ -72,7 +81,7 @@ class Input{
         Input(void);
         ~Input(void);
 
-        int readinfo(char *fname);
+        int readinfo(char* inputname);
         int checkinfo(void);
         Input_Info_t* getinfo(void);
 #if USE_MPI

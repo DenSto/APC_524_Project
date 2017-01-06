@@ -1,8 +1,8 @@
 #ifndef DOMAIN_HPP_
 #define DOMAIN_HPP_
 
-#include "../grid/grid.hpp"
 #include "../IO/input.hpp"
+#include "../grid/grid.hpp"
 
 #if USE_MPI
 #include "mpi.h"
