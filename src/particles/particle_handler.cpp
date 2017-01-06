@@ -205,7 +205,7 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, 
   if (depositRho) grid->addRho(cellID,&RhoObj[0]);
 
   //Pass rho and J fields between domains.
-  domain->PassFields(grid, input_info, -3,1); //sendID=-3 to bundle rho(1), and J(3) fieldIDs, op=1 to sum
+  domain->PassFields(grid, input_info, -2,1); //sendID=-3 to bundle rho(1), and J(3) fieldIDs, op=1 to sum
 }
 
 double Particle_Handler::computeCFLTimestep(Domain* domain){

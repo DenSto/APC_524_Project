@@ -192,11 +192,11 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
 
        // Pass particle through MPI boundary, or physical boundary conditions
-//       part_handler->executeParticleBoundaryConditions();
+       part_handler->executeParticleBoundaryConditions();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
-//       part_handler->depositRhoJ(grids,false,domain,input_info);
+       part_handler->depositRhoJ(grids,false,domain,input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
