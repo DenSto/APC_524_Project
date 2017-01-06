@@ -105,20 +105,20 @@ RNG_unittests : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) RNG_unittests.o gtest_main
 oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/oGrid_unittests.cc  -I $(SRC_DIR)/grid 
 
-oGrid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) oGrid_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
+oGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) oGrid_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LCONFIG)
 
 grid_unittests.o : $(TESTSRC_DIR)/grid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/grid_unittests.cc  -I $(SRC_DIR)/grid 
 
-grid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) grid_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
+grid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) grid_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LCONFIG)
 
 spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/spookyGrid_unittests.cc  -I $(SRC_DIR)/grid 
 
-spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(GRIDOBJ)) spookyGrid_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
+spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) spookyGrid_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LCONFIG)
 
 dens_frac_test.o : $(TESTSRC_DIR)/dens_frac_test.cpp $(SRC_DIR)/utils/RNG.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/dens_frac_test.cpp -I $(SRC_DIR)/utils
@@ -129,7 +129,7 @@ dens_frac_test : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) dens_frac_test.o gtest_ma
 convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(SRC_DIR)/IO/input.hpp $(SRC_DIR)/poisson/poisson.hpp  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/poisson
 
-convertFields_unittests : $(addprefix $(SRC_DIR)/, $(IOOBJ) $(DOMOBJ) $(GRIDOBJ) $(POISSONOBJ)) convertFields_unittests.o gtest_main.a
+convertFields_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) convertFields_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LCONFIG)
 
 run_tests: $(TESTS)

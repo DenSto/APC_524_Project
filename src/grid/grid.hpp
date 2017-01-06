@@ -16,6 +16,7 @@
 #include <string>
 #include <gtest/gtest_prod.h>
 #include "../boundaries/fields_boundary.hpp"
+#include "../globals.hpp"
 
 class Grid {
 
