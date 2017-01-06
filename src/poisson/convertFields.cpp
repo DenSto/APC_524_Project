@@ -10,7 +10,7 @@ void Poisson_Solver::phiToE() {
     int xdir=0; 
     int ydir=1; 
     int zdir=2; 
-    
+
     phiToESingleComp_(ExID_,xdir); 
     phiToESingleComp_(EyID_,ydir); 
     phiToESingleComp_(EzID_,zdir); 
@@ -41,33 +41,33 @@ void Poisson_Solver::phiToESingleComp_(const int fieldID, const int dir) {
         case (ydir): h = dy_; break; 
         case (zdir): h = dz_; break; 
     } 
-    
+
     // loop over all physical i,j,k to set E = - grad phi
     double nextVal; 
-    int i,j,k;  
-    for (i=iBeg_; i < iEnd+1; ++i) { 
-        for (j=jBeg_; j < jEnd+1; ++j) { 
-            for (k=kBeg_; k < kEnd+1; ++k) { 
-                switch (dir) { 
-                    case (xdir): 
-                        nextVal = phi1_[i+1][j][k];
-                        break; 
-                    case (ydir): 
-                        nextVal = phi1_[i][j+1][k];
-                        break; 
-                    case (zdir): 
-                        nextVal = phi1_[i][j][k+1];
-                        break; 
-                } 
-                /* although this exression resembles a forward
-                 * difference, it is actually a correct center
-                 * difference. E is located a half step between 
-                 * the next and prev phi points, and the indexing
-                 * of phi and E are also offset */ 
-                field[i][j][k] = -(nextVal - phi1_[i][j][k])/h;  
-            } 
-        } 
-    } 
+    int i,j,k;
+    for (i=iBeg_; i < iEnd+1; ++i) {
+        for (j=jBeg_; j < jEnd+1; ++j) {
+            for (k=kBeg_; k < kEnd+1; ++k) {
+	      switch (dir) {
+	      case (xdir):
+		nextVal = phi1_[i+1][j][k];
+		break;
+	      case (ydir):
+		nextVal = phi1_[i][j+1][k];
+		break;
+	      case (zdir):
+		nextVal = phi1_[i][j][k+1];
+		break;
+	      }
+	      /* although this exression resembles a forward
+	       * difference, it is actually a correct center
+	       * difference. E is located a half step between 
+	       * the next and prev phi points, and the indexing
+	       * of phi and E are also offset */
+	      field[i][j][k] = -(nextVal - phi1_[i][j][k])/h;
+            }
+        }
+    }
 }; 
 
 /// derives A from vector potential A: B = curl A 

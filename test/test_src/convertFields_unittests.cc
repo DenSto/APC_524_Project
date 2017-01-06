@@ -91,12 +91,12 @@ TEST_F(ConvertPrivateTest, constantPhiTest) {
     } 
   } 
 
-  // derive E 
-  grid->constE(0,0,0); 
-  grid->phiToE(); 
+  // derive E
+  grid->constE(0,0,0);
+  grid->phiToE();
 
   // for constant phi, E should vanish everywhere 
-  double  ExSum = sumField(grid->Ex_); 
-  EXPECT_EQ(ExSum,0); 
+  double  ExSum = sumField(grid->Ex_);
+  EXPECT_EQ(ExSum,0);
 }
 
