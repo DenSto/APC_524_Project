@@ -15,21 +15,21 @@ TEST(GridGetNumberOfCellsTest, returnsCorrectNumberOfCells) {
 
 // Tests of input/output to public methods
 class OGridTest : public ::testing::Test {
-   protected:
-      virtual void SetUp() {
-         int nxyz [3] = {5,10,20};
-         double xyz0 [3] = {0,0,0};
-         double Lxyz [3] = {1,1,1};
+protected:
+  virtual void SetUp() {
+    int nxyz [3] = {5,10,20};
+    double xyz0 [3] = {0,0,0};
+    double Lxyz [3] = {1,1,1};
 
-         grid = new Grid(nxyz, 1, xyz0, Lxyz);
+    grid = new Grid(nxyz, 1, xyz0, Lxyz);
 
-      }
+  }
 
-      virtual void TearDown() {
-         delete grid;
-      }
+  virtual void TearDown() {
+    delete grid;
+  }
 
-      Grid *grid;
+  Grid *grid;
 
 };
 
@@ -61,21 +61,20 @@ int main(int argc, char** argv) {
 
 // tests requiring internal examination
 class oGridInternalTest : public ::testing::Test {
-   protected:
-      virtual void SetUp() {
-         int nxyz [3] = {20,20,200};
-         double xyz0 [3] = {0,0,0};
-         double Lxyz [3] = {1,1,1};
+protected:
+  virtual void SetUp() {
+    int nxyz [3] = {20,20,200};
+    double xyz0 [3] = {0,0,0};
+    double Lxyz [3] = {1,1,1};
 
-         grid = new Grid(nxyz, 1, xyz0, Lxyz);
+    grid = new Grid(nxyz, 1, xyz0, Lxyz);
+  }
 
-      }
+  virtual void TearDown() {
+    delete grid;
+  }
 
-      virtual void TearDown() {
-         delete grid;
-      }
-
-      Grid *grid;
+  Grid *grid;
 
 };
 /*

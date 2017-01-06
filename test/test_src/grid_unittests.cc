@@ -5,23 +5,22 @@
 
 // Tests of input/output to public methods
 class GridTest : public ::testing::Test {
-   protected:
-      virtual void SetUp() {
-         int nxyz [3] = {3,5,7};
-         int nGhosts = 1; 
-         double xyz0 [3] = {0,0,0};
-         double Lxyz [3] = {1,1,1};
+protected:
+  virtual void SetUp() {
+    int nxyz [3] = {3,5,7};
+    int nGhosts = 1; 
+    double xyz0 [3] = {0,0,0};
+    double Lxyz [3] = {1,1,1};
 
-         grid = new Grid(nxyz, nGhosts, xyz0, Lxyz);
+    grid = new Grid(nxyz, nGhosts, xyz0, Lxyz);
 
-      }
+  }
 
-      virtual void TearDown() {
-         delete grid;
-      }
+  virtual void TearDown() {
+    delete grid;
+  }
 
-      Grid *grid;
-
+  Grid *grid;
 };
 
 int main(int argc, char** argv) {
@@ -32,35 +31,34 @@ int main(int argc, char** argv) {
 
 // tests requiring internal examination
 class GridPrivateTest : public ::testing::Test {
-   protected:
-      virtual void SetUp() {
-         int nxyz [3] = {3,5,7};
-         int nGhosts = 1; 
-         double xyz0 [3] = {0,0,0};
-         double Lxyz [3] = {1,1,1};
+protected:
+  virtual void SetUp() {
+    int nxyz [3] = {3,5,7};
+    int nGhosts = 1; 
+    double xyz0 [3] = {0,0,0};
+    double Lxyz [3] = {1,1,1};
 
-         grid = new Grid(nxyz, nGhosts, xyz0, Lxyz);
+    grid = new Grid(nxyz, nGhosts, xyz0, Lxyz);
+  }
 
+  virtual void TearDown() {
+    delete grid;
+  }
+
+  double sumField(double*** field) { 
+    int i,j,k;
+    double fieldSum = 0; 
+    for (i=0; i<grid->nxTot_; ++i) { 
+      for (j=0; j<grid->nyTot_; ++j) { 
+	for (k=0; k<grid->nzTot_; ++k) { 
+	  fieldSum += field[i][j][k]; 
+	}
       }
+    }
+    return fieldSum; 
+  }; 
 
-      virtual void TearDown() {
-         delete grid;
-      }
-
-      double sumField(double*** field) { 
-          int i,j,k;
-          double fieldSum = 0; 
-          for (i=0; i<grid->nxTot_; ++i) { 
-              for (j=0; j<grid->nyTot_; ++j) { 
-                  for (k=0; k<grid->nzTot_; ++k) { 
-                      fieldSum += field[i][j][k]; 
-                  }
-              }
-          }
-          return fieldSum; 
-      }; 
-
-      Grid *grid;
+  Grid *grid;
 
 };
 

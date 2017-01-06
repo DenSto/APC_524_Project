@@ -7,10 +7,6 @@
 class ConvertTest : public ::testing::Test {
 protected:
   virtual void SetUp() {
-    //Assumes USE_MPI=0
-    size_MPI=1;
-    rank_MPI=0;
-
     //Read input file
     Input *input =  new Input();
     char filename[100];
@@ -40,10 +36,6 @@ int main(int argc, char** argv) {
 class ConvertPrivateTest : public ::testing::Test {
 protected:
   virtual void SetUp() {
-    //Assumes USE_MPI=0
-    size_MPI=1;
-    rank_MPI=0;
-
     //Read input file
     Input *input =  new Input();
     char filename[100];
