@@ -126,11 +126,11 @@ dens_frac_test.o : $(TESTSRC_DIR)/dens_frac_test.cpp $(SRC_DIR)/utils/RNG.hpp $(
 dens_frac_test : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) dens_frac_test.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(SRC_DIR)/domain/domain.hpp $(SRC_DIR)/grid/grid.hpp $(SRC_DIR)/poisson/poisson.hpp  $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc -I $(SRC_DIR)/domain -I $(SRC_DIR)/grid -I $(SRC_DIR)/poisson
+convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(SRC_DIR)/IO/input.hpp $(SRC_DIR)/poisson/poisson.hpp  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/poisson
 
-convertFields_unittests : $(addprefix $(SRC_DIR)/, $(DOMOBJ) $(GRIDOBJ) $(POISSONOBJ)) convertFields_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ 
+convertFields_unittests : $(addprefix $(SRC_DIR)/, $(IOOBJ) $(DOMOBJ) $(GRIDOBJ) $(POISSONOBJ)) convertFields_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LCONFIG)
 
 run_tests: $(TESTS)
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	
