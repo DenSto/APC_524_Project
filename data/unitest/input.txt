@@ -17,7 +17,7 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 1
+  nTimesteps = 100
 
   # start time
   startTime = 0.0
@@ -51,7 +51,7 @@ initialization:
     dens_frac = [0.5,0.5]  
 
     # number of particles of all species in each domain
-    nParticles = 16
+    nParticles = 2
   
     # position distribution function
     xdist = "sinusoid"
