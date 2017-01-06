@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "../globals.hpp"
+//#include "../globals.hpp"
 #include "output.hpp"
 
-void writeoutput(Grid *grids, Particle_Handler *parts_fields){
-    //printf("rank %d: writing output files...\n",rank);
-}
+//void writeoutput(Grid *grids, Particle_Handler *parts_fields){
+//    //printf("rank %d: writing output files...\n",rank);
+//}
 
 //! Check MPI communication by printing data to file
 void checkMPI(const char filestem[], double *buffer, int len){

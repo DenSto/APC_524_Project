@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "poisson.hpp"
 #include "../globals.hpp"
-#include "../domain/domain.hpp"
+//#include "../domain/domain.hpp"
 
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   Grid(domain->getnxyz(), domain->getnGhosts(), domain->getxyz0(), domain->getLxyz()),

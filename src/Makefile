@@ -18,7 +18,7 @@ else
   OMPFLAGS = -DUSE_MPI=1
 endif
 
-CFLAGS= -g -lm -Wall 
+CFLAGS= -g -lm -lz -Wall 
 PROGRAM = EMOOPIC
 
 include Makefile.obj
@@ -28,8 +28,9 @@ SRCDIR = $(PWD)
 LCONFIG_DIR = $(SRCDIR)/../libconfig-1.5
 LCONFIG_LIB = $(LCONFIG_DIR)/lib/libconfig++.a
 
-HDF5_DIR = $(SRCDIR)/../hdf5-1.8.12
-HDF5_LIB = $(HDF5_DIR)/hdf5/lib/libhdf5.a
+HDF5_DIR = $(SRCDIR)/../hdf5-1.8.12/hdf5
+HDF5_INCL = $(HDF5_DIR)/include
+HDF5_LIB = $(HDF5_DIR)/lib/libhdf5.a
 
 LIBS = $(LCONFIG_LIB) $(HDF5_LIB)
 
@@ -43,7 +44,7 @@ $(PROGRAM): $(OBJ) $(LIBS)
 	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
 
 %.o: %.cpp 
-	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include
+	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include -I $(HDF5_INCL)
 
 IO/input.o: IO/input.cpp $(LCONFIG_LIB)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
@@ -59,19 +60,15 @@ $(LCONFIG_LIB):
 
 $(HDF5_LIB):
 	cd ..; \
-	[ -d $(HDF5_DIR) ] || tar xfv hdf5-1.8.12.tar.gz; \
+	[ -d $(HDF5_DIR) ] || tar xf hdf5-1.8.12.tar.gz; \
 	cd $(HDF5_DIR); \
 	CC=mpic++ ./configure --enable-parallel --prefix=$(HDF5_DIR); \
 	make; \
 	make install; \
 	cd $(SRCDIR)
 
-depend:
-	$(CC) -MM $(CFLAGS) *.cpp > .depend
-
 clean:
 	rm -f $(PROGRAM) $(OBJ) .depend
-
 
 run_tests:
 ifeq ($(USE_MPI),0)
@@ -82,4 +79,6 @@ ifeq ($(USE_MPI),0)
 endif
 
 -include .depend
+
+# DO NOT DELETE
 

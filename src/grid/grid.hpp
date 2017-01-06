@@ -44,6 +44,8 @@ public:
   int getNumberOfCells();
   int getNumCells3D(double *nvec);
   double getStepSize(int dimension);
+  int getnxyzTot(int *nxyzTot);
+  void getDimPhys(const int fieldID, int* dim);
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 
@@ -57,15 +59,26 @@ public:
   void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
                                                                // boundary condition may depend on time_phys 
 
-  void EFieldOut(); 
-  void BFieldOut(); 
-  void JFieldOut(); 
-  void RhoFieldOut(); 
+  // public methods for diagnostics
+  double**** getFieldPtr() {return fieldPtr_;};
+  int getExID() {return ExID_;};
+  int getEyID() {return EyID_;};
+  int getEzID() {return EzID_;};
+  int getBxID() {return BxID_;};
+  int getByID() {return ByID_;};
+  int getBzID() {return BzID_;};
+  int getBx_tm1ID() {return Bx_tm1ID_;};
+  int getBy_tm1ID() {return By_tm1ID_;};
+  int getBz_tm1ID() {return Bz_tm1ID_;};
+  int getJxID() {return JxID_;};
+  int getJyID() {return JyID_;};
+  int getJzID() {return JzID_;};
+  int getrhoID() {return rhoID_;};
   
-  void ESliceOut(const int side, const int offset); 
-  void BSliceOut(const int side, const int offset); 
-  void JSliceOut(const int side, const int offset); 
-  void RhoSliceOut(const int side, const int offset); 
+  //void ESliceOut(); 
+  //void BSliceOut(); 
+  //void JSliceOut(); 
+  //void RhoSliceOut(); 
   
   void executeBC(void); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
@@ -182,8 +195,9 @@ protected:
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
 
-  void physFieldOut_(const int fieldID);
-  void physSliceOut_(const int fieldID, const int side, const int offset); 
+  //void writeFieldTimeseries_(FieldTimeseriesIO* tsIO, const int fieldID, const int iwrite);
+
+  //void physSliceOut_(const int fieldID, const int side, const int offset); 
 
 
   // for unit testing

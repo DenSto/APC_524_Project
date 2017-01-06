@@ -17,11 +17,12 @@
 
 #include "./globals.hpp"
 #include "./domain/domain.hpp"
+#include "./IO/input.hpp"
+#include "./IO/output.hpp"
+#include "./IO/hdf5io.hpp"
 #include "./grid/grid.hpp"
 #include "./poisson/poisson.hpp"
 
-#include "./IO/input.hpp"
-#include "./IO/output.hpp"
 
 #include "./particles/particle.hpp"
 #include "./particles/particle_handler.hpp"
@@ -75,6 +76,11 @@ int main(int argc, char *argv[]){
       exit(1);
 #endif 
     }
+
+    // format file names
+    std::string inputname = argv[1];
+    std::string dir = inputname.substr(0,inputname.find_last_of('/')+1);
+    std::string outputname = dir + "output.h5";
 
     /* Read and broadcast input file **********************/
     Input *input =  new Input();
@@ -183,10 +189,27 @@ int main(int argc, char *argv[]){
     // write initial diagnostic files
     part_handler->outputParticles(0,input_info);
 
+    // initialize diagnostics
+    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
+    FieldTimeseriesIO* field_tsio;
+    int nwrite = input_info->nwrite;
+    int iwrite = 0;
+    if(input_info->write_field_timeseries) {
+      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, input_info, nt/nwrite);
+    }
+
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
+
+       if(ti%nwrite==0) {
+         iwrite = ti/nwrite;
+         if(input_info->write_field_timeseries) {
+           field_tsio->writeFields(grids, input_info, iwrite);
+         }
+       }
+
        // push particles
        part_handler->Push(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);   
@@ -229,7 +252,7 @@ int main(int argc, char *argv[]){
 
     /* output, finalize ***********************************/
     if(rank==0)printf("Writing output files...\n");
-    writeoutput(grids,part_handler); //MPI
+    //writeoutput(grids,part_handler); //MPI
     if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);   
 
     // free memory

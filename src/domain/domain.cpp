@@ -3,7 +3,6 @@
 #include <algorithm>
 
 #include "domain.hpp"
-#include "../globals.hpp"
 
 Domain::Domain(Input_Info_t *input_info)
       : size_(size_MPI),
