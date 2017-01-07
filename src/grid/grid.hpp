@@ -216,5 +216,8 @@ protected:
   FRIEND_TEST(GridPrivateTest, periodicUpdateTest); 
   FRIEND_TEST(GridPrivateTest, ghostVecSizeTest); 
 
+  // unit testing in hdf5io_unittests.cc
+  friend class FieldIOTest;
+  FRIEND_TEST(FieldIOTest, writeField1D);
  };
 #endif
