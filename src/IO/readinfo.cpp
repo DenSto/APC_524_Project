@@ -21,6 +21,7 @@ int Input::readinfo(char *fname){
     // Read the file. If there is an error, report it and exit.
     try
     {
+      cout << "Reading input file " << fname << endl;
       cfg.readFile(fname);
     }
     catch(const FileIOException &fioex)
@@ -576,7 +577,7 @@ int Input::readinfo(char *fname){
     try {input_info_->which_fields = cfg.lookup("diagnostics.fields.which_fields");
     }catch(const SettingNotFoundException &nfex){
       cerr << "which_fields not set in input file..."
-           << "Assuming whici_fields = -1" << endl;
+           << "Assuming which_fields = -1" << endl;
       input_info_->which_fields = -1; // no output
     }
 

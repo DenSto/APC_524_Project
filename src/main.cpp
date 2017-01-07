@@ -208,7 +208,7 @@ int main(int argc, char *argv[]){
          if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
          iwrite = ti/nwrite;
          // fields output
-         if(output_fields) field_tsio->writeFields(grids, input_info, iwrite);
+         if(output_fields>=0) field_tsio->writeFields(grids, input_info, iwrite);
          // particle output
          part_handler->outputParticles(output_pCount,input_info); 
          if(rank==0)printf("           Finished writing. Continue time loop...\n");

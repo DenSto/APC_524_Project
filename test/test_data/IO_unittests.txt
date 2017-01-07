@@ -1,7 +1,7 @@
 domain:
 {
   # number of cells in each dimension
-  nCell = [ 32, 32, 32 ]
+  nCell = [ 8, 8, 8 ]
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
@@ -51,7 +51,7 @@ initialization:
     dens_frac = [1.0]  
 
     # number of particles of all species in each domain
-    nParticles = 1
+    nParticles = 16
   
     # position distribution function
     #xdist = "sinusoid"
