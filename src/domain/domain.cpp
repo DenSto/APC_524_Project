@@ -4,7 +4,7 @@
 
 #include "domain.hpp"
 
-Domain::Domain(const int* nCell_global, const int* nProc, const double* Lxyz_global, const double* xyz0_global)
+Domain::Domain(const int* nCell_global, const int* nProc, const double* xyz0_global, const double* Lxyz_global)
       : size_(size_MPI),
         rank_(rank_MPI){
 

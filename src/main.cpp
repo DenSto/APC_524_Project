@@ -114,7 +114,7 @@ int main(int argc, char *argv[]){
     /* Initial setup **************************************/
     if(rank==0)printf("Initial set up...\n");
     // Domain decomposition
-    Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->Lxyz, input_info->xyz0);
+    Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
     if(debug>1) checkdomain(domain);
 
     // Initialize particles and pusher
