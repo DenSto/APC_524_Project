@@ -276,9 +276,11 @@ void Particle_Handler::executeParticleBoundaryConditions(){
  */
 void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 
+       // YShi hacked variable step->outputCount: if step>0 then print
+
        double t = time_phys;
-       dT_    = input_info->output_dT;
-       dstep_ = input_info->output_dStep;
+       //dT_    = input_info->output_dT;
+       dstep_ = input_info->nwrite;
        outputCount_ = input_info->output_pCount;
 
 	static bool init = true;

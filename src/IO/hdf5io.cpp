@@ -72,27 +72,32 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, Inp
   hsize_t* memspace_dims = new hsize_t[ndims_];
 
   // this isn't very elegant...
+  int which = input->which_fields; //flag
   for(int fieldID=0; fieldID<nFieldDatasets_; fieldID++) {
-    if( !(input->write_E || input->write_all_fields) 
+    //if( !(input->write_E || input->write_all_fields) 
+    if( !(which==1 || which==4) 
        && 
       (fieldID==grid->getExID() || fieldID==grid->getEyID() || fieldID==grid->getEzID()) )
     {
       break;
     }
-    if( !(input->write_J || input->write_all_fields) 
+    //if( !(input->write_J || input->write_all_fields) 
+    if( !(which==3 || which==4) 
        && 
       (fieldID==grid->getJxID() || fieldID==grid->getJyID() || fieldID==grid->getJzID()) )
     {
       break;
     }
-    if( !(input->write_B || input->write_all_fields) 
+    //if( !(input->write_B || input->write_all_fields) 
+    if( !(which==2 || which==4) 
        && 
       (fieldID==grid->getBxID() || fieldID==grid->getByID() || fieldID==grid->getBzID() ||
        fieldID==grid->getBx_tm1ID() || fieldID==grid->getBy_tm1ID() || fieldID==grid->getBz_tm1ID()))
     {
       break;
     }
-    if( !(input->write_rho || input->write_all_fields) 
+    //if( !(input->write_rho || input->write_all_fields) 
+    if( !(which==0 || which==4) 
        && 
       (fieldID==grid->getrhoID()) )
     {
@@ -237,23 +242,28 @@ int FieldTimeseriesIO::writeFields(Grid* grid, Input_Info_t* input, const int iw
 
   double**** fieldPtr = grid->getFieldPtr();  
   assert(fieldPtr!=NULL);
+  int which = input->which_fields; // flag
 
-  if(input->write_all_fields || input->write_E) {
+  //if(input->write_all_fields || input->write_E) {
+  if(which==4 || which==1) {
     writeAField(grid->getExID(), fieldPtr[grid->getExID()], iwrite);
     writeAField(grid->getEyID(), fieldPtr[grid->getEyID()], iwrite);
     writeAField(grid->getEzID(), fieldPtr[grid->getEzID()], iwrite);
   }
-  if(input->write_all_fields || input->write_B) {
+  //if(input->write_all_fields || input->write_B) {
+  if(which==4 || which==2) {
     writeAField(grid->getBxID(), fieldPtr[grid->getBxID()], iwrite);
     writeAField(grid->getByID(), fieldPtr[grid->getByID()], iwrite);
     writeAField(grid->getBzID(), fieldPtr[grid->getBzID()], iwrite);
   }
-  if(input->write_all_fields || input->write_J) {
+  //if(input->write_all_fields || input->write_J) {
+  if(which==4 || which==3) {
     writeAField(grid->getJxID(), fieldPtr[grid->getJxID()], iwrite);
     writeAField(grid->getJyID(), fieldPtr[grid->getJyID()], iwrite);
     writeAField(grid->getJzID(), fieldPtr[grid->getJzID()], iwrite);
   }
-  if(input->write_all_fields || input->write_rho) {
+  //if(input->write_all_fields || input->write_rho) {
+  if(which==4 || which==0) {
     writeAField(grid->getrhoID(), fieldPtr[grid->getrhoID()], iwrite);
   }
 

@@ -17,7 +17,7 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 100
+  nTimesteps = 10
 
   # start time
   startTime = 0.0
@@ -157,10 +157,7 @@ boundary:
 diagnostics:
 {
   # How many time steps between each diagnostic
-  output_dStep = 1
-
-  # Alternatively, how long, in physical time, between each diagnostic
-  output_dT = 0.0
+  nwrite = 1
 
   particles:
   {
@@ -170,12 +167,9 @@ diagnostics:
 
   fields:
   {
+    # Which fields to write time series?
+    # 0:rho, 1:E, 2:B, 3:J, 4:all
+    which_fields = 4 
   }
-  nwrite = 1
-  write_field_timeseries = true
-  write_E = 1
-  write_B = 0
-  write_J = 0
-  write_rho = 0
 }
 

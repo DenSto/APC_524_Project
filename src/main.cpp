@@ -186,29 +186,32 @@ int main(int argc, char *argv[]){
     dt_phys /= 10000.0;
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
-    // write initial restart files
-    // write initial diagnostic files
-    part_handler->outputParticles(0,input_info);
-
-    // initialize diagnostics
+    // initialize diagnostics outputs
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
     FieldTimeseriesIO* field_tsio;
     int nwrite = input_info->nwrite;
+    int output_fields = input_info->which_fields;
+    int output_pCount = input_info->output_pCount;
     int iwrite = 0;
-    if(input_info->write_field_timeseries) {
+    if(output_fields>=0){
       field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, input_info, nt/nwrite);
     }
 
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
+
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
 
+       // writing files
        if(ti%nwrite==0) {
+         if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
          iwrite = ti/nwrite;
-         if(input_info->write_field_timeseries) {
-           //field_tsio->writeFields(grids, input_info, iwrite);
-         }
+         // fields output
+         if(output_fields) field_tsio->writeFields(grids, input_info, iwrite);
+         // particle output
+         part_handler->outputParticles(output_pCount,input_info); 
+         if(rank==0)printf("           Finished writing. Continue time loop...\n");
        }
 
        // push particles
@@ -224,11 +227,11 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields
-       grids->evolveFields(dt_phys);
+//       grids->evolveFields(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
-//       grids->executeBC();
+       grids->executeBC();
        //domain->PassFields(grids,input_info,-1);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
@@ -242,10 +245,6 @@ int main(int argc, char *argv[]){
 
        time_phys += dt_phys;
 
-       // check and write restart files
-//       if(ti%ntcheck==0){check(t,domains,grids,parts);}
-       // output diagnostic files
-       part_handler->outputParticles(ti+1,input_info);
      }  
 
     //Output particle velocities

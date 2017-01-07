@@ -29,11 +29,19 @@ typedef struct {
     int electrostatic; /// 1: use electrostatic field solve
                        /// 0: use electromagnetic field solve 
 
-    int output_pCount; // how many particles per core to print
-
     int nspecies; /// How many species of particles
                   /// eg. nspecies=2 in electron-proton plasma 
                   /// nspecies <=NSPEC
+
+    // diagnostics parameters
+    int nwrite;  /// number of time steps between writing diagnostics
+    int which_fields; /// flag determine which fields to write
+                      /// 0: write components of rho
+                      /// 1: write components of E 
+                      /// 2: write components of B
+                      /// 3: write components of J
+                      /// 4: write all fields
+    int output_pCount; /// how many particles per core to print
 
     int nwaves; /// How many waves to inject into the system
                 /// nwave<=NWAVE
@@ -45,20 +53,9 @@ typedef struct {
                        ///     inPolE[1]=3: 2nd wave E field is in Z direction(3)
                        ///     inPolE should only take value of 1,2,3
 
-    // diagnostics parameters
-    int nwrite;
-    int write_field_timeseries;
-    int write_all_fields;
-    int write_E;
-    int write_B;
-    int write_J;
-    int write_rho;
-
     long np; /// number of particles in each domain
-    long output_dStep; /// number of steps between outputs
 
     double t0;   /// start time of simulation
-    double output_dT; /// physical time between outputs 
 
     double mass_ratio[NSPEC];/// mass of each type of particle in unit of electron mass
                        /// array of length nspecies 

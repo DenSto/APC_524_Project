@@ -51,8 +51,8 @@ int Input::checkinfo(void){
 
     for(int i=0;i<nspec;i++){
         dens[i]/=cden;
-        printf("        Species %d: density %6.3f%%, mass %9.3f, charge %6.3f\n",
-                        i,dens[i],mass[i],charge[i]);
+        printf("        Species %d: density %6.2f%%, mass %9.3f, charge %6.3f\n",
+                        i,100.0*dens[i],mass[i],charge[i]);
         // normalize charge to proper unit
         charge[i]*=UNIT_CHARGE;
     }
@@ -128,7 +128,6 @@ void checkinput(Input_Info_t *input_info){
 
    /* particle ************************/
    fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
-   fprintf(stderr,"rank=%d,output_Count=%d\n",rank,input_info->output_pCount);
    fprintf(stderr,"rank=%d,relativity=%d\n",rank,input_info->relativity);
 
    int nspecies = input_info->nspecies;
@@ -183,8 +182,9 @@ void checkinput(Input_Info_t *input_info){
    }
 
    /* outputs *************************/
-   fprintf(stderr,"rank=%d,output_dStep=%ld,output_dT=%f\n",
-                   rank,input_info->output_dStep,input_info->output_dT);
+   fprintf(stderr,"rank=%d,nwrite=%d,output_pCount=%d,which_fields=%d\n",
+                   rank,input_info->nwrite,input_info->output_pCount,
+                   input_info->which_fields);
 
    /* strings *************************/
    fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);
