@@ -84,10 +84,6 @@ public:
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
 
-  // need to be public, for use by field boundary conditions 
-  double* sliceTmp_; 
-  double* ghostTmp_;  
-
 protected:
   BC_Field** boundaries_; // field boundary conditions
 
@@ -170,6 +166,8 @@ protected:
 
   int *fieldIsContiguous_;
   
+  double* sliceTmp_; 
+  double* ghostTmp_;  
 
   // allocates contiguous memory for nx*ny*nz array
   double*** newField_(int ifield);

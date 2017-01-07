@@ -37,7 +37,7 @@ Hdf5IO::~Hdf5IO() {
   H5Fclose(file_id_);
 }
 
-FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, Input_Info_t* input, const int totWrites) 
+FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, const int which_fields, const int totWrites) 
 	: nFieldDatasets_(13),
 	  totWrites_(totWrites),
   	  ndims_(4),
@@ -72,24 +72,23 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, Inp
   hsize_t* memspace_dims = new hsize_t[ndims_];
 
   // this isn't very elegant...
-  int which = input->which_fields; //flag
   for(int fieldID=0; fieldID<nFieldDatasets_; fieldID++) {
     //if( !(input->write_E || input->write_all_fields) 
-    if( !(which==1 || which==4) 
+    if( !(which_fields==1 || which_fields==4) 
        && 
       (fieldID==grid->getExID() || fieldID==grid->getEyID() || fieldID==grid->getEzID()) )
     {
       break;
     }
     //if( !(input->write_J || input->write_all_fields) 
-    if( !(which==3 || which==4) 
+    if( !(which_fields==3 || which_fields==4) 
        && 
       (fieldID==grid->getJxID() || fieldID==grid->getJyID() || fieldID==grid->getJzID()) )
     {
       break;
     }
     //if( !(input->write_B || input->write_all_fields) 
-    if( !(which==2 || which==4) 
+    if( !(which_fields==2 || which_fields==4) 
        && 
       (fieldID==grid->getBxID() || fieldID==grid->getByID() || fieldID==grid->getBzID() ||
        fieldID==grid->getBx_tm1ID() || fieldID==grid->getBy_tm1ID() || fieldID==grid->getBz_tm1ID()))
@@ -97,7 +96,7 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, Inp
       break;
     }
     //if( !(input->write_rho || input->write_all_fields) 
-    if( !(which==0 || which==4) 
+    if( !(which_fields==0 || which_fields==4) 
        && 
       (fieldID==grid->getrhoID()) )
     {
@@ -238,11 +237,10 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   return status;
 }
 
-int FieldTimeseriesIO::writeFields(Grid* grid, Input_Info_t* input, const int iwrite){
+int FieldTimeseriesIO::writeFields(Grid* grid, const int which, const int iwrite){
 
   double**** fieldPtr = grid->getFieldPtr();  
   assert(fieldPtr!=NULL);
-  int which = input->which_fields; // flag
 
   //if(input->write_all_fields || input->write_E) {
   if(which==4 || which==1) {
