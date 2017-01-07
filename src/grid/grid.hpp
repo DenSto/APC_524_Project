@@ -216,5 +216,8 @@ protected:
   FRIEND_TEST(GridPrivateTest, periodicUpdateTest); 
   FRIEND_TEST(GridPrivateTest, ghostVecSizeTest); 
 
+  // unit testing in depositJ_unittests.cc
+  friend class DepositJTest;
+  FRIEND_TEST(DepositJTest, sumOverJ);
  };
 #endif
