@@ -8,29 +8,46 @@ class BC_F_Periodic : public BC_Field {
 	~BC_F_Periodic();
 	int completeBC();
     private:
+        double* ghostEB_;
+        double *ghostRJ_;  
         Grid *grids_;     
 };
 
 BC_F_Periodic::BC_F_Periodic(int side, Domain* domain, Grid *grids, Input_Info_t *info){
-    side_ = side;
+
+    side_ = side; // inherited from BC_Field
     assert((side_>0 && side_<=3)||(side_<0 && side_ >=-3));
     if(debug)fprintf(stderr,"rank=%d:boundary side %d is periodic\n",rank_MPI,side);
 
     grids_ = grids;
-    ghostTmp_ = grids_->ghostTmp_; 
+
+    int ghostsize;
+
+    ghostsize = grids_->getGhostVecSize(-1); // E,B
+    ghostEB_ = new double[ghostsize]; 
+
+    ghostsize = grids_->getGhostVecSize(-2); // rho, J
+    ghostRJ_ = new double[ghostsize];
+
 }
 
 
 BC_F_Periodic::~BC_F_Periodic(){
+    delete [] ghostEB_;
+    delete [] ghostRJ_;
 }
 
 
 int BC_F_Periodic::completeBC(){
 
-    // load the opposite side to tmp
-    grids_->getGhostVec(-side_,ghostTmp_,-1);
-    // unload this side fom tmp
-    grids_->setGhostVec(side_,ghostTmp_,-1,0);
+    // load physical to tmp from the opposite side 
+    grids_->getGhostVec(-side_,ghostEB_,-1);
+    grids_->getGhostVec(-side_,ghostRJ_,-2);
+
+    // unload tmp to Ghost on this side
+    // Ghost does not overwrite physical on this side
+    grids_->setGhostVec(side_,ghostEB_,-1,0); // replace(0) E,B(-1) in ghost
+    grids_->setGhostVec(side_,ghostRJ_,-2,0); // replace(0) R,J(-2) in ghost 
 
     return 0;
 }
