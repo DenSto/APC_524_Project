@@ -205,8 +205,8 @@ int main(int argc, char *argv[]){
 
        // writing files
        if(ti%nwrite==0) {
-         if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
          iwrite = ti/nwrite;
+         if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
          // fields output
          if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
          // particle output
@@ -232,7 +232,6 @@ int main(int argc, char *argv[]){
 
        // pass field boundaries 
        grids->executeBC();
-       //domain->PassFields(grids,input_info,-1);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle

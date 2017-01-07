@@ -70,7 +70,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
  * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
  * sendID = -2 to set Jrho fields, -1 to set EB fields, or sendID = an individual field ID (e.g. ExID_) to set just that field (used for Poisson updating for example) \n
  * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be received with a single MPI call. If sendID = -1 (as used in each time step update), fields are read and set in order: Ex,Ey,Ez,Bx,By,Bz. If sendID = -2, fields are read and set in order: Jx,Jy,Jz,rho. \n
- * op is a flag determining how the field will be set. op = 0 replaces the current current values in the field's ghost points with the values in ghostVec. op = 1 sums the current values and the values in ghostVec. \n
+ * op is a flag determining how the field will be set. op = 0 replaces the current values in the field's ghost points with the values in ghostVec. op = 1 sums the current values and the values in ghostVec. \n
  * ghostVec can (and should) be generated with getGhostVec function 
  */ 
 void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
