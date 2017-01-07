@@ -42,7 +42,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = IO_unittests oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests dens_frac_test convertFields_unittests
+TESTS = IO_unittests oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests #dens_frac_test
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
