@@ -49,6 +49,10 @@ TEST_F(DepositJTest, sumOverJ) {
   double mod_v = pow(parts[0].v[0],2.0)+pow(parts[0].v[1],2.0)+pow(parts[0].v[2],2.0);
   printf("mod_v=%f\n",mod_v);
 
+  //Note this segfault occurs when depositRhoJ calls domain->PassFields
+  //When PassFields calls grid->getGhostVec, before the program even enters
+  //that grid function, a segfault is thrown.  Must be investigated.
+  printf("depositRhoJ segfaults here:\n");
   part_handler->depositRhoJ(grid,false,domain,input_info);
   printf("Passed depositRhoJ");
 
