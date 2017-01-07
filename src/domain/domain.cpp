@@ -4,7 +4,7 @@
 
 #include "domain.hpp"
 
-Domain::Domain(Input_Info_t *input_info)
+Domain::Domain(const int* nCell_global, const int* nProc, const double* Lxyz_global, const double* xyz0_global)
       : size_(size_MPI),
         rank_(rank_MPI){
 
@@ -22,22 +22,21 @@ Domain::Domain(Input_Info_t *input_info)
        assert(nProcxyz_!=NULL);
 
        if(debug>1) fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
-       int* nCell = input_info->nCell; 
-       int* nProc = input_info->nProc;
        if(debug>1) fprintf(stderr,"rank=%d,size=%d,nproc=%d,%d,%d\n",
                               rank_,size_,nProc[0],nProc[1],nProc[2]);
        assert(size_ == nProc[0]*nProc[1]*nProc[2]);
 
        // assign private variables
-       n3xyz_=(nCell[0]*nCell[1]*nCell[2])/size_; // local grid volume
+       // local grid volume
+       n3xyz_=(nCell_global[0]*nCell_global[1]*nCell_global[2])/size_; 
        if(debug>1) fprintf(stderr,"rank=%d,n3xyz=%d\n",rank_MPI,n3xyz_);
        assert(n3xyz_>0);
 
        for (int i=0;i<3;i++){
            nProcxyz_[i]=nProc[i];
 
-           nxyz_[i]=nCell[i]/nProc[i];
-           assert((nCell[i] % nProc[i])==0);
+           nxyz_[i]=nCell_global[i]/nProc[i];
+           assert((nCell_global[i] % nProc[i])==0);
 
            n2xyz_[i]=n3xyz_/nxyz_[i];
            assert((n3xyz_ % nxyz_[i])==0);
@@ -86,17 +85,15 @@ Domain::Domain(Input_Info_t *input_info)
 
 
        /* determine physical domain size ******************/
-       const double *Lxyz = input_info->Lxyz;
        Lxyz_ = new double[3];
        assert(Lxyz_!=NULL);
 
-       const double *xyz0 = input_info->xyz0; 
        xyz0_ = new double[3];
        assert(xyz0_!=NULL);
 
        for(int i=0;i<3;i++){
-           Lxyz_[i] = Lxyz[i]/nProcxyz_[i];
-           xyz0_[i] = xyz0[i]+Lxyz_[i]*myijk_[i];
+           Lxyz_[i] = Lxyz_global[i]/nProcxyz_[i];
+           xyz0_[i] = xyz0_global[i]+Lxyz_[i]*myijk_[i];
        }
 
        if(debug) fprintf(stderr,"rank=%d: end Domain constructor\n",rank_);
