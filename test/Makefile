@@ -30,6 +30,7 @@ TESTSRC_DIR = $(ROOT_DIR)/test/test_src
 
 LCONFIG = $(ROOT_DIR)/libconfig-1.5/lib/libconfig++.a
 HDF5_LIB = $(ROOT_DIR)/hdf5-1.8.12/hdf5/lib/libhdf5.a
+HDF5_INCL = $(ROOT_DIR)/hdf5-1.8.12/hdf5/include
 LIBS = $(LCONFIG) $(HDF5_LIB) -lz -ldl
 
 # Flags passed to the preprocessor.
@@ -42,7 +43,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = IO_unittests oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests #dens_frac_test
+TESTS = readinput_unittests oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests hdf5io_unittests #dens_frac_test
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -92,11 +93,17 @@ $(SRC_DIR)/%.o:
 	make EMOOPIC; \
 	cd $(ROOT_DIR)/test
 
-IO_unittests.o : $(TESTSRC_DIR)/IO_unittests.cc $(SRC_DIR)/IO/input.hpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/IO_unittests.cc -I $(SRC_DIR)/IO 
+readinput_unittests.o : $(TESTSRC_DIR)/readinput_unittests.cc $(SRC_DIR)/IO/input.hpp $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/readinput_unittests.cc -I $(SRC_DIR)/IO 
 
-IO_unittests : $(addprefix $(SRC_DIR)/, $(IOTESTOBJ)) IO_unittests.o gtest_main.a
+readinput_unittests : $(addprefix $(SRC_DIR)/, $(IOTESTOBJ)) readinput_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+
+hdf5io_unittests.o : $(TESTSRC_DIR)/hdf5io_unittests.cc $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/hdf5io_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/domain -I $(SRC_DIR)/grid -I $(HDF5_INCL)
+
+hdf5io_unittests : $(addprefix $(SRC_DIR)/, $(TESTOBJ)) hdf5io_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS) 
 
 RNG_unittests.o : $(TESTSRC_DIR)/RNG_unittests.cc $(SRC_DIR)/utils/RNG.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/RNG_unittests.cc -I $(SRC_DIR)/utils

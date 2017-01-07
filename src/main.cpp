@@ -194,7 +194,7 @@ int main(int argc, char *argv[]){
     int output_pCount = input_info->output_pCount;
     int iwrite = 0;
     if(output_fields>=0){
-      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, input_info, nt/nwrite);
+      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nwrite);
     }
 
     /* Advance time step **********************************/
@@ -208,7 +208,7 @@ int main(int argc, char *argv[]){
          if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
          iwrite = ti/nwrite;
          // fields output
-         if(output_fields>=0) field_tsio->writeFields(grids, input_info, iwrite);
+         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
          // particle output
          part_handler->outputParticles(output_pCount,input_info); 
          if(rank==0)printf("           Finished writing. Continue time loop...\n");
