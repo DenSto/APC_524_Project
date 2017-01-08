@@ -171,12 +171,12 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, con
     assert(memspace_[fieldID]>=0);
   }
   
-  H5Gclose(fields_group_id_);
   delete [] phys_dims;
   delete [] filespace_dims;
   delete [] filespace_maxdims;
   delete [] nxyzTot;
   delete [] memspace_dims;
+  H5Gclose(fields_group_id_);
 }
 
 FieldTimeseriesIO::~FieldTimeseriesIO() {
@@ -218,7 +218,10 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   assert(status>=0);
 
   // select the subset of the memory dataspace that we are writing from
-  offset[0] = offset[1] = offset[2] = 1;  // skip first cell in each spatial dim, which is ghost
+  // skip first cell in each spatial dim, which is ghost
+  offset[0] = 1;
+  offset[1] = 1;
+  offset[2] = 1;
   offset[3] = 0;
   stride[0] = stride[1] = stride[2] = stride[3] = 1;
   count[0] = count[1] = count[2] = count[3] = 1;
