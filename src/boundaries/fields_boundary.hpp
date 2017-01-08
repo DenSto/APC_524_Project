@@ -10,9 +10,7 @@ class BC_Field {
 	virtual int completeBC(void) = 0; // Complete boundary conditions.
 
     protected:
-        std::string type_;
         int side_;
-        double *ghostTmp_;
 
 };
 

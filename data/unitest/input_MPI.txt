@@ -18,7 +18,7 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 2
+  nTimesteps = 5
 
   # start time
   startTime = 0.0
@@ -108,7 +108,8 @@ boundary:
   particles:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
-    conditions = ["reflecting","reflecting", 
+    # choose self-consistently from "periodic","reflecting"
+    conditions = ["periodic","periodic", 
                 "periodic","periodic",
                 "periodic","periodic"]
   }
@@ -118,7 +119,8 @@ boundary:
   fields:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
-    conditions = ["external","external", 
+    # choose self-consistently from "periodic","external"
+    conditions = ["periodic","periodic",
                 "periodic","periodic",
                 "periodic","periodic"]
 
