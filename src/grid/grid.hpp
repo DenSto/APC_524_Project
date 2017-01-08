@@ -222,6 +222,6 @@ protected:
 
   // unit testing in depositJ_unittests.cc
   friend class DepositJTest;
-  FRIEND_TEST(DepositJTest, sumOverJ);
+  FRIEND_TEST(DepositJTest, sumOverJandRho);
  };
 #endif

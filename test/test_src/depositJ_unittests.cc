@@ -47,7 +47,7 @@ protected:
 };
 
 // Test particle current-deposition is working.
-TEST_F(DepositJTest, sumOverJ) {
+TEST_F(DepositJTest, sumOverJandRho) {
   int np = part_handler->nParticles();
   double mod_v;
   double q;
@@ -63,7 +63,7 @@ TEST_F(DepositJTest, sumOverJ) {
     q = parts[0].q;
 
     //Perform the deposition of the current (note: depositRho=false)
-    part_handler->depositRhoJ(grid,false,domain,input_info);
+    part_handler->depositRhoJ(grid,true,domain,input_info);
 
     //Get cell volume
     double lcell[3] = {};
@@ -75,12 +75,14 @@ TEST_F(DepositJTest, sumOverJ) {
     double JxSum = 0.0;
     double JySum = 0.0;
     double JzSum = 0.0;
+    double rhoSum = 0.0;
     for (i=0; i<grid->nxTot_; ++i) {
       for (j=0; j<grid->nyTot_; ++j) {
 	for (k=0; k<grid->nzTot_; ++k) {
 	  JxSum += grid->Jx_[i][j][k];
 	  JySum += grid->Jy_[i][j][k];
 	  JzSum += grid->Jz_[i][j][k];
+	  rhoSum += grid->rho_[i][j][k];
 	}
       }
     }
@@ -89,8 +91,15 @@ TEST_F(DepositJTest, sumOverJ) {
     double modJ = pow(pow(JxSum,2.0)+pow(JySum,2.0)+pow(JzSum,2.0),0.5);
     double calcModJ = q/cell_volume*mod_v;
 
-    //Run the test
-    EXPECT_NEAR(modJ,calcModJ,0.00001); //Or NEAR, if calculated quantities are exact.
+    //Run the test for |J|
+    EXPECT_NEAR(modJ,calcModJ,0.00001);
+
+    //Calculate deposited |rho|, and expected calculated |rho|
+    double mod_rho = rhoSum;
+    double calc_mod_rho = q/cell_volume;
+
+    //Run the test for |rho|
+    EXPECT_NEAR(mod_rho,calc_mod_rho,0.00001);
   }
   
 }
