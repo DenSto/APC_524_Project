@@ -351,6 +351,78 @@ void Grid::getDimPhys(const int fieldID, int* dim) {
     dim[2] = kEnd-kBeg_;
 };
 
+/// gets physical coordinates of each point on the grid for a given field type
+void Grid::getGridPhys(const int fieldID, double*** x, double*** y, double*** z) { 
+    assert (-1 < fieldID && fieldID < nFieldsTotal_); 
+
+    // directions 
+    int xdir = 0; 
+    int ydir = 1; 
+    int zdir = 2; 
+
+    // get the type of field
+    int type = fieldType_[fieldID]; 
+    
+    double offset[3] = {0,0,0};  
+    if (type == edgeXID_) { 
+        offset[xdir] = dx_/2; 
+    } else if (type == edgeYID_) { 
+        offset[ydir] = dy_/2; 
+    } else if (type == edgeZID_) { 
+        offset[zdir] = dz_/2; 
+    } else if (type == faceXID_) { 
+        offset[ydir] = dy_/2; 
+        offset[zdir] = dz_/2; 
+    } else if (type == faceYID_) { 
+        offset[xdir] = dx_/2; 
+        offset[zdir] = dz_/2; 
+    } else if (type == faceZID_) { 
+        offset[xdir] = dx_/2; 
+        offset[ydir] = dy_/2; 
+    } 
+    // no case needed for vertID_ because it has 0 offset in all directions 
+
+    int xside=1; 
+    int yside=2; 
+    int zside=3; 
+
+    int iEnd = sideToIndex_(fieldID,xside)+1; 
+    int jEnd = sideToIndex_(fieldID,yside)+1; 
+    int kEnd = sideToIndex_(fieldID,zside)+1; 
+
+    int i,j,k;
+    int iteri=-1; 
+    int iterj=-1; 
+    int iterk=-1; 
+    for (i=iBeg_; i<iEnd; ++i) { 
+        ++iteri; 
+        for (j=jBeg_; j<jEnd; ++j) { 
+            ++iterj; 
+            for (k=kBeg_; k<kEnd; ++k) { 
+                ++iterk; 
+                x[iteri][iterj][iterk] = x0_ + offset[0]+dx_*(i-iBeg_);
+                y[iteri][iterj][iterk] = y0_ + offset[0]+dy_*(j-jBeg_);
+                z[iteri][iterj][iterk] = z0_ + offset[0]+dz_*(k-kBeg_);
+            } 
+        } 
+    } 
+}; 
+
+/// averages two timesteps of B (for output) 
+/*! returns all elements of array (including ghosts and dummies) */ 
+void Grid::getAvgB(double*** Bx_avg, double*** By_avg, double*** Bz_avg) { 
+    int i,j,k; 
+    for (i=0; i<nxTot_; ++i) { 
+        for (j=0; j<nyTot_; ++j) { 
+            for (k=0; k<nzTot_; ++k) { 
+                Bx_avg[i][j][k] = (Bx_[i][j][k] + Bx_tm1_[i][j][k])/2; 
+                By_avg[i][j][k] = (By_[i][j][k] + By_tm1_[i][j][k])/2; 
+                Bz_avg[i][j][k] = (Bz_[i][j][k] + Bz_tm1_[i][j][k])/2; 
+            }
+        }
+    }
+} 
+
 /// sets field corresponding to fieldID to specified value
 void Grid::constField_(const int fieldID, const double val) { 
     assert (fieldID > -1 && fieldID < nFieldsTotal_); 
