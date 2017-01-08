@@ -28,10 +28,22 @@ SRC_DIR = $(ROOT_DIR)/src
 
 TESTSRC_DIR = $(ROOT_DIR)/test/test_src
 
-LCONFIG = $(ROOT_DIR)/libconfig-1.5/lib/libconfig++.a
-HDF5_LIB = $(ROOT_DIR)/hdf5-1.8.12/hdf5/lib/libhdf5.a
-HDF5_INCL = $(ROOT_DIR)/hdf5-1.8.12/hdf5/include
-LIBS = $(LCONFIG) $(HDF5_LIB) -lz -ldl
+LCONFIG_LIB = $(ROOT_DIR)/libconfig-1.5/lib/libconfig++.a
+HDF5_DIR = $(SRC_DIR)/../hdf5-1.8.12
+#HDF5PAR_DIR = $(SRC_DIR)/../hdf5-1.8.12-parallel
+
+HDF5_LIB = $(HDF5_DIR)/lib/libhdf5.a
+#HDF5PAR_LIB = $(HDF5PAR_DIR)/lib/libhdf5.a
+
+LIBS = $(LCONFIG_LIB) -lz -ldl -lm
+
+#ifeq ($(USE_MPI),0)
+  HDF5_INCL = $(HDF5_DIR)/include
+  LIBS += $(HDF5_LIB)
+#else
+#  HDF5_INCL = $(HDF5PAR_DIR)/include
+#  LIBS += $(HDF5PAR_LIB)
+#endif
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -43,7 +55,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests dens_frac_test depositJ_unittests readinput_unittests hdf5io_unittests
+TESTS = oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests depositJ_unittests readinput_unittests hdf5io_unittests #dens_frac_test 
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
