@@ -93,7 +93,7 @@ TEST_F(GridPrivateTest, sideToIndexTest) {
 // passing this test also implies that get/set ghost methods work 
 TEST_F(GridPrivateTest, periodicUpdateTest) {
     // choose to test Jz (all of JEB are sent in updatePeriodic)
-    int ID = grid->JzID_; 
+    int ID = grid->ExID_; 
     double*** field = grid->fieldPtr_[ID]; 
 
     // store incremented value at each point 
