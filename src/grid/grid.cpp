@@ -355,30 +355,28 @@ void Grid::getDimPhys(const int fieldID, int* dim) {
 void Grid::getGridPhys(const int fieldID, double*** x, double*** y, double*** z) { 
     assert (-1 < fieldID && fieldID < nFieldsTotal_); 
 
-    // directions 
-    int xdir = 0; 
-    int ydir = 1; 
-    int zdir = 2; 
-
     // get the type of field
     int type = fieldType_[fieldID]; 
     
-    double offset[3] = {0,0,0};  
+    // set the initial offsets in each direction 
+    double xoff=0; 
+    double yoff=0; 
+    double zoff=0; 
     if (type == edgeXID_) { 
-        offset[xdir] = dx_/2; 
+        xoff = dx_/2; 
     } else if (type == edgeYID_) { 
-        offset[ydir] = dy_/2; 
+        yoff = dy_/2; 
     } else if (type == edgeZID_) { 
-        offset[zdir] = dz_/2; 
+        zoff = dz_/2; 
     } else if (type == faceXID_) { 
-        offset[ydir] = dy_/2; 
-        offset[zdir] = dz_/2; 
+        yoff = dy_/2; 
+        zoff = dz_/2; 
     } else if (type == faceYID_) { 
-        offset[xdir] = dx_/2; 
-        offset[zdir] = dz_/2; 
+        xoff = dx_/2; 
+        zoff = dz_/2; 
     } else if (type == faceZID_) { 
-        offset[xdir] = dx_/2; 
-        offset[ydir] = dy_/2; 
+        xoff = dx_/2; 
+        yoff = dy_/2; 
     } 
     // no case needed for vertID_ because it has 0 offset in all directions 
 
@@ -400,9 +398,9 @@ void Grid::getGridPhys(const int fieldID, double*** x, double*** y, double*** z)
             ++iterj; 
             for (k=kBeg_; k<kEnd; ++k) { 
                 ++iterk; 
-                x[iteri][iterj][iterk] = x0_ + offset[0]+dx_*(i-iBeg_);
-                y[iteri][iterj][iterk] = y0_ + offset[0]+dy_*(j-jBeg_);
-                z[iteri][iterj][iterk] = z0_ + offset[0]+dz_*(k-kBeg_);
+                x[iteri][iterj][iterk] = x0_ + xoff + dx_*(i-iBeg_);
+                y[iteri][iterj][iterk] = y0_ + yoff + dy_*(j-jBeg_);
+                z[iteri][iterj][iterk] = z0_ + zoff + dz_*(k-kBeg_);
             } 
         } 
     } 
