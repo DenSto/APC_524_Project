@@ -1,204 +1,127 @@
 #if USE_MPI
 
-#include <stdlib.h>
+#include <iostream>
+#include <cmath>
 #include "mpi.h"
 #include "../../globals.hpp"
 #include "../fields_boundary.hpp"
 #include "../field_bc_factory.hpp"
+#include "../../IO/output.hpp"
 
-#define DOUBLES_IN_PARTICLE 10
+using namespace std;
 
 class BC_F_MPI : public BC_Field {
-	public:
-		BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info);
-		~BC_F_MPI();
-		int completeBC();
-//		void computeParticleBCs(std::vector<Particle> *pl);
-	private:
-//		int particle_BC(Particle* p);
-
-/*		int sendRank_, recvRank_;
-		double* lengthShift_;
-		long toSend_, toReceive_;
-		std::vector<double> sendBuf_;
-		std::vector<Particle> ghostBuf_;
-		double* recvBuf_;
-		int rBufSize_;
-		void packParticle(Particle* p);
-		Particle unpackParticle(int offset);
-*/
+    public:
+	BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info);
+	~BC_F_MPI();
+        int sideToindex(int side);
+	int completeBC();
+    private:
+        int sizeEB_,sizeRJ_,size_;
+        int dest_; // MPI destination send to, and recv from
+        int stag_,rtag_; // MPI tags for send and recv
+        double *send_;
+        double *recv_;  
+        Grid *grids_;     
 };
 
-
 BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
-/*	assert(dim_index_ < 3);
+ 
+    // load side 
+    side_ = side; // inherited from BC_Field
+    assert((side_>0 && side_<=3)||(side_<0 && side_ >=-3));
+    if(debug)cerr<<"rank="<<rank_MPI<<":boundary side "<<side<< " is MPI\n";
 
-	xMin_ = domain->getxyz0()[dim_index_];
-	xMax_ = xMin_ + domain->getLxyz()[dim_index_];
-	if(debug>1)fprintf(stderr,"rank=%d:dim=%d,isRight=%d,MPI_BC,xMin=%f,xMax=%f\n",
-                                   rank_MPI,dim_index_,isRight_,xMin_,xMax_); 	
+    // determin MPI rank of neighbour
+    int index = sideToindex(side);
+    int *neighbours = domain->getNeighbours();
+    dest_ = neighbours[index];
+    if(debug)cerr<<"rank="<<rank_MPI<<":boundary side "<<side<< " neighbour is "<<dest_<<endl;
 
-	toSend_ = 0;
-	toReceive_ = 0;
-	rBufSize_ = 1;
-	recvBuf_ = (double *) malloc(sizeof(double)*rBufSize_*DOUBLES_IN_PARTICLE);
-	assert(recvBuf_ != NULL);
+    // encode MPI send tag and recv tag in format tag = (sender,receiver)
+    stag_ = size_MPI*rank_MPI + dest_;
+    rtag_ = size_MPI*dest_ + rank_MPI;
+    if(debug)cerr<<"rank="<<rank_MPI
+                 <<": boudary side "<<side
+                 << " stag="<< stag_ 
+                 << ", rtag="<< rtag_<< endl;
 
-	std::string periodic ("periodic");
-	bool isPeriodic = (periodic.compare(type) == 0);
+    // load grids and allocate buffers
+    grids_ = grids;
 
-	lengthShift_ = new double[3];
-	for(int i = 0; i < 3; i++) lengthShift_[i] = 0.0;
+    sizeEB_ = grids_->getGhostVecSize(-1); // E,B
+    sizeRJ_ = grids_->getGhostVecSize(-2); // rho, J
 
-	int* nProc = domain->getnProcxyz();
-	int* myLoc = domain->getmyijk();
-	int* neigh = domain->getNeighbours();
+    size_ = sizeEB_ + sizeRJ_;
 
-	int partitionIndex = myLoc[dim_index_];
-	short inMiddle = (partitionIndex != 0 && (partitionIndex != nProc[dim_index_]- 1));
+    send_ = new double[size_]; 
+    recv_ = new double[size_]; 
 
-	if(inMiddle || isPeriodic){
-		if(isRight_){
-			sendRank_ = neigh[2*dim_index_ + 1]; //send to right
-			recvRank_ = neigh[2*dim_index_ ];    //receive from left
-		} else {
-			sendRank_ = neigh[2*dim_index_];     //send to left
-			recvRank_ = neigh[2*dim_index_ + 1]; //receive from right
-
-			if(!inMiddle){// Left most processor responsible for wrap-around in x
-				int* nxyz = domain->getnxyz();
-				double* L = domain->getLxyz();
-				lengthShift_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
-			}
-		}
-	} else {
-		if(isRight_){ 
-			sendRank_ = neigh[2*dim_index_ + 1]; // send to right
-			recvRank_ = neigh[2*dim_index_ + 1]; // receive from right
-		} else {
-			sendRank_ = neigh[2*dim_index_]; // send to left 
-			recvRank_ = neigh[2*dim_index_]; // receive from left
-		}
-	}
-*/
 }
 
 BC_F_MPI::~BC_F_MPI(){
-/*
-	if(recvBuf_ != NULL)
-		free(recvBuf_);
-	delete[] lengthShift_;
-*/
+    delete [] send_;
+    delete [] recv_;
 }
+
+//! Function convert side (-3,-2,-1,1,2,3) to index (4,2,0,1,3,5) 
+int BC_F_MPI::sideToindex(int side){
+    double index;
+    index = 2*abs((double)side+0.25)-1.5;
+    return (int)index;
+}
+/* test sideToindex
+int sides[6] = {-3,-2,-1,1,2,3};
+for(int i=0;i<6;i++){
+    cerr<<"side="<<sides[i]<<" -> index="<<sideToindex(sides[i])<< endl;
+}*/
+
 
 int BC_F_MPI::completeBC(){
-/*	// Send and receive particles.
-	MPI_Request req;
-	int err;
 
-	// First send particle count. This way the receiving processor can allocate sufficient memory
-	err = MPI_Isend(&toSend_, 1, MPI_LONG,sendRank_,11,MPI_COMM_WORLD,&req);
-	if(err) fprintf(stderr, "rank=%d MPI_Isend error on toSend_ = %d\n",rank_MPI,err);
+    MPI_Request reqs[2];
+    MPI_Status stats[2];
+    int err; 
+    char fname[20]; // for debug file 
+ 
+    // load ghost value to send, in order EB, RJ 
+    grids_->getGhostVec(side_,&send_[0],-1); //EB    
+    grids_->getGhostVec(side_,&send_[sizeEB_],-2); //RJ     
 
-	err = MPI_Recv(&toReceive_, 1, MPI_LONG,recvRank_,11,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-	if(err) fprintf(stderr, "rank=%d MPI_Recv error on toReceive_ = %d\n",rank_MPI,err);
+    if(debug>2){
+       fprintf(stderr,"rank=%d:checking EB RJ send\n",rank_MPI);
+       sprintf(fname,"EBRJsend%d.dat",side_);
+       checkMPI(fname,send_,size_);
+       fprintf(stderr,"rank=%d:finished checking EB RJ send\n",rank_MPI);
+    }
+ 
+    // non-blocking send to neighbour
+    err = MPI_Isend(send_,size_,MPI_DOUBLE,dest_,stag_,MPI_COMM_WORLD,&reqs[0]);
+    if(err) fprintf(stderr, "rank=%d: MPI_Isend EB,RJ on error %d\n",rank_MPI,err);
 
+    // non-blocking blocking recv from neighbor
+    err = MPI_Irecv(recv_,size_,MPI_DOUBLE,dest_,rtag_,MPI_COMM_WORLD,&reqs[1]);
+    if(err) fprintf(stderr, "rank=%d: MPI_IRecv EB,RJ on error %d\n",rank_MPI,err);
 
-	// If we're sending particles, go ahead and send them. Target processor should be waiting.
-	if(toSend_ != 0){
-		err=MPI_Wait(&req,MPI_STATUS_IGNORE);
-		if(err) fprintf(stderr, "rank=%d (1) MPI_Wait error = %d\n",rank_MPI,err);
+    // wait for communication
+    err = MPI_Waitall(2,reqs,stats);
+    if(err)fprintf(stderr, "rank=%d (1) MPI_Waitall error = %d\n",rank_MPI,err);
+    if(debug>1) fprintf(stderr,"rank=%d: EB,RJ send and received\n",rank_MPI);
 
-		err=MPI_Isend(&sendBuf_[0],toSend_*DOUBLES_IN_PARTICLE, MPI_DOUBLE, sendRank_,12,MPI_COMM_WORLD,&req);
-		if(err) fprintf(stderr, "rank=%d MPI_Isend error on sendBuf_ = %d\n",rank_MPI,err);
+    if(debug>2){
+       fprintf(stderr,"rank=%d:checking EB RJ revc\n",rank_MPI);
+       sprintf(fname,"EBRJrecv%d.dat",side_);
+       checkMPI(fname,recv_,size_);
+       fprintf(stderr,"rank=%d:finished checking EB RJ recv\n",rank_MPI);
+    }
 
-		sendBuf_.clear();
-
-		if(debug>1)fprintf(stderr,"rank=%d:dim=%d: Sending %ld particles.\n",
-                                   rank_MPI,dim_index_,toSend_); 	
-	}
-
-	// If we're to receive particles, allocate sufficient memory and wait for target to send them.
-	if(toReceive_ != 0){
-
-		if(toReceive_ > rBufSize_){
-			recvBuf_ = (double*) realloc(recvBuf_,sizeof(double)*DOUBLES_IN_PARTICLE*toReceive_);
-			rBufSize_ = toReceive_;
-			assert(recvBuf_ != NULL);
-		}
-
-		err=MPI_Recv(recvBuf_,toReceive_*DOUBLES_IN_PARTICLE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-		if(err) fprintf(stderr, "rank=%d MPI_Recv error on recvBuf_ = %d\n",rank_MPI,err);
-	
-		for(int i = 0; i < toReceive_; i++){
-			ghostBuf_.push_back(unpackParticle(i*DOUBLES_IN_PARTICLE));
-		}
-		pl->insert(pl->end(),ghostBuf_.begin(),ghostBuf_.end());
-		ghostBuf_.clear();
-	}
-
-	err=MPI_Wait(&req,MPI_STATUS_IGNORE);
-	if(err) fprintf(stderr, "rank=%d (2) MPI_Wait error = %d\n",rank_MPI,err);
-
-	// Return the change in particle number. Returning function should increment accordingly.
-	int ret = toReceive_ - toSend_;
-	toSend_=0;
-	toReceive_=0;
-
-	return ret;
-*/
+    // unload received value to ghost 
+    grids_->setGhostVec(side_,&recv_[0],-1,0); //replace(0) E,B(-1) in ghost  
+    grids_->setGhostVec(side_,&recv_[sizeEB_],-2,0); //replace(0) R,J(-2) in ghost  
+ 
     return 0;
 }
-/*
-int BC_P_MPI::particle_BC(Particle* p){
-	if(p->x[dim_index_] < xMin_ && !isRight_){
-		packParticle(p);
-		p->isGhost = 1;
-		return 1;
-	}
 
-	if(p->x[dim_index_] > xMax_ && isRight_){
-		packParticle(p);
-		p->isGhost = 1;
-		return 1;
-	}
-
-	return 0;
-}
-
-void BC_P_MPI::packParticle(Particle* p){
-	sendBuf_.push_back(p->x[0] + lengthShift_[0]);
-	sendBuf_.push_back(p->x[1] + lengthShift_[1]);
-	sendBuf_.push_back(p->x[2] + lengthShift_[2]);
-	sendBuf_.push_back(p->v[0]);
-	sendBuf_.push_back(p->v[1]);
-	sendBuf_.push_back(p->v[2]);
-	sendBuf_.push_back(p->gamma);
-	sendBuf_.push_back(p->q);
-	sendBuf_.push_back(p->m);
-	sendBuf_.push_back((double)p->my_id);
-	toSend_++;
-}
-
-Particle BC_P_MPI::unpackParticle(int offset){
-	Particle p;
-	int i =offset;
-	p.x[0] = recvBuf_[i++] - lengthShift_[0];
-	p.x[1] = recvBuf_[i++] - lengthShift_[1];
-	p.x[2] = recvBuf_[i++] - lengthShift_[2];
-	p.v[0] = recvBuf_[i++];
-	p.v[1] = recvBuf_[i++];
-	p.v[2] = recvBuf_[i++];
-	p.gamma= recvBuf_[i++];
-	p.q    = recvBuf_[i++];
-	p.m    = recvBuf_[i++];
-	p.my_id = (long) recvBuf_[i++];
-	p.isGhost = 0;
-
-	return p;
-}
-
-*/
 // Registers bounary condition into BC_Factory dictionary
 static RegisterFieldBoundary instance("MPI", makeBCField<BC_F_MPI>);
 #endif

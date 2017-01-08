@@ -29,7 +29,7 @@ class Domain {
  
 	int *getnProcxyz(void); // return pointer nProcxyz_
         int *getmyijk(void); 
-		int *getNeighbours(); // like below, but in useful array form xLR-yLR-zLR
+        int *getNeighbours(); // like below, but in useful array form xLR-yLR-zLR
         int getxl(void); // rank of x left neighbot 
         int getyl(void); 
         int getzl(void);

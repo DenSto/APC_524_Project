@@ -555,6 +555,8 @@ int Input::readinfo(char *fname){
         return(EXIT_FAILURE);
       }
 
+    }else{
+      input_info_->nwaves = 0;
     }
   
     /* Diagnostic inputs **********************************/

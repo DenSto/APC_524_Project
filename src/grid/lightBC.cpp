@@ -33,10 +33,10 @@ LightBC::LightBC(int side, Input_Info_t *input_info){
         nwaves_[pid]+=1;
       }
    }
-   if(debug) cerr << "rank=" << rank_MPI << ": side" << side << " has " 
-                    << nwaves_[0] << " waves injected with x polarization; "
-                    << nwaves_[1] << " waves injected with y polarization; "
-                    << nwaves_[2] << " waves injected with z polarization.\n";
+   if(debug) cerr << "rank=" << rank_MPI << ": side " << side << " is injected with: " << endl 
+                    << "  "<< nwaves_[0] << " waves injected with x polarization; " << endl
+                    << "  "<< nwaves_[1] << " waves injected with y polarization; " << endl
+                    << "  "<< nwaves_[2] << " waves injected with z polarization.\n";
 
    // Load pulses in each of the 3 polarizations
    int nw;

@@ -55,7 +55,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 		p.q = charge[ispec];
 		p.m = mass[ispec];
 
-                if(debug>1)fprintf(stderr,"charge=%f\n",p.q);
+                if(debug>3)fprintf(stderr,"charge=%f\n",p.q);
 
 		vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
 
@@ -276,8 +276,6 @@ void Particle_Handler::executeParticleBoundaryConditions(){
  */
 void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 
-       // YShi hacked variable step->outputCount: if step>0 then print
-
        double t = time_phys;
        //dT_    = input_info->output_dT;
        dstep_ = input_info->nwrite;
@@ -296,7 +294,7 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 		nextT_ += dT_;
 	}
 	
-	if(dstep_ > 0 && step > nextStep_){
+	if(dstep_ > 0 && step >= nextStep_){
 		needsOutput=true;
 		nextStep_+=dstep_;
 	}

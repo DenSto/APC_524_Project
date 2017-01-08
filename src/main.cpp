@@ -187,30 +187,32 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
     // initialize diagnostics outputs
-    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
+//    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
     FieldTimeseriesIO* field_tsio;
     int nwrite = input_info->nwrite;
     int output_fields = input_info->which_fields;
     int output_pCount = input_info->output_pCount;
     int iwrite = 0;
     if(output_fields>=0){
-      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nwrite);
+//      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nwrite);
     }
 
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
 
-       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d,nwrite=%d,ti%%nwrite=%d\n",
+                                   rank,ti,nwrite,ti%nwrite);   
 
        // writing files
        if(ti%nwrite==0) {
          iwrite = ti/nwrite;
          if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
          // fields output
-         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+//         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
          // particle output
-         part_handler->outputParticles(output_pCount,input_info); 
+         part_handler->outputParticles(ti,input_info); 
+         if(debug>1) fprintf(stderr,"    rank=%d,write particles\n",rank);
          if(rank==0)printf("           Finished writing. Continue time loop...\n");
        }
 
@@ -223,7 +225,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);   
 
        // deposite charge and current on grid
-       part_handler->depositRhoJ(grids,false,domain,input_info);
+//       part_handler->depositRhoJ(grids,false,domain,input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // evolve E, B fields

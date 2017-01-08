@@ -12,6 +12,10 @@
 #include "../grid/grid.hpp"
 #include "assert.h"
 
+#if USE_MPI
+#include "mpi.h"
+#endif
+
 //! A singleton class to handle registration of field boundaries/
 class Field_BC_Factory {
     public:
