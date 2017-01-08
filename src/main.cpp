@@ -188,14 +188,14 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
     // initialize diagnostics outputs
-//    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
+    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
     FieldTimeseriesIO* field_tsio;
     int nwrite = input_info->nwrite;
     int output_fields = input_info->which_fields;
     int output_pCount = input_info->output_pCount;
     int iwrite = 0;
     if(output_fields>=0){
-//      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nwrite);
+        field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nwrite);
     }
 
     /* Advance time step **********************************/
@@ -210,7 +210,7 @@ int main(int argc, char *argv[]){
          iwrite = ti/nwrite;
          if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
          // fields output
-//         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
          // particle output
          part_handler->outputParticles(ti,input_info); 
          if(debug>1) fprintf(stderr,"    rank=%d,write particles\n",rank);
@@ -259,6 +259,8 @@ int main(int argc, char *argv[]){
 
     // free memory
     domain->freeGhosts(); // Ghost for field MPI
+    if(output_fields>=0){delete field_tsio;}
+    delete hdf5io;
     delete domain;
     delete [] bc; // particle boundary condition
     delete part_handler;
