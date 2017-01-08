@@ -48,33 +48,50 @@ protected:
 
 // Test particle current-deposition is working.
 TEST_F(DepositJTest, sumOverJ) {
+  int np = part_handler->nParticles();
+  double mod_v;
+  double q;
 
-  std::vector<Particle> parts = part_handler->getParticleVector();
+  if (np != 1) {
+    printf("This test did not fail, but can only be run for 1 particle. Change input file and rerun.");
+  } else {
+    //Get full vector of particles.
+    std::vector<Particle> parts = part_handler->getParticleVector();
 
-  double mod_v = pow(parts[0].v[0],2.0)+pow(parts[0].v[1],2.0)+pow(parts[0].v[2],2.0);
-  printf("mod_v=%f\n",mod_v);
+    //Calculate particle |v| and q
+    mod_v = pow(pow(parts[0].v[0],2.0)+pow(parts[0].v[1],2.0)+pow(parts[0].v[2],2.0),0.5);
+    q = parts[0].q;
 
-  //Note this segfault occurs when depositRhoJ calls domain->PassFields
-  //When PassFields calls grid->getGhostVec, before the program even enters
-  //that grid function, a segfault is thrown.  Must be investigated.
-  printf("depositRhoJ segfaults here\n");
-  part_handler->depositRhoJ(grid,false,domain,input_info);
-  printf("Passed depositRhoJ");
+    //Perform the deposition of the current (note: depositRho=false)
+    part_handler->depositRhoJ(grid,false,domain,input_info);
 
-  // sum over J
-  int i,j,k;
-  double JSum = 0.0;
-  for (i=0; i<grid->nxTot_; ++i) {
-    for (j=0; j<grid->nyTot_; ++j) {
-      for (k=0; k<grid->nzTot_; ++k) {
-        JSum += grid->Jx_[i][j][k];
-	JSum += grid->Jy_[i][j][k];
-	JSum += grid->Jz_[i][j][k];
+    //Get cell volume
+    double lcell[3] = {};
+    for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
+    double cell_volume = lcell[0]*lcell[1]*lcell[2];
+
+    // sum up all cells' J
+    int i,j,k;
+    double JxSum = 0.0;
+    double JySum = 0.0;
+    double JzSum = 0.0;
+    for (i=0; i<grid->nxTot_; ++i) {
+      for (j=0; j<grid->nyTot_; ++j) {
+	for (k=0; k<grid->nzTot_; ++k) {
+	  JxSum += grid->Jx_[i][j][k];
+	  JySum += grid->Jy_[i][j][k];
+	  JzSum += grid->Jz_[i][j][k];
+	}
       }
     }
-  }
 
-  //EXPECT_EQ(JSum,0);
-  EXPECT_NEAR(JSum,0,0.1);
+    //Calculate deposited |J|, and expected calculated |J|
+    double modJ = pow(pow(JxSum,2.0)+pow(JySum,2.0)+pow(JzSum,2.0),0.5);
+    double calcModJ = q/cell_volume*mod_v;
+
+    //Run the test
+    EXPECT_NEAR(modJ,calcModJ,0.00001); //Or NEAR, if calculated quantities are exact.
+  }
+  
 }
 
