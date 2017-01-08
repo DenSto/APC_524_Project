@@ -15,9 +15,9 @@ void Input::passinfo(void){
     // parameters specific to Input_Info_t
     int count = 4; // three types
 
-    int nint = 2*NDIM+15*1+2*NWAVE; //2 of len NDIM + 8 of len 1 + 2 of len NWAVE
-    int nlong = 2; // 2 of len 1
-    int ndouble = 2*1+4*NSPEC+5*NWAVE+4*NDIM; //2 of len 1 + 4 of nspecies+ 5 of len NWAVE + 3 of len NDIM
+    int nint = 2*NDIM+10*1+2*NWAVE; //2 of len NDIM + 10 of len 1 + 2 of len NWAVE
+    int nlong = 1; // 1 of len 1
+    int ndouble = 1*1+4*NSPEC+5*NWAVE+4*NDIM; //1 of len 1 + 4 of nspecies+ 5 of len NWAVE + 3 of len NDIM
     int nchar = (3+2*2*NDIM)*NCHAR; //filename 2 initial + 2 sets boundaries 
 
     // specify what are the MPI data types

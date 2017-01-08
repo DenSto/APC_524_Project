@@ -11,7 +11,7 @@
 
 class Domain {
     public:
-        Domain(Input_Info_t *input_info);
+	Domain(const int* nCell_global, const int* nProc, const double* xyz0_global, const double* Lxyz_global);
         ~Domain();
         
         int getnGhosts(void);

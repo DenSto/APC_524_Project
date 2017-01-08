@@ -1,11 +1,10 @@
 domain:
 {
   # number of cells in each dimension
-  nCell = [ 18, 8, 8 ]
+  nCell = [ 8, 8, 8 ]
 
   # number of processors in each dimension (parallel version only)
-  #nProc = [ 4, 2, 2 ]
-  nProc = [ 4, 1, 1 ]
+  nProc = [ 1, 1, 1 ]
 
   # origin of simulation domain
   xyz0 = [0.0, 0.0, 0.0]
@@ -18,21 +17,20 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 2
+  nTimesteps = 10
 
   # start time
   startTime = 0.0
 
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
-  # debug = 3 turns on more debug, write debug files
   debug = 2
 }
 
 initialization:
 {
   # whether this is restart of a previous run
-  restart = 0
+  restart = 1
 
   # particle initialization
   particles:
@@ -41,22 +39,22 @@ initialization:
     relativity = 0
 
     # number of species
-    nspecies = 2
+    nspecies = 1
 
     # mass of each species in unit of electron mass
-    mass_ratio = [1.0, 1836.13]
+    mass_ratio = [1000.0]
 
     # charge of each species in unit of |e|
-    charge_ratio = [-1.0, 1.0]
+    charge_ratio = [-1.0]
 
     # fractional density of species
-    dens_frac = [0.5,0.5]  
+    dens_frac = [1.0]  
 
     # number of particles of all species in each domain
     nParticles = 16
   
     # position distribution function
-    xdist = "sinusoid"
+    #xdist = "sinusoid"
     #xdist = "delta function"
     #xdist = "file: xdist.dat"
   
@@ -69,16 +67,16 @@ initialization:
     {
       # density of nspecies in unit of 10^18 cm^{-3}
       # used to scale super particle mass and charge
-      density = [0.1, 0.1]
+      density = [1.01]
 
       # temperature of nspecies in unit of eV
-      temperature = [100.0, 1.0]
+      temperature = [0.01]
     }
   
-    sinusoid:
-    {
-      k = [ 1, 1, 1 ]
-    }
+    #sinusoid:
+    #{
+    #  k = [ 1, 1, 1 ]
+    #}
   }
  
   fields:
@@ -92,10 +90,10 @@ initialization:
     #init = "file: fields.dat"
 
     # constant background/boundary magnetic field. 1->1kG
-    B0 = [0.0, 0.2, 1.0]
+    B0 = [0.0, 0.0, 100.0]
 
     # constant background/boundary electric field. 1->299.79KV/cm
-    E0 = [0.001, 0.0, 0.0]
+    E0 = [0.0, 0.0, 0.0]
 
   }
 }
@@ -108,7 +106,7 @@ boundary:
   particles:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
-    conditions = ["reflecting","reflecting", 
+    conditions = ["periodic","periodic", 
                 "periodic","periodic",
                 "periodic","periodic"]
   }
@@ -118,7 +116,7 @@ boundary:
   fields:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
-    conditions = ["external","external", 
+    conditions = ["periodic","periodic", 
                 "periodic","periodic",
                 "periodic","periodic"]
 

@@ -21,6 +21,7 @@ int Input::readinfo(char *fname){
     // Read the file. If there is an error, report it and exit.
     try
     {
+      cout << "Reading input file " << fname << endl;
       cfg.readFile(fname);
     }
     catch(const FileIOException &fioex)
@@ -557,97 +558,28 @@ int Input::readinfo(char *fname){
     }
   
     /* Diagnostic inputs **********************************/
-    try{
-      const Setting &output_dStep = cfg.lookup("diagnostics.output_dStep");
-      if(output_dStep.getType() == Setting::TypeInt) {
-        int dstep = output_dStep;
-        input_info_->output_dStep = (long) dstep;
-      } else if (output_dStep.getType() == Setting::TypeInt64) {
-        input_info_->output_dStep = output_dStep;
-      } else if (output_dStep.getType() == Setting::TypeFloat) {
-        double dstep = output_dStep;
-        input_info_->output_dStep = (long) dstep;
-      }
+    try{input_info_->nwrite = cfg.lookup("diagnostics.nwrite");
     }catch(const SettingNotFoundException &nfex){
-      cerr << "output_dStep not set in input file..."
-           << "Assuming output_dStep = -1" << endl;
-      input_info_->output_dStep = -1;
+      cerr << "nwrite not set in input file..."
+           << "Assuming nwrite = 10" << endl;
+      input_info_->nwrite = 10;
     }
 
-    try{input_info_->output_dT = (double) cfg.lookup("diagnostics.output_dT");
-    }catch(const SettingNotFoundException *nfex){
-      cerr << "output_dT not set in input file..."
-           << "Assuming output_dT = -1.0" << endl;
-      input_info_->output_dT = -1.0;
-    }
-  
+    // particle
     try{input_info_->output_pCount = cfg.lookup("diagnostics.particles.output_pCount");
     }catch(const SettingNotFoundException *nfex){
       cerr << "output_pCound not set in input file..."
            << "Assuming output_pCount = 0" << endl;
-      input_info_->output_pCount = 0;
+      input_info_->output_pCount = 0; // no tracking
     }
   
-
-    // diagnostics parameters
-    try
-    {
-      input_info_->nwrite = cfg.lookup("diagnostics.nwrite");
+    //fields
+    try {input_info_->which_fields = cfg.lookup("diagnostics.fields.which_fields");
+    }catch(const SettingNotFoundException &nfex){
+      cerr << "which_fields not set in input file..."
+           << "Assuming which_fields = -1" << endl;
+      input_info_->which_fields = -1; // no output
     }
-    catch(const SettingNotFoundException &nfex)
-    {
-      input_info_->nwrite = 10;
-    }
-    try
-    {
-      bool flag = cfg.lookup("diagnostics.write_field_timeseries");
-      input_info_->write_field_timeseries = flag; // cfg.lookup("diagnostics.write_field_timeseries");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      input_info_->write_field_timeseries = TRUE;
-    }
-    try
-    {
-      input_info_->write_E = cfg.lookup("diagnostics.write_E");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      input_info_->write_E = TRUE;
-    }
-    try
-    {
-      input_info_->write_B = cfg.lookup("diagnostics.write_B");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      input_info_->write_B = TRUE;
-    }
-    try
-    {
-      input_info_->write_J = cfg.lookup("diagnostics.write_J");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      input_info_->write_J = TRUE;
-    }
-    try
-    {
-      input_info_->write_rho = cfg.lookup("diagnostics.write_rho");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      input_info_->write_rho = TRUE;
-    }
-    try
-    {
-      input_info_->write_all_fields = cfg.lookup("diagnostics.write_all_fields");
-    }
-    catch(const SettingNotFoundException &nfex)
-    {
-      input_info_->write_all_fields = FALSE;
-    }
-    
 
 // dummy code to be replaced //////////////////////////////////
     input_info_->temp[0] = 0.001; 

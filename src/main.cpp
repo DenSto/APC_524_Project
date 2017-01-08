@@ -114,7 +114,7 @@ int main(int argc, char *argv[]){
     /* Initial setup **************************************/
     if(rank==0)printf("Initial set up...\n");
     // Domain decomposition
-    Domain *domain = new Domain(input_info);
+    Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
     if(debug>1) checkdomain(domain);
 
     // Initialize particles and pusher
@@ -186,29 +186,32 @@ int main(int argc, char *argv[]){
     dt_phys /= 10000.0;
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);   
 
-    // write initial restart files
-    // write initial diagnostic files
-    part_handler->outputParticles(0,input_info);
-
-    // initialize diagnostics
+    // initialize diagnostics outputs
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
     FieldTimeseriesIO* field_tsio;
     int nwrite = input_info->nwrite;
+    int output_fields = input_info->which_fields;
+    int output_pCount = input_info->output_pCount;
     int iwrite = 0;
-    if(input_info->write_field_timeseries) {
-      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, input_info, nt/nwrite);
+    if(output_fields>=0){
+      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nwrite);
     }
 
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
+
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Time Loop\n",rank,ti);   
 
+       // writing files
        if(ti%nwrite==0) {
          iwrite = ti/nwrite;
-         if(input_info->write_field_timeseries) {
-           //field_tsio->writeFields(grids, input_info, iwrite);
-         }
+         if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
+         // fields output
+         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+         // particle output
+         part_handler->outputParticles(output_pCount,input_info); 
+         if(rank==0)printf("           Finished writing. Continue time loop...\n");
        }
 
        // push particles
@@ -228,8 +231,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);   
 
        // pass field boundaries 
-//       grids->executeBC();
-       //domain->PassFields(grids,input_info,-1);
+       grids->executeBC();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);   
 
        // Interpolate fields from grid to particle
@@ -242,10 +244,6 @@ int main(int argc, char *argv[]){
 
        time_phys += dt_phys;
 
-       // check and write restart files
-//       if(ti%ntcheck==0){check(t,domains,grids,parts);}
-       // output diagnostic files
-       part_handler->outputParticles(ti+1,input_info);
      }  
 
     //Output particle velocities

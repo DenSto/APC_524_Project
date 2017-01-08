@@ -5,7 +5,7 @@
 TEST(ReadinputTest, ValuesCorrect) {
   Input *input =  new Input();
   char filename[100];
-  sprintf(filename, "../data/unitest/input.txt");
+  sprintf(filename, "test_data/readinput_unittests.txt");
   input->readinfo(filename);
   Input_Info_t *input_info = input->getinfo();
 

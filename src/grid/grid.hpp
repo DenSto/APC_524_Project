@@ -86,10 +86,6 @@ public:
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
 
-  // need to be public, for use by field boundary conditions 
-  double* sliceTmp_; 
-  double* ghostTmp_;  
-
 protected:
   BC_Field** boundaries_; // field boundary conditions
 
@@ -172,6 +168,8 @@ protected:
 
   int *fieldIsContiguous_;
   
+  double* sliceTmp_; 
+  double* ghostTmp_;  
 
   // allocates contiguous memory for nx*ny*nz array
   double*** newField_(int ifield);
@@ -218,5 +216,12 @@ protected:
   FRIEND_TEST(GridPrivateTest, periodicUpdateTest); 
   FRIEND_TEST(GridPrivateTest, ghostVecSizeTest); 
 
+  // unit testing in hdf5io_unittests.cc
+  friend class FieldIOTest;
+  FRIEND_TEST(FieldIOTest, writeField1D);
+
+  // unit testing in depositJ_unittests.cc
+  friend class DepositJTest;
+  FRIEND_TEST(DepositJTest, sumOverJ);
  };
 #endif

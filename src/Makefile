@@ -29,10 +29,21 @@ LCONFIG_DIR = $(SRCDIR)/../libconfig-1.5
 LCONFIG_LIB = $(LCONFIG_DIR)/lib/libconfig++.a
 
 HDF5_DIR = $(SRCDIR)/../hdf5-1.8.12
-HDF5_INCL = $(HDF5_DIR)/hdf5/include
-HDF5_LIB = $(HDF5_DIR)/hdf5/lib/libhdf5.a
+HDF5PAR_DIR = $(SRCDIR)/../hdf5-1.8.12-parallel
 
-LIBS = $(LCONFIG_LIB) $(HDF5_LIB)
+HDF5_LIB = $(HDF5_DIR)/lib/libhdf5.a
+HDF5PAR_LIB = $(HDF5PAR_DIR)/lib/libhdf5.a
+
+LIBS = $(LCONFIG_LIB) 
+
+ifeq ($(USE_MPI),0)
+  HDF5_INCL = $(HDF5_DIR)/include
+  LIBS += $(HDF5_LIB)
+else
+  HDF5_INCL = $(HDF5PAR_DIR)/include
+  LIBS += $(HDF5PAR_LIB)
+endif
+
 
 ifeq ($(RUN_TEST),1)
   all: $(PROGRAM) run_tests
@@ -49,6 +60,9 @@ $(PROGRAM): $(OBJ) $(LIBS)
 IO/input.o: IO/input.cpp $(LIBS)
 	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
 
+IO/hdf5io.o: IO/hdf5io.cpp $(LIBS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include -I $(HDF5_INCL)
+
 $(LCONFIG_LIB):
 	cd ..; \
 	tar xf libconfig-1.5.tar.gz; \
@@ -62,7 +76,16 @@ $(HDF5_LIB):
 	cd ..; \
 	[ -d $(HDF5_DIR) ] || tar xf hdf5-1.8.12.tar.gz; \
 	cd $(HDF5_DIR); \
-	CC=mpic++ ./configure --enable-parallel --prefix=$(HDF5_DIR); \
+	CC=gcc ./configure --prefix=$(HDF5_DIR); \
+	make; \
+	make install; \
+	cd $(SRCDIR)
+
+$(HDF5PAR_LIB):
+	cd ..; \
+	[ -d $(HDF5_DIR) ] || tar xf hdf5-1.8.12.tar.gz; \
+	cd $(HDF5_DIR); \
+	CC=mpicc ./configure --enable-parallel --prefix=$(HDF5PAR_DIR); \
 	make; \
 	make install; \
 	cd $(SRCDIR)

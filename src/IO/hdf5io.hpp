@@ -38,11 +38,11 @@ class Hdf5IO {
 /*! Class for writing fields in time series to hdf5 */
 class FieldTimeseriesIO : public Hdf5IO {
     public: 
-	FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, Input_Info_t* input, const int totWrites);
+	FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, const int which, const int totWrites);
 	~FieldTimeseriesIO(void);
 	int getnFieldDatasets() {return nFieldDatasets_;}
 	int writeAField(const int fieldID, double*** data, const int iwrite);
-	int writeFields(Grid* grid, Input_Info_t* input, const int iwrite);
+	int writeFields(Grid* grid, const int which, const int iwrite);
 
     private:
 	// number of field datasets

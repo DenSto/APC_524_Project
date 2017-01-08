@@ -37,7 +37,7 @@ Hdf5IO::~Hdf5IO() {
   H5Fclose(file_id_);
 }
 
-FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, Input_Info_t* input, const int totWrites) 
+FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, const int which_fields, const int totWrites) 
 	: nFieldDatasets_(13),
 	  totWrites_(totWrites),
   	  ndims_(4),
@@ -73,30 +73,34 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, Inp
 
   // this isn't very elegant...
   for(int fieldID=0; fieldID<nFieldDatasets_; fieldID++) {
-    if( !(input->write_E || input->write_all_fields) 
+    //if( !(input->write_E || input->write_all_fields) 
+    if( !(which_fields==1 || which_fields==4) 
        && 
       (fieldID==grid->getExID() || fieldID==grid->getEyID() || fieldID==grid->getEzID()) )
     {
-      break;
+      continue;
     }
-    if( !(input->write_J || input->write_all_fields) 
+    //if( !(input->write_J || input->write_all_fields) 
+    if( !(which_fields==3 || which_fields==4) 
        && 
       (fieldID==grid->getJxID() || fieldID==grid->getJyID() || fieldID==grid->getJzID()) )
     {
-      break;
+      continue;
     }
-    if( !(input->write_B || input->write_all_fields) 
+    //if( !(input->write_B || input->write_all_fields) 
+    if( !(which_fields==2 || which_fields==4) 
        && 
       (fieldID==grid->getBxID() || fieldID==grid->getByID() || fieldID==grid->getBzID() ||
        fieldID==grid->getBx_tm1ID() || fieldID==grid->getBy_tm1ID() || fieldID==grid->getBz_tm1ID()))
     {
-      break;
+      continue;
     }
-    if( !(input->write_rho || input->write_all_fields) 
+    //if( !(input->write_rho || input->write_all_fields) 
+    if( !(which_fields==0 || which_fields==4) 
        && 
       (fieldID==grid->getrhoID()) )
     {
-      break;
+      continue;
     }
 
     // finish allocating 2D for storing block dimensions
@@ -197,6 +201,9 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   hsize_t* offset = new hsize_t[ndims_];
   hsize_t* stride = new hsize_t[ndims_];
   hsize_t* count = new hsize_t[ndims_];
+  assert(offset!=NULL);
+  assert(stride!=NULL);
+  assert(count!=NULL);
 
   // select the subset of the file dataspace that this proc will be writing to
   offset[0] = myijk_[0]*field_block_[fieldID][0];
@@ -211,7 +218,7 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   assert(status>=0);
 
   // select the subset of the memory dataspace that we are writing from
-  offset[0] = offset[1] = offset[2] = 2;  // skip first cell in each spatial dim, which is ghost
+  offset[0] = offset[1] = offset[2] = 1;  // skip first cell in each spatial dim, which is ghost
   offset[3] = 0;
   stride[0] = stride[1] = stride[2] = stride[3] = 1;
   count[0] = count[1] = count[2] = count[3] = 1;
@@ -233,27 +240,31 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   return status;
 }
 
-int FieldTimeseriesIO::writeFields(Grid* grid, Input_Info_t* input, const int iwrite){
+int FieldTimeseriesIO::writeFields(Grid* grid, const int which, const int iwrite){
 
   double**** fieldPtr = grid->getFieldPtr();  
   assert(fieldPtr!=NULL);
 
-  if(input->write_all_fields || input->write_E) {
+  //if(input->write_all_fields || input->write_E) {
+  if(which==4 || which==1) {
     writeAField(grid->getExID(), fieldPtr[grid->getExID()], iwrite);
     writeAField(grid->getEyID(), fieldPtr[grid->getEyID()], iwrite);
     writeAField(grid->getEzID(), fieldPtr[grid->getEzID()], iwrite);
   }
-  if(input->write_all_fields || input->write_B) {
+  //if(input->write_all_fields || input->write_B) {
+  if(which==4 || which==2) {
     writeAField(grid->getBxID(), fieldPtr[grid->getBxID()], iwrite);
     writeAField(grid->getByID(), fieldPtr[grid->getByID()], iwrite);
     writeAField(grid->getBzID(), fieldPtr[grid->getBzID()], iwrite);
   }
-  if(input->write_all_fields || input->write_J) {
+  //if(input->write_all_fields || input->write_J) {
+  if(which==4 || which==3) {
     writeAField(grid->getJxID(), fieldPtr[grid->getJxID()], iwrite);
     writeAField(grid->getJyID(), fieldPtr[grid->getJyID()], iwrite);
     writeAField(grid->getJzID(), fieldPtr[grid->getJzID()], iwrite);
   }
-  if(input->write_all_fields || input->write_rho) {
+  //if(input->write_all_fields || input->write_rho) {
+  if(which==4 || which==0) {
     writeAField(grid->getrhoID(), fieldPtr[grid->getrhoID()], iwrite);
   }
 
