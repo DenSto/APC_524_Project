@@ -76,7 +76,7 @@ $(HDF5_LIB):
 	cd ..; \
 	[ -d $(HDF5_DIR) ] || tar xf hdf5-1.8.12.tar.gz; \
 	cd $(HDF5_DIR); \
-	CC=gcc ./configure --prefix=$(HDF5_DIR); \
+	CC=cc ./configure --prefix=$(HDF5_DIR); \
 	make; \
 	make install; \
 	cd $(SRCDIR)
