@@ -78,14 +78,14 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, con
        && 
       (fieldID==grid->getExID() || fieldID==grid->getEyID() || fieldID==grid->getEzID()) )
     {
-      break;
+      continue;
     }
     //if( !(input->write_J || input->write_all_fields) 
     if( !(which_fields==3 || which_fields==4) 
        && 
       (fieldID==grid->getJxID() || fieldID==grid->getJyID() || fieldID==grid->getJzID()) )
     {
-      break;
+      continue;
     }
     //if( !(input->write_B || input->write_all_fields) 
     if( !(which_fields==2 || which_fields==4) 
@@ -93,14 +93,14 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, con
       (fieldID==grid->getBxID() || fieldID==grid->getByID() || fieldID==grid->getBzID() ||
        fieldID==grid->getBx_tm1ID() || fieldID==grid->getBy_tm1ID() || fieldID==grid->getBz_tm1ID()))
     {
-      break;
+      continue;
     }
     //if( !(input->write_rho || input->write_all_fields) 
     if( !(which_fields==0 || which_fields==4) 
        && 
       (fieldID==grid->getrhoID()) )
     {
-      break;
+      continue;
     }
 
     // finish allocating 2D for storing block dimensions
@@ -201,6 +201,9 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   hsize_t* offset = new hsize_t[ndims_];
   hsize_t* stride = new hsize_t[ndims_];
   hsize_t* count = new hsize_t[ndims_];
+  assert(offset!=NULL);
+  assert(stride!=NULL);
+  assert(count!=NULL);
 
   // select the subset of the file dataspace that this proc will be writing to
   offset[0] = myijk_[0]*field_block_[fieldID][0];
@@ -215,7 +218,7 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   assert(status>=0);
 
   // select the subset of the memory dataspace that we are writing from
-  offset[0] = offset[1] = offset[2] = 2;  // skip first cell in each spatial dim, which is ghost
+  offset[0] = offset[1] = offset[2] = 1;  // skip first cell in each spatial dim, which is ghost
   offset[3] = 0;
   stride[0] = stride[1] = stride[2] = stride[3] = 1;
   count[0] = count[1] = count[2] = count[3] = 1;

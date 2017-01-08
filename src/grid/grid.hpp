@@ -45,7 +45,6 @@ public:
   int getNumCells3D(double *nvec);
   double getStepSize(int dimension);
   int getnxyzTot(int *nxyzTot);
-  void getDimPhys(const int fieldID, int* dim);
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 
@@ -74,6 +73,9 @@ public:
   int getJyID() {return JyID_;};
   int getJzID() {return JzID_;};
   int getrhoID() {return rhoID_;};
+  void getDimPhys(const int fieldID, int* dim);
+  void getGridPhys(const int fieldID, double*** x, double*** y, double *** z); 
+  void getAvgB(double*** Bx_avg, double*** By_avg, double*** Bz_avg); 
   
   //void ESliceOut(); 
   //void BSliceOut(); 
@@ -214,5 +216,12 @@ protected:
   FRIEND_TEST(GridPrivateTest, periodicUpdateTest); 
   FRIEND_TEST(GridPrivateTest, ghostVecSizeTest); 
 
+  // unit testing in hdf5io_unittests.cc
+  friend class FieldIOTest;
+  FRIEND_TEST(FieldIOTest, writeField1D);
+
+  // unit testing in depositJ_unittests.cc
+  friend class DepositJTest;
+  FRIEND_TEST(DepositJTest, sumOverJ);
  };
 #endif

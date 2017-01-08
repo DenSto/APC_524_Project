@@ -28,10 +28,22 @@ SRC_DIR = $(ROOT_DIR)/src
 
 TESTSRC_DIR = $(ROOT_DIR)/test/test_src
 
-LCONFIG = $(ROOT_DIR)/libconfig-1.5/lib/libconfig++.a
-HDF5_LIB = $(ROOT_DIR)/hdf5-1.8.12/hdf5/lib/libhdf5.a
-HDF5_INCL = $(ROOT_DIR)/hdf5-1.8.12/hdf5/include
-LIBS = $(LCONFIG) $(HDF5_LIB) -lz -ldl
+LCONFIG_LIB = $(ROOT_DIR)/libconfig-1.5/lib/libconfig++.a
+HDF5_DIR = $(SRC_DIR)/../hdf5-1.8.12
+#HDF5PAR_DIR = $(SRC_DIR)/../hdf5-1.8.12-parallel
+
+HDF5_LIB = $(HDF5_DIR)/lib/libhdf5.a
+#HDF5PAR_LIB = $(HDF5PAR_DIR)/lib/libhdf5.a
+
+LIBS = $(LCONFIG_LIB) -lz -ldl -lm
+
+#ifeq ($(USE_MPI),0)
+  HDF5_INCL = $(HDF5_DIR)/include
+  LIBS += $(HDF5_LIB)
+#else
+#  HDF5_INCL = $(HDF5PAR_DIR)/include
+#  LIBS += $(HDF5PAR_LIB)
+#endif
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -43,7 +55,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = readinput_unittests oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests hdf5io_unittests #dens_frac_test
+TESTS = oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests depositJ_unittests readinput_unittests hdf5io_unittests #dens_frac_test 
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -69,11 +81,11 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # compiles fast and for ordinary users its source rarely changes.
 gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest-all.cc
+	$(GTEST_DIR)/src/gtest-all.cc
 
 gtest_main.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
-            $(GTEST_DIR)/src/gtest_main.cc
+	$(GTEST_DIR)/src/gtest_main.cc
 
 gtest.a : gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
@@ -99,10 +111,10 @@ readinput_unittests.o : $(TESTSRC_DIR)/readinput_unittests.cc $(SRC_DIR)/IO/inpu
 readinput_unittests : $(addprefix $(SRC_DIR)/, $(IOTESTOBJ)) readinput_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
 
-hdf5io_unittests.o : $(TESTSRC_DIR)/hdf5io_unittests.cc $(GTEST_HEADERS)
+hdf5io_unittests.o : $(TESTSRC_DIR)/hdf5io_unittests.cc $(SRC_DIR)/IO/hdf5io.cpp $(SRC_DIR)/IO/hdf5io.hpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/hdf5io_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/domain -I $(SRC_DIR)/grid -I $(HDF5_INCL)
 
-hdf5io_unittests : $(addprefix $(SRC_DIR)/, $(TESTOBJ)) hdf5io_unittests.o gtest_main.a
+hdf5io_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) hdf5io_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS) 
 
 RNG_unittests.o : $(TESTSRC_DIR)/RNG_unittests.cc $(SRC_DIR)/utils/RNG.hpp $(GTEST_HEADERS)
@@ -111,34 +123,40 @@ RNG_unittests.o : $(TESTSRC_DIR)/RNG_unittests.cc $(SRC_DIR)/utils/RNG.hpp $(GTE
 RNG_unittests : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) RNG_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lm  -lpthread $^ -o $@ $(LIBS)
 
-oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
+oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/oGrid_unittests.cc  -I $(SRC_DIR)/grid 
 
 oGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) oGrid_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS) 
 
-grid_unittests.o : $(TESTSRC_DIR)/grid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
+grid_unittests.o : $(TESTSRC_DIR)/grid_unittests.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/grid_unittests.cc  -I $(SRC_DIR)/grid 
 
 grid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) grid_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
 
-spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(SRC_DIR)/grid/grid.hpp  $(GTEST_HEADERS)
+spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/spookyGrid_unittests.cc  -I $(SRC_DIR)/grid 
 
 spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) spookyGrid_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
 
-dens_frac_test.o : $(TESTSRC_DIR)/dens_frac_test.cpp $(SRC_DIR)/utils/RNG.hpp $(GTEST_HEADERS)
+dens_frac_test.o : $(TESTSRC_DIR)/dens_frac_test.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/dens_frac_test.cpp -I $(SRC_DIR)/utils
 
 dens_frac_test : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) dens_frac_test.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(SRC_DIR)/IO/input.hpp $(SRC_DIR)/poisson/poisson.hpp  $(GTEST_HEADERS)
+convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/poisson
 
 convertFields_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) convertFields_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+
+depositJ_unittests.o : $(TESTSRC_DIR)/depositJ_unittests.cc $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/depositJ_unittests.cc -I $(SRC_DIR)/poisson -I $(SRC_DIR)/particles
+
+depositJ_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) depositJ_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
 
 run_tests: $(TESTS)

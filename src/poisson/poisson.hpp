@@ -11,7 +11,7 @@ public:
   ~Poisson_Solver();
 
   //void initialize_poisson_fields();
-  void InitializeFields();
+  void InitializeFields(Input_Info_t *input_info);
 
   int getGhostVecSize(const int sendID); 
   void getGhostVec(const int side, double* ghostVec, int sendID); 

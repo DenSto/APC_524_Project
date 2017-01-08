@@ -22,4 +22,5 @@ test/*_test
 *.bundle
 .DS_store
 hdf5-1.8.12
+hdf5-1.8.12-parallel
 *.h5

@@ -93,7 +93,7 @@ TEST_F(GridPrivateTest, sideToIndexTest) {
 // passing this test also implies that get/set ghost methods work 
 TEST_F(GridPrivateTest, periodicUpdateTest) {
     // choose to test Jz (all of JEB are sent in updatePeriodic)
-    int ID = grid->JzID_; 
+    int ID = grid->ExID_; 
     double*** field = grid->fieldPtr_[ID]; 
 
     // store incremented value at each point 
@@ -287,11 +287,16 @@ TEST_F(GridPrivateTest, ghostVecSizeTest) {
     int maxPlane = std::max(nx*ny,ny*nz); 
     maxPlane = std::max(maxPlane,nx*nz); 
 
-    int nfields = 9; 
+    EXPECT_EQ(maxPlane,grid->maxPointsInPlane_);
 
-    int size = nfields*maxPlane; 
+    int nFields = 6; 
+    int nSources= 4; 
 
-    EXPECT_EQ(size, grid->getGhostVecSize(-1)); 
+    int sizeF = nFields*maxPlane; 
+    int sizeS = nSources*maxPlane; 
+
+    EXPECT_EQ(sizeF, grid->getGhostVecSize(-1)); 
+    EXPECT_EQ(sizeS, grid->getGhostVecSize(-2)); 
 } 
 
 
