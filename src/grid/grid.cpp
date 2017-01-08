@@ -386,9 +386,9 @@ void Grid::getGridPhys(const int fieldID, double*** x, double*** y, double*** z)
     int yside=2; 
     int zside=3; 
 
-    int iEnd = sideToIndex_(fieldID,xside)+1; 
-    int jEnd = sideToIndex_(fieldID,yside)+1; 
-    int kEnd = sideToIndex_(fieldID,zside)+1; 
+    int iEnd = sideToIndex_(xside,fieldID)+1; 
+    int jEnd = sideToIndex_(yside,fieldID)+1; 
+    int kEnd = sideToIndex_(zside,fieldID)+1; 
 
     int i,j,k;
     int iteri=-1; 
