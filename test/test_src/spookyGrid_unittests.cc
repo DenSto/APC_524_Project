@@ -287,11 +287,16 @@ TEST_F(GridPrivateTest, ghostVecSizeTest) {
     int maxPlane = std::max(nx*ny,ny*nz); 
     maxPlane = std::max(maxPlane,nx*nz); 
 
-    int nfields = 9; 
+    EXPECT_EQ(maxPlane,grid->maxPointsInPlane_);
 
-    int size = nfields*maxPlane; 
+    int nFields = 6; 
+    int nSources= 4; 
 
-    EXPECT_EQ(size, grid->getGhostVecSize(-1)); 
+    int sizeF = nFields*maxPlane; 
+    int sizeS = nSources*maxPlane; 
+
+    EXPECT_EQ(sizeF, grid->getGhostVecSize(-1)); 
+    EXPECT_EQ(sizeS, grid->getGhostVecSize(-2)); 
 } 
 
 
