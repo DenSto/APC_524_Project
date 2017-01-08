@@ -185,6 +185,7 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, 
 	  //Deposit to grid
 	  grid->addJ(cellID,JObj);
 	  if (depositRho) grid->addRho(cellID,RhoObj);
+
 	  //Zero JObj
 	  for (int k=0; k<12; k++) JObj[k] = 0;
 	  if (depositRho) {
