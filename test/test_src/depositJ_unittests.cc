@@ -29,6 +29,11 @@ protected:
     grid = new Poisson_Solver(domain, input_info);
     part_handler = new Particle_Handler();
     part_handler->Load(input_info,domain);
+
+    int xgsize = grid->getGhostVecSize(-1);
+    int ygsize = 1; //dummy
+    int zgsize = 1; //dummy
+    domain->mallocGhosts(xgsize,ygsize,zgsize);
   }
 
   virtual void TearDown() {
@@ -52,7 +57,7 @@ TEST_F(DepositJTest, sumOverJ) {
   //Note this segfault occurs when depositRhoJ calls domain->PassFields
   //When PassFields calls grid->getGhostVec, before the program even enters
   //that grid function, a segfault is thrown.  Must be investigated.
-  printf("depositRhoJ segfaults here:\n");
+  printf("depositRhoJ segfaults here\n");
   part_handler->depositRhoJ(grid,false,domain,input_info);
   printf("Passed depositRhoJ");
 

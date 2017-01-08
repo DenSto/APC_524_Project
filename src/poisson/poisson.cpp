@@ -89,7 +89,8 @@ void Poisson_Solver::constPhi(const double v) {
 } 
 
 //void Poisson_Solver::initialize_poisson_fields() {
-void Poisson_Solver::InitializeFields() {
+void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
+  //Requires input_info argument to properly inherit virtual Grid::InitializeFields(Input_Info_t *input_info)
 
   if(rank_MPI==0)printf("        Initializing fields by solving Poisson's equation...\n");
 
@@ -106,10 +107,10 @@ void Poisson_Solver::InitializeFields() {
   AToB();
 }
 
-void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult) {
+void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double*** u2,double*** R,double convergenceTol,double sourceMult) {
   //fieldID is the field's ID, e.g. fieldID for Ax_ is Ax1ID_
-  //u0 is the first guess at a solution to Poisson's eqn
-  //u1 is the work array of equal size
+  //u1 is the first guess at a solution to Poisson's eqn
+  //u2 is the work array of equal size
   //R is the 'source' array for Poisson's eqn
   //convergenceTol is the needed (absolute) solution accuracy
 
@@ -144,21 +145,21 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
       for ( int j=jBeg_; j<jEnd; j++ ) {
     	for ( int k=kBeg_; k<kEnd; k++ ) {
           if ( iternum % 2 == 0 ) {
-            u1[i][j][k] = ax*(u0[i-1][j][k]+u0[i+1][j][k]) + ay*(u0[i][j-1][k]+u0[i][j+1][k]) + 
-              az*(u0[i][j][k-1]+u0[i][j][k+1]) - af*R[i][j][k]*sourceMult;
+            u2[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) + ay*(u1[i][j-1][k]+u1[i][j+1][k]) + 
+              az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k]*sourceMult;
           } else {
-            u0[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) + ay*(u1[i][j-1][k]+u1[i][j+1][k]) +
-                  az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k]*sourceMult;
+            u1[i][j][k] = ax*(u2[i-1][j][k]+u2[i+1][j][k]) + ay*(u2[i][j-1][k]+u2[i][j+1][k]) +
+                  az*(u2[i][j][k-1]+u2[i][j][k+1]) - af*R[i][j][k]*sourceMult;
           }
 
-          absDiff = fabs(u1[i][j][k] - u0[i][j][k]);
+          absDiff = fabs(u2[i][j][k] - u1[i][j][k]);
           if (absDiff > maxDiff) maxDiff = absDiff;
         }
       }
     }
 
     //Pass fields' data via MPI.
-    domain_->PassFields(this, input_info_,-3,0); // sendID=-3 to bundle phi1(1), phi2(1), A1(3), and A2(3) fieldIDs, op=0 to pass and replace
+    domain_->PassFields(this, input_info_,fieldID,0); //op=0 to pass and replace the field
 
     //Determine global convergence of jacobi method across all MPI domains
 #if USE_MPI
@@ -167,8 +168,8 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u0, double
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
   }while( !jacobi_method_converged );
 
-  //If last calculated pass updated the work array (u1), copy it to the solution array (u0).
-  if ( iternum % 2 == 0 ) std::swap(u0,u1);
+  //If last calculated pass updated the work array (u2), copy it to the solution array (u1).
+  if ( iternum % 2 == 0 ) std::swap(u1,u2);
 
 }
 
