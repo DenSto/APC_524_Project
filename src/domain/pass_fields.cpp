@@ -36,7 +36,6 @@ void Domain::PassFields(Grid *grids, Input_Info_t *input_info, int sendID, int o
     int offl=0;
     int offr=xgsize;
 
-    printf("Seg fault here:\n");
     // load buffer xghost_send_
     grids->getGhostVec(-1, &(xghost_send_[offl]),sendID);// left
     grids->getGhostVec(1, &(xghost_send_[offr]),sendID);// right
