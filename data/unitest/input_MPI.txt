@@ -160,8 +160,14 @@ boundary:
 
 diagnostics:
 {
-  # How many time steps between each diagnostic
-  nwrite = 1
+  # How many time steps between each field diagnostic
+  nstep_fields = 10
+
+  # How many time steps between each particle diagnostic
+  nstep_parts = 1
+
+  # How many time steps between each restart
+  nstep_restart = 100
 
   particles:
   {

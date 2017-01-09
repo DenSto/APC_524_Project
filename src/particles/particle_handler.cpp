@@ -277,9 +277,10 @@ void Particle_Handler::executeParticleBoundaryConditions(){
  */
 void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 
+       if(rank_MPI==0)printf("    ti=%ld: writing particle trackes...\n",step);
+
        double t = time_phys;
-       //dT_    = input_info->output_dT;
-       dstep_ = input_info->nwrite;
+       dstep_ = input_info->nstep_parts;
        outputCount_ = input_info->output_pCount;
 
 	static bool init = true;

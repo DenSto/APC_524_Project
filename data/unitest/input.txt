@@ -107,6 +107,7 @@ boundary:
   particles:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
+    # choose self-consistently from "periodic","reflecting"
     conditions = ["periodic","periodic", 
                 "periodic","periodic",
                 "periodic","periodic"]
@@ -117,7 +118,8 @@ boundary:
   fields:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
-    conditions = ["periodic","periodic", 
+    # choose self-consistently from "periodic","external"
+    conditions = ["periodic","periodic",
                 "periodic","periodic",
                 "periodic","periodic"]
 
@@ -157,8 +159,14 @@ boundary:
 
 diagnostics:
 {
-  # How many time steps between each diagnostic
-  nwrite = 1
+  # How many time steps between each field diagnostic
+  nstep_fields = 10
+
+  # How many time steps between each particle diagnostic
+  nstep_parts = 1
+
+  # How many time steps between each restart
+  nstep_restart = 100
 
   particles:
   {

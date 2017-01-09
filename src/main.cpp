@@ -187,35 +187,27 @@ int main(int argc, char *argv[]){
     dt_phys /= 10000.0;
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
-    // initialize diagnostics outputs
+    // initialize outputs
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
     FieldTimeseriesIO* field_tsio;
-    int nwrite = input_info->nwrite;
+    int nstep_fields  = input_info->nstep_fields;
+//    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
-    int output_pCount = input_info->output_pCount;
     int iwrite = 0;
     if(output_fields>=0){
-        field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nwrite);
+      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nstep_fields);
     }
+    if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
+    // fields output
+    if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+    // particle output
+    part_handler->outputParticles(0,input_info); 
 
     /* Advance time step **********************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
 
-       if(debug>1) fprintf(stderr,"rank=%d,ti=%d,nwrite=%d,ti%%nwrite=%d\n",
-                                   rank,ti,nwrite,ti%nwrite);   
-
-       // writing files
-       if(ti%nwrite==0) {
-         iwrite = ti/nwrite;
-         if(rank==0)printf("    ti=%d: Writing diagnostic files...\n",ti);
-         // fields output
-         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
-         // particle output
-         part_handler->outputParticles(ti,input_info); 
-         if(debug>1) fprintf(stderr,"    rank=%d,write particles\n",rank);
-         if(rank==0)printf("           Finished writing. Continue time loop...\n");
-       }
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d\n",rank,ti);   
 
        // push particles
        part_handler->Push(dt_phys);
@@ -246,6 +238,16 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish clearGhosts\n",rank,ti);
 
        time_phys += dt_phys;
+
+       // writing files
+       if((ti+1)%nstep_fields==0) {
+         iwrite = (ti+1)/nstep_fields;
+         if(rank==0)printf("    ti=%d: Writing field diagnostic files...\n",ti+1);
+         // fields output
+         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+       }
+       // particle output
+       part_handler->outputParticles(ti+1,input_info); 
 
      }  
 

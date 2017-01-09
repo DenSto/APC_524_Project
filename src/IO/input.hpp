@@ -34,7 +34,11 @@ typedef struct {
                   /// nspecies <=NSPEC
 
     // diagnostics parameters
-    int nwrite;  /// number of time steps between writing diagnostics
+    // number of time steps between writing files    
+    int nstep_fields;  
+    int nstep_parts;  
+    int nstep_restart;
+
     int which_fields; /// flag determine which fields to write
                       /// 0: write components of rho
                       /// 1: write components of E 

@@ -182,9 +182,17 @@ void checkinput(Input_Info_t *input_info){
    }
 
    /* outputs *************************/
-   fprintf(stderr,"rank=%d,nwrite=%d,output_pCount=%d,which_fields=%d\n",
-                   rank,input_info->nwrite,input_info->output_pCount,
-                   input_info->which_fields);
+   // restart
+   fprintf(stderr,"rank=%d,nstep_restart=%d\n",
+                   rank,input_info->nstep_restart);
+
+   // fields
+   fprintf(stderr,"rank=%d,nstep_fields=%d,which_fields=%d\n",
+                   rank,input_info->nstep_fields,input_info->which_fields);
+
+   // particles
+   fprintf(stderr,"rank=%d,nstep_parts=%d,output_pCount=%d\n",
+                   rank,input_info->nstep_parts,input_info->output_pCount);
 
    /* strings *************************/
    fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);

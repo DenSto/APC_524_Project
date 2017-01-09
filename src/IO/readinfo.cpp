@@ -560,11 +560,25 @@ int Input::readinfo(char *fname){
     }
   
     /* Diagnostic inputs **********************************/
-    try{input_info_->nwrite = cfg.lookup("diagnostics.nwrite");
+    try{input_info_->nstep_fields = cfg.lookup("diagnostics.nstep_fields");
+    }catch(const SettingNotFoundException &nfex){
+      cerr << "nstep_fields not set in input file..."
+           << "Assuming nstep_fields = 10" << endl;
+      input_info_->nstep_fields = 10;
+    }
+
+    try{input_info_->nstep_parts = cfg.lookup("diagnostics.nstep_parts");
+    }catch(const SettingNotFoundException &nfex){
+      cerr << "nstep_parts not set in input file..."
+           << "Assuming nstep_parts = 10" << endl;
+      input_info_->nstep_parts = 10;
+    }
+
+    try{input_info_->nstep_restart = cfg.lookup("diagnostics.nstep_restart");
     }catch(const SettingNotFoundException &nfex){
       cerr << "nwrite not set in input file..."
-           << "Assuming nwrite = 10" << endl;
-      input_info_->nwrite = 10;
+           << "Assuming nstep_restart = 100" << endl;
+      input_info_->nstep_restart = 100;
     }
 
     // particle
