@@ -100,7 +100,7 @@ gtest_main.a : gtest-all.o gtest_main.o
 include $(SRC_DIR)/Makefile.obj
 
 # General rule to build any .o file in src
-$(SRC_DIR)/%.o:
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
 	cd $(SRC_DIR); \
 	make EMOOPIC; \
 	cd $(ROOT_DIR)/test
@@ -111,7 +111,7 @@ readinput_unittests.o : $(TESTSRC_DIR)/readinput_unittests.cc $(SRC_DIR)/IO/inpu
 readinput_unittests : $(addprefix $(SRC_DIR)/, $(IOTESTOBJ)) readinput_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
 
-hdf5io_unittests.o : $(TESTSRC_DIR)/hdf5io_unittests.cc $(SRC_DIR)/IO/hdf5io.cpp $(SRC_DIR)/IO/hdf5io.hpp $(GTEST_HEADERS)
+hdf5io_unittests.o : $(TESTSRC_DIR)/hdf5io_unittests.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/hdf5io_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/domain -I $(SRC_DIR)/grid -I $(HDF5_INCL)
 
 hdf5io_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) hdf5io_unittests.o gtest_main.a

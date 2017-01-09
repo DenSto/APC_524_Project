@@ -27,15 +27,15 @@ int main(int argc, char** argv) {
   return RUN_ALL_TESTS();
 }
 
-TEST_F(FieldIOTest, writeField1D) {
-    int nxyz [3] = {3,3,4};
+TEST_F(FieldIOTest, writeField) {
+    int nxyz [3] = {3,4,5};
     int nProc [3] = {1,1,1};
     int nGhosts = 1; 
     double xyz0 [3] = {0,0,0};
     double Lxyz [3] = {1,1,1};
 
-    int which_fields = 0; //only write rho
-    int nwrite = 2;
+    int which_fields = 1; //only write E
+    const int nwrite = 2;
 
     size_MPI = 1;
     rank_MPI = 0;
@@ -44,142 +44,73 @@ TEST_F(FieldIOTest, writeField1D) {
     hdf5io = new Hdf5IO("test_data/hdf5io_unittests.h5");
     field_tsio = new FieldTimeseriesIO(hdf5io, grid, domain, which_fields, nwrite);
 
-    grid->constRho(0.);
+    int i,j,k; 
+    for (i=0; i<grid->nx_+1; ++i) { 
+        for (j=0; j<grid->ny_+1; ++j) { 
+            for (k=0; k<grid->nz_+1; ++k) { 
+                grid->Ex_[i][j][k] = -( k + 10*j + 100*i ); 
+                grid->Ey_[i][j][k] = -10*( k + 10*j + 100*i ); 
+                grid->Ez_[i][j][k] = -100*( k + 10*j + 100*i ); 
+            }
+        }
+    }
     field_tsio->writeFields(grid, which_fields, 0);
 
-    int i,j,k; 
-    for (i=0; i<grid->nxTot_; ++i) { 
-        for (j=0; j<grid->nyTot_; ++j) { 
-            for (k=0; k<grid->nzTot_; ++k) { 
-                grid->rho_[i][j][k] = k + 10*j + 100*i; 
-		printf("rho(%d,%d,%d) = %f\n", i,j,k, grid->rho_[i][j][k]);
+    // change Ex
+    int dim_phys[3];
+    grid->getDimPhys(grid->getExID(), dim_phys); 
+
+    int iBeg = 1;
+    int jBeg = 1;
+    int kBeg = 1;
+    int iEnd = dim_phys[0]+1;
+    int jEnd = dim_phys[1]+1;
+    int kEnd = dim_phys[2]+1;
+
+    for (i=iBeg; i<iEnd; ++i) { 
+        for (j=jBeg; j<jEnd; ++j) { 
+            for (k=kBeg; k<kEnd; ++k) { 
+                grid->Ex_[i][j][k] = (k) + 10*(j) + 100*(i); 
             }
         }
     }
     field_tsio->writeFields(grid, which_fields, 1);
 
+    // check file
+    hid_t file_id = hdf5io->getFileID();
+    ASSERT_GE(file_id, 0);
+    hid_t dset_id;
+    dset_id = H5Dopen2(file_id, "/fields/Ey", H5P_DEFAULT);
+    ASSERT_GE(dset_id, 0);
+    dset_id = H5Dopen2(file_id, "/fields/Ez", H5P_DEFAULT);
+    ASSERT_GE(dset_id, 0);
+    // check Ex values
+    dset_id = H5Dopen2(file_id, "/fields/Ex", H5P_DEFAULT);
+    ASSERT_GE(dset_id, 0);
+    hid_t filespace = H5Dget_space(dset_id);
+    ASSERT_GE(filespace, 0);
+
+    hsize_t* dims = new hsize_t[4];
+    hsize_t* maxdims = new hsize_t[4];
+    H5Sget_simple_extent_dims(filespace, dims, maxdims);
+
+    ASSERT_EQ(dims[0], dim_phys[0]);
+    ASSERT_EQ(dims[1], dim_phys[1]);
+    ASSERT_EQ(dims[2], dim_phys[2]);
+    ASSERT_EQ(dims[3], nwrite);
+
+    double* check_data = new double[dim_phys[0]*dim_phys[1]*dim_phys[2]*nwrite];
+    H5Dread(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, filespace, H5P_DEFAULT, check_data);
+
+    for (i=iBeg; i<iEnd; ++i) { 
+        for (j=jBeg; j<jEnd; ++j) { 
+            for (k=kBeg; k<kEnd; ++k) { 
+                   EXPECT_EQ(-grid->Ex_[i][j][k], check_data[0 + nwrite*(k-1) + nwrite*dim_phys[2]*(j-1) + nwrite*dim_phys[2]*dim_phys[1]*(i-1)]);
+                   EXPECT_EQ(grid->Ex_[i][j][k], check_data[1 + nwrite*(k-1) + nwrite*dim_phys[2]*(j-1) + nwrite*dim_phys[2]*dim_phys[1]*(i-1)]);
+            }
+        }
+    }
+    
 
 }
-
-
-//
-//// tests requiring internal examination
-//class GridPrivateTest : public ::testing::Test {
-//protected:
-//  virtual void SetUp() {
-//    int nxyz [3] = {3,5,7};
-//    int nGhosts = 1; 
-//    double xyz0 [3] = {0,0,0};
-//    double Lxyz [3] = {1,1,1};
-//
-//    grid = new Grid(nxyz, nGhosts, xyz0, Lxyz);
-//  }
-//
-//  virtual void TearDown() {
-//    delete grid;
-//  }
-//
-//  double sumField(double*** field) { 
-//    int i,j,k;
-//    double fieldSum = 0; 
-//    for (i=0; i<grid->nxTot_; ++i) { 
-//      for (j=0; j<grid->nyTot_; ++j) { 
-//	for (k=0; k<grid->nzTot_; ++k) { 
-//	  fieldSum += field[i][j][k]; 
-//	}
-//      }
-//    }
-//    return fieldSum; 
-//  }; 
-//
-//  Grid *grid;
-//
-//};
-//
-//// test that fieldSize is correct  
-//TEST_F(GridPrivateTest, fieldSizeTest) {
-//    int xdir=0; 
-//    int ydir=1; 
-//    int zdir=2; 
-//
-//    // test a set of edges
-//    EXPECT_EQ(grid->fieldSize_[grid->edgeXID_][xdir],grid->nx_); 
-//    EXPECT_EQ(grid->fieldSize_[grid->edgeXID_][ydir],grid->nyTot_); 
-//    EXPECT_EQ(grid->fieldSize_[grid->edgeXID_][zdir],grid->nzTot_); 
-//
-//    // test a set of faces 
-//    EXPECT_EQ(grid->fieldSize_[grid->faceYID_][xdir],grid->nx_); 
-//    EXPECT_EQ(grid->fieldSize_[grid->faceYID_][ydir],grid->nyTot_); 
-//    EXPECT_EQ(grid->fieldSize_[grid->faceYID_][zdir],grid->nz_);
-//    
-//    // test a set of vertices
-//    EXPECT_EQ(grid->fieldSize_[grid->vertID_][xdir],grid->nxTot_); 
-//    EXPECT_EQ(grid->fieldSize_[grid->vertID_][ydir],grid->nyTot_); 
-//    EXPECT_EQ(grid->fieldSize_[grid->vertID_][zdir],grid->nzTot_); 
-//}
-//
-//// test that fieldPtr works 
-//TEST_F(GridPrivateTest, fieldPtrTest) {
-//    double Exval = 1; 
-//    double Byval = 2; 
-//    double rhoval = 3; 
-//
-//    int i,j,k; 
-//    for (i=0; i<grid->nxTot_; ++i) { 
-//        for (j=0; j<grid->nyTot_; ++j) { 
-//            for (k=0; k<grid->nzTot_; ++k) { 
-//                grid->Ex_[i][j][k] = Exval; 
-//                grid->By_[i][j][k] = Byval; 
-//                grid->rho_[i][j][k] = rhoval; 
-//            }
-//        }
-//    }
-//
-//    double*** ExPtr = grid->fieldPtr_[grid->ExID_]; 
-//    double*** ByPtr = grid->fieldPtr_[grid->ByID_];
-//    double*** rhoPtr = grid->fieldPtr_[grid->rhoID_];
-//
-//    EXPECT_EQ(grid->Ex_[1][1][1],ExPtr[1][1][1]); 
-//    EXPECT_EQ(grid->By_[1][1][1],ByPtr[1][1][1]); 
-//    EXPECT_EQ(grid->rho_[1][1][1],rhoPtr[1][1][1]); 
-//}
-//
-//
-//// test that zeroField methods work 
-//TEST_F(GridPrivateTest,zeroFields) {
-// 
-//    // zero all fields 
-//    grid->constE(0,0,0); 
-//    grid->constB(0,0,0); 
-//    grid->constJ(0,0,0); 
-//    grid->constRho(0); 
-//
-//    // sum each field 
-//    double ExSum = sumField(grid->Ex_); 
-//    double BySum = sumField(grid->By_); 
-//    double JzSum = sumField(grid->Jz_); 
-//    double rhoSum = sumField(grid->rho_); 
-//
-//    // verify that each field sums to 0
-//    EXPECT_EQ(ExSum,0); 
-//    EXPECT_EQ(BySum,0); 
-//    EXPECT_EQ(JzSum,0); 
-//    EXPECT_EQ(rhoSum,0); 
-//
-//    // set one point in Ex to this value 
-//    double addval = -2.0; 
-//    grid->Ex_[1][1][1] += addval; 
-//    ExSum = sumField(grid->Ex_); 
-//    // verify that the sum is no longer zero 
-//    EXPECT_EQ(ExSum,addval); 
-//    // zero E again 
-//    grid->constE(0,0,0); 
-//    // verify that E again sums to zero 
-//    ExSum = sumField(grid->Ex_); 
-//    EXPECT_EQ(ExSum,0); 
-//
-//}
-
-
-
 

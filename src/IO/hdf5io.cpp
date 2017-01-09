@@ -225,7 +225,7 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   offset[3] = 0;
   stride[0] = stride[1] = stride[2] = stride[3] = 1;
   count[0] = count[1] = count[2] = count[3] = 1;
-  
+
   status = H5Sselect_hyperslab(memspace_[fieldID], H5S_SELECT_SET, 
 				   offset, stride, count, field_block_[fieldID]);
   assert(status>=0);
@@ -233,7 +233,7 @@ int FieldTimeseriesIO::writeAField(const int fieldID, double*** field_data, cons
   // write from field_data in memspace to filespace in file
   status = H5Dwrite(field_dataset_[fieldID], H5T_NATIVE_DOUBLE, 
 		      memspace_[fieldID], filespace_[fieldID],
-		      data_xfer_plist_, field_data); 
+		      data_xfer_plist_, field_data[0][0]); 
   assert(status>=0);
 
   delete [] offset;
