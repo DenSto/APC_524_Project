@@ -184,18 +184,13 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
     // initialize outputs
-//    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
-//    FieldTimeseriesIO* field_tsio;
     int nstep_fields  = input_info->nstep_fields;
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
-    int iwrite = 0;
-    if(output_fields>=0){
-//      field_tsio = new FieldTimeseriesIO(hdf5io,grids,domain,output_fields,nt/nstep_fields+1);
-    }
+    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str(),grids,domain,output_fields);
     if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
     // fields output
-//    if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+    if(output_fields>=0) hdf5io->writeFields(grids);
     // particle output
     part_handler->outputParticles(0,input_info); 
 
@@ -247,10 +242,9 @@ int main(int argc, char *argv[]){
 
        // writing files
        if((ti+1)%nstep_fields==0) {
-         iwrite = (ti+1)/nstep_fields;
          if(rank==0)printf("    ti=%d: Writing field diagnostic files...\n",ti+1);
          // fields output
-//         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+         if(output_fields>=0) hdf5io->writeFields(grids);
        }
        // particle output
        part_handler->outputParticles(ti+1,input_info); 
@@ -268,8 +262,7 @@ int main(int argc, char *argv[]){
     //part_handler->outputParticleVel();
 
     // free memory
-//    if(output_fields>=0){delete field_tsio;}
-//    delete hdf5io;
+    delete hdf5io;
     delete domain;
     delete [] bc; // particle boundary condition
     delete part_handler;

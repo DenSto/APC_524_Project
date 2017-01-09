@@ -19,7 +19,6 @@ protected:
   Domain *domain;
   Grid *grid;
   Hdf5IO *hdf5io;
-  FieldTimeseriesIO *field_tsio;
 };
 
 int main(int argc, char** argv) {
@@ -35,14 +34,13 @@ TEST_F(FieldIOTest, writeField) {
     double Lxyz [3] = {1,1,1};
 
     int which_fields = 1; //only write E
-    const int nwrite = 2;
+    int nwrite = 0;
 
     size_MPI = 1;
     rank_MPI = 0;
     domain = new Domain(nxyz, nProc, xyz0, Lxyz);
     grid = new Grid(nxyz, nGhosts, xyz0, Lxyz);
-    hdf5io = new Hdf5IO("test_data/hdf5io_unittests.h5");
-    field_tsio = new FieldTimeseriesIO(hdf5io, grid, domain, which_fields, nwrite);
+    hdf5io = new Hdf5IO("test_data/hdf5io_unittests.h5", grid, domain, which_fields);
 
     int i,j,k; 
     for (i=0; i<grid->nx_+1; ++i) { 
@@ -54,7 +52,8 @@ TEST_F(FieldIOTest, writeField) {
             }
         }
     }
-    field_tsio->writeFields(grid, which_fields, 0);
+    hdf5io->writeFields(grid);
+    nwrite++;
 
     // change Ex
     int dim_phys[3];
@@ -74,7 +73,8 @@ TEST_F(FieldIOTest, writeField) {
             }
         }
     }
-    field_tsio->writeFields(grid, which_fields, 1);
+    hdf5io->writeFields(grid);
+    nwrite++;
 
     // check file
     hid_t file_id = hdf5io->getFileID();

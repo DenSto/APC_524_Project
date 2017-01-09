@@ -352,7 +352,7 @@ void Grid::getDimPhys(const int fieldID, int* dim) {
 };
 
 /// gets physical coordinates of each point on the grid for a given field type
-void Grid::getGridPhys(const int fieldID, double*** x, double*** y, double*** z) { 
+void Grid::getGridPhys(const int fieldID, double* x, double* y, double* z) { 
     assert (-1 < fieldID && fieldID < nFieldsTotal_); 
 
     // get the type of field
@@ -394,16 +394,16 @@ void Grid::getGridPhys(const int fieldID, double*** x, double*** y, double*** z)
     int iterk=-1; 
     for (i=iBeg_; i<iEnd; ++i) { 
         ++iteri; 
-        for (j=jBeg_; j<jEnd; ++j) { 
-            ++iterj; 
-            for (k=kBeg_; k<kEnd; ++k) { 
-                ++iterk; 
-                x[iteri][iterj][iterk] = x0_ + xoff + dx_*(i-iBeg_);
-                y[iteri][iterj][iterk] = y0_ + yoff + dy_*(j-jBeg_);
-                z[iteri][iterj][iterk] = z0_ + zoff + dz_*(k-kBeg_);
-            } 
-        } 
+        x[iteri] = x0_ + xoff + dx_*(i-iBeg_);
     } 
+    for (j=jBeg_; j<jEnd; ++j) { 
+       ++iterj; 
+       y[iterj] = y0_ + yoff + dy_*(j-jBeg_);
+    }
+    for (k=kBeg_; k<kEnd; ++k) { 
+       ++iterk; 
+       z[iterk] = z0_ + zoff + dz_*(k-kBeg_);
+    }
 }; 
 
 /// averages two timesteps of B (for output) 
