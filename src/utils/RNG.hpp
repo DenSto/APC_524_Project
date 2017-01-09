@@ -62,5 +62,6 @@ class Random_Number_Generator{
 		long userSize_;
 		bool userIsDiscrete_;
 		void computeUserCDF();
+		void freeUserData();
 };
 #endif
