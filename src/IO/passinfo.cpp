@@ -17,7 +17,11 @@ void Input::passinfo(void){
 
     int nint = 2*NDIM+12*1+2*NWAVE; //2 of len NDIM + 10 of len 1 + 2 of len NWAVE
     int nlong = 1; // 1 of len 1
-    int ndouble = 1*1+4*NSPEC+5*NWAVE+4*NDIM; //1 of len 1 + 4 of nspecies+ 5 of len NWAVE + 3 of len NDIM
+    int ndouble = 1*1+4*NSPEC+5*NWAVE+4*NDIM+4*2*NDIM; //1 of len 1 
+                                                     //+ 4 of nspecies
+                                                     //+ 5 of len NWAVE 
+                                                     //+ 4 of len NDIM
+                                                     //+ 4 of len 2*NDIM
     int nchar = (3+2*2*NDIM)*NCHAR; //filename 2 initial + 2 sets boundaries 
 
     // specify what are the MPI data types

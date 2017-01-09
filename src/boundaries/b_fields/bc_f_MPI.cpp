@@ -109,7 +109,7 @@ int BC_F_MPI::completeBC(int fieldID, int option){
     }
 
     // unload received value to ghost 
-    grids_->setGhostVec(side_,&recv_[0],fieldID,option);   
+    grids_->setGhostVec(side_,recv_,fieldID,option);   
  
     delete [] send_;
     delete [] recv_;

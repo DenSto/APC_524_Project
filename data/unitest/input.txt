@@ -1,7 +1,7 @@
 domain:
 {
   # number of cells in each dimension
-  nCell = [ 32, 32, 32 ]
+  nCell = [ 8, 8, 8 ]
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
@@ -17,7 +17,7 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 100
+  nTimesteps = 15
 
   # start time
   startTime = 0.0
@@ -31,7 +31,7 @@ runtime:
 initialization:
 {
   # whether this is restart of a previous run
-  restart = 1
+  restart = 0
 
   # particle initialization
   particles:
@@ -86,8 +86,8 @@ initialization:
     electrostatic = 0
 
     # How to initialize fields?
-    init = "constant"
-    #init = "poisson"
+    #init = "constant"
+    init = "poisson"
     #init = "file: fields.dat"
 
     # constant background/boundary magnetic field. 1->1kG
@@ -153,6 +153,21 @@ boundary:
 
         # What are the delays of pulses? delyas=1 -> 33.4 ps, w.r.t time_phys
         delays = [-0.2, 0.0, 1.2]
+ 
+        # if initialize by solving poisson's equation   
+        poisson:
+        {
+            # constant boundry values of phi in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of phi=1->299.79KV
+            bound_phi = [0.0,0.01, 0.0,0.0, 0.0,0.0]
+
+            # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of A=1->1KG.cm. The gauge choice is arbitrary.
+            bound_Ax = [0.0,0.0, 0.0,0.0, 0.0,0.0]
+            bound_Ay = [0.0,0.1, 0.0,0.0, 0.0,0.0]
+            bound_Az = [0.0,0.0, 0.0,0.0, 0.0,0.0]
+        }
+
     }
   }
 }
