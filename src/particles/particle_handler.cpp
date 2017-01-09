@@ -109,7 +109,7 @@ void Particle_Handler::InterpolateEB(Grid* grid){
   Interpolator *interpolator = new Interpolator();
   fprintf(stderr,"rank=%d,new Interpolator\n",rank_MPI);
 
-  long iCell = 0; //cell # tracker
+  long iCell = -1; //cell # tracker
   long pCell = 0; //particle cell #
   double cellvars[21];//Vector describing position of and all field elements of a cell
                       //["least" corner vertex, E-field on edges, B-field on surfaces]
@@ -132,8 +132,8 @@ void Particle_Handler::InterpolateEB(Grid* grid){
     //fprintf(stderr,"rank=%d,pCell=%ld\n",rank_MPI,pCell);
     if (pCell >= 0) {
       if (pCell != iCell) {
-	iCell = pCell;
-	grid->getFieldInterpolatorVec(iCell, cellvars);
+        iCell = pCell;
+        grid->getFieldInterpolatorVec(iCell, cellvars);
       }
 
       //Interpolate fields at particle.
@@ -319,7 +319,7 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
                         if(debug>1)fprintf(stderr,"    track file name %s\n",fname);
 			pout=fopen(fname,"a");
 			assert(pout != NULL);
-			fprintf(pout,"%e %e %e %e %e %e %e\n",t,
+			fprintf(pout,"%e %.15e %.15e %.15e %.15e %.15e %.15e\n",t,
 					iter->x[0],iter->x[1],iter->x[2],
 					iter->v[0],iter->v[1],iter->v[2]);
 			fclose(pout);
