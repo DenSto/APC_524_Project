@@ -111,7 +111,9 @@ int main(int argc, char *argv[]){
     debug = input_info->debug; // global debug flag
     if(debug>1) checkinput(input_info);
 
-    /* Initial setup **************************************/
+    /***************************************************************************/
+    /* Initial setup                                                           */
+    /***************************************************************************/
     if(rank==0)printf("Initial set up...\n");
     // Domain decomposition
     Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
@@ -141,8 +143,7 @@ int main(int argc, char *argv[]){
     }else{
         //no need to solve Poisson's equation
         if(rank==0)printf("    Grid initialing...\n");
-        grids = new Grid(domain->getnxyz(),domain->getnGhosts(),
-               domain->getxyz0(),domain->getLxyz()); //store Ei,Bi,Ji 
+        grids = new Grid(domain->getnxyz(),1, domain->getxyz0(),domain->getLxyz()); 
     }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
@@ -155,22 +156,17 @@ int main(int argc, char *argv[]){
     part_handler->Load(input_info,domain);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
-    // if initial run, Deposite charge and current from particles to grid
+    // Deposite charge and current from particles to grid
     if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
         if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
         part_handler->depositRhoJ(grids,true,domain,input_info);
+        // sum charge and current on MPI boundaries 
+        grids->executeBC(-2,1); // R,J, sum
+        if(debug) fprintf(stderr,"rank=%d: Finish Pass initial R,J\n",rank);
         if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
     }
 
-    // prepare ghost cells: either MPI neighbors or physical boundary.
-    //Note this is done BEFORE InitializeFields.
-    int xgsize = grids->getGhostVecSize(-1);
-    int ygsize = 1; //dummy
-    int zgsize = 1; //dummy
-    domain->mallocGhosts(xgsize,ygsize,zgsize);
-    if(debug) fprintf(stderr,"rank=%d: Finish allocating ghosts\n",rank);
-
-    // Solve initial fields from particle or read restart file
+    // Initialize fields from particle or read restart file
     if(rank==0)printf("    Initializing fields...\n");
     grids->InitializeFields(input_info);
     if(debug) fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);
@@ -188,55 +184,65 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
     // initialize outputs
-    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
-    FieldTimeseriesIO* field_tsio;
+//    Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str());
+//    FieldTimeseriesIO* field_tsio;
     int nstep_fields  = input_info->nstep_fields;
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
     int iwrite = 0;
     if(output_fields>=0){
-      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nstep_fields);
+//      field_tsio = new FieldTimeseriesIO(hdf5io,grids,domain,output_fields,nt/nstep_fields);
     }
     if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
     // fields output
-    if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+//    if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
     // particle output
     part_handler->outputParticles(0,input_info); 
 
-    /* Advance time step **********************************/
+    /***************************************************************************/
+    /* Advance time step                                                       */
+    /***************************************************************************/
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
 
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d\n",rank,ti);   
 
-       // push particles
+       /* push particles ***********************/
        part_handler->Push(dt_phys);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Push\n",rank,ti);
 
-       // Pass particle through MPI boundary, or physical boundary conditions
+       // Pass particle across MPI boundaries, or implement physical boundary conditions
+       // All particles are in physical cells, no particle lives in ghost cell
        part_handler->executeParticleBoundaryConditions();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass parts\n",rank,ti);
-
-       // deposite charge and current on grid
-       part_handler->depositRhoJ(grids,false,domain,input_info);
-       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
-
-       // evolve E, B fields
-       grids->evolveFields(dt_phys);
-       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);
-
-       // pass field boundaries
-       grids->executeBC();
-       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass fields\n",rank,ti);
-
-       // Interpolate fields from grid to particle
-       part_handler->InterpolateEB(grids);
-       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);
 
        // remove any particles left in the ghost cells
        part_handler->clearGhosts();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish clearGhosts\n",rank,ti);
 
+       /* deposite charge and current ***********/
+       // only deposite particles in physical cells
+       part_handler->depositRhoJ(grids,false,domain,input_info);
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
+
+       // sum charge and current on MPI boundaries 
+       grids->executeBC(-2,1); // R,J, sum
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass R,J\n",rank,ti);
+
+       /* evolve E, B fields *******************/
+       grids->evolveFields(dt_phys);
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);
+
+       // pass E,B field across MPI boundaries, or implement physical boundary conditions
+       grids->executeBC(-1,0); //E,B replace
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass E,B\n",rank,ti);
+
+       /* interpolation ************************/
+       // Interpolate fields from grid to particle
+       part_handler->InterpolateEB(grids);
+       if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);
+
+       /* output *******************************/
        time_phys += dt_phys;
 
        // writing files
@@ -244,25 +250,26 @@ int main(int argc, char *argv[]){
          iwrite = (ti+1)/nstep_fields;
          if(rank==0)printf("    ti=%d: Writing field diagnostic files...\n",ti+1);
          // fields output
-         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
+//         if(output_fields>=0) field_tsio->writeFields(grids, output_fields, iwrite);
        }
        // particle output
        part_handler->outputParticles(ti+1,input_info); 
 
      }  
 
-    //Output particle velocities
-    //part_handler->outputParticleVel();
-
-    /* output, finalize ***********************************/
+    /***************************************************************************/
+    /* output, finalize                                                        */
+    /***************************************************************************/
     if(rank==0)printf("Writing output files...\n");
     //writeoutput(grids,part_handler); //MPI
     if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);
 
+    //Output particle velocities
+    //part_handler->outputParticleVel();
+
     // free memory
-    domain->freeGhosts(); // Ghost for field MPI
-    if(output_fields>=0){delete field_tsio;}
-    delete hdf5io;
+//    if(output_fields>=0){delete field_tsio;}
+//    delete hdf5io;
     delete domain;
     delete [] bc; // particle boundary condition
     delete part_handler;

@@ -82,7 +82,7 @@ public:
   //void JSliceOut(); 
   //void RhoSliceOut(); 
   
-  void executeBC(void); // execute field boundary conditions
+  void executeBC(int sendID, int option); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
 

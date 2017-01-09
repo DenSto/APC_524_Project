@@ -6,10 +6,9 @@ class BC_F_Periodic : public BC_Field {
     public:
         BC_F_Periodic(int side, Domain* domain, Grid *grids, Input_Info_t *info);
 	~BC_F_Periodic();
-	int completeBC();
+	int completeBC(int fieldID, int option);
     private:
-        double* ghostEB_;
-        double *ghostRJ_;  
+        double* ghost_;
         Grid *grids_;     
 };
 
@@ -21,33 +20,27 @@ BC_F_Periodic::BC_F_Periodic(int side, Domain* domain, Grid *grids, Input_Info_t
 
     grids_ = grids;
 
-    int ghostsize;
-
-    ghostsize = grids_->getGhostVecSize(-1); // E,B
-    ghostEB_ = new double[ghostsize]; 
-
-    ghostsize = grids_->getGhostVecSize(-2); // rho, J
-    ghostRJ_ = new double[ghostsize];
-
 }
 
 
 BC_F_Periodic::~BC_F_Periodic(){
-    delete [] ghostEB_;
-    delete [] ghostRJ_;
 }
 
 
-int BC_F_Periodic::completeBC(){
+int BC_F_Periodic::completeBC(int fieldID, int option){
+
+    int size;
+    size = grids_->getGhostVecSize(fieldID); 
+    ghost_ = new double[size]; 
 
     // load physical to tmp from the opposite side 
-    grids_->getGhostVec(-side_,ghostEB_,-1);
-    grids_->getGhostVec(-side_,ghostRJ_,-2);
+    grids_->getGhostVec(-side_,ghost_,fieldID);
 
     // unload tmp to Ghost on this side
     // Ghost does not overwrite physical on this side
-    grids_->setGhostVec(side_,ghostEB_,-1,0); // replace(0) E,B(-1) in ghost
-    grids_->setGhostVec(side_,ghostRJ_,-2,0); // replace(0) R,J(-2) in ghost 
+    grids_->setGhostVec(side_,ghost_,fieldID,option); // replace(0) R,J(-2) in ghost 
+
+    delete [] ghost_;
 
     return 0;
 }

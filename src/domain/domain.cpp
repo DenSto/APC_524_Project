@@ -9,7 +9,6 @@ Domain::Domain(const int* nCell_global, const int* nProc, const double* xyz0_glo
         rank_(rank_MPI){
 
        if(debug) fprintf(stderr,"rank=%d: call Domain constructor\n",rank_);
-       nGhosts_ = 1;
 
        /* partition domain ********************************/
        nxyz_ = new int[3]; // local grid cells in each direction
@@ -143,11 +142,6 @@ void Domain::RankToijk(int myrank, int *myijk){
    
 }; 
 
-int Domain::getnGhosts(void){
-    //printf("rank=%d: call getnGhosts\n",rank_);
-    return nGhosts_;
-}
-
 int* Domain::getnxyz(void){
     //printf("rank=%d: call getnxyz\n",rank_);
     return nxyz_;
@@ -219,7 +213,6 @@ void checkdomain(Domain *domain){
       int rank = rank_MPI;
  
       fprintf(stderr,"rank=%d: Check domain\n",rank);
-      fprintf(stderr,"rank=%d,nGhosts=%d\n",rank,domain->getnGhosts());
 
       int *myijk = domain->getmyijk();
       fprintf(stderr,"rank=%d: myijk=%d,%d,%d\n",rank,myijk[0],myijk[1],myijk[2]);

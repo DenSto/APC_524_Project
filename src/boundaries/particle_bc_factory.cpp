@@ -27,6 +27,7 @@
 				short inMiddle = (partitionIndex != 0) && (partitionIndex != nProc[i] - 1);
 				// compare return 0 when equal
 				if(periodic.compare(types[2*i])==0 || inMiddle){ // Two MPI communication loops
+					// both boundaries are handled in each ret, to avoid MPI deadlock
 					// Left boundary condition
 					ret[2*i]=lookup(mpi)(domain,i,0,types[2*i]);
 

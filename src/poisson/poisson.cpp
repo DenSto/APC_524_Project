@@ -7,7 +7,7 @@
 //#include "../domain/domain.hpp"
 
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
-  Grid(domain->getnxyz(), domain->getnGhosts(), domain->getxyz0(), domain->getLxyz()),
+  Grid(domain->getnxyz(), 1, domain->getxyz0(), domain->getLxyz()),
   nFieldsPoisson_(8),
   phi1ID_(13),
   phi2ID_(14),
@@ -159,7 +159,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
     }
 
     //Pass fields' data via MPI.
-    domain_->PassFields(this, input_info_,fieldID,0); //op=0 to pass and replace the field
+    executeBC(fieldID,0); //option=0 to replace field specified by fieldID 
 
     //Determine global convergence of jacobi method across all MPI domains
 #if USE_MPI

@@ -492,12 +492,12 @@ void Grid::InitializeFields(Input_Info_t *input_info){
 }; 
 
 //! Execute field boundary conditions
-void Grid::executeBC(void){
+void Grid::executeBC(int fieldID, int option){
     // loop through dimensions
     if(debug>1) fprintf(stderr,"rank=%d: executing field BC\n",rank_MPI);
     for(int i=0;i<3;i++){
         // left and right boundary in each dimension
-        boundaries_[2*i]->completeBC();
-        boundaries_[2*i+1]->completeBC();
+        boundaries_[2*i]->completeBC(fieldID,option);
+        boundaries_[2*i+1]->completeBC(fieldID,option);
     }
 };

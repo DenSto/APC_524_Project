@@ -207,8 +207,7 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, 
   grid->addJ(cellID,JObj);
   if (depositRho) grid->addRho(cellID,RhoObj);
 
-  //Pass rho and J fields between domains.
-  domain->PassFields(grid, input_info, -2,1); //sendID=-3 to bundle rho(1), and J(3) fieldIDs, op=1 to sum
+  //main will pass rho and J fields between domains.
 }
 
 double Particle_Handler::computeCFLTimestep(Domain* domain){
@@ -242,15 +241,18 @@ double Particle_Handler::computeCFLTimestep(Domain* domain){
 
 //! Clear all ghost particles. Uses a swap-to-back and pop-last-element for speed.
 void Particle_Handler::clearGhosts(){
+        int nghost = 0;
 	for(std::vector<Particle>::iterator iter = parts_.begin(); iter != parts_.end();){
 		if(iter->isGhost){
 			std::swap(*iter, parts_.back());
 			parts_.pop_back();
+                        nghost +=1;
 		} else {
 			iter++;
 		}
 	}
 	assert((long)parts_.size() == np_);
+        if(debug)fprintf(stderr,"rank=%d: %d ghosts are cleared.\n",rank_MPI,nghost);
 }
 
 

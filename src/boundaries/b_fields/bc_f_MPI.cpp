@@ -15,9 +15,8 @@ class BC_F_MPI : public BC_Field {
 	BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info);
 	~BC_F_MPI();
         int sideToindex(int side);
-	int completeBC();
+	int completeBC(int sendID, int option);
     private:
-        int sizeEB_,sizeRJ_,size_;
         int dest_; // MPI destination send to, and recv from
         int stag_,rtag_; // MPI tags for send and recv
         double *send_;
@@ -46,22 +45,11 @@ BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
                  << " stag="<< stag_ 
                  << ", rtag="<< rtag_<< endl;
 
-    // load grids and allocate buffers
+    // load grids 
     grids_ = grids;
-
-    sizeEB_ = grids_->getGhostVecSize(-1); // E,B
-    sizeRJ_ = grids_->getGhostVecSize(-2); // rho, J
-
-    size_ = sizeEB_ + sizeRJ_;
-
-    send_ = new double[size_]; 
-    recv_ = new double[size_]; 
-
 }
 
 BC_F_MPI::~BC_F_MPI(){
-    delete [] send_;
-    delete [] recv_;
 }
 
 //! Function convert side (-3,-2,-1,1,2,3) to index (4,2,0,1,3,5) 
@@ -77,48 +65,55 @@ for(int i=0;i<6;i++){
 }*/
 
 
-int BC_F_MPI::completeBC(){
+int BC_F_MPI::completeBC(int fieldID, int option){
+
+
+    int size = grids_->getGhostVecSize(fieldID); 
+
+    send_ = new double[size]; 
+    recv_ = new double[size]; 
 
     MPI_Request reqs[2];
     MPI_Status stats[2];
     int err; 
     char fname[20]; // for debug file 
  
-    // load ghost value to send, in order EB, RJ 
-    grids_->getGhostVec(side_,&send_[0],-1); //EB    
-    grids_->getGhostVec(side_,&send_[sizeEB_],-2); //RJ     
+    // load ghost value to send 
+    grids_->getGhostVec(side_,send_,fieldID);     
 
     if(debug>2){
-       fprintf(stderr,"rank=%d:checking EB RJ send\n",rank_MPI);
-       sprintf(fname,"EBRJsend%d.dat",side_);
-       checkMPI(fname,send_,size_);
-       fprintf(stderr,"rank=%d:finished checking EB RJ send\n",rank_MPI);
+       fprintf(stderr,"rank=%d:checking field send\n",rank_MPI);
+       sprintf(fname,"field%d_send%d.dat",fieldID,side_);
+       checkMPI(fname,send_,size);
+       fprintf(stderr,"rank=%d:finished checking field send\n",rank_MPI);
     }
  
     // non-blocking send to neighbour
-    err = MPI_Isend(send_,size_,MPI_DOUBLE,dest_,stag_,MPI_COMM_WORLD,&reqs[0]);
-    if(err) fprintf(stderr, "rank=%d: MPI_Isend EB,RJ on error %d\n",rank_MPI,err);
+    err = MPI_Isend(send_,size,MPI_DOUBLE,dest_,stag_,MPI_COMM_WORLD,&reqs[0]);
+    if(err) fprintf(stderr, "rank=%d: MPI_Isend field on error %d\n",rank_MPI,err);
 
     // non-blocking blocking recv from neighbor
-    err = MPI_Irecv(recv_,size_,MPI_DOUBLE,dest_,rtag_,MPI_COMM_WORLD,&reqs[1]);
-    if(err) fprintf(stderr, "rank=%d: MPI_IRecv EB,RJ on error %d\n",rank_MPI,err);
+    err = MPI_Irecv(recv_,size,MPI_DOUBLE,dest_,rtag_,MPI_COMM_WORLD,&reqs[1]);
+    if(err) fprintf(stderr, "rank=%d: MPI_IRecv field on error %d\n",rank_MPI,err);
 
     // wait for communication
     err = MPI_Waitall(2,reqs,stats);
     if(err)fprintf(stderr, "rank=%d (1) MPI_Waitall error = %d\n",rank_MPI,err);
-    if(debug>1) fprintf(stderr,"rank=%d: EB,RJ send and received\n",rank_MPI);
+    if(debug>1) fprintf(stderr,"rank=%d: field sent and received on side %d\n",rank_MPI,side_);
 
     if(debug>2){
-       fprintf(stderr,"rank=%d:checking EB RJ revc\n",rank_MPI);
-       sprintf(fname,"EBRJrecv%d.dat",side_);
-       checkMPI(fname,recv_,size_);
-       fprintf(stderr,"rank=%d:finished checking EB RJ recv\n",rank_MPI);
+       fprintf(stderr,"rank=%d:checking field revc\n",rank_MPI);
+       sprintf(fname,"field%d_recv%d.dat",fieldID,side_);
+       checkMPI(fname,recv_,size);
+       fprintf(stderr,"rank=%d:finished checking field recv\n",rank_MPI);
     }
 
     // unload received value to ghost 
-    grids_->setGhostVec(side_,&recv_[0],-1,0); //replace(0) E,B(-1) in ghost  
-    grids_->setGhostVec(side_,&recv_[sizeEB_],-2,0); //replace(0) R,J(-2) in ghost  
+    grids_->setGhostVec(side_,&recv_[0],fieldID,option);   
  
+    delete [] send_;
+    delete [] recv_;
+
     return 0;
 }
 

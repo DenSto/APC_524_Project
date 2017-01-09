@@ -7,7 +7,9 @@
 class BC_Field {
     public:
 	virtual ~BC_Field() {};
-	virtual int completeBC(void) = 0; // Complete boundary conditions.
+	virtual int completeBC(int sendID, int option) = 0; // Complete boundary conditions.
+        // sendID determine which field to complete, see ../grid/spookyGrid.cpp for details
+        // option = 0: replace, 1: sum
 
     protected:
         int side_;

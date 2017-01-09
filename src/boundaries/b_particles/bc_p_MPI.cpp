@@ -67,6 +67,7 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 	int partitionIndex = myLoc[dim_index_];
 	short inMiddle = (partitionIndex != 0 && (partitionIndex != nProc[dim_index_]- 1));
 
+        // handle opposite boundaries to avoid MPI deadlock
 	if(inMiddle || isPeriodic){
 		if(isRight_){
 			sendRank_ = neigh[2*dim_index_ + 1]; //send to right

@@ -7,7 +7,7 @@ class BC_F_External : public BC_Field {
     public:
 	BC_F_External(int side, Domain* domain, Grid *grids, Input_Info_t *info);
 	~BC_F_External();
-	int completeBC();
+	int completeBC(int fieldID, int option);
     private:
         Grid *grids_;
         Input_Info_t *input_info_;
@@ -30,7 +30,7 @@ BC_F_External::~BC_F_External(void){
    delete lightbc_;
 }
 
-int BC_F_External::completeBC(){
+int BC_F_External::completeBC(int fieldID, int option){
 
     if(debug)fprintf(stderr,"    rank=%d: executing external boundary on side %d\n",
                     rank_MPI,side_);   

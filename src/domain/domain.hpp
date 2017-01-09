@@ -21,10 +21,6 @@ class Domain {
         double *getLxyz(void); // Local domain size
         double getmindx(void);
 
-        void mallocGhosts(int xgsize, int ygsize, int zgsize); // allocate ghostVec
-        void freeGhosts(void); // free ghostVec
-
-        void PassFields(Grid *grids, Input_Info_t *input_info, int sendID, int op); // field boundary
         double GetMaxValueAcrossDomains(double send_val);
  
 	int *getnProcxyz(void); // return pointer nProcxyz_
@@ -46,7 +42,6 @@ class Domain {
         int size_; // MPI size
         int rank_; // MPI rank     
 
-        int nGhosts_; 
         int *nxyz_; // nxyz_[0]=nx
         int *n2xyz_; // n2xyz_[0]=ny*nz
         int n3xyz_; // n3xyz=nx*ny*nz
@@ -57,19 +52,9 @@ class Domain {
         int rank_yl_, rank_yr_; // y neighbors
         int rank_zl_, rank_zr_; // z neighbors
 
-        double *xghost_send_, *xghost_recv_; // buffer for ghostVec in x direction
-        double *yghost_send_, *yghost_recv_; // buffer for ghostVec in y direction
-        double *zghost_send_, *zghost_recv_; // buffer for ghostVec in z direction
-
         int *nProcxyz_;   // sizes of the partitions
-		int *neighbours_;
-		int *myijk_; // where am I on this partition?
-
-#if USE_MPI
-        // communication in x direction
-        MPI_Request xreqs_[4];
-        MPI_Status xstats_[4];
-#endif
+	int *neighbours_;
+	int *myijk_; // where am I on this partition?
 };
 
 void checkdomain(Domain *domain);
