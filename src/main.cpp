@@ -191,7 +191,7 @@ int main(int argc, char *argv[]){
     int output_fields = input_info->which_fields;
     int iwrite = 0;
     if(output_fields>=0){
-      field_tsio = new FieldTimeseriesIO(hdf5io, grids, domain, output_fields, nt/nstep_fields+1);
+//      field_tsio = new FieldTimeseriesIO(hdf5io,grids,domain,output_fields,nt/nstep_fields+1);
     }
     if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
     // fields output
