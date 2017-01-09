@@ -87,8 +87,8 @@ initialization:
     electrostatic = 0
 
     # How to initialize fields?
-    init = "constant"
-    #init = "poisson"
+    #init = "constant"
+    init = "poisson"
     #init = "file: fields.dat"
 
     # constant background/boundary magnetic field. 1->1kG
@@ -109,7 +109,7 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","reflecting"
-    conditions = ["periodic","periodic", 
+    conditions = ["reflecting","reflecting", 
                 "periodic","periodic",
                 "periodic","periodic"]
   }
@@ -120,7 +120,7 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","external"
-    conditions = ["periodic","periodic",
+    conditions = ["external","external",
                 "periodic","periodic",
                 "periodic","periodic"]
 
@@ -154,6 +154,21 @@ boundary:
 
         # What are the delays of pulses? delyas=1 -> 33.4 ps, w.r.t time_phys
         delays = [-0.2, 0.0, 1.2]
+ 
+        # if initialize by solving poisson's equation   
+        poisson:
+        {
+            # constant boundry values of phi in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of phi=1->299.79KV
+            bound_phi = [0.0, 0.03, 0.0, 0.0, 0.0, 0.0]
+
+            # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of A=1->1KG.cm. The gauge choice is arbitrary.
+            bound_Ax = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            bound_Ay = [0.0, 1.2, 0.0, 0.0, 0.0, 0.0]
+            bound_Az = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        }
+
     }
   }
 }

@@ -494,7 +494,7 @@ void Grid::InitializeFields(Input_Info_t *input_info){
 //! Execute field boundary conditions
 void Grid::executeBC(int fieldID, int option){
     // loop through dimensions
-    if(debug>1) fprintf(stderr,"rank=%d: executing field BC\n",rank_MPI);
+    if(debug>2) fprintf(stderr,"rank=%d: executing field BC\n",rank_MPI);
     for(int i=0;i<3;i++){
         // left and right boundary in each dimension
         boundaries_[2*i]->completeBC(fieldID,option);

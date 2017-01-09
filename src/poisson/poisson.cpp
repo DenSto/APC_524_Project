@@ -96,13 +96,19 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
 
   double sourceMult = -4*M_PI;
   double convTol = .01;
+  if(debug>1&&rank_MPI==0)printf("        solving for phi...\n"); 
   run_poisson_solver_(phi1ID_,phi1_,phi2_,rho_,convTol,sourceMult);
   phiToE();
 
   sourceMult = -4*M_PI; 
   convTol = .1;
+  if(debug>1&&rank_MPI==0)printf("        solving for Ax...\n"); 
   run_poisson_solver_(Ax1ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
+
+  if(debug>1&&rank_MPI==0)printf("        solving for Ay...\n"); 
   run_poisson_solver_(Ay1ID_,Ay1_,Ay2_,Jy_,convTol,sourceMult);
+  
+  if(debug>1&&rank_MPI==0)printf("        solving for Az...\n"); 
   run_poisson_solver_(Az1ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
   AToB();
 }
@@ -141,6 +147,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
   do {
     iternum++;
     //iterate over entire grid. Note boundary conditions must be supplied!
+    //fprintf(stderr,"iBeg_=%d\n",iBeg_);
     for ( int i=iBeg_; i<iEnd; i++ ) {
       for ( int j=jBeg_; j<jEnd; j++ ) {
     	for ( int k=kBeg_; k<kEnd; k++ ) {
@@ -158,7 +165,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
       }
     }
 
-    //Pass fields' data via MPI.
+    //Pass fields' data across domain boundaries.
     executeBC(fieldID,0); //option=0 to replace field specified by fieldID 
 
     //Determine global convergence of jacobi method across all MPI domains

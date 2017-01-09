@@ -124,7 +124,8 @@ void checkinput(Input_Info_t *input_info){
    /* runtime *************************/
    fprintf(stderr,"rank=%d,nt=%d\n",rank,input_info->nt);
    fprintf(stderr,"rank=%d,t0=%f\n",rank,input_info->t0);
-   fprintf(stderr,"rank=%d,restart=%d\n",rank,input_info->restart);
+   int restart = input_info->restart;
+   fprintf(stderr,"rank=%d,restart=%d\n",rank,restart);
 
    /* particle ************************/
    fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
@@ -180,6 +181,23 @@ void checkinput(Input_Info_t *input_info){
       fprintf(stderr,"rank=%d,amp,omega,phase,invWidth,delay[%d]=%f,%f,%f,%f,%f\n",
                       rank,i,amps[i],omegas[i],phases[i],invWidths[i],delays[i]);
    }
+  
+   // Boundary conditions for Poisson initialization
+   if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
+       const double *phi = input_info->bound_phi;
+       assert(phi!=NULL);
+       const double *Ax = input_info->bound_Ax;
+       assert(phi!=NULL);
+       const double *Ay = input_info->bound_Ay;
+       assert(phi!=NULL);
+       const double *Az = input_info->bound_Az;
+       assert(phi!=NULL);
+       for(int i=0;i<6;i++){
+           fprintf(stderr,"rank=%d,phi,Ax,Ay,Az[%d]=%f,%f,%f,%f\n",
+                           rank,i,phi[i],Ax[i],Ay[i],Az[i]);
+       }
+   }
+
 
    /* outputs *************************/
    // restart

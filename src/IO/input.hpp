@@ -92,6 +92,11 @@ typedef struct {
     double E0[NDIM]; /// background electric field
     double B0[NDIM]; /// background magnetic field
 
+    double bound_phi[2*NDIM]; /// boundary conditions for poisson initialization
+    double bound_Ax[2*NDIM]; /// boundary conditions for poisson initialization
+    double bound_Ay[2*NDIM]; /// boundary conditions for poisson initialization
+    double bound_Az[2*NDIM]; /// boundary conditions for poisson initialization
+
     double xyz0[NDIM]; // origin of simulation
     double Lxyz[NDIM]; // physical length of simulation
 

@@ -33,8 +33,11 @@ BC_F_External::~BC_F_External(void){
 int BC_F_External::completeBC(int fieldID, int option){
 
     if(debug)fprintf(stderr,"    rank=%d: executing external boundary on side %d\n",
-                    rank_MPI,side_);   
-    lightbc_->applyBCs(time_phys,dt_phys,grids_);	
+                    rank_MPI,side_);  
+    if(fieldID==-1){//E,B fields 
+        lightbc_->applyBCs(time_phys,dt_phys,grids_);	
+    }
+
     return 0;
 }
 

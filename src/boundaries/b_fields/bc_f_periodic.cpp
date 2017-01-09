@@ -38,7 +38,7 @@ int BC_F_Periodic::completeBC(int fieldID, int option){
 
     // unload tmp to Ghost on this side
     // Ghost does not overwrite physical on this side
-    grids_->setGhostVec(side_,ghost_,fieldID,option); // replace(0) R,J(-2) in ghost 
+    grids_->setGhostVec(side_,ghost_,fieldID,option);  
 
     delete [] ghost_;
 

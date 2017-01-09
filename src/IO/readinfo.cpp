@@ -555,6 +555,56 @@ int Input::readinfo(char *fname){
         return(EXIT_FAILURE);
       }
 
+      // reading boundary conditions for Poisson solver to be used at initialiation step
+      if(restart==0&&strcmp(input_info_->fields_init,"poisson")==0){
+         try{const Setting &bound_phi=cfg.lookup("boundary.fields.external.poisson.bound_phi");
+           if(bound_phi.getLength() != 6) {
+             cerr << "Error: length of bound_phi is not 6!" << endl;
+             return(EXIT_FAILURE);
+           } else {
+             for(int i=0;i<6;i++){input_info_->bound_phi[i] = bound_phi[i];}
+           }
+         }catch(const SettingNotFoundException &nfex){
+           cerr << "Error: bound_phi not set in input file" << endl; 
+           return(EXIT_FAILURE);
+         }
+
+         try{const Setting &bound_Ax=cfg.lookup("boundary.fields.external.poisson.bound_Ax");
+           if(bound_Ax.getLength() != 6) {
+             cerr << "Error: length of bound_Ax is not 6!" << endl;
+             return(EXIT_FAILURE);
+           } else {
+             for(int i=0;i<6;i++){input_info_->bound_Ax[i] = bound_Ax[i];}
+           }
+         }catch(const SettingNotFoundException &nfex){
+           cerr << "Error: bound_Ax not set in input file" << endl; 
+           return(EXIT_FAILURE);
+         }
+
+         try{const Setting &bound_Ay=cfg.lookup("boundary.fields.external.poisson.bound_Ay");
+           if(bound_Ay.getLength() != 6) {
+             cerr << "Error: length of bound_Ay is not 6!" << endl;
+             return(EXIT_FAILURE);
+           } else {
+             for(int i=0;i<6;i++){input_info_->bound_Ay[i] = bound_Ay[i];}
+           }
+         }catch(const SettingNotFoundException &nfex){
+           cerr << "Error: bound_Ay not set in input file" << endl; 
+           return(EXIT_FAILURE);
+         }
+
+         try{const Setting &bound_Az=cfg.lookup("boundary.fields.external.poisson.bound_Az");
+           if(bound_Az.getLength() != 6) {
+             cerr << "Error: length of bound_Az is not 6!" << endl;
+             return(EXIT_FAILURE);
+           } else {
+             for(int i=0;i<6;i++){input_info_->bound_Az[i] = bound_Az[i];}
+           }
+         }catch(const SettingNotFoundException &nfex){
+           cerr << "Error: bound_Az not set in input file" << endl; 
+           return(EXIT_FAILURE);
+         }
+      }
     }else{
       input_info_->nwaves = 0;
     }
