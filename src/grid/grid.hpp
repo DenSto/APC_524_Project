@@ -218,7 +218,7 @@ protected:
 
   // unit testing in hdf5io_unittests.cc
   friend class FieldIOTest;
-  FRIEND_TEST(FieldIOTest, writeField1D);
+  FRIEND_TEST(FieldIOTest, writeField);
 
   // unit testing in depositJ_unittests.cc
   friend class DepositJTest;
