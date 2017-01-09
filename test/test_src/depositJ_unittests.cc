@@ -104,13 +104,8 @@ TEST_F(DepositJTest, sumOverJandRho) {
   
 }
 
-// Test particle current-deposition is working.
+// Test field interpolation is working.
 TEST_F(DepositJTest, testFieldInterpolation) {
-  int np = part_handler->nParticles();
-
-  if (np != 1) {
-    printf("This test did not fail, but can only be run for 1 particle. Change input file and rerun.");
-  } else {
     //Get full vector of particles.
     std::vector<Particle> parts = part_handler->getParticleVector();
 
@@ -140,6 +135,5 @@ TEST_F(DepositJTest, testFieldInterpolation) {
     EXPECT_EQ(field->e1,1.0);
     EXPECT_EQ(field->e2,2.0);
     EXPECT_EQ(field->e3,3.0);
-  }
 
 }
