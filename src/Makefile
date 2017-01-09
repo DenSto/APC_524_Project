@@ -18,14 +18,18 @@ else
   OMPFLAGS = -DUSE_MPI=1
 endif
 
-CFLAGS= -g -lm -lz -ldl -Wall 
+CFLAGS= -g  -Wall 
 PROGRAM = EMOOPIC
 
 include Makefile.obj
 
 SRCDIR = $(PWD)
 
+GTEST_DIR = $(SRCDIR)/../googletest
+GTEST_INCL = $(GTEST_DIR)/include
+
 LCONFIG_DIR = $(SRCDIR)/../libconfig-1.5
+LCONFIG_INCL = $(LCONFIG_DIR)/include
 LCONFIG_LIB = $(LCONFIG_DIR)/lib/libconfig++.a
 
 HDF5_DIR = $(SRCDIR)/../hdf5-1.8.12
@@ -52,16 +56,13 @@ else
 endif
 
 $(PROGRAM): $(OBJ) $(LIBS)
-	$(CC) -o $@ $^ $(CFLAGS) $(OMPFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) -lm -lz -ldl $(OMPFLAGS)
 
 %.o: %.cpp $(LIBS)
-	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include -I $(HDF5_INCL)
+	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(GTEST_INCL) -I $(HDF5_INCL)
 
-IO/input.o: IO/input.cpp $(LIBS)
-	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_DIR)/include
-
-IO/hdf5io.o: IO/hdf5io.cpp $(LIBS)
-	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I ../googletest/include -I $(HDF5_INCL)
+#IO/input.o: IO/input.cpp $(LIBS)
+#	$(CC) -c -o $@ $< $(CFLAGS) $(OMPFLAGS) -I $(LCONFIG_INCL)
 
 $(LCONFIG_LIB):
 	cd ..; \
@@ -90,6 +91,20 @@ $(HDF5PAR_LIB):
 	make install; \
 	cd $(SRCDIR)
 
+# adroit doesn't have makedepend...
+#DEPFILE	= .depend
+#DEPTOKEN = '\# MAKEDEPENDS'
+#DEPFLAGS = -Y -I $(HDF5_DIR) -I $(GTEST_DIR) -f $(DEPFILE) -s $(DEPTOKEN) -p $(OUTDIR)/
+#
+#
+#depend:
+#	rm -f .depend
+#	make $(DEPFILE)
+#
+#$(DEPFILE):
+#	@echo $(DEPTOKEN) > $(DEPFILE)
+#	makedepend $(DEPFLAGS) -- $(CFLAGS) -- */*.cpp
+
 clean:
 	rm -f $(PROGRAM) $(OBJ) .depend
 
@@ -101,7 +116,5 @@ ifeq ($(USE_MPI),0)
 	cd ../src;
 endif
 
--include .depend
-
-# DO NOT DELETE
+sinclude .depend
 
