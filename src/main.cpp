@@ -183,7 +183,7 @@ int main(int argc, char *argv[]){
     // prepare time step
     int nt = input_info->nt; //number of steps to run
     time_phys = input_info->t0; //initial time
-    dt_phys = 1/domain->getmindx(); //c=1, resolve EM wave
+    dt_phys = domain->getmindx()/1; //c=1, resolve EM wave
     dt_phys /= 10000.0;
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
