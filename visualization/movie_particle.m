@@ -1,11 +1,20 @@
 % makes a movie of particle trajectory in space or phase space
+%
+% input:
+% t is a vector of times of length nt
+% vec is matrix of size [nt 3] representing x,y,z coordinates of some
+% time evolving vector. Anticipated to be position (for plot in real space)
+% or velocity (for plot in velocity phase space), but does not have to be.
+% movetype = 1 for plots of position, movtype = 2 for plots of velocity
+% (movetype only affects plot labels and saved file names)
+% do_save = 1 to save a .avi movie file, do_save = 0 to not save
+%
+% returns:
+% none
 
-function [] = movie_particle(t,vec,movtype,watch_live,do_save)
+function [] = movie_particle(t,vec,movtype,do_save)
 
-if nargin < 4
-    watch_live = 0;
-end
-
+% save by default
 if nargin < 3
     do_save = 1;
 end
@@ -86,6 +95,7 @@ for i=1:dt:nt
         end
         hold on ;
     end
+    % plot full history without color
     if show_full_hist
         plot3(xx(1:jmin),xy(1:jmin),xz(1:jmin),'k');
     end
@@ -97,12 +107,10 @@ for i=1:dt:nt
     title(['Trajectory in ' tstr num2str(t(i),'%.2f')]);
     box on;
     
-    if watch_live
-        pause(.001);
-    else
-        drawnow;
-    end
+    pause(.001);
+    drawnow;
     
+    % save a frame for the video
     if do_save
         lighting phong
         set(f,'Renderer','zbuffer')
