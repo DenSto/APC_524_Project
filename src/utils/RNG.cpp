@@ -40,6 +40,10 @@ Random_Number_Generator::Random_Number_Generator(long int seed){
     }
     state_->iy=state_->iv[0];
 	state_->generate=true;
+
+	userCDF_ = NULL;
+	userPDF_ = NULL;
+	userVal_ = NULL;
 }
 
 Random_Number_Generator::~Random_Number_Generator(){
