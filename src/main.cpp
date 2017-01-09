@@ -188,9 +188,6 @@ int main(int argc, char *argv[]){
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str(),grids,domain,output_fields);
-    //if(output_fields>=0){
-    //  field_tsio = new FieldTimeseriesIO(hdf5io);
-    //}
     if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
     // fields output
     if(output_fields>=0) hdf5io->writeFields(grids);
@@ -265,8 +262,7 @@ int main(int argc, char *argv[]){
     //part_handler->outputParticleVel();
 
     // free memory
-//    if(output_fields>=0){delete field_tsio;}
-//    delete hdf5io;
+    delete hdf5io;
     delete domain;
     delete [] bc; // particle boundary condition
     delete part_handler;
