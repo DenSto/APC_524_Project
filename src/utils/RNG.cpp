@@ -40,10 +40,18 @@ Random_Number_Generator::Random_Number_Generator(long int seed){
     }
     state_->iy=state_->iv[0];
 	state_->generate=true;
+
+	userCDF_ = NULL;
+	userPDF_ = NULL;
+	userVal_ = NULL;
 }
 
 Random_Number_Generator::~Random_Number_Generator(){
 	free(state_);
+	freeUserData();
+}
+
+void Random_Number_Generator::freeUserData(){
 	if(userVal_ != NULL)
 		free(userVal_);
 	if(userCDF_ != NULL)
@@ -142,6 +150,7 @@ RNG_State* Random_Number_Generator::getRNGState(){
 
 
 void Random_Number_Generator::setUserPDF(bool isDiscrete, long size, double* userVal, double* userProb){
+	freeUserData();
 	userVal_ = (double*) calloc(size,sizeof(double));	
 	userCDF_ = (double*) calloc(size,sizeof(double));	
 	userSize_ = size;
@@ -171,6 +180,7 @@ void Random_Number_Generator::setUserPDF(bool isDiscrete, long size, double* use
  *  are continuous in both the zeroth and first derivatives.
  */
 void Random_Number_Generator::loadUserPDFfromFile(const bool isDiscrete,const char* fname){
+	freeUserData();
 	FILE* in = fopen(fname,"r");
 	char buf[LINE_LENGTH];
 	assert(in != NULL);
@@ -291,5 +301,7 @@ double  Random_Number_Generator::getUserNumber(){
 		return (b*c1 - a*c2 + sqroot)/(b-a);
 	}
 }
+
+
 
 #undef LINE_LENGTH

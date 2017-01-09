@@ -55,7 +55,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests depositJ_unittests readinput_unittests hdf5io_unittests #dens_frac_test 
+TESTS = oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests depositJ_unittests readinput_unittests hdf5io_unittests particles_unittests #dens_frac_test 
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -157,6 +157,12 @@ depositJ_unittests.o : $(TESTSRC_DIR)/depositJ_unittests.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/depositJ_unittests.cc -I $(SRC_DIR)/poisson -I $(SRC_DIR)/particles
 
 depositJ_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) depositJ_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+
+particles_unittests.o : $(TESTSRC_DIR)/particles_unittests.cc $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/particles_unittests.cc -I $(SRC_DIR)/utils -I $(SRC_DIR)/particles -I $(SRC_DIR)/pusher
+
+particles_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) particles_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
 
 run_tests: $(TESTS)

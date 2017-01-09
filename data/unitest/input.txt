@@ -10,14 +10,14 @@ domain:
   xyz0 = [0.0, 0.0, 0.0]
 
   # physical length of simulation domain, in unit of cm
-  Lxyz = [0.5, 0.1, 0.1]
+  Lxyz = [5.0, 1.0, 1.0]
 
 }
 
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 10
+  nTimesteps = 100
 
   # start time
   startTime = 0.0

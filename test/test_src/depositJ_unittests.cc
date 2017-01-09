@@ -62,7 +62,7 @@ TEST_F(DepositJTest, sumOverJandRho) {
     mod_v = pow(pow(parts[0].v[0],2.0)+pow(parts[0].v[1],2.0)+pow(parts[0].v[2],2.0),0.5);
     q = parts[0].q;
 
-    //Perform the deposition of the current (note: depositRho=false)
+    //Perform the deposition of the current and charge (note: depositRho=true)
     part_handler->depositRhoJ(grid,true,domain,input_info);
 
     //Get cell volume
@@ -104,3 +104,36 @@ TEST_F(DepositJTest, sumOverJandRho) {
   
 }
 
+// Test field interpolation is working.
+TEST_F(DepositJTest, testFieldInterpolation) {
+    //Get full vector of particles.
+    std::vector<Particle> parts = part_handler->getParticleVector();
+
+    //Make const E field (Ex,Ey,Ez)=(1.0,2.0,3.0)
+    grid->constE(1.0,2.0,3.0);
+
+    //Get particle position vector
+    double part_pos[3] = {};
+    for (int i=0; i<3; i++) part_pos[i] = parts[0].x[i];
+
+    //Get cell lengths
+    double lcell[3] = {};
+    for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
+
+    //Get cell field variables: cellvars
+    double cellvars[21];
+    int pCell = grid->getCellID(part_pos[0],part_pos[1],part_pos[2]);
+    grid->getFieldInterpolatorVec(pCell, cellvars);
+
+    //Interpolate fields
+    Interpolator *interpolator = new Interpolator();
+    interpolator->interpolate_fields(part_pos, lcell, cellvars, &(parts[0].field));
+
+    //Check interpolated field values.
+    Field_part *field = new Field_part();
+    field = &(parts[0].field);
+    EXPECT_EQ(field->e1,1.0);
+    EXPECT_EQ(field->e2,2.0);
+    EXPECT_EQ(field->e3,3.0);
+
+}
