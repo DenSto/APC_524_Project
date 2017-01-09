@@ -40,7 +40,7 @@ class Hdf5IO {
 	int* getmyijk()
 	  { return myijk_;}
 
-	int writeFields(Grid* grid);
+	int writeFields(Grid* grid, double time);
 
     protected:
 	// file id

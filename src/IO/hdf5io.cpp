@@ -36,7 +36,6 @@ Hdf5IO::Hdf5IO(const char* filename, Grid* grid, Domain* domain, const int which
     fields_group_id_ = H5Gcreate2(file_id_, "/fields", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     assert(fields_group_id_>=0);
   }
-
   if(which_fields_==ALL || which_fields_==E) {
     Ex_tsio_ = new FieldTimeseriesIO(this, grid, grid->getExID(), "Ex");
     Ey_tsio_ = new FieldTimeseriesIO(this, grid, grid->getEyID(), "Ey");
@@ -82,21 +81,25 @@ Hdf5IO::~Hdf5IO() {
   H5Pclose(data_xfer_plist_);
 
   // close fields group
-  H5Gclose(fields_group_id_);
+  if(which_fields_>=0) H5Gclose(fields_group_id_);
 
   // close file
   H5Fclose(file_id_);
 }
 
-int Hdf5IO::writeFields(Grid* grid) {
+int Hdf5IO::writeFields(Grid* grid, double time_phys) {
   double**** fieldPtr = grid->getFieldPtr();  
   assert(fieldPtr!=NULL);
+  // write time
+  //writeTime(time_phys);
+
   if(which_fields_==ALL || which_fields_==E) {
     Ex_tsio_->writeField(fieldPtr[grid->getExID()]);
     Ey_tsio_->writeField(fieldPtr[grid->getEyID()]);
     Ez_tsio_->writeField(fieldPtr[grid->getEzID()]);
   }
   if(which_fields_==ALL || which_fields_==B) {
+    // Note: this needs to be changed to Bavg...
     Bx_tsio_->writeField(fieldPtr[grid->getBxID()]);
     By_tsio_->writeField(fieldPtr[grid->getByID()]);
     Bz_tsio_->writeField(fieldPtr[grid->getBzID()]);
@@ -121,22 +124,18 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
 	  data_xfer_plist_(io->getDataXferPlist()),
 	  fields_group_id_(io->getFieldsGroupID())
 {
+  // get some grid dimensions
   int* nxyzTot = new int[3];
   grid->getnxyzTot(nxyzTot);
   int* phys_dims = new int[3];
   grid->getDimPhys(fieldID, phys_dims);
-
-  double* x_phys = new double[phys_dims[0]];
-  double* y_phys = new double[phys_dims[1]];
-  double* z_phys = new double[phys_dims[2]];
-  grid->getGridPhys(fieldID, x_phys, y_phys, z_phys);
   
-  // allocate some (temporary) arrays needed in the loop below
+  // allocate some (temporary) arrays needed below
   hsize_t* filespace_dims = new hsize_t[ndims_];
   hsize_t* filespace_maxdims = new hsize_t[ndims_];
   hsize_t* memspace_dims = new hsize_t[ndims_];
 
-  // allocating array storing block dimensions
+  // allocate array storing block dimensions
   field_block_ = new hsize_t[ndims_]; 
   assert(field_block_!=NULL);
 
@@ -173,6 +172,12 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
   assert(field_dataset_>=0);
   H5Pclose(create_chunks_plist); 
   
+  // get grid coordinates
+  double* x_phys = new double[phys_dims[0]];
+  double* y_phys = new double[phys_dims[1]];
+  double* z_phys = new double[phys_dims[2]];
+  grid->getGridPhys(fieldID, x_phys, y_phys, z_phys);
+
   // define grid coordinates as attributes
   hid_t x_dataspace;
   hid_t x_attribute;
@@ -213,6 +218,11 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
   delete [] filespace_dims;
   delete [] filespace_maxdims;
   delete [] memspace_dims;
+  delete [] nxyzTot;
+  delete [] phys_dims;
+  delete [] x_phys;
+  delete [] y_phys;
+  delete [] z_phys;
 }
 
 FieldTimeseriesIO::~FieldTimeseriesIO() {

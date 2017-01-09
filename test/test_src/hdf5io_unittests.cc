@@ -52,7 +52,7 @@ TEST_F(FieldIOTest, writeField) {
             }
         }
     }
-    hdf5io->writeFields(grid);
+    hdf5io->writeFields(grid, 0.);
     nwrite++;
 
     // change Ex
@@ -73,7 +73,7 @@ TEST_F(FieldIOTest, writeField) {
             }
         }
     }
-    hdf5io->writeFields(grid);
+    hdf5io->writeFields(grid, 0.);
     nwrite++;
 
     // check file
