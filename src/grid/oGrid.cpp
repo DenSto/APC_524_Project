@@ -124,20 +124,16 @@ int Grid::addRho(int cellID, double *Rhovec) {
   int iy = (( cellID - iz) /nz_) % ny_;
   int ix = ((( cellID - iz)/nz_) - iy) / ny_;
 
-  // dummy for now 
-  rho_[ix][iy][iz] = 0;
-  /*
-  // put down currents
-  rhox_[ix][iy][iz] += Rhovec[0];
-  rhox_[ix][iy+1][iz] += Rhovec[1];
-  rhox_[ix][iy+1][iz+1] += Rhovec[2];
-  rhox_[ix][iy+1][iz] += Rhovec[3];
+  //add Rhovec in order of vertices [x,y,z]: [0,0,0], [1,0,0], [1,1,0], [0,1,0], [0,1,1], [1,1,1], [1,0,1], [0,0,1]
+  rho_[ix][iy][iz] += Rhovec[0];
+  rho_[ix+1][iy][iz] += Rhovec[1];
+  rho_[ix+1][iy+1][iz] += Rhovec[2];
+  rho_[ix][iy+1][iz] += Rhovec[3];
+  rho_[ix][iy+1][iz+1] += Rhovec[4];
+  rho_[ix+1][iy+1][iz+1] += Rhovec[5];
+  rho_[ix+1][iy][iz+1] += Rhovec[6];
+  rho_[ix][iy][iz+1] += Rhovec[7];
 
-  rhoy_[ix][iy][iz] += Rhovec[4];
-  rhoy_[ix][iy][iz+1] += Rhovec[5];
-  rhoy_[ix+1][iy][iz+1] += Rhovec[6];
-  rhoy_[ix+1][iy][iz] += Rhovec[7];
-*/ 
   return 0;
 };
 
