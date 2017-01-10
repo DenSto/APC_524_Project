@@ -1,7 +1,7 @@
 #if USE_MPI
 
 #include "../../globals.hpp"
-#include "../input/input.hpp"
+#include "../../IO/input.hpp"
 #include "../particles_boundary.hpp"
 #include "../particle_bc_factory.hpp"
 #include <vector>

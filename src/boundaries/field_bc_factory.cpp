@@ -28,14 +28,12 @@ void Field_BC_Factory::Construct(Domain* domain, Grid *grids, Input_Info_t *inpu
         if(nProc[i] > 1){ // needs MPI (i.e. periodic BCs will be treated by MPI)
 	    int partitionIndex = myLoc[i];
 	    short inMiddle = (partitionIndex != 0) && (partitionIndex != nProc[i] - 1);
-            short onRight = (partitionIndex == nProc[i]-1); // used to break MPI deadlock
-            if(debug)fprintf(stderr,"rank=%d:dim=%d,onRight=%d\n",rank_MPI,i,onRight);
 	    // compare return 0 when equal
 	    if(periodic.compare(types[2*i])==0 || inMiddle){ // Two MPI communication loops
-		// left boundary condition first, unless onRight
-		ret[2*i+onRight]=lookup(mpi)(-(i+1),domain,grids,input_info);
-		// Right boundary condition first, unless onRight
-		ret[2*i+1-onRight]=lookup(mpi)(i+1,domain,grids,input_info);
+		// left boundary condition first
+		ret[2*i]=lookup(mpi)(-(i+1),domain,grids,input_info);
+		// Right boundary condition first
+		ret[2*i+1]=lookup(mpi)(i+1,domain,grids,input_info);
             } else { // One MPI communication loop
 		int MPIisRight;	
 		// Physical side (to be calculated first to avoid MPI deadlock !!)
