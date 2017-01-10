@@ -83,7 +83,6 @@ protected:
   const int ny_;
   const int nz_;
 
-
   const int nxTot_; // (total number of grid points in x) 
   const int nyTot_; 
   const int nzTot_; 

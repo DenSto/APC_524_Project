@@ -83,8 +83,8 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 			recvRank_ = neigh[2*dim_index_ + 1]; //receive from right
 
 			if(!inMiddle){// Left most processor responsible for wrap-around in x
-				int* nxyz = domain->getnxyz();
-				double* L = domain->getLxyz();
+				const int* nxyz = domain->getnxyz();
+				const double* L = domain->getLxyz();
 				lengthShift_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
 			}
 		}

@@ -143,7 +143,7 @@ int main(int argc, char *argv[]){
     }else{
         //no need to solve Poisson's equation
         if(rank==0)printf("    Grid initialing: won't solve Poisson's equations...\n");
-        grids = new Grid(domain->getnxyz(),1, domain->getxyz0(),domain->getLxyz()); 
+        grids = new Grid(domain->getnxyz(),1,domain->getxyz0(),domain->getLxyz()); 
     }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
 
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]){
     int nt = input_info->nt; //number of steps to run
     time_phys = input_info->t0; //initial time
     dt_phys = domain->getmindx()/1; //c=1, resolve EM wave
-    dt_phys /= 100.0;
+    dt_phys /= 10.0;
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
     // initialize outputs
@@ -188,7 +188,7 @@ int main(int argc, char *argv[]){
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
 	// Box average quantities
-	OutputBoxQuantities* boxOutput = new OutputBoxQuantities(grids,part_handler,input_info);
+//	OutputBoxQuantities* boxOutput = new OutputBoxQuantities(grids,part_handler,input_info);
     // fields output
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str(),grids,domain,output_fields);
     if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
@@ -204,7 +204,7 @@ int main(int argc, char *argv[]){
 
        if(rank==0 && ti % 100 == 0) fprintf(stderr,"ti=%d\t\tt=%f\n",ti,time_phys);   
 		
-	   boxOutput->output(time_phys,ti);
+//	   boxOutput->output(time_phys,ti);
 
        /* push particles ***********************/
        part_handler->Push(dt_phys);
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]){
 
        /* deposite charge and current ***********/
        // only deposite particles in physical cells
-       part_handler->depositRhoJ(grids,false,domain,input_info);
+       part_handler->depositRhoJ(grids,true,domain,input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // sum charge and current on MPI boundaries 

@@ -99,7 +99,7 @@ if do_plot
     
     % set the colormap for plotting
     % other options include cmap = 'parula','jet',etc
-    cmap = make_rbcmap(1024);
+    cmap = jet(1024);
     
     figure;
     

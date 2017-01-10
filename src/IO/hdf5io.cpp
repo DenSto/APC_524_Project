@@ -107,6 +107,9 @@ Hdf5IO::~Hdf5IO() {
 
 /// write all field timeseries to hdf5 file
 int Hdf5IO::writeFields(Grid* grid, double time_phys) {
+
+  grid->AvgB();
+
   double**** fieldPtr = grid->getFieldPtr();  
   assert(fieldPtr!=NULL);
   // write time

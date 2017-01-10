@@ -67,7 +67,6 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     faceZID_(5),
     vertID_(6)
 {
-   
     checkInput_(); 
 
     fieldIsContiguous_ = new int[nFieldsTotal_];
@@ -343,7 +342,8 @@ void Grid::deleteFieldPtr_() {
 /// checks validity of input parameters for Grid constructor 
 /*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
  */ 
-void Grid::checkInput_() { 
+void Grid::checkInput_() {
+    if(debug>1)fprintf(stderr,"rank=%d: nxTot=%d,nGhosts=%d\n",rank_MPI,nxTot_,nGhosts_); 
     assert(nxTot_ > 2*nGhosts_); // to guarantee there is at least 1 physical cell
     assert(nyTot_ > 2*nGhosts_); 
     assert(nzTot_ > 2*nGhosts_); 

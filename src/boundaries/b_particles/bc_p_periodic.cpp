@@ -55,8 +55,8 @@ int BC_P_Periodic::particle_BC(Particle* p){
 // at the end of the time step.
 	if(p->x[dim_index_] < xMin_ && !isRight_){ //left boundary
 		Particle newP = *p;
-                do{newP.x[dim_index_] += (xMax_-xMin_);
-		}while(newP.x[dim_index_] < xMin_);
+                newP.x[dim_index_] += (xMax_-xMin_);
+		assert(newP.x[dim_index_] >= xMin_);
 		ghostBuf_.push_back(newP);
 		p->isGhost = 1;
 		return 1;
@@ -64,8 +64,8 @@ int BC_P_Periodic::particle_BC(Particle* p){
 
 	if(p->x[dim_index_] > xMax_ && isRight_){ // right boundary
 		Particle newP = *p;
-		do{newP.x[dim_index_] -= (xMax_-xMin_);
-		}while(newP.x[dim_index_] > xMax_);
+		newP.x[dim_index_] -= (xMax_-xMin_);
+		assert(newP.x[dim_index_] <= xMax_);
 		ghostBuf_.push_back(newP);
 		p->isGhost = 1;
 		return 1;
@@ -74,10 +74,14 @@ int BC_P_Periodic::particle_BC(Particle* p){
 	return 0;
 #else
 // Persistent particles (don't create new ones, but move the original around)
-	while(p->x[dim_index_] < xMin_ && !isRight_)
+	if(p->x[dim_index_] < xMin_ && !isRight_)
 		p->x[dim_index_] += (xMax_-xMin_);
-	while(p->x[dim_index_] > xMax_ && isRight_)
+	assert(p->x[dim_index_] >= xMin_);   
+
+	if(p->x[dim_index_] > xMax_ && isRight_)
 		p->x[dim_index_] -= (xMax_-xMin_);
+	assert(p->x[dim_index_] <= xMax_);   
+
 	return 0;
 #endif
 }
