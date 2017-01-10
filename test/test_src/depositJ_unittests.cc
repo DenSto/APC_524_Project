@@ -20,7 +20,7 @@ protected:
     //Read input file
     Input *input =  new Input();
     char filename[100];
-    sprintf(filename, "../data/unitest/input.txt");
+    sprintf(filename, "test_data/depositJ_unittest_data.txt");
     input->readinfo(filename);
     input_info = input->getinfo();
 
@@ -29,11 +29,6 @@ protected:
     grid = new Poisson_Solver(domain, input_info);
     part_handler = new Particle_Handler();
     part_handler->Load(input_info,domain);
-
-    int xgsize = grid->getGhostVecSize(-1);
-    int ygsize = 1; //dummy
-    int zgsize = 1; //dummy
-    domain->mallocGhosts(xgsize,ygsize,zgsize);
   }
 
   virtual void TearDown() {
