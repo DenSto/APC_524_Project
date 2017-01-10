@@ -142,7 +142,7 @@ int main(int argc, char *argv[]){
         grids = new Poisson_Solver(domain,input_info);
     }else{
         //no need to solve Poisson's equation
-        if(rank==0)printf("    Grid initialing...\n");
+        if(rank==0)printf("    Grid initialing: won't solve Poisson's equations...\n");
         grids = new Grid(domain->getnxyz(),1, domain->getxyz0(),domain->getLxyz()); 
     }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
@@ -166,7 +166,7 @@ int main(int argc, char *argv[]){
         if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
     }
 
-    // Initialize fields from particle or read restart file
+    // Initialize fields by solving poisson or read files
     if(rank==0)printf("    Initializing fields...\n");
     grids->InitializeFields(input_info);
     if(debug) fprintf(stderr,"rank=%d: Finish initializing fields\n",rank);

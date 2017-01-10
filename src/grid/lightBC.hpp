@@ -26,8 +26,10 @@ public:
    void applyBCs(double t, double dt, Grid *grids);
 
 private:
-   Input_Info_t *input_info_;
    int sign_; //forward(+1) or backward(-1) wave propagation
+
+   // background fields
+   double *E0_,*B0_;
 
    // waves with 3 polarizations
    int nwaves_[3];

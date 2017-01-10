@@ -41,38 +41,39 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double *dens   = input_info->dens_frac; 
 
     if(restart==0){// initial run
-	Random_Number_Generator *rng = new Random_Number_Generator(-1);
-	int ispec = 0; // temporaty counter	
-	double cden = dens[0]; // cummulative density fraction
-	double vth;
-	for(long ip=0; ip < npart;ip++){
-		Particle p = new_particle();
-		if(ip >= cden*npart){
-			ispec += 1;
-			cden  += dens[ispec];
-		}
-		assert(ispec<nspec);
-		p.q = charge[ispec];
-		p.m = mass[ispec];
+		Random_Number_Generator *rng = new Random_Number_Generator(-1);
+		int ispec = 0; // temporaty counter	
+		double cden = dens[0]; // cummulative density fraction
+		double vth;
+		for(long ip=0; ip < npart;ip++){
+			Particle p = new_particle();
+			if(ip >= cden*npart){
+				ispec += 1;
+				cden  += dens[ispec];
+			}
+			assert(ispec<nspec);
+			p.q = charge[ispec];
+			p.m = mass[ispec];
 
-                if(debug>3)fprintf(stderr,"charge=%f\n",p.q);
+            if(debug>3)fprintf(stderr,"charge=%f\n",p.q);
 
-		vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
+			vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
 
-		p.x[0]=rng->getUniform()*L[0]+x0[0];
-		p.x[1]=rng->getUniform()*L[1]+x0[1];
-		p.x[2]=rng->getUniform()*L[2]+x0[2];
+			p.x[0]=rng->getUniform()*L[0]+x0[0];
+			p.x[1]=rng->getUniform()*L[1]+x0[1];
+			p.x[2]=rng->getUniform()*L[2]+x0[2];
 
-		p.v[0]=rng->getGaussian(0.0,vth);
-		p.v[1]=rng->getGaussian(0.0,vth);
-		p.v[2]=rng->getGaussian(0.0,vth);
+			p.v[0]=rng->getGaussian(0.0,vth);
+			p.v[1]=rng->getGaussian(0.0,vth);
+			p.v[2]=rng->getGaussian(0.0,vth);
 
-		p.my_id=ip;
-		p.initRank=rank_MPI;
+			p.my_id=ip;
+			p.initRank=rank_MPI;
 
-		parts_.push_back(p);
-		np_++;
-    } }
+			parts_.push_back(p);
+			np_++;
+    	} 
+	}
     else{//read restart file
         //dummy code inserted by YShi for testing
         //insert a single particle at the center of the cell

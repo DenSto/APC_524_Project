@@ -1,19 +1,24 @@
+#include <algorithm>
+#include <iostream>
+#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <assert.h>
 #include "poisson.hpp"
 #include "../globals.hpp"
 //#include "../domain/domain.hpp"
 
+#define CONV_CRIT 1e-4 // convergence criteria
+
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   Grid(domain->getnxyz(), 1, domain->getxyz0(), domain->getLxyz()),
   nFieldsPoisson_(8),
   phi1ID_(13),
-  phi2ID_(14),
-  Ax1ID_(15),
-  Ay1ID_(16),
-  Az1ID_(17),
+  Ax1ID_(14),
+  Ay1ID_(15),
+  Az1ID_(16),
+  phi2ID_(17),
   Ax2ID_(18),
   Ay2ID_(19),
   Az2ID_(20), 
@@ -21,6 +26,13 @@ Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   ydir_(2),
   zdir_(3)
 {
+  // check field ID is specified in ways that are compatible
+  // with the needs of physical boundary condition
+  assert(phi2ID_==phi1ID_+4);
+  assert(Ax2ID_==Ax1ID_+4);
+  assert(Ay2ID_==Ay1ID_+4);
+  assert(Az2ID_==Az1ID_+4);
+
   phi1_=newField_(phi1ID_);
   phi2_=newField_(phi2ID_);
   Ax1_=newField_(Ax1ID_);
@@ -35,6 +47,28 @@ Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
 
   domain_ = domain;
   input_info_ = input_info;
+
+  // determine convergence criteria of poissonsolver
+  double vmax,vmin;
+
+  std::vector<double> phi;
+  for(int i=0;i<6;i++){phi.push_back(input_info_->bound_phi[i]);}
+  vmax = *std::max_element(phi.begin(),phi.end());
+  vmin = *std::min_element(phi.begin(),phi.end());
+  conv_phi_ = vmax-vmin;
+  if(debug>2&&rank_MPI==0)fprintf(stderr,"conv_phi_=%f\n",conv_phi_);
+
+  std::vector<double> Ai;
+  for(int i=0;i<6;i++){
+      Ai.push_back(input_info_->bound_Ax[i]);
+      Ai.push_back(input_info_->bound_Ay[i]);
+      Ai.push_back(input_info_->bound_Az[i]);
+   }
+  vmax = *std::max_element(Ai.begin(),Ai.end());
+  vmin = *std::min_element(Ai.begin(),Ai.end());
+  conv_A_ = vmax-vmin;
+  if(debug>2&&rank_MPI==0)fprintf(stderr,"conv_A_=%f\n",conv_A_);
+
 }
 
 Poisson_Solver::~Poisson_Solver() {
@@ -46,6 +80,21 @@ Poisson_Solver::~Poisson_Solver() {
   deleteField_(Ax2_,Ax2ID_);
   deleteField_(Ay2_,Ay2ID_);
   deleteField_(Az2_,Az2ID_);
+}
+
+//! return fieldID for phi and Ax,Ay,Az
+int Poisson_Solver::getFieldID(const std::string &fieldStr){
+  int ID;
+  if(fieldStr == "phi" || fieldStr == "phi1"){ID = phi1ID_;}
+  else if(fieldStr == "Ax" || fieldStr == "Ax1"){ID = Ax1ID_;}
+  else if(fieldStr == "Ay" || fieldStr == "Ax1"){ID = Ay1ID_;}
+  else if(fieldStr == "Az" || fieldStr == "Ax1"){ID = Az1ID_;}
+  else if(fieldStr == "phi2"){ID = phi2ID_;}
+  else if(fieldStr == "Ax2" ){ID = Ax2ID_;}
+  else if(fieldStr == "Ay2" ){ID = Ay2ID_;}
+  else if(fieldStr == "Az2" ){ID = Az2ID_;}
+  else{ID = Grid::getFieldID(fieldStr);} //call base class function
+  return ID;
 }
 
 /// Same as Grid::setFieldType_ for phi,A arrays unique to Poisson
@@ -95,13 +144,15 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
   if(rank_MPI==0)printf("        Initializing fields by solving Poisson's equation...\n");
 
   double sourceMult = -4*M_PI;
-  double convTol = .01;
+  double convTol;
+
+  convTol = std::max(conv_phi_*0.1,CONV_CRIT);
   if(debug>1&&rank_MPI==0)printf("        solving for phi...\n"); 
   run_poisson_solver_(phi1ID_,phi1_,phi2_,rho_,convTol,sourceMult);
   phiToE();
 
   sourceMult = -4*M_PI; 
-  convTol = .1;
+  convTol = std::max(conv_A_*0.1,CONV_CRIT);
   if(debug>1&&rank_MPI==0)printf("        solving for Ax...\n"); 
   run_poisson_solver_(Ax1ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
 
@@ -146,6 +197,12 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
   int iternum = -1;
   do {
     iternum++;
+    
+    // supply boundary conditions
+    executeBC(fieldID,iternum); // replace field specified by fieldID 
+                                // iternum%2==0, supply u1 fields
+                                // iternum%2!=0, supply u2 fields
+
     //iterate over entire grid. Note boundary conditions must be supplied!
     //fprintf(stderr,"iBeg_=%d\n",iBeg_);
     for ( int i=iBeg_; i<iEnd; i++ ) {
@@ -164,9 +221,6 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
         }
       }
     }
-
-    //Pass fields' data across domain boundaries.
-    executeBC(fieldID,0); //option=0 to replace field specified by fieldID 
 
     //Determine global convergence of jacobi method across all MPI domains
 #if USE_MPI

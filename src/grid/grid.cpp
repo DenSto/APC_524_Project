@@ -114,6 +114,26 @@ Grid::~Grid() {
     delete [] ghostTmp_; 
 };
 
+int Grid::getFieldID(const std::string &fieldStr){
+  int ID;
+  if(fieldStr == "Ex"){ID = ExID_;}
+  else if(fieldStr == "Ex"){ID = EyID_;}
+  else if(fieldStr == "Ez"){ID = EzID_;}
+  else if(fieldStr == "Bx"){ID = BxID_;}
+  else if(fieldStr == "By"){ID = ByID_;}
+  else if(fieldStr == "Bz"){ID = BzID_;}
+  else if(fieldStr == "Jx"){ID = JxID_;}
+  else if(fieldStr == "Jy"){ID = JyID_;}
+  else if(fieldStr == "Jz"){ID = JzID_;}
+  else if(fieldStr == "Bx_tm1"){ID = Bx_tm1ID_;}
+  else if(fieldStr == "By_tm1"){ID = By_tm1ID_;}
+  else if(fieldStr == "Bz_tm1"){ID = Bz_tm1ID_;}
+  else if(fieldStr == "rho"){ID = rhoID_;}
+  else{ID=-1;fprintf(stderr,"Unknown fieldStr for getFieldID!\n");}
+  return ID;
+
+}
+
 /// allocates memory for a single field 
 /*! Returns double*** of size [nx_+1][ny_+1][nz_+1]. \n
  * First attempts to allocate contiguously. If that fails, issues a warning and attempts to allocate with several calls to new. 

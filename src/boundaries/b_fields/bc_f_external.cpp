@@ -1,7 +1,9 @@
+#include <string.h>
 #include "../../globals.hpp"
 #include "../fields_boundary.hpp"
 #include "../field_bc_factory.hpp"
 #include "../../grid/lightBC.hpp"
+#include "../../poisson/poissonBC.hpp"
 
 class BC_F_External : public BC_Field {
     public:
@@ -10,8 +12,10 @@ class BC_F_External : public BC_Field {
 	int completeBC(int fieldID, int option);
     private:
         Grid *grids_;
-        Input_Info_t *input_info_;
         LightBC *lightbc_; // inject transverse EM waves + background
+
+        bool support_poisson_; // whether support poisson initialization
+        PoissonBC *poissonbc_; // constant boundary for poisson initialization 
 };
 
 BC_F_External::BC_F_External(int side, Domain* domain, Grid *grids, Input_Info_t *info){
@@ -20,22 +24,34 @@ BC_F_External::BC_F_External(int side, Domain* domain, Grid *grids, Input_Info_t
     if(debug)fprintf(stderr,"rank=%d:boundary side %d is external\n",rank_MPI,side);
 
     grids_ = grids;
-    input_info_ = info;
 
     // instantiate the class that handles the injection
-    lightbc_ = new LightBC(side_,input_info_);   
+    lightbc_ = new LightBC(side_,info);   
+
+    // if initialize with poisson, than equipe poisson boundary conditions
+    if(info->restart==0 && strcmp(info->fields_init,"poisson")==0){
+        support_poisson_=true;
+        poissonbc_ = new PoissonBC(side_,info);
+    }else{
+        support_poisson_=false;
+    }
 }
 
 BC_F_External::~BC_F_External(void){ 
    delete lightbc_;
+   if(support_poisson_) delete poissonbc_;
 }
 
 int BC_F_External::completeBC(int fieldID, int option){
 
-    if(debug)fprintf(stderr,"    rank=%d: executing external boundary on side %d\n",
-                    rank_MPI,side_);  
+    if(debug>2)fprintf(stderr,"    rank=%d: executing external boundary on side %d\n",
+                    rank_MPI,side_); 
+ 
     if(fieldID==-1){//E,B fields 
         lightbc_->applyBCs(time_phys,dt_phys,grids_);	
+    }else if(support_poisson_ && fieldID>0){
+        //individual field for poisson solver
+        poissonbc_->applyBCs((double)fieldID,(double)option,grids_);
     }
 
     return 0;
@@ -43,3 +59,4 @@ int BC_F_External::completeBC(int fieldID, int option){
 
 // Registers bounary condition into BC_Factory dictionary
 static RegisterFieldBoundary instance("external", makeBCField<BC_F_External>);
+

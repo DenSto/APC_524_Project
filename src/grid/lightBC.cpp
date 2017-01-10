@@ -14,13 +14,14 @@ LightBC::LightBC(int side, Input_Info_t *input_info){
    sign_=side_/abs(side_);
    dim_ = abs(side_)-1; //x:0, y:1, z:2
 
-   input_info_ = input_info;
-   assert(input_info_!=NULL);
+   // load background fields
+   E0_ = input_info->E0;
+   B0_ = input_info->B0;
 
    // load input info relevant to the boundary specified by side
-   int nwaves_tot  = input_info_->nwaves;
-   int *inSide = input_info_->inSide;
-   int *inPolE = input_info_->inPolE; 
+   int nwaves_tot  = input_info->nwaves;
+   int *inSide = input_info->inSide;
+   int *inPolE = input_info->inPolE; 
    int *registry = new int[3*nwaves_tot];// tmp variable storing 3 polarizations
 
    for(int i=0;i<3;i++){nwaves_[i] = 0;};
@@ -56,11 +57,11 @@ LightBC::LightBC(int side, Input_Info_t *input_info){
          // load data      
          for(int i=0;i<nw;i++){
             ind = registry[pid*nwaves_tot+i];
-            gaussian_pulses_[pid]->peakamps[i]  = input_info_->peakamps[ind]; 
-            gaussian_pulses_[pid]->omegas[i]    = input_info_->omegas[ind]; 
-            gaussian_pulses_[pid]->phases[i]    = input_info_->phases[ind]; 
-            gaussian_pulses_[pid]->delays[i]    = input_info_->delays[ind]; 
-            gaussian_pulses_[pid]->invWidths[i] = input_info_->invWidths[ind]; 
+            gaussian_pulses_[pid]->peakamps[i]  = input_info->peakamps[ind]; 
+            gaussian_pulses_[pid]->omegas[i]    = input_info->omegas[ind]; 
+            gaussian_pulses_[pid]->phases[i]    = input_info->phases[ind]; 
+            gaussian_pulses_[pid]->delays[i]    = input_info->delays[ind]; 
+            gaussian_pulses_[pid]->invWidths[i] = input_info->invWidths[ind]; 
          }
       // the pointers are not assigned in pol directions where there is no wave  
       }
@@ -164,13 +165,10 @@ LightBC::~LightBC(void){
 void LightBC::applyBCs (double t, double dt, Grid *grids) {
 
    // load background fields
-   double *E0 = input_info_->E0;
-   double *B0 = input_info_->B0;
-
    double E1[3],B1[3];
    for(int i=0;i<3;i++){
-       E1[i] = E0[i];
-       B1[i] = B0[i];
+       E1[i] = E0_[i];
+       B1[i] = B0_[i];
    }
 
    // add transverse wave fields

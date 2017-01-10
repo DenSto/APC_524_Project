@@ -108,7 +108,7 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","reflecting"
-    conditions = ["periodic","periodic", 
+    conditions = ["reflecting","reflecting", 
                 "periodic","periodic",
                 "periodic","periodic"]
   }
@@ -119,7 +119,7 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","external"
-    conditions = ["periodic","periodic",
+    conditions = ["external","external",
                 "periodic","periodic",
                 "periodic","periodic"]
 
@@ -159,12 +159,12 @@ boundary:
         {
             # constant boundry values of phi in format: [xl,xr,yl,yr,zl,zr]
             # in unit of phi=1->299.79KV
-            bound_phi = [0.0,0.01, 0.0,0.0, 0.0,0.0]
+            bound_phi = [0.0,0.02, 0.0,0.0, 0.0,0.0]
 
             # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
             # in unit of A=1->1KG.cm. The gauge choice is arbitrary.
             bound_Ax = [0.0,0.0, 0.0,0.0, 0.0,0.0]
-            bound_Ay = [0.0,0.1, 0.0,0.0, 0.0,0.0]
+            bound_Ay = [0.0,1.2, 0.0,0.0, 0.0,0.0]
             bound_Az = [0.0,0.0, 0.0,0.0, 0.0,0.0]
         }
 

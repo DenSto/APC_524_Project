@@ -60,6 +60,7 @@ public:
 
   // public methods for diagnostics
   double**** getFieldPtr() {return fieldPtr_;};
+  virtual int getFieldID(const std::string &fieldStr);
   int getExID() {return ExID_;};
   int getEyID() {return EyID_;};
   int getEzID() {return EzID_;};
