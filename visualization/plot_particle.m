@@ -45,15 +45,12 @@ if (do_save || do_plot)
     % parameters for plots of components
     fcomp = figure;
     FS = 14;
-    LW = 2;
     nrows=2;
     ncols=1;
     
     % plot 3 components of position
     subplot(nrows,ncols,1);
-    plot(t,xx,'linewidth',LW); hold all ;
-    plot(t,xy,'linewidth',LW);
-    plot(t,xz,'linewidth',LW);
+    plot_components(t,x);
     set(gca,'fontsize',FS); box on;
     %     xlabel('Time');
     ylabel('Position');
@@ -61,9 +58,7 @@ if (do_save || do_plot)
     
     % plot 3 components of velocity
     subplot(nrows,ncols,2);
-    plot(t,vx,'linewidth',LW); hold all ;
-    plot(t,vy,'linewidth',LW);
-    plot(t,vz,'linewidth',LW);
+    plot_components(t,v);
     set(gca,'fontsize',FS); box on ;
     xlabel('Time');
     ylabel('Velocity');

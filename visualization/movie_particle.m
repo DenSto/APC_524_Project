@@ -25,10 +25,13 @@ nt = numel(t);
 %%% plotting options %%%
 
 % set to 1 to plot black line for all past points
-show_full_hist=0;
+% set to 0 to only plot the nhist most recent points (set below) 
+show_full_hist=1;
 
 % number of recent points of trajectory to show in color
-nhist = floor(nt/10);
+% set to 0 to plot no points in color (faster)
+% nhist = floor(nt/10);
+nhist=0; 
 
 % number of recent points of trajectory to show with markers
 nparts = floor(nhist/10);
@@ -38,7 +41,11 @@ msmax = 10;
 
 % number of steps to iterate forward
 %(e.g. dt = 3 plots on steps 1, 4, 7,etc)
-dt=2;
+dt=10;
+
+% set to 1 to keep the axis limits fixed for the whole movie 
+% set to 0 to dynamically adjust them
+do_fixed_axes = 0; 
 
 %%% end plotting options %%%
 
@@ -102,7 +109,9 @@ for i=1:dt:nt
     hold off
     
     % plot labels and limits
-    xlim([xl xr]); ylim([yl yr]); zlim([zl zr]);
+    if do_fixed_axes 
+        xlim([xl xr]); ylim([yl yr]); zlim([zl zr]);
+    end
     xlabel(xstr); ylabel(ystr); zlabel(zstr);
     title(['Trajectory in ' tstr num2str(t(i),'%.2f')]);
     box on;
