@@ -446,6 +446,30 @@ void Grid::getGridPhys(const int fieldID, double* x, double* y, double* z) {
     }
 }; 
 
+/// gets the x,y,z indices of the first and last physical points of field
+/*! fieldID is a field's fieldID, which can be gotten with public method 
+ * getFieldID \n 
+ * ind is an int array of length 6 where the values will be stored in order: \n 
+ * xfirst,yfirst,zfirst,xlast,ylast,zlast
+ */ 
+void Grid::getRealIndices(int fieldID, int* ind) { 
+    assert(0 < fieldID && fieldID < nFieldsTotal_); 
+
+    // set the indices of first physical cells 
+    ind[0] = iBeg_; 
+    ind[1] = jBeg_; 
+    ind[2] = kBeg_; 
+    
+    // set the indices of last physical cells
+    int xside = 1; 
+    int yside = 2; 
+    int zside = 3; 
+
+    ind[3] = sideToIndex_(xside,fieldID); 
+    ind[4] = sideToIndex_(yside,fieldID); 
+    ind[5] = sideToIndex_(zside,fieldID); 
+}; 
+
 /// averages two timesteps of B (for output) 
 /*! returns all elements of array (including ghosts and dummies) */ 
 void Grid::AvgB() { 
