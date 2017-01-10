@@ -1,3 +1,4 @@
+#include <string.h>
 #include "../../globals.hpp"
 #include "../fields_boundary.hpp"
 #include "../field_bc_factory.hpp"

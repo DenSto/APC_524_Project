@@ -50,11 +50,11 @@ protected:
   const int nFieldsPoisson_; 
   
   const int phi1ID_;
-  const int phi2ID_;
-
   const int Ax1ID_;
   const int Ay1ID_;
   const int Az1ID_;
+
+  const int phi2ID_;
   const int Ax2ID_;
   const int Ay2ID_;
   const int Az2ID_;
