@@ -255,6 +255,11 @@ int main(int argc, char *argv[]){
     /* output, finalize                                                        */
     /***************************************************************************/
     if(rank==0)printf("Writing output files...\n");
+    if((nt)%nstep_fields!=0) { // if we didn't write on final timestep, write
+      if(rank==0)printf("    ti=%d: Writing field diagnostic files...\n",nt);
+      // fields output
+      if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
+    }
     //writeoutput(grids,part_handler); //MPI
     if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);
 
