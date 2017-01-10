@@ -1,0 +1,6 @@
+<map id="Poisson_Solver" name="Poisson_Solver">
+<area shape="rect" id="node2" href="$class_grid.html" title="Class representing grid on which E and B fields and currents are defined. " alt="" coords="21,96,67,123"/>
+<area shape="rect" id="node3" href="$class_b_c___field.html" title="Class which defines a field boundary condition. " alt="" coords="5,5,83,32"/>
+<area shape="rect" id="node4" href="$class_domain.html" title="Domain" alt="" coords="91,96,159,123"/>
+<area shape="rect" id="node5" href="$struct_input___info__t.html" title="Structure storing info in the input file. " alt="" coords="183,96,275,123"/>
+</map>
