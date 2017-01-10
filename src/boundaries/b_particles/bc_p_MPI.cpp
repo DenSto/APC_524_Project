@@ -58,7 +58,7 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 	rBufSize_ = 1;
 	recvBuf_ = (double *) malloc(sizeof(double)*rBufSize_*DOUBLES_IN_PARTICLE);
 	assert(recvBuf_ != NULL);
-	info_ = Part_BC_Fatory::getInstance().getInfo();
+	info_ = Part_BC_Factory::getInstance().getInfo();
 
 	std::string periodic ("periodic");
 	bool isPeriodic = (periodic.compare(type) == 0);

@@ -57,6 +57,9 @@ typedef struct {
                        ///     inPolE[1]=3: 2nd wave E field is in Z direction(3)
                        ///     inPolE should only take value of 1,2,3
 
+    int isTestParticle[NSPEC];/// is the species a test particle species
+                       /// i.e. it feels fields but does not influence them
+                       /// 0 for no, 1 for yes
     long np; /// number of particles in each domain
 
     double t0;   /// start time of simulation
@@ -66,9 +69,6 @@ typedef struct {
                        /// eg. in electron-proton plasma
                        ///     mass_ratio[0]=1; mass_ratio[1]=1830;
                        //
-    short isTestParticle[NSPEC];/// is the species a test particle species
-                       /// i.e. it feels fields but does not influence them
-                       /// 0 for no, 1 for yes
 
     double charge_ratio[NSPEC];/// charge of each type of particle in unit of |e|
                          /// array of length nspecies

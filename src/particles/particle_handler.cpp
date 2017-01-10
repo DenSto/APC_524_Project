@@ -39,7 +39,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double *mass   = input_info->mass_ratio;
     double *charge = input_info->charge_ratio;
     double *dens   = input_info->dens_frac; 
-    short *test   = input_info->isTestParticle; 
+    int *test   = input_info->isTestParticle; 
 
     if(restart==0){// initial run
 		if(rank_MPI==0)printf("    Loading random particles from distribution...\n");

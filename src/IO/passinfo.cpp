@@ -15,7 +15,7 @@ void Input::passinfo(void){
     // parameters specific to Input_Info_t
     int count = 4; // three types
 
-    int nint = 2*NDIM+12*1+2*NWAVE; //2 of len NDIM + 10 of len 1 + 2 of len NWAVE
+    int nint = 2*NDIM+12*1+2*NWAVE+1*NSPEC; //2 of len NDIM + 10 of len 1 + 2 of len NWAVE
     int nlong = 1; // 1 of len 1
     int ndouble = 1*1+4*NSPEC+5*NWAVE+4*NDIM+4*2*NDIM; //1 of len 1 
                                                      //+ 4 of nspecies
