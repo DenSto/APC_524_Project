@@ -1,7 +1,7 @@
 #if USE_MPI
 
 #include "../../globals.hpp"
-#include "../input/input.hpp"
+#include "../../IO/input.hpp"
 #include "../particles_boundary.hpp"
 #include "../particle_bc_factory.hpp"
 #include <vector>
@@ -58,7 +58,7 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 	rBufSize_ = 1;
 	recvBuf_ = (double *) malloc(sizeof(double)*rBufSize_*DOUBLES_IN_PARTICLE);
 	assert(recvBuf_ != NULL);
-	info_ = Part_BC_Fatory::getInstance().getInfo();
+	info_ = Part_BC_Factory::getInstance().getInfo();
 
 	std::string periodic ("periodic");
 	bool isPeriodic = (periodic.compare(type) == 0);
