@@ -130,7 +130,6 @@ void Particle_Handler::InterpolateEB(Grid* grid){
 
     //Update cell field variables.
     pCell = grid->getCellID(pos[0],pos[1],pos[2]);
-    //fprintf(stderr,"rank=%d,pCell=%ld\n",rank_MPI,pCell);
     if (pCell >= 0) {
       if (pCell != iCell) {
         iCell = pCell;
@@ -177,7 +176,7 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, 
     tempCellID = grid->getCellID(parts_[i].x[0],parts_[i].x[1],parts_[i].x[2]);
 
     //Only if particle ENDS in a 'real' (non-ghost) cell, do we 'deposit' it.
-    if (tempCellID >= 0) {
+    if (!parts_[i].isGhost){
       //If list of particles continues to be in same cell, add current to existing JObj object.
       //Otherwise, deposit (add) RhoJ to the grid, and re-point (and zero out) the existing JObj object.
       if (tempCellID != cellID) {
