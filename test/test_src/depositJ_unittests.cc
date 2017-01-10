@@ -19,7 +19,7 @@ protected:
     size_MPI = 1;
     //Read input file
     Input *input =  new Input();
-    char filename[100];
+    char filename[200];
     sprintf(filename, "test_data/depositJ_unittest_data.txt");
     input->readinfo(filename);
     input_info = input->getinfo();

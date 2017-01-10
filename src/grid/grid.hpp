@@ -77,22 +77,15 @@ protected:
   const int nyReal_; 
   const int nzReal_; 
   
-//const int nx_;     // number of physical+ghost points
-//const int ny_;
-//const int nz_;
-  int nx_;     // number of physical+ghost points
-  int ny_;
-  int nz_;
-
-
   const int nGhosts_; // number of ghost points in each dimension/2
 
-//const int nxTot_; // (total number of grid points in x) 
-//const int nyTot_; 
-//const int nzTot_; 
-  int nxTot_; // (total number of grid points in x) 
-  int nyTot_; 
-  int nzTot_; 
+  const int nx_;     // number of physical+ghost points
+  const int ny_;
+  const int nz_;
+
+  const int nxTot_; // (total number of grid points in x) 
+  const int nyTot_; 
+  const int nzTot_; 
 
   const double x0_;	// initial x position
   const double y0_;	// initial y position
@@ -106,22 +99,15 @@ protected:
   const int jBeg_; // (non ghost) points in each direction
   const int kBeg_;
 
-//const double dx_;
-//const double dy_;
-//const double dz_;
-  double dx_;
-  double dy_;
-  double dz_;
+  const double dx_;
+  const double dy_;
+  const double dz_;
 
-//const double idx_;
-//const double idy_;
-//const double idz_;
-  double idx_;
-  double idy_;
-  double idz_;
+  const double idx_;
+  const double idy_;
+  const double idz_;
 
-//const int maxPointsInPlane_;
-  int maxPointsInPlane_;
+  const int maxPointsInPlane_;
   
   const int nFieldsTotal_;  
   const int ExID_; 
