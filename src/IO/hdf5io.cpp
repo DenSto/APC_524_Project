@@ -113,23 +113,23 @@ int Hdf5IO::writeFields(Grid* grid, double time_phys) {
   writeTime(time_phys);
 
   if(which_fields_==ALL || which_fields_==E) {
-    Ex_tsio_->writeField(fieldPtr[grid->getExID()]);
-    Ey_tsio_->writeField(fieldPtr[grid->getEyID()]);
-    Ez_tsio_->writeField(fieldPtr[grid->getEzID()]);
+    Ex_tsio_->writeField(fieldPtr[grid->getFieldID("Ex")]);
+    Ey_tsio_->writeField(fieldPtr[grid->getFieldID("Ey")]);
+    Ez_tsio_->writeField(fieldPtr[grid->getFieldID("Ez")]);
   }
   if(which_fields_==ALL || which_fields_==B) {
     // Note: this needs to be changed to Bavg...
-    Bx_tsio_->writeField(fieldPtr[grid->getBxID()]);
-    By_tsio_->writeField(fieldPtr[grid->getByID()]);
-    Bz_tsio_->writeField(fieldPtr[grid->getBzID()]);
+    Bx_tsio_->writeField(fieldPtr[grid->getFieldID("Bx")]);
+    By_tsio_->writeField(fieldPtr[grid->getFieldID("By")]);
+    Bz_tsio_->writeField(fieldPtr[grid->getFieldID("Bz")]);
   }
   if(which_fields_==ALL || which_fields_==J) {
-    Jx_tsio_->writeField(fieldPtr[grid->getJxID()]);
-    Jy_tsio_->writeField(fieldPtr[grid->getJyID()]);
-    Jz_tsio_->writeField(fieldPtr[grid->getJzID()]);
+    Jx_tsio_->writeField(fieldPtr[grid->getFieldID("Jx")]);
+    Jy_tsio_->writeField(fieldPtr[grid->getFieldID("Jy")]);
+    Jz_tsio_->writeField(fieldPtr[grid->getFieldID("Jz")]);
   }
   if(which_fields_==ALL || which_fields_==rho) {
-    rho_tsio_->writeField(fieldPtr[grid->getrhoID()]);
+    rho_tsio_->writeField(fieldPtr[grid->getFieldID("rho")]);
   }
 
   return 0;

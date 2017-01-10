@@ -117,7 +117,7 @@ Grid::~Grid() {
 int Grid::getFieldID(const std::string &fieldStr){
   int ID;
   if(fieldStr == "Ex"){ID = ExID_;}
-  else if(fieldStr == "Ex"){ID = EyID_;}
+  else if(fieldStr == "Ey"){ID = EyID_;}
   else if(fieldStr == "Ez"){ID = EzID_;}
   else if(fieldStr == "Bx"){ID = BxID_;}
   else if(fieldStr == "By"){ID = ByID_;}
@@ -131,7 +131,6 @@ int Grid::getFieldID(const std::string &fieldStr){
   else if(fieldStr == "rho"){ID = rhoID_;}
   else{ID=-1;fprintf(stderr,"Unknown fieldStr for getFieldID!\n");}
   return ID;
-
 }
 
 /// allocates memory for a single field 
