@@ -251,7 +251,7 @@ int main(int argc, char *argv[]){
 
      } // timestep loop
 
-     if(rank==0) printf("***Timestep loop complete***\n");
+     if(rank==0) printf("***Timestep loop complete*********\n");
 
     /***************************************************************************/
     /* output, finalize                                                        */
