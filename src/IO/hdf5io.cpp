@@ -52,22 +52,22 @@ Hdf5IO::Hdf5IO(const char* filename, Grid* grid, Domain* domain, const int which
     assert(fields_group_id_>=0);
   }
   if(which_fields_==ALL || which_fields_==E) {
-    Ex_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Ex"), "Ex");
-    Ey_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Ey"), "Ey");
-    Ez_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Ez"), "Ez");
+    Ex_tsio_ = new FieldTimeseriesIO(this, grid, "Ex");
+    Ey_tsio_ = new FieldTimeseriesIO(this, grid, "Ey");
+    Ez_tsio_ = new FieldTimeseriesIO(this, grid, "Ez");
   }
   if(which_fields_==ALL || which_fields_==B) {
-    Bx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Bx_avg"), "Bx");
-    By_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("By_avg"), "By");
-    Bz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Bz_avg"), "Bz");
+    Bx_tsio_ = new FieldTimeseriesIO(this, grid, "Bx");
+    By_tsio_ = new FieldTimeseriesIO(this, grid, "By");
+    Bz_tsio_ = new FieldTimeseriesIO(this, grid, "Bz");
   }
   if(which_fields_==ALL || which_fields_==J) {
-    Jx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Jx"), "Jx");
-    Jy_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Jy"), "Jy");
-    Jz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Jz"), "Jz");
+    Jx_tsio_ = new FieldTimeseriesIO(this, grid, "Jx");
+    Jy_tsio_ = new FieldTimeseriesIO(this, grid, "Jy");
+    Jz_tsio_ = new FieldTimeseriesIO(this, grid, "Jz");
   }
   if(which_fields_==ALL || which_fields_==rho) {
-    rho_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("rho"), "rho");
+    rho_tsio_ = new FieldTimeseriesIO(this, grid, "rho");
   }
 }
 
@@ -162,7 +162,7 @@ int Hdf5IO::writeTime(double time_phys) {
   return 0;
 }
 
-FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, std::string fieldname) 
+FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldname) 
 	: ndims_(4),
   	  nProcxyz_(io->getnProcxyz()),
 	  myijk_(io->getmyijk()),
@@ -170,6 +170,9 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
 	  data_xfer_plist_(io->getDataXferPlist()),
 	  fields_group_id_(io->getFieldsGroupID())
 {
+  // get fieldID for this field
+  const int fieldID = grid->getFieldID(fieldname);
+
   // get some grid dimensions
   int* nxyzTot = new int[3];
   grid->getnxyzTot(nxyzTot);

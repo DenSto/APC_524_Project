@@ -85,7 +85,7 @@ class Hdf5IO {
 /*! Class for writing fields in time series to hdf5 */
 class FieldTimeseriesIO  {
     public: 
-	FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, std::string fieldname);
+	FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldname);
 	~FieldTimeseriesIO(void);
 	int writeField(double*** data);
 

@@ -45,6 +45,7 @@ public:
   int getNumCells3D(double *nvec);
   double getStepSize(int dimension);
   int getnxyzTot(int *nxyzTot);
+  void getRealIndices(int fieldID, int* ind); 
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 

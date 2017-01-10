@@ -57,7 +57,7 @@ TEST_F(FieldIOTest, writeField) {
 
     // change Ex
     int dim_phys[3];
-    grid->getDimPhys(grid->getExID(), dim_phys); 
+    grid->getDimPhys(grid->getFieldID("Ex"), dim_phys); 
 
     int iBeg = 1;
     int jBeg = 1;
