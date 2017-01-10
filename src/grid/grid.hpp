@@ -63,7 +63,7 @@ public:
   virtual int getFieldID(const std::string &fieldStr);
   void getDimPhys(const int fieldID, int* dim);
   void getGridPhys(const int fieldID, double* x, double* y, double * z); 
-  void getAvgB(double*** Bx_avg, double*** By_avg, double*** Bz_avg); 
+  void AvgB(); 
   
   void executeBC(int sendID, int option); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
@@ -188,11 +188,6 @@ protected:
   void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec, const int op);
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
-
-  //void writeFieldTimeseries_(FieldTimeseriesIO* tsIO, const int fieldID, const int iwrite);
-
-  //void physSliceOut_(const int fieldID, const int side, const int offset); 
-
 
   // for unit testing
   friend class oGridInternalTest;

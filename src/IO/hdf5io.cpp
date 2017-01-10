@@ -52,22 +52,22 @@ Hdf5IO::Hdf5IO(const char* filename, Grid* grid, Domain* domain, const int which
     assert(fields_group_id_>=0);
   }
   if(which_fields_==ALL || which_fields_==E) {
-    Ex_tsio_ = new FieldTimeseriesIO(this, grid, grid->getExID(), "Ex");
-    Ey_tsio_ = new FieldTimeseriesIO(this, grid, grid->getEyID(), "Ey");
-    Ez_tsio_ = new FieldTimeseriesIO(this, grid, grid->getEzID(), "Ez");
+    Ex_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Ex"), "Ex");
+    Ey_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Ey"), "Ey");
+    Ez_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Ez"), "Ez");
   }
   if(which_fields_==ALL || which_fields_==B) {
-    Bx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getBxID(), "Bx");
-    By_tsio_ = new FieldTimeseriesIO(this, grid, grid->getByID(), "By");
-    Bz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getBzID(), "Bz");
+    Bx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Bx_avg"), "Bx");
+    By_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("By_avg"), "By");
+    Bz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Bz_avg"), "Bz");
   }
   if(which_fields_==ALL || which_fields_==J) {
-    Jx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getJxID(), "Jx");
-    Jy_tsio_ = new FieldTimeseriesIO(this, grid, grid->getJyID(), "Jy");
-    Jz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getJzID(), "Jz");
+    Jx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Jx"), "Jx");
+    Jy_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Jy"), "Jy");
+    Jz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("Jz"), "Jz");
   }
   if(which_fields_==ALL || which_fields_==rho) {
-    rho_tsio_ = new FieldTimeseriesIO(this, grid, grid->getrhoID(), "rho");
+    rho_tsio_ = new FieldTimeseriesIO(this, grid, grid->getFieldID("rho"), "rho");
   }
 }
 
@@ -119,9 +119,9 @@ int Hdf5IO::writeFields(Grid* grid, double time_phys) {
   }
   if(which_fields_==ALL || which_fields_==B) {
     // Note: this needs to be changed to Bavg...
-    Bx_tsio_->writeField(fieldPtr[grid->getFieldID("Bx")]);
-    By_tsio_->writeField(fieldPtr[grid->getFieldID("By")]);
-    Bz_tsio_->writeField(fieldPtr[grid->getFieldID("Bz")]);
+    Bx_tsio_->writeField(fieldPtr[grid->getFieldID("Bx_avg")]);
+    By_tsio_->writeField(fieldPtr[grid->getFieldID("By_avg")]);
+    Bz_tsio_->writeField(fieldPtr[grid->getFieldID("Bz_avg")]);
   }
   if(which_fields_==ALL || which_fields_==J) {
     Jx_tsio_->writeField(fieldPtr[grid->getFieldID("Jx")]);

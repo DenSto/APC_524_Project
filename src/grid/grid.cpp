@@ -453,9 +453,9 @@ void Grid::AvgB() {
     for (i=0; i<nxTot_; ++i) { 
         for (j=0; j<nyTot_; ++j) { 
             for (k=0; k<nzTot_; ++k) { 
-                Bx_avg[i][j][k] = (Bx_[i][j][k] + Bx_tm1_[i][j][k])/2; 
-                By_avg[i][j][k] = (By_[i][j][k] + By_tm1_[i][j][k])/2; 
-                Bz_avg[i][j][k] = (Bz_[i][j][k] + Bz_tm1_[i][j][k])/2; 
+                Bx_avg_[i][j][k] = (Bx_[i][j][k] + Bx_tm1_[i][j][k])/2; 
+                By_avg_[i][j][k] = (By_[i][j][k] + By_tm1_[i][j][k])/2; 
+                Bz_avg_[i][j][k] = (Bz_[i][j][k] + Bz_tm1_[i][j][k])/2; 
             }
         }
     }
