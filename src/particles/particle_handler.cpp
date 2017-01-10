@@ -108,9 +108,7 @@ void Particle_Handler::incrementNParticles(int inc){
 }
 
 void Particle_Handler::InterpolateEB(Grid* grid){
-  fprintf(stderr,"rank=%d,start InterpolateEB\n",rank_MPI);
   Interpolator *interpolator = new Interpolator();
-  fprintf(stderr,"rank=%d,new Interpolator\n",rank_MPI);
 
   long iCell = -1; //cell # tracker
   long pCell = 0; //particle cell #
@@ -139,11 +137,11 @@ void Particle_Handler::InterpolateEB(Grid* grid){
       }
 
       //Interpolate fields at particle.
-      fprintf(stderr,"rank=%d,call Interpolator\n",rank_MPI);
+	  if(debug>3)  fprintf(stderr,"rank=%d,call Interpolator\n",rank_MPI);
       interpolator->interpolate_fields(pos, lcell, cellvars, &(parts_[i].field));
     }
   }
-  fprintf(stderr,"rank=%d,Finish InterpolateEB\n",rank_MPI);
+  if(debug>3) fprintf(stderr,"rank=%d,Finish InterpolateEB\n",rank_MPI);
 }
 
 //! Sort particles based on grid location. 
@@ -253,7 +251,7 @@ void Particle_Handler::clearGhosts(){
 		}
 	}
 	assert((long)parts_.size() == np_);
-        if(debug)fprintf(stderr,"rank=%d: %d ghosts are cleared.\n",rank_MPI,nghost);
+        if(debug>2)fprintf(stderr,"rank=%d: %d ghosts are cleared.\n",rank_MPI,nghost);
 }
 
 
@@ -280,7 +278,7 @@ void Particle_Handler::executeParticleBoundaryConditions(){
  */
 void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 
-       if(rank_MPI==0)printf("    ti=%ld: writing particle trackes...\n",step);
+	if(debug>2 && rank_MPI==0) printf("    ti=%ld: writing particle trackes...\n",step);
 
        double t = time_phys;
        dstep_ = input_info->nstep_parts;

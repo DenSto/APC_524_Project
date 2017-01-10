@@ -200,7 +200,7 @@ int main(int argc, char *argv[]){
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
 
-       if(debug>1) fprintf(stderr,"rank=%d,ti=%d\n",rank,ti);   
+       if(ti % 100 == 0) fprintf(stderr,"i=%d    t=%f\n",ti,ti*dt_phys);   
 
        /* push particles ***********************/
        part_handler->Push(dt_phys);
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]){
 
        // writing files
        if((ti+1)%nstep_fields==0) {
-         if(rank==0)printf("    ti=%d: Writing field diagnostic files...\n",ti+1);
+         if(debug && rank==0)printf("    ti=%d: Writing field diagnostic files...\n",ti+1);
          // fields output
          if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
        }
