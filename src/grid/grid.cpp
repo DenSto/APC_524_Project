@@ -9,7 +9,7 @@
 
 /// Grid constructor 
 /*! Input arguments: \n 
- * nxyz: integer array [nx,ny,nz] where nx is the total number of cells (physical + ghost) in the x direction in the simulation, and the same for ny,nz. \n 
+ * nxyz: integer array [nx,ny,nz] where nx is the number of physical cells in the x direction in the simulation, and the same for ny,nz. \n 
  * nGhosts: integer number of ghost cells on each side of the domain. This should always be at least 1. Currently the code does not support nGhosts>1, though it may in the future (to take advantage of higher order finite difference and interpolation methods, for instance). \n 
  * xyz0: integer array [x0,y0,z0] where x0 is the initial x position, and the same for y0,z0 \n 
  * Lxyz0: double array [Lx,Ly,Lz] where Lx is the physical length of each cell in the x direction, and the same for Ly,Lz \n 
@@ -19,9 +19,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     ny_(nxyz[1]), 
     nz_(nxyz[2]), 
     nGhosts_(nGhosts), 
-    nxTot_(nx_+1), 
-    nyTot_(ny_+1), 
-    nzTot_(nz_+1),
+    nxTot_(nx_ + 2*nGhosts_ + 1), 
+    nyTot_(ny_ + 2*nGhosts_ + 1), 
+    nzTot_(nz_ + 2*nGhosts_ + 1),
     x0_(xyz0[0]), 
     y0_(xyz0[1]), 
     z0_(xyz0[2]), 
@@ -31,9 +31,9 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 
     kBeg_(nGhosts),
-    dx_(Lxyz[0]/(nxyz[0]-2*nGhosts_)), 
-    dy_(Lxyz[1]/(nxyz[1]-2*nGhosts_)), 
-    dz_(Lxyz[2]/(nxyz[2]-2*nGhosts_)),
+    dx_(Lxyz[0]/nx_), 
+    dy_(Lxyz[1]/ny_), 
+    dz_(Lxyz[2]/nz_),
     idx_(1.0/dx_), 
     idy_(1.0/dy_),
     idz_(1.0/dz_),
@@ -225,7 +225,7 @@ int** Grid::setFieldSize_() {
     };
 
     // set the actual values 
-    int nxyz[3] = {nx_,ny_,nz_}; 
+    int nxyz[3] = {nxTot_-1,nyTot_-1,nzTot_-1}; 
     int edge,dir; 
     for (i=0; i<nTypes_; ++i) { 
         if (i < ndim) { 
@@ -324,9 +324,9 @@ void Grid::deleteFieldPtr_() {
 /*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
  */ 
 void Grid::checkInput_() { 
-    assert(nx_ > 2*nGhosts_); // to guarantee there is at least 1 physical cell
-    assert(ny_ > 2*nGhosts_); 
-    assert(nz_ > 2*nGhosts_); 
+    assert(nxTot_ > 2*nGhosts_); // to guarantee there is at least 1 physical cell
+    assert(nyTot_ > 2*nGhosts_); 
+    assert(nzTot_ > 2*nGhosts_); 
     assert(nGhosts_ == 1); // currently some grid functions assume this, though they can be generalized later to allow fo rmore 
     assert(nxTot_ > nx_); 
     assert(nyTot_ > ny_); 
@@ -450,7 +450,6 @@ void Grid::constField_(const int fieldID, const double val) {
         for (j=0; j<nyTot_; ++j) { 
             for (k=0; k<nzTot_; ++k) { 
                 field[i][j][k]=val; 
-                //field[i][j][k]=k+j*10+i*100; 
             } 
         } 
     } 
@@ -471,7 +470,6 @@ void Grid::constE(double vx, double vy, double vz) {
     constField_(ExID_,vx); 
     constField_(EyID_,vy); 
     constField_(EzID_,vz); 
-    //printf("E = %f\n", fieldPtr_[ExID_][0][0][0]);
 } 
 
 /// sets J to a constant value 

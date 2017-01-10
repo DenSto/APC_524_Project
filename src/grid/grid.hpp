@@ -78,11 +78,6 @@ public:
   void getGridPhys(const int fieldID, double* x, double* y, double * z); 
   void getAvgB(double*** Bx_avg, double*** By_avg, double*** Bz_avg); 
   
-  //void ESliceOut(); 
-  //void BSliceOut(); 
-  //void JSliceOut(); 
-  //void RhoSliceOut(); 
-  
   void executeBC(int sendID, int option); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
@@ -90,13 +85,13 @@ public:
 protected:
   BC_Field** boundaries_; // field boundary conditions
 
-  const int nx_;     // number of (physical + ghost) gridpoints
+  const int nx_;     // number of physical gridpoint
   const int ny_;
   const int nz_;
 
   const int nGhosts_; // number of ghost points in each dimension/2
 
-  const int nxTot_; // nx_ + 1 (total number of grid points in x) 
+  const int nxTot_; // nx_ + 2*nGhosts_ + 1 (total number of grid points in x) 
   const int nyTot_; 
   const int nzTot_; 
 
