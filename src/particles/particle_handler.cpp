@@ -41,38 +41,39 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double *dens   = input_info->dens_frac; 
 
     if(restart==0){// initial run
-	Random_Number_Generator *rng = new Random_Number_Generator(-1);
-	int ispec = 0; // temporaty counter	
-	double cden = dens[0]; // cummulative density fraction
-	double vth;
-	for(long ip=0; ip < npart;ip++){
-		Particle p = new_particle();
-		if(ip >= cden*npart){
-			ispec += 1;
-			cden  += dens[ispec];
-		}
-		assert(ispec<nspec);
-		p.q = charge[ispec];
-		p.m = mass[ispec];
+		Random_Number_Generator *rng = new Random_Number_Generator(-1);
+		int ispec = 0; // temporaty counter	
+		double cden = dens[0]; // cummulative density fraction
+		double vth;
+		for(long ip=0; ip < npart;ip++){
+			Particle p = new_particle();
+			if(ip >= cden*npart){
+				ispec += 1;
+				cden  += dens[ispec];
+			}
+			assert(ispec<nspec);
+			p.q = charge[ispec];
+			p.m = mass[ispec];
 
-                if(debug>3)fprintf(stderr,"charge=%f\n",p.q);
+            if(debug>3)fprintf(stderr,"charge=%f\n",p.q);
 
-		vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
+			vth=UNIT_VTH*sqrt(input_info->temp[ispec]/p.m);
 
-		p.x[0]=rng->getUniform()*L[0]+x0[0];
-		p.x[1]=rng->getUniform()*L[1]+x0[1];
-		p.x[2]=rng->getUniform()*L[2]+x0[2];
+			p.x[0]=rng->getUniform()*L[0]+x0[0];
+			p.x[1]=rng->getUniform()*L[1]+x0[1];
+			p.x[2]=rng->getUniform()*L[2]+x0[2];
 
-		p.v[0]=rng->getGaussian(0.0,vth);
-		p.v[1]=rng->getGaussian(0.0,vth);
-		p.v[2]=rng->getGaussian(0.0,vth);
+			p.v[0]=rng->getGaussian(0.0,vth);
+			p.v[1]=rng->getGaussian(0.0,vth);
+			p.v[2]=rng->getGaussian(0.0,vth);
 
-		p.my_id=ip;
-		p.initRank=rank_MPI;
+			p.my_id=ip;
+			p.initRank=rank_MPI;
 
-		parts_.push_back(p);
-		np_++;
-    } }
+			parts_.push_back(p);
+			np_++;
+    	} 
+	}
     else{//read restart file
         //dummy code inserted by YShi for testing
         //insert a single particle at the center of the cell
@@ -109,7 +110,7 @@ void Particle_Handler::InterpolateEB(Grid* grid){
   Interpolator *interpolator = new Interpolator();
   fprintf(stderr,"rank=%d,new Interpolator\n",rank_MPI);
 
-  long iCell = 0; //cell # tracker
+  long iCell = -1; //cell # tracker
   long pCell = 0; //particle cell #
   double cellvars[21];//Vector describing position of and all field elements of a cell
                       //["least" corner vertex, E-field on edges, B-field on surfaces]
@@ -132,8 +133,8 @@ void Particle_Handler::InterpolateEB(Grid* grid){
     //fprintf(stderr,"rank=%d,pCell=%ld\n",rank_MPI,pCell);
     if (pCell >= 0) {
       if (pCell != iCell) {
-	iCell = pCell;
-	grid->getFieldInterpolatorVec(iCell, cellvars);
+        iCell = pCell;
+        grid->getFieldInterpolatorVec(iCell, cellvars);
       }
 
       //Interpolate fields at particle.
@@ -319,7 +320,7 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
                         if(debug>1)fprintf(stderr,"    track file name %s\n",fname);
 			pout=fopen(fname,"a");
 			assert(pout != NULL);
-			fprintf(pout,"%e %e %e %e %e %e %e\n",t,
+			fprintf(pout,"%e %.15e %.15e %.15e %.15e %.15e %.15e\n",t,
 					iter->x[0],iter->x[1],iter->x[2],
 					iter->v[0],iter->v[1],iter->v[2]);
 			fclose(pout);

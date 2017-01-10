@@ -75,7 +75,7 @@ public:
   int getJzID() {return JzID_;};
   int getrhoID() {return rhoID_;};
   void getDimPhys(const int fieldID, int* dim);
-  void getGridPhys(const int fieldID, double*** x, double*** y, double *** z); 
+  void getGridPhys(const int fieldID, double* x, double* y, double * z); 
   void getAvgB(double*** Bx_avg, double*** By_avg, double*** Bz_avg); 
   
   //void ESliceOut(); 
