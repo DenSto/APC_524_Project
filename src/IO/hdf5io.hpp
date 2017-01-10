@@ -21,7 +21,9 @@ enum fields_to_write {
 
 class FieldTimeseriesIO;
 
-/*! Class that creates an hdf5 file and sets basic props */
+//! Class for handling hdf5 IO
+/*! Creates an hdf5 file,
+    and sets up field diagnostics  */
 class Hdf5IO {
     public:
         Hdf5IO(const char* filename, Grid* grid, Domain* domain, const int which_fields);

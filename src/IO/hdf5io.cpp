@@ -105,6 +105,7 @@ Hdf5IO::~Hdf5IO() {
   H5Fclose(file_id_);
 }
 
+/// write all field timeseries to hdf5 file
 int Hdf5IO::writeFields(Grid* grid, double time_phys) {
   double**** fieldPtr = grid->getFieldPtr();  
   assert(fieldPtr!=NULL);
@@ -134,6 +135,7 @@ int Hdf5IO::writeFields(Grid* grid, double time_phys) {
   return 0;
 }
 
+/// write time data to hdf5 file
 int Hdf5IO::writeTime(double time_phys) {
   int status = 0;
   hsize_t currdims;
@@ -276,6 +278,7 @@ FieldTimeseriesIO::~FieldTimeseriesIO() {
   delete[] field_block_;
 }
 
+/// write a field timeseries to hdf5 file
 int FieldTimeseriesIO::writeField(double*** field_data) {
   int status = -1;
 
