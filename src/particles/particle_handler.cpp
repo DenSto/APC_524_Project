@@ -39,6 +39,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double *mass   = input_info->mass_ratio;
     double *charge = input_info->charge_ratio;
     double *dens   = input_info->dens_frac; 
+    short *test   = input_info->isTestParticle; 
 
     if(restart==0){// initial run
 		Random_Number_Generator *rng = new Random_Number_Generator(-1);
@@ -54,6 +55,8 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 			assert(ispec<nspec);
 			p.q = charge[ispec];
 			p.m = mass[ispec];
+			p.isTestParticle = test[ispec];
+			p.type = ispec;
 
             if(debug>3)fprintf(stderr,"charge=%f\n",p.q);
 
@@ -66,6 +69,8 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 			p.v[0]=rng->getGaussian(0.0,vth);
 			p.v[1]=rng->getGaussian(0.0,vth);
 			p.v[2]=rng->getGaussian(0.0,vth);
+
+			p.gamma = sqrt(1 - p.v[0]*p.v[0] - p.v[1]*p.v[1] - p.v[2]*p.v[2]);
 
 			p.my_id=ip;
 			p.initRank=rank_MPI;
@@ -170,8 +175,8 @@ void Particle_Handler::depositRhoJ(Grid *grid, bool depositRho, Domain* domain, 
 
   //Cycle through particles, depositing RhoJ for each one.
   for (long i=0; i<np_; i++) {
-    //Only if particle ENDS in a 'real' (non-ghost) cell, do we 'deposit' it.
-    if (!parts_[i].isGhost){
+    //Only if particle ENDS in a 'real' (non-ghost) cell and is not a test particle, do we 'deposit' it.
+    if (!parts_[i].isGhost && !parts_[i].isTestParticle){
     	//Get particle's 'entered' (post-push) cell id
 		tempCellID = grid->getCellID(parts_[i].x[0],parts_[i].x[1],parts_[i].x[2]);
 

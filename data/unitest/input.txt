@@ -17,7 +17,7 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 15
+  nTimesteps = 100000
 
   # start time
   startTime = 0.0
@@ -25,7 +25,7 @@ runtime:
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug print, and write debug files
-  debug = 2
+  debug = 0
 }
 
 initialization:
@@ -40,19 +40,23 @@ initialization:
     relativity = 0
 
     # number of species
-    nspecies = 1
+    nspecies = 2
 
     # mass of each species in unit of electron mass
-    mass_ratio = [1000.0]
+    mass_ratio = [1.0,1.0]
 
     # charge of each species in unit of |e|
-    charge_ratio = [-1.0]
+    charge_ratio = [-1.0,1.0]
+
+    # is the species a test particle? (0 = no, 1 = yes)
+    isTestParticle = [0, 0]
 
     # fractional density of species
-    dens_frac = [1.0]  
+    dens_frac = [0.5,0.5]  
+
 
     # number of particles of all species in each domain
-    nParticles = 1
+    nParticles = 2
   
     # position distribution function
     #xdist = "sinusoid"
@@ -91,7 +95,7 @@ initialization:
     #init = "file: fields.dat"
 
     # constant background/boundary magnetic field. 1->1kG
-    B0 = [0.0, 0.0, 100.0]
+    B0 = [0.0, 0.0, 1.0]
 
     # constant background/boundary electric field. 1->299.79KV/cm
     E0 = [0.0, 0.0, 0.0]
@@ -108,7 +112,7 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","reflecting"
-    conditions = ["reflecting","reflecting", 
+    conditions = ["periodic","periodic", 
                 "periodic","periodic",
                 "periodic","periodic"]
   }
@@ -119,7 +123,7 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","external"
-    conditions = ["external","external",
+    conditions = ["periodic","periodic",
                 "periodic","periodic",
                 "periodic","periodic"]
 
@@ -178,7 +182,7 @@ diagnostics:
   nstep_fields = 10
 
   # How many time steps between each particle diagnostic
-  nstep_parts = 1
+  nstep_parts = 5
 
   # How many time steps between each restart
   nstep_restart = 100
@@ -186,7 +190,7 @@ diagnostics:
   particles:
   {
     # How many particle/species to track by each core?
-    output_pCount = 1
+    output_pCount = 10
   }
 
   fields:

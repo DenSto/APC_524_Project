@@ -12,17 +12,19 @@ typedef struct Particle {
 
   double gamma; /* relativistic parameter gamma */
 
-  double xo[3];  /* LAST coordinate in X,Y,Z */
-  double vo[3];  /* LAST velocity in X,Y,Z */
-
-  double dx[3]; /*last step-lengths*/
-
-  double q;		  /* charge */
-  double m;		  /* mass */
+  int type;	 /* particle type */
 
   long my_id; 		  /* particle id */
   int initRank; 	/* initial MPI rank */
+
+  double q;		  /* charge */
+  double m;		  /* mass */
   short isGhost;    /* is particle in ghost cell? */
+  short isTestParticle; /* is this particle a test particle? */
+
+  double xo[3];  /* LAST coordinate in X,Y,Z */
+  double vo[3];  /* LAST velocity in X,Y,Z */
+  double dx[3]; /*last step-lengths*/
 
   Field_part field; /* interpolated field */
 

@@ -130,7 +130,7 @@ int main(int argc, char *argv[]){
     } 
 
     // Set up particle boundary conditions
-    BC_Particle** bc = Part_BC_Factory::getInstance().constructConditions(domain,input_info->parts_bound);
+    BC_Particle** bc = Part_BC_Factory::getInstance().constructConditions(domain,input_info);
     part_handler->setParticleBoundaries(bc);
     if(debug) fprintf(stderr,"rank=%d:Finish assigning particle boundary condition\n",rank);
 

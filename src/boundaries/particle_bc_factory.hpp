@@ -30,7 +30,7 @@ public:
   }
 
 
-  BC_Particle** constructConditions(Domain* domain, const char (*bound)[NCHAR]);
+  BC_Particle** constructConditions(Domain* domain, Input_Info_t* info);
 
   /*  
    * Declare an particle boundary by type
@@ -70,6 +70,11 @@ public:
 
     return types;
   }
+
+
+  Input_Info_t* getInfo(){return info_;};
+  void setInfo(Input_Info_t* info){info_ = info;};
+  
 private:
   Part_BC_Factory() {}
   ~Part_BC_Factory() {} 
@@ -78,7 +83,8 @@ private:
   void operator=(const Part_BC_Factory&);
 
   typedef std::map<std::string, Factory> MapType;
-  MapType registry_; // BC_particle registry  registry
+  MapType registry_;  // BC_particle registry  registry
+  Input_Info_t* info_; // BC_particle registry  info on particle tyes
 };
 
 

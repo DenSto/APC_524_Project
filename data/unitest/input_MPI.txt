@@ -49,6 +49,9 @@ initialization:
     # charge of each species in unit of |e|
     charge_ratio = [-1.0, 1.0]
 
+    # is the species a test particle? (0 = no, 1 = yes)
+    isTestParticle = [0, 0]
+
     # fractional density of species
     dens_frac = [0.5,0.5]  
 

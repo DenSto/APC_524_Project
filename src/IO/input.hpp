@@ -65,6 +65,10 @@ typedef struct {
                        /// array of length nspecies 
                        /// eg. in electron-proton plasma
                        ///     mass_ratio[0]=1; mass_ratio[1]=1830;
+                       //
+    short isTestParticle[NSPEC];/// is the species a test particle species
+                       /// i.e. it feels fields but does not influence them
+                       /// 0 for no, 1 for yes
 
     double charge_ratio[NSPEC];/// charge of each type of particle in unit of |e|
                          /// array of length nspecies

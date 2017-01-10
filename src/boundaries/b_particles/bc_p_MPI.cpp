@@ -1,12 +1,14 @@
 #if USE_MPI
 
 #include "../../globals.hpp"
+#include "../input/input.hpp"
 #include "../particles_boundary.hpp"
 #include "../particle_bc_factory.hpp"
 #include <vector>
 #include <stdlib.h>
 #include "assert.h"
 #include "mpi.h"
+#include "math.h"
 
 #define DOUBLES_IN_PARTICLE 10
 
@@ -31,6 +33,9 @@ class BC_P_MPI : public BC_Particle {
 		std::vector<Particle> ghostBuf_;
 		double* recvBuf_;
 		int rBufSize_;
+	
+		Input_Info_t* info_; // keep info on particle types
+
 		void packParticle(Particle* p);
 		Particle unpackParticle(int offset);
 };
@@ -53,6 +58,7 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 	rBufSize_ = 1;
 	recvBuf_ = (double *) malloc(sizeof(double)*rBufSize_*DOUBLES_IN_PARTICLE);
 	assert(recvBuf_ != NULL);
+	info_ = Part_BC_Fatory::getInstance().getInfo();
 
 	std::string periodic ("periodic");
 	bool isPeriodic = (periodic.compare(type) == 0);
@@ -181,9 +187,9 @@ void BC_P_MPI::packParticle(Particle* p){
 	sendBuf_.push_back(p->v[1]);
 	sendBuf_.push_back(p->v[2]);
 	sendBuf_.push_back(p->gamma);
-	sendBuf_.push_back(p->q);
-	sendBuf_.push_back(p->m);
 	sendBuf_.push_back((double)p->my_id);
+	sendBuf_.push_back((double)p->initRank);
+	sendBuf_.push_back((double)p->type);
 	toSend_++;
 }
 
@@ -197,10 +203,15 @@ Particle BC_P_MPI::unpackParticle(int offset){
 	p.v[1] = recvBuf_[i++];
 	p.v[2] = recvBuf_[i++];
 	p.gamma= recvBuf_[i++];
-	p.q    = recvBuf_[i++];
-	p.m    = recvBuf_[i++];
 	p.my_id = (long) recvBuf_[i++];
+	p.initRank = (int) recvBuf_[i++];
+	p.type = (short) type_[i++];
+
 	p.isGhost = 0;
+
+	p.m = info_->mass_ratio[p.type];
+	p.q = info_->charge_ratio[p.type];
+	p.isTestParticle = info_->isTestParticle[p.type];
 
 	return p;
 }
