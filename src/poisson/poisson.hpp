@@ -21,7 +21,12 @@ public:
   void constA(const double vx, const double vy, const double vz);
   void constPhi(const double v);
 
+  int getFieldID(const std::string &fieldStr);
+
 protected:
+  // convergence criteria for poisson solver
+  double conv_phi_,conv_A_;
+ 
   void run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult); 
   void setPoissonFieldType_();
   void setPoissonFieldPtr_();

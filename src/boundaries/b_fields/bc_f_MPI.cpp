@@ -99,7 +99,7 @@ int BC_F_MPI::completeBC(int fieldID, int option){
     // wait for communication
     err = MPI_Waitall(2,reqs,stats);
     if(err)fprintf(stderr, "rank=%d (1) MPI_Waitall error = %d\n",rank_MPI,err);
-    if(debug>1) fprintf(stderr,"rank=%d: field sent and received on side %d\n",rank_MPI,side_);
+    if(debug>2) fprintf(stderr,"rank=%d: field sent and received on side %d\n",rank_MPI,side_);
 
     if(debug>2){
        fprintf(stderr,"rank=%d:checking field revc\n",rank_MPI);
