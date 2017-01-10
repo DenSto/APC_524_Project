@@ -77,11 +77,12 @@ protected:
   const int nyReal_; 
   const int nzReal_; 
   
+  const int nGhosts_; // number of ghost points in each dimension/2
+
   const int nx_;     // number of physical+ghost points
   const int ny_;
   const int nz_;
 
-  const int nGhosts_; // number of ghost points in each dimension/2
 
   const int nxTot_; // (total number of grid points in x) 
   const int nyTot_; 
