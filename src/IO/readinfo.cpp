@@ -257,6 +257,24 @@ int Input::readinfo(char *fname){
       cerr << "Error: charge_ratio not set in input file" << endl; 
       return(EXIT_FAILURE);
     }
+    try
+    {
+      const Setting &temperature = 
+           cfg.lookup("initialization.particles.temperature");
+      if(temperature.getLength() != nspecies) {
+        cerr << "Error: length of charge ratios does not match nspecies!" << endl;
+        return(EXIT_FAILURE);
+      } else {
+        for(int i=0;i<nspecies;i++){
+          input_info_->temp[i] = temperature[i];
+        }
+      }
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "Error: temperature not set in input file" << endl; 
+      return(EXIT_FAILURE);
+    }
 
     try
     {
@@ -273,8 +291,30 @@ int Input::readinfo(char *fname){
     }
     catch(const SettingNotFoundException &nfex)
     {
-      cerr << "Error: charge_ratio not set in input file" << endl; 
+      cerr << "Error: dens_frac not set in input file" << endl; 
       return(EXIT_FAILURE);
+    }
+
+    try
+    {
+      const Setting &isTestParticle = 
+           cfg.lookup("initialization.particles.isTestParticle");
+      if(isTestParticle.getLength() != nspecies) {
+        cerr << "Error: length of isTestParticle does not match nspecies!" << endl;
+        return(EXIT_FAILURE);
+      } else {
+        for(int i=0;i<nspecies;i++){
+          input_info_->isTestParticle[i] = isTestParticle[i];
+        }
+      }
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+	cerr << "Warning: isTestParticle not set. Assuming no test particle species." << endl;
+        for(int i=0;i<nspecies;i++){
+          input_info_->isTestParticle[i] = 0;
+        }
+	
     }
 
     try
@@ -646,12 +686,6 @@ int Input::readinfo(char *fname){
            << "Assuming which_fields = -1" << endl;
       input_info_->which_fields = -1; // no output
     }
-
-// dummy code to be replaced //////////////////////////////////
-    input_info_->temp[0] = 0.001; 
-    input_info_->temp[1] = 0.001; 
-
-    sprintf(input_info_->distname,"distribution.dat");
 
 
 ////////////////////////////////////////////////////////////////

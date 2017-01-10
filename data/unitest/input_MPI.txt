@@ -37,6 +37,9 @@ initialization:
   # particle initialization
   particles:
   {
+    # number of particles of all species in each domain
+    nParticles = 16
+
     # whether use relaticistic pusher
     relativity = 0
 
@@ -54,34 +57,10 @@ initialization:
 
     # fractional density of species
     dens_frac = [0.5,0.5]  
-
-    # number of particles of all species in each domain
-    nParticles = 16
   
-    # position distribution function
-    xdist = "sinusoid"
-    #xdist = "delta function"
-    #xdist = "file: xdist.dat"
+    # temperature of species in unit of eV
+    temperature = [0.001, 0.001]
   
-    # velocity distribution function
-    vdist = "maxwellian"
-    #vdist = "waterbag"
-    #vdist = "file: vdist.dat"
-  
-    maxwellian:
-    {
-      # density of nspecies in unit of 10^18 cm^{-3}
-      # used to scale super particle mass and charge
-      density = [0.1, 0.1]
-
-      # temperature of nspecies in unit of eV
-      temperature = [100.0, 1.0]
-    }
-  
-    sinusoid:
-    {
-      k = [ 1, 1, 1 ]
-    }
   }
  
   fields:
