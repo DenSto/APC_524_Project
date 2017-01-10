@@ -58,18 +58,19 @@ void PoissonBC::applyBCs (double fieldID, double iternum, Grid *grids) {
    assert(which>=0 && which <=3);
 
    // check previous fields have been loaded for at least once
-   int ind=0;
-   while(ind<which){
-      if(debug>2)cerr<<"rank="<<rank_MPI<<": check previous Load: "
-                     <<"which=" << which <<", ind="<<ind
-                     <<", ifLoad="<<ifLoad_[ind]<<endl;
-      assert(ifLoad_[ind]>0);
-      ind+=1;
+   if(debug>2){
+       int ind=0;
+       while(ind<which){
+          cerr<<"rank="<<rank_MPI<<": check previous Load: "
+                         <<"which=" << which <<", ind="<<ind
+                         <<", ifLoad="<<ifLoad_[ind]<<endl;
+          assert(ifLoad_[ind]>0);
+          ind+=1;
+       }
+       cerr<<"rank="<<rank_MPI<<": check current Load: "
+           <<"ifLoad["<<which<<"]="<<ifLoad_[which]
+           <<", and iter="<<iter<<endl;
    }
-
-   if(debug>2)cerr<<"rank="<<rank_MPI<<": check current Load: "
-                  <<"ifLoad["<<which<<"]="<<ifLoad_[which]
-                  <<", and iter="<<iter<<endl;
 
    // if fields have not been loaded, then load values
    if(ifLoad_[which]<2){
@@ -87,6 +88,7 @@ void PoissonBC::applyBCs (double fieldID, double iternum, Grid *grids) {
     
        ifLoad_[which]+=1;       
        delete [] ghost_;
+
     }else{
        if(debug>2)cerr<<"rank="<<rank_MPI<<": sendID="<<sendID
                       <<", no need to load field="<<which<<" again!\n";

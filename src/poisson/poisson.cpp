@@ -197,7 +197,8 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
   int iternum = -1;
   do {
     iternum++;
-    
+    maxDiff = 0.0;
+
     // supply boundary conditions
     executeBC(fieldID,iternum); // replace field specified by fieldID 
                                 // iternum%2==0, supply u1 fields
