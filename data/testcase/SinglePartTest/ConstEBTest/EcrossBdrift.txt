@@ -1,0 +1,179 @@
+domain:
+{
+  # number of cells in each dimension
+  nCell = [ 8, 8, 8 ]
+
+  # number of processors in each dimension (parallel version only)
+  nProc = [ 1, 1, 1 ]
+
+  # origin of simulation domain
+  xyz0 = [0.0, 0.0, 0.0]
+
+  # physical length of simulation domain, in unit of cm
+  Lxyz = [5.0, 1.0, 1.0]
+}
+
+runtime: 
+{
+  # number of time steps to run
+  nTimesteps = 100000
+
+  # start time
+  startTime = 0.0
+
+  # debug = 1 turns on basic debug print statements
+  # debug = 2 turns on more debug print statements
+  # debug = 3 turns on more debug print, and write debug files
+  debug = 0
+}
+
+initialization:
+{
+  # whether this is restart of a previous run (0 = no)
+  restart = 0
+
+  # particle initialization
+  particles:
+  {
+    # number of particles of all species in each domain
+    nParticles = 1
+
+    # whether use relaticistic pusher (0 = no, 1 = yes)
+    relativity = 0
+
+    # number of species
+    nspecies = 1
+
+    # mass of each species in unit of electron mass
+    mass_ratio = [1.0]
+
+    # charge of each species in unit of |e|
+    charge_ratio = [-1.0]
+
+    # is the species a test particle? (0 = no, 1 = yes)
+    isTestParticle = [1]
+
+    # fractional density of species
+    dens_frac = [1.0]  
+
+    # temperature of species in unit of eV
+    temperature = [0.01]
+  }
+ 
+  fields:
+  {
+    # Whether to use electrostatic solver
+    electrostatic = 0
+
+    # How to initialize fields?
+    init = "constant"
+    #init = "poisson"
+    #init = "file: fields.dat"
+
+    # constant background/boundary magnetic field. 1->1kG
+    B0 = [0.0, 0.0, 1.0]
+
+    # constant background/boundary electric field. 1->299.79KV/cm
+    E0 = [0.0, 0.000001, 0.0]
+
+  }
+}
+
+boundary:
+{
+  # Note: in each direction, if on side is "periodic", the other side must also be "periodic"
+
+  # particle boundary
+  particles:
+  {
+    # conditions = [xleft,xright,yleft,yright,zleft,zright]
+    # choose self-consistently from "periodic","reflecting"
+    conditions = ["periodic","periodic", 
+                "periodic","periodic",
+                "periodic","periodic"]
+  }
+
+
+  # field boundary 
+  fields:
+  {
+    # conditions = [xleft,xright,yleft,yright,zleft,zright]
+    # choose self-consistently from "periodic","external"
+    conditions = ["periodic","periodic",
+                "periodic","periodic",
+                "periodic","periodic"]
+
+    ## If and only if conditions[i]="external", will the following be meaningful in i-direction 
+    ## eg. if conditions[1]="periodic", conditions[3]="external", and inSide = [-1,2],
+    ## then inPolE[0], corresponding to inSide[0]=-1, namely, wave injection in xleft, will
+    ## be ignored; while inPolE[1], corresponding to inSide[1]=2, namely, wave injection
+    ## in yright, will be meaninful to the program. 
+    external:
+    {
+        # number of waves to inject
+        nwaves = 3
+     
+        # from which sides are waves injectes
+        inSide = [-1, -1, 2]
+     
+        # Which direction are wave E fields aligned with?
+        inPolE = [1, 2, 1]
+     
+        # What are the wave E field amplitudes? amps=1 -> E=299.79KV/cm
+        peakamps = [0.0001, 0.001, 0.0003]
+     
+        # What are the wave frequencies? omegas=1 -> 190.40 GHz
+        omegas = [1.2, 5.6, 3.7]
+     
+        # What are the wave phases in degree?
+        phases = [90.0, 0.0, 45.0]
+
+        # What are the inverse Width of pulses? invWidths=0 -> pulse duration infinity
+        invWidths = [0.2, 0.0, 0.8]
+
+        # What are the delays of pulses? delyas=1 -> 33.4 ps, w.r.t time_phys
+        delays = [-0.2, 0.0, 1.2]
+ 
+        # if initialize by solving poisson's equation   
+        poisson:
+        {
+            # constant boundry values of phi in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of phi=1->299.79KV
+            bound_phi = [0.0,0.02, 0.0,0.0, 0.0,0.0]
+
+            # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of A=1->1KG.cm. The gauge choice is arbitrary.
+            bound_Ax = [0.0,0.0, 0.0,0.0, 0.0,0.0]
+            bound_Ay = [0.0,1.2, 0.0,0.0, 0.0,0.0]
+            bound_Az = [0.0,0.0, 0.0,0.0, 0.0,0.0]
+        }
+
+    }
+  }
+}
+
+diagnostics:
+{
+  # How many time steps between each field diagnostic
+  nstep_fields = 10
+
+  # How many time steps between each particle diagnostic
+  nstep_parts = 1
+
+  # How many time steps between each restart
+  nstep_restart = 100
+
+  particles:
+  {
+    # How many particle/species to track by each core?
+    output_pCount = 10
+  }
+
+  fields:
+  {
+    # Which fields to write time series?
+    # 0:rho, 1:E, 2:B, 3:J, 4:all
+    which_fields = 4 
+  }
+}
+
