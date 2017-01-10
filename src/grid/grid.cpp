@@ -18,13 +18,13 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     nxReal_(nxyz[0]), 
     nyReal_(nxyz[1]),
     nzReal_(nxyz[2]),
-    nx_(nxReal_ + 2*nGhosts_), 
-    ny_(nyReal_ + 2*nGhosts_), 
-    nz_(nzReal_ + 2*nGhosts_), 
+//  nx_(nxReal_ + 2*nGhosts_), 
+//  ny_(nyReal_ + 2*nGhosts_), 
+//  nz_(nzReal_ + 2*nGhosts_), 
     nGhosts_(nGhosts), 
-    nxTot_(nx_ + 1), 
-    nyTot_(ny_ + 1), 
-    nzTot_(nz_ + 1),
+//  nxTot_(nx_ + 1), 
+//  nyTot_(ny_ + 1), 
+//  nzTot_(nz_ + 1),
     x0_(xyz0[0]), 
     y0_(xyz0[1]), 
     z0_(xyz0[2]), 
@@ -34,13 +34,13 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 
     kBeg_(nGhosts),
-    dx_(Lxyz[0]/nxReal_), 
-    dy_(Lxyz[1]/nyReal_), 
-    dz_(Lxyz[2]/nzReal_),
-    idx_(1.0/dx_), 
-    idy_(1.0/dy_),
-    idz_(1.0/dz_),
-    maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
+//  dx_(Lxyz[0]/nxReal_), 
+//  dy_(Lxyz[1]/nyReal_), 
+//  dz_(Lxyz[2]/nzReal_),
+//  idx_(1.0/dx_), 
+//  idy_(1.0/dy_),
+//  idz_(1.0/dz_),
+//  maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
     nFieldsTotal_(24),
     ExID_(0),
     EyID_(1),
@@ -67,7 +67,32 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     faceZID_(5),
     vertID_(6)
 {
-   
+    nx_ = nxReal_ + 2*nGhosts_; 
+    ny_ = nyReal_ + 2*nGhosts_; 
+    nz_ = nzReal_ + 2*nGhosts_; 
+
+    nxTot_ = nx_ + 1; 
+    nyTot_ = ny_ + 1; 
+    nzTot_ = nz_ + 1;
+
+    maxPointsInPlane_=std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_);
+
+    dx_ = Lxyz[0]/nxReal_; 
+    dy_ = Lxyz[1]/nyReal_; 
+    dz_ = Lxyz[2]/nzReal_;
+
+    idx_ = 1.0/dx_; 
+    idy_ = 1.0/dy_;
+    idz_ = 1.0/dz_;
+  
+    if(debug>1){
+        fprintf(stderr,"rank=%d: nxyz[0]=%d,nxReal=%d,nx=%d,nxTot=%d\n",
+                               rank_MPI,nxyz[0],nxReal_,nx_,nxTot_); 
+        fprintf(stderr,"rank=%d: nxyz[1]=%d,nyReal=%d,ny=%d,nyTot=%d\n",
+                               rank_MPI,nxyz[1],nyReal_,ny_,nyTot_); 
+        fprintf(stderr,"rank=%d: nxyz[2]=%d,nzReal=%d,nz=%d,nzTot=%d\n",
+                               rank_MPI,nxyz[2],nzReal_,nz_,nzTot_); 
+    }
     checkInput_(); 
 
     fieldIsContiguous_ = new int[nFieldsTotal_];
@@ -343,7 +368,8 @@ void Grid::deleteFieldPtr_() {
 /// checks validity of input parameters for Grid constructor 
 /*! asserts necessary conditions on each input (mainly positivity of many parameters). Terminates program if inputs are incorrect.
  */ 
-void Grid::checkInput_() { 
+void Grid::checkInput_() {
+    if(debug>1)fprintf(stderr,"rank=%d: nxTot=%d,nGhosts=%d\n",rank_MPI,nxTot_,nGhosts_); 
     assert(nxTot_ > 2*nGhosts_); // to guarantee there is at least 1 physical cell
     assert(nyTot_ > 2*nGhosts_); 
     assert(nzTot_ > 2*nGhosts_); 

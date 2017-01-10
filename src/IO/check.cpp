@@ -213,7 +213,7 @@ void checkinput(Input_Info_t *input_info){
                    rank,input_info->nstep_parts,input_info->output_pCount);
 
    /* strings *************************/
-   fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);
+   //fprintf(stderr,"rank=%d,distname=%s\n",rank,input_info->distname);
    fprintf(stderr,"rank=%d,parts_bound=%s\n",rank,input_info->parts_bound[0]);
    fprintf(stderr,"rank=%d,fields_bound=%s\n",rank,input_info->fields_bound[0]);
 
