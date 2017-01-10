@@ -51,7 +51,7 @@ TEST_F(DepositJTest, sumOverJandRho) {
     printf("This test did not fail, but can only be run for 1 particle. Change input file and rerun.");
   } else {
     //Get full vector of particles.
-    std::vector<Particle> parts = part_handler->getParticleVector();
+    std::vector<Particle> parts = *part_handler->getParticleVector();
 
     //Calculate particle |v| and q
     mod_v = pow(pow(parts[0].v[0],2.0)+pow(parts[0].v[1],2.0)+pow(parts[0].v[2],2.0),0.5);
@@ -102,7 +102,7 @@ TEST_F(DepositJTest, sumOverJandRho) {
 // Test field interpolation is working.
 TEST_F(DepositJTest, testFieldInterpolation) {
     //Get full vector of particles.
-    std::vector<Particle> parts = part_handler->getParticleVector();
+    std::vector<Particle> parts = *part_handler->getParticleVector();
 
     //Make const E field (Ex,Ey,Ez)=(1.0,2.0,3.0)
     grid->constE(1.0,2.0,3.0);
