@@ -36,7 +36,7 @@ public:
   void InterpolateEB(Grid* grid);
   void depositRhoJ(Grid *grid, bool depositRho, Domain* domain, Input_Info_t* input_info); // deposit current and charge density from particles to grid
 
-  std::vector<Particle> getParticleVector(){return parts_;}
+  std::vector<Particle>* getParticleVector(){return &parts_;}
 
   double computeCFLTimestep(Domain* domain); // return timestep computed from max velocity and grid size
 
