@@ -187,9 +187,9 @@ int main(int argc, char *argv[]){
     int nstep_fields  = input_info->nstep_fields;
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
+    // fields output
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str(),grids,domain,output_fields);
     if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
-    // fields output
     if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
     // particle output
     part_handler->outputParticles(0,input_info); 
