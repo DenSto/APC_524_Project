@@ -217,10 +217,10 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
   H5Pclose(create_chunks_plist); 
   
   // get grid coordinates
-  double* x_phys = new double[phys_dims[0]];
-  double* y_phys = new double[phys_dims[1]];
-  double* z_phys = new double[phys_dims[2]];
-  grid->getGridPhys(fieldID, x_phys, y_phys, z_phys);
+  double* x_phys_local = new double[field_block_[0]];
+  double* y_phys_local = new double[field_block_[1]];
+  double* z_phys_local = new double[field_block_[2]];
+  grid->getGridPhys(fieldID, x_phys_local, y_phys_local, z_phys_local);
 
   // define grid coordinates as attributes
   hid_t x_dataspace;
@@ -228,25 +228,25 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
   x_dataspace = H5Screate_simple(1, &field_block_[0], NULL);
   x_attribute = H5Acreate2(field_dataset_, "x", H5T_NATIVE_DOUBLE, 
 			      x_dataspace, H5P_DEFAULT, H5P_DEFAULT);
-  H5Awrite(x_attribute, H5T_NATIVE_DOUBLE, x_phys);
+  H5Awrite(x_attribute, H5T_NATIVE_DOUBLE, x_phys_local);
   H5Aclose(x_attribute);
   H5Sclose(x_dataspace);
 
   hid_t y_dataspace;
   hid_t y_attribute;
-  y_dataspace = H5Screate_simple(1, &field_block_[1], NULL);
+  y_dataspace = H5Screate_simple(1, &filespace_dims[1], NULL);
   y_attribute = H5Acreate2(field_dataset_, "y", H5T_NATIVE_DOUBLE, 
 			      y_dataspace, H5P_DEFAULT, H5P_DEFAULT);
-  H5Awrite(y_attribute, H5T_NATIVE_DOUBLE, y_phys);
+  H5Awrite(y_attribute, H5T_NATIVE_DOUBLE, y_phys_local);
   H5Aclose(y_attribute);
   H5Sclose(y_dataspace);
 
   hid_t z_dataspace;
   hid_t z_attribute;
-  z_dataspace = H5Screate_simple(1, &field_block_[2], NULL);
+  z_dataspace = H5Screate_simple(1, &filespace_dims[2], NULL);
   z_attribute = H5Acreate2(field_dataset_, "z", H5T_NATIVE_DOUBLE, 
 			      z_dataspace, H5P_DEFAULT, H5P_DEFAULT);
-  H5Awrite(z_attribute, H5T_NATIVE_DOUBLE, z_phys);
+  H5Awrite(z_attribute, H5T_NATIVE_DOUBLE, z_phys_local);
   H5Aclose(z_attribute);
   H5Sclose(z_dataspace);
 
@@ -264,9 +264,9 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
   delete [] memspace_dims;
   delete [] nxyzTot;
   delete [] phys_dims;
-  delete [] x_phys;
-  delete [] y_phys;
-  delete [] z_phys;
+  delete [] x_phys_local;
+  delete [] y_phys_local;
+  delete [] z_phys_local;
 }
 
 FieldTimeseriesIO::~FieldTimeseriesIO() {

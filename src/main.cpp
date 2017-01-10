@@ -249,19 +249,21 @@ int main(int argc, char *argv[]){
        // particle output
        part_handler->outputParticles(ti+1,input_info); 
 
-     }  
+     } // timestep loop
+
+     if(rank==0) printf("***Timestep loop complete***\n");
 
     /***************************************************************************/
     /* output, finalize                                                        */
     /***************************************************************************/
-    if(rank==0)printf("Writing output files...\n");
+    if(rank==0)printf("Writing final output files...\n");
     if((nt)%nstep_fields!=0) { // if we didn't write on final timestep, write
-      if(rank==0)printf("    ti=%d: Writing field diagnostic files...\n",nt);
+      if(rank==0)printf("    Writing final field diagnostic files...\n");
       // fields output
       if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
     }
     //writeoutput(grids,part_handler); //MPI
-    if(debug) fprintf(stderr,"rank=%d: Finish writeoutput\n",rank);
+    if(debug) fprintf(stderr,"rank=%d: Finish final output\n",rank);
 
     //Output particle velocities
     //part_handler->outputParticleVel();
