@@ -118,7 +118,7 @@ boundary:
         inSide = [-1,1]
      
         # Which direction are wave E fields aligned with?
-        inPolE = [1,1]
+        inPolE = [2,3]
      
         # What are the wave E field amplitudes? amps=1 -> E=299.79KV/cm
         peakamps = [0.0001,0.000001]
