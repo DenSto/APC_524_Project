@@ -20,7 +20,7 @@ protected:
     //Read input file
     Input *input =  new Input();
     char filename[100];
-    sprintf(filename, "../data/unitest/input.txt");
+    sprintf(filename, "test_data/depositJ_unittest_data.txt");
     input->readinfo(filename);
     input_info = input->getinfo();
 
