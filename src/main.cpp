@@ -180,7 +180,7 @@ int main(int argc, char *argv[]){
     int nt = input_info->nt; //number of steps to run
     time_phys = input_info->t0; //initial time
     dt_phys = domain->getmindx()/1; //c=1, resolve EM wave
-    dt_phys /= 100.0;
+    dt_phys /= 10.0;
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
     // initialize outputs
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]){
 
        /* deposite charge and current ***********/
        // only deposite particles in physical cells
-       part_handler->depositRhoJ(grids,false,domain,input_info);
+       part_handler->depositRhoJ(grids,true,domain,input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // sum charge and current on MPI boundaries 
