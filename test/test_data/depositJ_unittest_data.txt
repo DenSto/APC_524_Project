@@ -56,6 +56,8 @@ initialization:
 
     # number of particles of all species in each domain
     nParticles = 1
+
+    temperature = [0.001]
   
     # position distribution function
     #xdist = "sinusoid"

@@ -50,33 +50,12 @@ initialization:
     # fractional density of species
     dens_frac = [1.0]  
 
+    temperature = [0.001]
+
+    isTestParticle = [0]
+
     # number of particles of all species in each domain
     nParticles = 16
-  
-    # position distribution function
-    #xdist = "sinusoid"
-    #xdist = "delta function"
-    #xdist = "file: xdist.dat"
-  
-    # velocity distribution function
-    vdist = "maxwellian"
-    #vdist = "waterbag"
-    #vdist = "file: vdist.dat"
-  
-    maxwellian:
-    {
-      # density of nspecies in unit of 10^18 cm^{-3}
-      # used to scale super particle mass and charge
-      density = [1.01]
-
-      # temperature of nspecies in unit of eV
-      temperature = [0.01]
-    }
-  
-    #sinusoid:
-    #{
-    #  k = [ 1, 1, 1 ]
-    #}
   }
  
   fields:
@@ -156,8 +135,14 @@ boundary:
 
 diagnostics:
 {
-  # How many time steps between each diagnostic
-  nwrite = 1
+  # How many time steps between each field diagnostic
+  nstep_fields = 10
+
+  # How many time steps between each particle diagnostic
+  nstep_parts = 5
+
+  # How many time steps between each restart
+  nstep_restart = 100
 
   particles:
   {

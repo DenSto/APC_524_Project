@@ -57,31 +57,12 @@ initialization:
 
     # number of particles of all species in each domain
     nParticles = 2
-  
-    # position distribution function
-    #xdist = "sinusoid"
-    #xdist = "delta function"
-    #xdist = "file: xdist.dat"
-  
-    # velocity distribution function
-    vdist = "maxwellian"
-    #vdist = "waterbag"
-    #vdist = "file: vdist.dat"
-  
-    maxwellian:
-    {
-      # density of nspecies in unit of 10^18 cm^{-3}
-      # used to scale super particle mass and charge
-      density = [1.01]
 
-      # temperature of nspecies in unit of eV
-      temperature = [0.01]
-    }
+    temperature = [0.001]
+
+    isTestParticle = [0]
   
-    #sinusoid:
-    #{
-    #  k = [ 1, 1, 1 ]
-    #}
+  
   }
  
   fields:
