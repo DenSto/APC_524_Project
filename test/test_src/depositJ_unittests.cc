@@ -29,11 +29,6 @@ protected:
     grid = new Poisson_Solver(domain, input_info);
     part_handler = new Particle_Handler();
     part_handler->Load(input_info,domain);
-
-    int xgsize = grid->getGhostVecSize(-1);
-    int ygsize = 1; //dummy
-    int zgsize = 1; //dummy
-    domain->mallocGhosts(xgsize,ygsize,zgsize);
   }
 
   virtual void TearDown() {
