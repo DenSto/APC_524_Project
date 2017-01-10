@@ -13,7 +13,7 @@ protected:
     //Read input file
     Input *input =  new Input();
     char filename[100];
-    sprintf(filename, "../data/unitest/input.txt");
+    sprintf(filename, "test_data/convertFields_unittests_data.txt");
     input->readinfo(filename);
     Input_Info_t *input_info = input->getinfo();
 
@@ -45,7 +45,7 @@ protected:
     //Read input file
     Input *input =  new Input();
     char filename[100];
-    sprintf(filename, "../data/unitest/input.txt");
+    sprintf(filename, "test_data/convertFields_unittests_data.txt");
     input->readinfo(filename);
     Input_Info_t *input_info = input->getinfo();
 
