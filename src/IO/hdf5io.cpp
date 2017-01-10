@@ -52,22 +52,22 @@ Hdf5IO::Hdf5IO(const char* filename, Grid* grid, Domain* domain, const int which
     assert(fields_group_id_>=0);
   }
   if(which_fields_==ALL || which_fields_==E) {
-    Ex_tsio_ = new FieldTimeseriesIO(this, grid, grid->getExID(), "Ex");
-    Ey_tsio_ = new FieldTimeseriesIO(this, grid, grid->getEyID(), "Ey");
-    Ez_tsio_ = new FieldTimeseriesIO(this, grid, grid->getEzID(), "Ez");
+    Ex_tsio_ = new FieldTimeseriesIO(this, grid, "Ex");
+    Ey_tsio_ = new FieldTimeseriesIO(this, grid, "Ey");
+    Ez_tsio_ = new FieldTimeseriesIO(this, grid, "Ez");
   }
   if(which_fields_==ALL || which_fields_==B) {
-    Bx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getBxID(), "Bx");
-    By_tsio_ = new FieldTimeseriesIO(this, grid, grid->getByID(), "By");
-    Bz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getBzID(), "Bz");
+    Bx_tsio_ = new FieldTimeseriesIO(this, grid, "Bx");
+    By_tsio_ = new FieldTimeseriesIO(this, grid, "By");
+    Bz_tsio_ = new FieldTimeseriesIO(this, grid, "Bz");
   }
   if(which_fields_==ALL || which_fields_==J) {
-    Jx_tsio_ = new FieldTimeseriesIO(this, grid, grid->getJxID(), "Jx");
-    Jy_tsio_ = new FieldTimeseriesIO(this, grid, grid->getJyID(), "Jy");
-    Jz_tsio_ = new FieldTimeseriesIO(this, grid, grid->getJzID(), "Jz");
+    Jx_tsio_ = new FieldTimeseriesIO(this, grid, "Jx");
+    Jy_tsio_ = new FieldTimeseriesIO(this, grid, "Jy");
+    Jz_tsio_ = new FieldTimeseriesIO(this, grid, "Jz");
   }
   if(which_fields_==ALL || which_fields_==rho) {
-    rho_tsio_ = new FieldTimeseriesIO(this, grid, grid->getrhoID(), "rho");
+    rho_tsio_ = new FieldTimeseriesIO(this, grid, "rho");
   }
 }
 
@@ -113,23 +113,23 @@ int Hdf5IO::writeFields(Grid* grid, double time_phys) {
   writeTime(time_phys);
 
   if(which_fields_==ALL || which_fields_==E) {
-    Ex_tsio_->writeField(fieldPtr[grid->getExID()]);
-    Ey_tsio_->writeField(fieldPtr[grid->getEyID()]);
-    Ez_tsio_->writeField(fieldPtr[grid->getEzID()]);
+    Ex_tsio_->writeField(fieldPtr[grid->getFieldID("Ex")]);
+    Ey_tsio_->writeField(fieldPtr[grid->getFieldID("Ey")]);
+    Ez_tsio_->writeField(fieldPtr[grid->getFieldID("Ez")]);
   }
   if(which_fields_==ALL || which_fields_==B) {
     // Note: this needs to be changed to Bavg...
-    Bx_tsio_->writeField(fieldPtr[grid->getBxID()]);
-    By_tsio_->writeField(fieldPtr[grid->getByID()]);
-    Bz_tsio_->writeField(fieldPtr[grid->getBzID()]);
+    Bx_tsio_->writeField(fieldPtr[grid->getFieldID("Bx_avg")]);
+    By_tsio_->writeField(fieldPtr[grid->getFieldID("By_avg")]);
+    Bz_tsio_->writeField(fieldPtr[grid->getFieldID("Bz_avg")]);
   }
   if(which_fields_==ALL || which_fields_==J) {
-    Jx_tsio_->writeField(fieldPtr[grid->getJxID()]);
-    Jy_tsio_->writeField(fieldPtr[grid->getJyID()]);
-    Jz_tsio_->writeField(fieldPtr[grid->getJzID()]);
+    Jx_tsio_->writeField(fieldPtr[grid->getFieldID("Jx")]);
+    Jy_tsio_->writeField(fieldPtr[grid->getFieldID("Jy")]);
+    Jz_tsio_->writeField(fieldPtr[grid->getFieldID("Jz")]);
   }
   if(which_fields_==ALL || which_fields_==rho) {
-    rho_tsio_->writeField(fieldPtr[grid->getrhoID()]);
+    rho_tsio_->writeField(fieldPtr[grid->getFieldID("rho")]);
   }
 
   return 0;
@@ -162,7 +162,7 @@ int Hdf5IO::writeTime(double time_phys) {
   return 0;
 }
 
-FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, std::string fieldname) 
+FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldname) 
 	: ndims_(4),
   	  nProcxyz_(io->getnProcxyz()),
 	  myijk_(io->getmyijk()),
@@ -170,6 +170,9 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, const int fieldID, 
 	  data_xfer_plist_(io->getDataXferPlist()),
 	  fields_group_id_(io->getFieldsGroupID())
 {
+  // get fieldID for this field
+  const int fieldID = grid->getFieldID(fieldname);
+
   // get some grid dimensions
   int* nxyzTot = new int[3];
   grid->getnxyzTot(nxyzTot);

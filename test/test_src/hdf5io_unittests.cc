@@ -43,9 +43,9 @@ TEST_F(FieldIOTest, writeField) {
     hdf5io = new Hdf5IO("test_data/hdf5io_unittests.h5", grid, domain, which_fields);
 
     int i,j,k; 
-    for (i=0; i<grid->nx_+1; ++i) { 
-        for (j=0; j<grid->ny_+1; ++j) { 
-            for (k=0; k<grid->nz_+1; ++k) { 
+    for (i=0; i<grid->nxTot_; ++i) { 
+        for (j=0; j<grid->nyTot_; ++j) { 
+            for (k=0; k<grid->nzTot_; ++k) { 
                 grid->Ex_[i][j][k] = -( k + 10*j + 100*i ); 
                 grid->Ey_[i][j][k] = -10*( k + 10*j + 100*i ); 
                 grid->Ez_[i][j][k] = -100*( k + 10*j + 100*i ); 
@@ -57,7 +57,7 @@ TEST_F(FieldIOTest, writeField) {
 
     // change Ex
     int dim_phys[3];
-    grid->getDimPhys(grid->getExID(), dim_phys); 
+    grid->getDimPhys(grid->getFieldID("Ex"), dim_phys); 
 
     int iBeg = 1;
     int jBeg = 1;

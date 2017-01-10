@@ -15,13 +15,16 @@
  * Lxyz0: double array [Lx,Ly,Lz] where Lx is the physical length of each cell in the x direction, and the same for Ly,Lz \n 
  */ 
 Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz): 
-    nx_(nxyz[0]), 
-    ny_(nxyz[1]), 
-    nz_(nxyz[2]), 
+    nxReal_(nxyz[0]), 
+    nyReal_(nxyz[1]),
+    nzReal_(nxyz[2]),
+    nx_(nxReal_ + 2*nGhosts_), 
+    ny_(nyReal_ + 2*nGhosts_), 
+    nz_(nzReal_ + 2*nGhosts_), 
     nGhosts_(nGhosts), 
-    nxTot_(nx_ + 2*nGhosts_ + 1), 
-    nyTot_(ny_ + 2*nGhosts_ + 1), 
-    nzTot_(nz_ + 2*nGhosts_ + 1),
+    nxTot_(nx_ + 1), 
+    nyTot_(ny_ + 1), 
+    nzTot_(nz_ + 1),
     x0_(xyz0[0]), 
     y0_(xyz0[1]), 
     z0_(xyz0[2]), 
@@ -31,14 +34,14 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     iBeg_(nGhosts), 
     jBeg_(nGhosts), 
     kBeg_(nGhosts),
-    dx_(Lxyz[0]/nx_), 
-    dy_(Lxyz[1]/ny_), 
-    dz_(Lxyz[2]/nz_),
+    dx_(Lxyz[0]/nxReal_), 
+    dy_(Lxyz[1]/nyReal_), 
+    dz_(Lxyz[2]/nzReal_),
     idx_(1.0/dx_), 
     idy_(1.0/dy_),
     idz_(1.0/dz_),
     maxPointsInPlane_(std::max(std::max(nxTot_*nyTot_,nxTot_*nzTot_),nyTot_*nzTot_)),
-    nFieldsTotal_(21),
+    nFieldsTotal_(24),
     ExID_(0),
     EyID_(1),
     EzID_(2),
@@ -48,10 +51,13 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     JxID_(6),
     JyID_(7),
     JzID_(8),
-    Bx_tm1ID_(9),
-    By_tm1ID_(10),
-    Bz_tm1ID_(11),
-    rhoID_(12),
+    rhoID_(9),
+    Bx_tm1ID_(10),
+    By_tm1ID_(11),
+    Bz_tm1ID_(12),
+    Bx_avgID_(13),
+    By_avgID_(14),
+    Bz_avgID_(15),
     nTypes_(7), 
     edgeXID_(0), 
     edgeYID_(1), 
@@ -75,10 +81,13 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     Jx_=newField_(JxID_); 
     Jy_=newField_(JyID_); 
     Jz_=newField_(JzID_); 
+    rho_=newField_(rhoID_); 
     Bx_tm1_=newField_(Bx_tm1ID_); 
     By_tm1_=newField_(By_tm1ID_); 
     Bz_tm1_=newField_(Bz_tm1ID_); 
-    rho_=newField_(rhoID_); 
+    Bx_avg_=newField_(Bx_avgID_); 
+    By_avg_=newField_(By_avgID_); 
+    Bz_avg_=newField_(Bz_avgID_); 
     
     fieldType_ = setFieldType_(); 
     fieldSize_ = setFieldSize_(); 
@@ -101,10 +110,13 @@ Grid::~Grid() {
     deleteField_(Jx_,JxID_); 
     deleteField_(Jy_,JyID_); 
     deleteField_(Jz_,JzID_); 
+    deleteField_(rho_,rhoID_); 
     deleteField_(Bx_tm1_,Bx_tm1ID_); 
     deleteField_(By_tm1_,By_tm1ID_); 
     deleteField_(Bz_tm1_,Bz_tm1ID_); 
-    deleteField_(rho_,rhoID_); 
+    deleteField_(Bx_avg_,Bx_avgID_); 
+    deleteField_(By_avg_,By_avgID_); 
+    deleteField_(Bz_avg_,Bz_avgID_); 
 
     delete [] fieldIsContiguous_; 
     deleteFieldType_(); 
@@ -117,7 +129,7 @@ Grid::~Grid() {
 int Grid::getFieldID(const std::string &fieldStr){
   int ID;
   if(fieldStr == "Ex"){ID = ExID_;}
-  else if(fieldStr == "Ex"){ID = EyID_;}
+  else if(fieldStr == "Ey"){ID = EyID_;}
   else if(fieldStr == "Ez"){ID = EzID_;}
   else if(fieldStr == "Bx"){ID = BxID_;}
   else if(fieldStr == "By"){ID = ByID_;}
@@ -125,13 +137,15 @@ int Grid::getFieldID(const std::string &fieldStr){
   else if(fieldStr == "Jx"){ID = JxID_;}
   else if(fieldStr == "Jy"){ID = JyID_;}
   else if(fieldStr == "Jz"){ID = JzID_;}
+  else if(fieldStr == "rho"){ID = rhoID_;}
   else if(fieldStr == "Bx_tm1"){ID = Bx_tm1ID_;}
   else if(fieldStr == "By_tm1"){ID = By_tm1ID_;}
   else if(fieldStr == "Bz_tm1"){ID = Bz_tm1ID_;}
-  else if(fieldStr == "rho"){ID = rhoID_;}
+  else if(fieldStr == "Bx_avg"){ID = Bx_avgID_;}
+  else if(fieldStr == "By_avg"){ID = By_avgID_;}
+  else if(fieldStr == "Bz_avg"){ID = Bz_avgID_;}
   else{ID=-1;fprintf(stderr,"Unknown fieldStr for getFieldID!\n");}
   return ID;
-
 }
 
 /// allocates memory for a single field 
@@ -276,10 +290,13 @@ int* Grid::setFieldType_() {
     fieldType[JxID_] = edgeXID_; 
     fieldType[JyID_] = edgeYID_; 
     fieldType[JzID_] = edgeZID_; 
+    fieldType[rhoID_] = vertID_; 
     fieldType[Bx_tm1ID_] = faceXID_; 
     fieldType[By_tm1ID_] = faceYID_; 
     fieldType[Bz_tm1ID_] = faceZID_; 
-    fieldType[rhoID_] = vertID_; 
+    fieldType[Bx_avgID_] = faceXID_; 
+    fieldType[By_avgID_] = faceYID_; 
+    fieldType[Bz_avgID_] = faceZID_; 
 
     return fieldType; 
 };
@@ -307,10 +324,13 @@ double**** Grid::setFieldPtr_() {
     fieldPtr[JxID_] = Jx_; 
     fieldPtr[JyID_] = Jy_; 
     fieldPtr[JzID_] = Jz_; 
+    fieldPtr[rhoID_] = rho_; 
     fieldPtr[Bx_tm1ID_] = Bx_tm1_; 
     fieldPtr[By_tm1ID_] = By_tm1_; 
     fieldPtr[Bz_tm1ID_] = Bz_tm1_; 
-    fieldPtr[rhoID_] = rho_; 
+    fieldPtr[Bx_avgID_] = Bx_avg_; 
+    fieldPtr[By_avgID_] = By_avg_; 
+    fieldPtr[Bz_avgID_] = Bz_avg_; 
    
     return fieldPtr; 
 }; 
@@ -428,14 +448,14 @@ void Grid::getGridPhys(const int fieldID, double* x, double* y, double* z) {
 
 /// averages two timesteps of B (for output) 
 /*! returns all elements of array (including ghosts and dummies) */ 
-void Grid::getAvgB(double*** Bx_avg, double*** By_avg, double*** Bz_avg) { 
+void Grid::AvgB() { 
     int i,j,k; 
     for (i=0; i<nxTot_; ++i) { 
         for (j=0; j<nyTot_; ++j) { 
             for (k=0; k<nzTot_; ++k) { 
-                Bx_avg[i][j][k] = (Bx_[i][j][k] + Bx_tm1_[i][j][k])/2; 
-                By_avg[i][j][k] = (By_[i][j][k] + By_tm1_[i][j][k])/2; 
-                Bz_avg[i][j][k] = (Bz_[i][j][k] + Bz_tm1_[i][j][k])/2; 
+                Bx_avg_[i][j][k] = (Bx_[i][j][k] + Bx_tm1_[i][j][k])/2; 
+                By_avg_[i][j][k] = (By_[i][j][k] + By_tm1_[i][j][k])/2; 
+                Bz_avg_[i][j][k] = (Bz_[i][j][k] + Bz_tm1_[i][j][k])/2; 
             }
         }
     }

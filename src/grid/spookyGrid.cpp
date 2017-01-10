@@ -158,9 +158,6 @@ int Grid::getGhostVecSize(const int sendID) {
     }
 };
 
-/// function to convert -/+ 1 left/right side indicator to index in x direction (description out of date) 
-/*! For use with ghost cell methods. side=-1 indicates operations on the left side of the domain, side=+1 indicates operations on the right side of the domain. This method converts side into the correct index i to reference ghost cells on that side of the domain. For instance, called by getGhostVec and setGhostVec. Generalizes to any number of ghost cells so long as iBeg_ and iEnd_ are initialized correctly. 
- */
 /// function to convert (-/+)(1,2,3) side indicator into (left/right)(x,y,z) index of boundary physical data point 
 /*! Helper function for public ghost cell methods which accept side indicator as argument. \n 
  * Side < 0 will return index of first physical point, side > 0 will return index of last physical point \n 

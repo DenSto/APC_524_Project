@@ -61,22 +61,9 @@ public:
   // public methods for diagnostics
   double**** getFieldPtr() {return fieldPtr_;};
   virtual int getFieldID(const std::string &fieldStr);
-  int getExID() {return ExID_;};
-  int getEyID() {return EyID_;};
-  int getEzID() {return EzID_;};
-  int getBxID() {return BxID_;};
-  int getByID() {return ByID_;};
-  int getBzID() {return BzID_;};
-  int getBx_tm1ID() {return Bx_tm1ID_;};
-  int getBy_tm1ID() {return By_tm1ID_;};
-  int getBz_tm1ID() {return Bz_tm1ID_;};
-  int getJxID() {return JxID_;};
-  int getJyID() {return JyID_;};
-  int getJzID() {return JzID_;};
-  int getrhoID() {return rhoID_;};
   void getDimPhys(const int fieldID, int* dim);
   void getGridPhys(const int fieldID, double* x, double* y, double * z); 
-  void getAvgB(double*** Bx_avg, double*** By_avg, double*** Bz_avg); 
+  void AvgB(); 
   
   void executeBC(int sendID, int option); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
@@ -85,13 +72,17 @@ public:
 protected:
   BC_Field** boundaries_; // field boundary conditions
 
-  const int nx_;     // number of physical gridpoint
+  const int nxReal_; 
+  const int nyReal_; 
+  const int nzReal_; 
+  
+  const int nx_;     // number of physical+ghost points
   const int ny_;
   const int nz_;
 
   const int nGhosts_; // number of ghost points in each dimension/2
 
-  const int nxTot_; // nx_ + 2*nGhosts_ + 1 (total number of grid points in x) 
+  const int nxTot_; // (total number of grid points in x) 
   const int nyTot_; 
   const int nzTot_; 
 
@@ -127,10 +118,13 @@ protected:
   const int JxID_; 
   const int JyID_; 
   const int JzID_; 
+  const int rhoID_; 
   const int Bx_tm1ID_; 
   const int By_tm1ID_; 
   const int Bz_tm1ID_;
-  const int rhoID_; 
+  const int Bx_avgID_; 
+  const int By_avgID_; 
+  const int Bz_avgID_;
   
   const int nTypes_; 
   const int edgeXID_; 
@@ -153,6 +147,10 @@ protected:
   double ***By_tm1_;
   double ***Bz_tm1_;
 
+  double ***Bx_avg_; //timestep back (since B at half timesteps)
+  double ***By_avg_;
+  double ***Bz_avg_;
+  
   double ***Jx_;
   double ***Jy_;
   double ***Jz_;
@@ -190,11 +188,6 @@ protected:
   void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec, const int op);
 
   int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
-
-  //void writeFieldTimeseries_(FieldTimeseriesIO* tsIO, const int fieldID, const int iwrite);
-
-  //void physSliceOut_(const int fieldID, const int side, const int offset); 
-
 
   // for unit testing
   friend class oGridInternalTest;
