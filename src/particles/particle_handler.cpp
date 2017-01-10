@@ -42,6 +42,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     short *test   = input_info->isTestParticle; 
 
     if(restart==0){// initial run
+		if(rank_MPI==0)printf("    Loading random particles from distribution...\n");
 		Random_Number_Generator *rng = new Random_Number_Generator(-1);
 		int ispec = 0; // temporaty counter	
 		double cden = dens[0]; // cummulative density fraction
@@ -80,6 +81,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     	} 
 	}
     else{//read restart file
+	if(rank_MPI==0)printf("    Loading particles from file...\n");
         //dummy code inserted by YShi for testing
         //insert a single particle at the center of the cell
 	Particle p = new_particle();
@@ -333,7 +335,12 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 void Particle_Handler::outputParticleVel(){
   for (long i=0; i<np_; i++) {
     //Get velocity of particle and species
-    printf("Species = %f   Vel = %f\n",parts_[i].q,parts_[i].v[0]);
+    char fname[100];
+    FILE *fp;
+    sprintf(fname,"./velocity_%d.dat",rank_MPI);
+    fp = fopen(fname,"w+");
+    fprintf(fp,"Species = %f   Vel = %f\n",parts_[i].q,parts_[i].v[0]);
+    fclose(fp);
   }
 }
 

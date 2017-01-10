@@ -190,7 +190,9 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 	InterpolatorVec[19] = (Bz_tm1_[ix][iy][iz] + Bz_[ix][iy][iz])/2;
 	InterpolatorVec[20] = (Bz_tm1_[ix][iy][iz+1] + Bz_[ix][iy][iz+1])/2;
 
-	return 0;
+	if(debug>2)fprintf(stderr,"%f %f\n", InterpolatorVec[19], InterpolatorVec[20]);
+	
+        return 0;
 };
 
 //! Get cell ID based on particle position.
