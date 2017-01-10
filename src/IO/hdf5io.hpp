@@ -40,7 +40,8 @@ class Hdf5IO {
 	int* getmyijk()
 	  { return myijk_;}
 
-	int writeFields(Grid* grid);
+	int writeFields(Grid* grid, double time);
+	int writeTime(double time);
 
     protected:
 	// file id
@@ -49,6 +50,11 @@ class Hdf5IO {
 	// property list ids
 	hid_t file_access_plist_;
 	hid_t data_xfer_plist_;
+
+	// time attribute
+	hid_t t_dataset_;
+	hid_t t_dataspace_;
+	hid_t t_memspace_;
 
 	// for field diagnostics
 	hid_t fields_group_id_;
