@@ -13,7 +13,6 @@ class BC_Field {
 
     protected:
         int side_;
-
 };
 
 #endif

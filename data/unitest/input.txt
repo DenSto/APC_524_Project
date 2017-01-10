@@ -86,8 +86,8 @@ initialization:
     electrostatic = 0
 
     # How to initialize fields?
-    #init = "constant"
-    init = "poisson"
+    init = "constant"
+    #init = "poisson"
     #init = "file: fields.dat"
 
     # constant background/boundary magnetic field. 1->1kG
