@@ -190,6 +190,8 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 	InterpolatorVec[19] = (Bz_tm1_[ix][iy][iz] + Bz_[ix][iy][iz])/2;
 	InterpolatorVec[20] = (Bz_tm1_[ix][iy][iz+1] + Bz_[ix][iy][iz+1])/2;
 
+	printf("%f %f\n", InterpolatorVec[19], InterpolatorVec[20]);
+
 	return 0;
 };
 
@@ -205,23 +207,13 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 int Grid::getCellID(double x, double y, double z) {
 	// get indices in x, y, z
 	int ix = (int) ((x-x0_) * idx_);
-	int iy = (int) ((y-y0_) * idy_);
-	int iz = (int) ((z-z0_) * idz_);
+	if(ix < 0) return -1;
 
-	// inform if in ghost cell, and which one
-	if ( iz < nGhosts_ ) {
-		return -1;
-	} else if ( iz > nz_ - nGhosts_ - 1 ) {
-		return -2;
-	} else if ( iy < nGhosts_ ) {
-		return -3; 
-	} else if ( iy > ny_ - nGhosts_ - 1) {
-		return -4;
-	} else if ( ix < nGhosts_ ) {
-		return -5;
-	} else if ( ix > nx_ - nGhosts_ - 1) {
-		return -6;
-	}
+	int iy = (int) ((y-y0_) * idy_);
+	if(iy < 0) return -1;
+
+	int iz = (int) ((z-z0_) * idz_);
+	if(iz < 0) return -1;
 
 	return (ny_*nz_)*ix + nz_*iy + iz;
 
