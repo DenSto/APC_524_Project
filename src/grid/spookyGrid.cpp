@@ -21,6 +21,18 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
 
     // offset = 0 to get from the first/last physical cells 
     int offset=0;
+    // if E is in direction parallel to side
+    //    A is in direction parallel to side
+    //    J is in direction parallel to side
+    //    B is in direction perpendicular to side
+    // then offset = 0 to get first/last physical cells to fill in ghost
+    //
+    // if E is in direction perpendicular to side
+    //    A is in direction perpendicular to side
+    //    J is in direction perpendicular to side
+    //    B is in direction parallel to side
+    //    phi
+    // then offset = 1 to get second/second-to-last physical cells to fill in ghost
 
     // determine number of fields being sent 
     int nfields; 

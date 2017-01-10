@@ -200,7 +200,7 @@ int main(int argc, char *argv[]){
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
 
-       if(ti % 100 == 0) fprintf(stderr,"i=%d    t=%f\n",ti,ti*dt_phys);   
+       if(rank==0 && ti % 100 == 0) fprintf(stderr,"ti=%d\t\tt=%f\n",ti,time_phys);   
 
        /* push particles ***********************/
        part_handler->Push(dt_phys);
@@ -237,9 +237,9 @@ int main(int argc, char *argv[]){
        part_handler->InterpolateEB(grids);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish interpolate\n",rank,ti);
 
-       /* output *******************************/
        time_phys += dt_phys;
 
+       /* output *******************************/
        // writing files
        if((ti+1)%nstep_fields==0) {
          if(debug && rank==0)printf("    ti=%d: Writing field diagnostic files...\n",ti+1);
@@ -251,7 +251,8 @@ int main(int argc, char *argv[]){
 
      } // timestep loop
 
-     if(rank==0) printf("***Timestep loop complete*********\n");
+     if(rank==0) fprintf(stderr,"ti=%d\t\tt=%f\n",nt,time_phys);   
+     if(rank==0) printf("***Timestep loop complete***\n");
 
     /***************************************************************************/
     /* output, finalize                                                        */

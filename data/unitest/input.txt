@@ -30,7 +30,7 @@ runtime:
 
 initialization:
 {
-  # whether this is restart of a previous run
+  # whether this is restart of a previous run (0 = no)
   restart = 0
 
   # particle initialization
@@ -39,7 +39,7 @@ initialization:
     # number of particles of all species in each domain
     nParticles = 2
 
-    # whether use relaticistic pusher
+    # whether use relaticistic pusher (0 = no, 1 = yes)
     relativity = 0
 
     # number of species
