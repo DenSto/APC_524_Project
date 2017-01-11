@@ -147,6 +147,11 @@ int Grid::getFieldID(const std::string &fieldStr){
   return ID;
 }
 
+//! Return volume of a single cell
+double Grid::getCellVolume() {
+	return dx_*dy_*dz_;
+} 
+
 /// allocates memory for a single field 
 /*! Returns double*** of size [nx_+1][ny_+1][nz_+1]. \n
  * First attempts to allocate contiguously. If that fails, issues a warning and attempts to allocate with several calls to new. 
@@ -453,21 +458,16 @@ void Grid::getGridPhys(const int fieldID, double* x, double* y, double* z) {
  * xfirst,yfirst,zfirst,xlast,ylast,zlast
  */ 
 void Grid::getRealIndices(int fieldID, int* ind) { 
-    assert(0 < fieldID && fieldID < nFieldsTotal_); 
+    assert(fieldID >= 0 && fieldID < nFieldsTotal_); 
 
     // set the indices of first physical cells 
     ind[0] = iBeg_; 
     ind[1] = jBeg_; 
     ind[2] = kBeg_; 
     
-    // set the indices of last physical cells
-    int xside = 1; 
-    int yside = 2; 
-    int zside = 3; 
-
-    ind[3] = sideToIndex_(xside,fieldID); 
-    ind[4] = sideToIndex_(yside,fieldID); 
-    ind[5] = sideToIndex_(zside,fieldID); 
+  	ind[3] = iBeg_ + nxReal_;
+  	ind[4] = jBeg_ + nyReal_;
+  	ind[5] = kBeg_ + nzReal_;
 }; 
 
 /// averages two timesteps of B (for output) 
