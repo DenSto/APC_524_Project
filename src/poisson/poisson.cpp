@@ -179,10 +179,11 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   double az = pow(dx_, 2.0) * pow(dy_, 2.0) / (2.0 * celldist2);
   double af = pow(dx_, 2.0) * pow(dy_, 2.0) * pow(dz_, 2.0) / (2.0 * celldist2);
 
-  //initialize iteration variables
+  //initialize poisson convergence variables
   bool jacobi_method_converged = false;
   double maxDiff = 0.0;
   double absDiff = 0.0;
+  double uLast = 0.0;
 
   // directions 
   int xside=1; 
@@ -193,11 +194,13 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   int iEnd = sideToIndex_(xside,fieldID1)+1;  
   int jEnd = sideToIndex_(yside,fieldID1)+1; 
   int kEnd = sideToIndex_(zside,fieldID1)+1; 
-  
+
   //loop Jacobi method until convergence!
   int iternum = -1;
   do {
     iternum++;
+
+    //reset poisson convergence variable
     maxDiff = 0.0;
 
     // supply boundary conditions
@@ -212,15 +215,20 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
     for ( int i=iBeg_; i<iEnd; i++ ) {
       for ( int j=jBeg_; j<jEnd; j++ ) {
     	for ( int k=kBeg_; k<kEnd; k++ ) {
+	  //Calculate poisson step
           if ( iternum % 2 == 0 ) {
+	    uLast = u2[i][j][k];
             u2[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) + ay*(u1[i][j-1][k]+u1[i][j+1][k]) + 
               az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k]*sourceMult;
+	    absDiff = fabs(u2[i][j][k]-uLast);
           } else {
+	    uLast = u1[i][j][k];
             u1[i][j][k] = ax*(u2[i-1][j][k]+u2[i+1][j][k]) + ay*(u2[i][j-1][k]+u2[i][j+1][k]) +
-                  az*(u2[i][j][k-1]+u2[i][j][k+1]) - af*R[i][j][k]*sourceMult;
+	      az*(u2[i][j][k-1]+u2[i][j][k+1]) - af*R[i][j][k]*sourceMult;
+	    absDiff = fabs(u1[i][j][k]-uLast);
           }
 
-          absDiff = fabs(u2[i][j][k] - u1[i][j][k]);
+	  //Retain the largest error
           if (absDiff > maxDiff) maxDiff = absDiff;
         }
       }
@@ -230,8 +238,11 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
 #if USE_MPI
     maxDiff = domain_->GetMaxValueAcrossDomains(maxDiff);
 #endif
+
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
   }while( !jacobi_method_converged );
+
+  if (debug>1) printf("Poisson converged!\n");
 
   //If last calculated pass updated the work array (u2), copy it to the solution array (u1).
   if ( iternum % 2 == 0 ) std::swap(u1,u2);
