@@ -81,6 +81,7 @@ int main(int argc, char *argv[]){
     std::string inputname = argv[1];
     std::string dir = inputname.substr(0,inputname.find_last_of('/')+1);
     std::string outputname = dir + "output.h5";
+    std::string boxName = dir + "history.dat";
 
     /* Read and broadcast input file **********************/
     Input *input =  new Input();
@@ -188,13 +189,13 @@ int main(int argc, char *argv[]){
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
 	// Box average quantities
-//	OutputBoxQuantities* boxOutput = new OutputBoxQuantities(grids,part_handler,input_info);
+	OutputBoxQuantities* boxOutput = new OutputBoxQuantities(boxName.c_str(),grids,part_handler,input_info);
     // fields output
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str(),grids,domain,output_fields);
     if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
     if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
     // particle output
-    part_handler->outputParticles(0,input_info); 
+    part_handler->outputParticles(dir.c_str(),0,input_info); 
 
     /***************************************************************************/
     /* Advance time step                                                       */
@@ -204,7 +205,7 @@ int main(int argc, char *argv[]){
 
        if(rank==0 && ti % 100 == 0) fprintf(stderr,"ti=%d\t\tt=%f\n",ti,time_phys);   
 		
-//	   boxOutput->output(time_phys,ti);
+	   boxOutput->output(time_phys,ti);
 
        /* push particles ***********************/
        part_handler->Push(dt_phys);
@@ -251,7 +252,7 @@ int main(int argc, char *argv[]){
          if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
        }
        // particle output
-       part_handler->outputParticles(ti+1,input_info); 
+       part_handler->outputParticles(dir.c_str(),ti+1,input_info); 
 
      } // timestep loop
 

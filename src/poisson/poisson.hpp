@@ -27,7 +27,7 @@ protected:
   // convergence criteria for poisson solver
   double conv_phi_,conv_A_;
  
-  void run_poisson_solver_(const int fieldID, double*** u0, double*** u1,double*** R,double convergenceTol,double sourceMult); 
+  void run_poisson_solver_(const int fieldID1, const int fieldID2, double*** u1, double*** u2,double*** R,double convergenceTol,double sourceMult); 
   void setPoissonFieldType_();
   void setPoissonFieldPtr_();
 

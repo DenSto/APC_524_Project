@@ -9,7 +9,7 @@
  *
  * COMPILE USING: gcc -o add_breaks add_breaks.c -lm
  *
- * USAGE: ./add_breaks -s <box size> -o <basename-out> -i <basename-in> -s <post-name>
+ * USAGE: ./add_breaks -s <box size> -o <basename-out> -i <basename-in>
  *                
  *
  * WRITTEN BY: Denis St-Onge, June 2016
@@ -127,13 +127,13 @@ int main(int argc, char* argv[])
 	if(times[i] != -1){
     	    sscanf(line,"%f %f %f %f %2000[^ \n]s", &t, &x1,&y1,&z1,&extra);
 	    if(!expand){
-	        if(abs(x1-x0) > thres || abs(y1-y0) > thres || abs(z1-z0) > thres)
+	        if(fabs(x1-x0) > thres || fabs(y1-y0) > thres || fabs(z1-z0) > thres)
                 fputs("inf inf inf inf inf inf inf inf inf \n",fidout);
 	            fputs(line,fidout);
 	    } else {
-	        if(abs(x1-x0)>thres) (x1-x0) > 0 ? nx-- : nx++; 
-	        if(abs(y1-y0)>thres) (y1-y0) > 0 ? ny-- : ny++; 
-	        if(abs(z1-z0)>thres) (z1-z0) > 0 ? nz-- : nz++; 
+	        if(fabs(x1-x0)>thres) (x1-x0) > 0 ? nx-- : nx++; 
+	        if(fabs(y1-y0)>thres) (y1-y0) > 0 ? ny-- : ny++; 
+	        if(fabs(z1-z0)>thres) (z1-z0) > 0 ? nz-- : nz++; 
 	        fprintf(fidout,"%f %f %f %f %s\n",t,x1 + nx*box_size, y1 + ny*box_size, z1 +nz*box_size,extra);
 	    }
 	    x0=x1;

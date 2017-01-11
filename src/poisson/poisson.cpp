@@ -148,24 +148,25 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
 
   convTol = std::max(conv_phi_*0.1,CONV_CRIT);
   if(debug>1&&rank_MPI==0)printf("        solving for phi...\n"); 
-  run_poisson_solver_(phi1ID_,phi1_,phi2_,rho_,convTol,sourceMult);
+  run_poisson_solver_(phi1ID_,phi2ID_,phi1_,phi2_,rho_,convTol,sourceMult);
   phiToE();
 
   sourceMult = -4*M_PI; 
   convTol = std::max(conv_A_*0.1,CONV_CRIT);
   if(debug>1&&rank_MPI==0)printf("        solving for Ax...\n"); 
-  run_poisson_solver_(Ax1ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
+  run_poisson_solver_(Ax1ID_,Ax2ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
 
   if(debug>1&&rank_MPI==0)printf("        solving for Ay...\n"); 
-  run_poisson_solver_(Ay1ID_,Ay1_,Ay2_,Jy_,convTol,sourceMult);
+  run_poisson_solver_(Ay1ID_,Ay2ID_,Ay1_,Ay2_,Jy_,convTol,sourceMult);
   
   if(debug>1&&rank_MPI==0)printf("        solving for Az...\n"); 
-  run_poisson_solver_(Az1ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
+  run_poisson_solver_(Az1ID_,Az2ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
   AToB();
 }
 
-void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double*** u2,double*** R,double convergenceTol,double sourceMult) {
-  //fieldID is the field's ID, e.g. fieldID for Ax_ is Ax1ID_
+void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2, double*** u1, double*** u2,double*** R,double convergenceTol,double sourceMult) {
+  //fieldID1 is the field u1's ID, e.g. fieldID1 for Ax1_ is Ax1ID_
+  //fieldID1 is the field u2's ID, e.g. fieldID2 for Ax2_ is Ax2ID_
   //u1 is the first guess at a solution to Poisson's eqn
   //u2 is the work array of equal size
   //R is the 'source' array for Poisson's eqn
@@ -187,11 +188,11 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
   int xside=1; 
   int yside=2; 
   int zside=3; 
-  
+
   // limits 
-  int iEnd = sideToIndex_(xside,fieldID)+1;  
-  int jEnd = sideToIndex_(yside,fieldID)+1; 
-  int kEnd = sideToIndex_(zside,fieldID)+1; 
+  int iEnd = sideToIndex_(xside,fieldID1)+1;  
+  int jEnd = sideToIndex_(yside,fieldID1)+1; 
+  int kEnd = sideToIndex_(zside,fieldID1)+1; 
   
   //loop Jacobi method until convergence!
   int iternum = -1;
@@ -200,12 +201,14 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
     maxDiff = 0.0;
 
     // supply boundary conditions
-    executeBC(fieldID,iternum); // replace field specified by fieldID 
-                                // iternum%2==0, supply u1 fields
-                                // iternum%2!=0, supply u2 fields
+    //note second argument of executeBC = 0 to replace (and NOT add) the ghost cell
+    if ( iternum % 2 == 0 ) {
+      executeBC(fieldID1,0);
+    } else {
+      executeBC(fieldID2,0);
+    }
 
-    //iterate over entire grid. Note boundary conditions must be supplied!
-    //fprintf(stderr,"iBeg_=%d\n",iBeg_);
+    //iterate over entire grid.
     for ( int i=iBeg_; i<iEnd; i++ ) {
       for ( int j=jBeg_; j<jEnd; j++ ) {
     	for ( int k=kBeg_; k<kEnd; k++ ) {

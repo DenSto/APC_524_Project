@@ -36,10 +36,11 @@ void checkMPI(const char filestem[], double *buffer, int len){
     fprintf(stderr,"rank=%d: leaving checkMPI\n",rank_MPI);
 }
 
-OutputBoxQuantities::OutputBoxQuantities(Grid* grid, Particle_Handler* handler, Input_Info_t* info) 
+OutputBoxQuantities::OutputBoxQuantities(const char* fname,Grid* grid, Particle_Handler* handler, Input_Info_t* info) 
 	: 	grid_(grid),
 		pHandler_(handler)
 {
+	sprintf(filename_,"%s",fname);
 	dStep_		=10;		
 	dT_			=-1;
 	nextStep_	=0;
@@ -48,6 +49,14 @@ OutputBoxQuantities::OutputBoxQuantities(Grid* grid, Particle_Handler* handler, 
 
 void OutputBoxQuantities::output(double t, long i){
 	bool needsOutput = false;
+	static bool init = true;
+
+	if(init){
+		init = false;
+		FILE* fp = fopen(filename_,"w");
+		fprintf(fp,"[1] time \n");
+		fclose(fp);
+	}
 	
 	if(dT_ > 0 && t >= nextT_){
 		needsOutput = true;
@@ -60,7 +69,7 @@ void OutputBoxQuantities::output(double t, long i){
 	}
 
 	if(needsOutput){
-		FILE* fp = fopen("history.dat","a");
+		FILE* fp = fopen(filename_,"a");
 		double pEn  = 0.0;
 		double pM_x = 0.0;			
 		double pM_y = 0.0;			

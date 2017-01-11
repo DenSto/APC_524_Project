@@ -44,7 +44,7 @@ public:
   void setParticleBoundaries(BC_Particle** bc){boundaries_=bc;}
   void executeParticleBoundaryConditions();
 
-  void outputParticles(long nstep, Input_Info_t *input_info); //should be in its own class.
+  void outputParticles(const char* basename, long nstep, Input_Info_t *input_info); //should be in its own class.
   void outputParticleVel(); //Outputs the velocities of all particles, and species number.
 private:
   long np_;

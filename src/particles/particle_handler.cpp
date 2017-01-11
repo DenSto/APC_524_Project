@@ -281,19 +281,28 @@ void Particle_Handler::executeParticleBoundaryConditions(){
  *  Particles are written to the tracks/ directory and 
  *  named with initial rank and id.
  */
-void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
+void Particle_Handler::outputParticles(const char* basename,long step, Input_Info_t *input_info){
 
 	if(debug>2 && rank_MPI==0) printf("    ti=%ld: writing particle trackes...\n",step);
 
-       double t = time_phys;
-       dstep_ = input_info->nstep_parts;
-       outputCount_ = input_info->output_pCount;
+    double t = time_phys;
+    dstep_ = input_info->nstep_parts;
+    outputCount_ = input_info->output_pCount;
 
 	static bool init = true;
 	bool needsOutput=false;
 	if(init){
 		init=false;
 		//mkdir("./tracks", 0775); //create the particle directory
+		for(std::vector<Particle>::iterator iter = parts_.begin();iter!=parts_.end();++iter){
+			if(iter->my_id < outputCount_){
+				char fname[100];
+				sprintf(fname,"%s/track_%d_%ld.dat",basename,iter->initRank,iter->my_id);	
+				FILE *pout=fopen(fname,"w");
+				fprintf(pout,"[1] time [2] x [3] y [4] z  [5] vx   [6] vy   [7] vz\n");
+				fclose(pout);
+			}
+		}
 	}
 
 	// cadence on i or t
@@ -318,8 +327,7 @@ void Particle_Handler::outputParticles(long step, Input_Info_t *input_info){
 	FILE *pout;
 	for(std::vector<Particle>::iterator iter = parts_.begin();iter!=parts_.end();++iter){
 		if(iter->my_id < outputCount_){
-			//sprintf(fname,"./tracks/track_%d_%ld\n",iter->initRank,iter->my_id);	
-			sprintf(fname,"./track_%d_%ld.dat",iter->initRank,iter->my_id);	
+			sprintf(fname,"%s/track_%d_%ld.dat",basename,iter->initRank,iter->my_id);	
                         if(debug>1)fprintf(stderr,"    track file name %s\n",fname);
 			pout=fopen(fname,"a");
 			assert(pout != NULL);
