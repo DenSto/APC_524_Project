@@ -1,7 +1,7 @@
 domain:
 {
   # number of cells in each dimension
-  nCell = [ 5, 5, 5 ]
+  nCell = [ 50, 50, 100 ]
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
@@ -53,6 +53,10 @@ initialization:
 
     # fractional density of species
     dens_frac = [1.0]
+
+    # total physical number density of all species to simulate
+    # used to determine super particle scaling, in unit of cc
+    dens_phys = 10.0
 
     # number of particles of all species in each domain
     nParticles = 1
