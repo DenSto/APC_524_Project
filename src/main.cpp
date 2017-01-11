@@ -77,11 +77,6 @@ int main(int argc, char *argv[]){
 #endif 
     }
 
-    // format file names
-    std::string inputname = argv[1];
-    std::string dir = inputname.substr(0,inputname.find_last_of('/')+1);
-    std::string outputname = dir + "output.h5";
-    std::string boxName = dir + "history.dat";
 
     /* Read and broadcast input file **********************/
     Input *input =  new Input();
@@ -185,6 +180,13 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
     // initialize outputs
+    // format file names
+    std::string inputname = argv[1];
+    std::string dir = inputname.substr(0,inputname.find_last_of('/')+1);
+    std::cerr << dir << std::endl;
+    if(dir == "") dir = ".";
+    std::string outputname = dir + "output.h5";
+    std::string boxName = dir + "history.dat";
     int nstep_fields  = input_info->nstep_fields;
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
@@ -195,7 +197,7 @@ int main(int argc, char *argv[]){
     if(debug) fprintf(stderr,"rank=%d: Finish initialize particle output\n",rank);
 
     // particle output
-//    part_handler->outputParticles(dir.c_str(),0,input_info); 
+    part_handler->outputParticles(dir.c_str(),0,input_info); 
     if(debug) fprintf(stderr,"rank=%d: Finish writing initial particle output\n",rank);
 
     // fields output
@@ -261,7 +263,7 @@ int main(int argc, char *argv[]){
          if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
        }
        // particle output
-//       part_handler->outputParticles(dir.c_str(),ti+1,input_info); 
+       part_handler->outputParticles(dir.c_str(),ti+1,input_info); 
 
      } // timestep loop
 

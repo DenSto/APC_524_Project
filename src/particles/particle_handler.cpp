@@ -278,12 +278,12 @@ void Particle_Handler::executeParticleBoundaryConditions(){
  *	cadencing on steps (output ever dsteps), or both. Either are 
  *	optional parameters in the input file and will default to -1.
  *
- *  Particles are written to the tracks/ directory and 
+ *  Particles are written to the same directory as the program input file and 
  *  named with initial rank and id.
  */
 void Particle_Handler::outputParticles(const char* basename,long step, Input_Info_t *input_info){
 
-	if(debug>2 && rank_MPI==0) printf("    ti=%ld: writing particle trackes...\n",step);
+	if(debug>2 && rank_MPI==0) printf("    ti=%ld: writing particle tracks...\n",step);
 
     double t = time_phys;
     dstep_ = input_info->nstep_parts;
