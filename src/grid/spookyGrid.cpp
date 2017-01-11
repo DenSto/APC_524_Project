@@ -20,13 +20,13 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     double* tmpVec = sliceTmp_; 
 
     const int xside = 1; 
-    const int yside = 2; 
+    // const int yside = 2; // not used 
     const int zside = 3; 
 
     // determine number of fields being sent 
     int nfields; 
     switch (sendID) { 
-        case -2: nfields=4; break; 
+        case -2: nfields=3; break; 
         case -1: nfields=6; break; 
         default: nfields=1; break; 
     }
@@ -41,10 +41,22 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
         switch (sendID) { 
             case -2: // send J/rho 
                 switch (ifield) { 
-                    case 0: fieldID = JxID_; break; 
-                    case 1: fieldID = JyID_; break; 
-                    case 2: fieldID = JzID_; break; 
-                    case 3: fieldID = rhoID_; break; 
+                    // determine the 2 orthogonal J components to send 
+                    case 0: 
+                        if (abs(side) == xside) { 
+                            fieldID = JyID_; 
+                        } else { 
+                            fieldID = JxID_; 
+                        } 
+                        break; 
+                    case 1: 
+                        if (abs(side) == zside) { 
+                            fieldID = JyID_; 
+                        } else { 
+                            fieldID = JzID_; 
+                        } 
+                        break; 
+                    case 2: fieldID = rhoID_; break; 
                 }; 
                 break; 
             case -1: // send E/B
@@ -64,6 +76,11 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
         // vs values that are not on the shared face 
         field = fieldPtr_[fieldID]; 
         offset = getGhostOffset_(side,fieldID);  
+        // special case for J/rho only, sources add at shared interface, 
+        // so never want to get from adjacent ghost cells
+        if (sendID == -2) { 
+            offset = 0; 
+        } 
         
         // slice the given field with appropriate offset 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
@@ -94,10 +111,14 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
         offset = -1; 
     };
 
+    const int xside = 1; 
+    // const int yside = 2; // not used 
+    const int zside = 3; 
+    
     // determine number of fields being sent 
     int nfields; 
     switch (sendID) { 
-        case -2: nfields=4; break; 
+        case -2: nfields=3; break; 
         case -1: nfields=6; break; 
         default: nfields=1; break; 
     }
@@ -113,15 +134,27 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
         // store the relevant portion for ghostVec into tmpVec
         std::copy(ghostVec + begdex, ghostVec + enddex, tmpVec);
         switch (sendID) { 
-            case -2: // send J/rho 
+            case -2: // set J/rho 
                 switch (ifield) { 
-                    case 0: fieldID = JxID_; break; 
-                    case 1: fieldID = JyID_; break; 
-                    case 2: fieldID = JzID_; break; 
-                    case 3: fieldID = rhoID_; break; 
+                    // determine the 2 orthogonal J components to set 
+                    case 0: 
+                        if (abs(side) == xside) { 
+                            fieldID = JyID_; 
+                        } else { 
+                            fieldID = JxID_; 
+                        } 
+                        break; 
+                    case 1: 
+                        if (abs(side) == zside) { 
+                            fieldID = JyID_; 
+                        } else { 
+                            fieldID = JzID_; 
+                        } 
+                        break; 
+                    case 2: fieldID = rhoID_; break; 
                 }; 
                 break; 
-            case -1: // send E/B
+            case -1: // set E/B
                 switch (ifield) { 
                     case 0: fieldID = ExID_; break; 
                     case 1: fieldID = EyID_; break; 
@@ -134,6 +167,11 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
             default: fieldID = sendID; break; // send individual field 
         }; 
         field = fieldPtr_[fieldID]; 
+        // special case for J/rho only, sources add at shared interface, 
+        // so never want to get from adjacent ghost cells
+        if (sendID == -2) { 
+            offset = 0; 
+        } 
         // unslice the given field 
         unsliceMatToVec_(fieldID,side,offset,tmpVec,op); 
     } 
@@ -148,7 +186,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
 int Grid::getGhostVecSize(const int sendID) {
     assert(sendID > -3 && sendID < nFieldsTotal_);
     switch (sendID) {
-        case -2: return 4*maxPointsInPlane_; break; // J,rho
+        case -2: return 3*maxPointsInPlane_; break; // rho, perp comps of J
         case -1: return 6*maxPointsInPlane_; break; // E,B
         default: return maxPointsInPlane_; break; // single field
     }
@@ -341,7 +379,8 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
 };
 
 /// updates E,B ghost cells in y/z directions with periodic boundary conditions 
-/*! Makes 4 calls each to get/setGhostVec for EB fields all at once
+/*! Makes 4 calls each to get/setGhostVec for EB fields all at once \n 
+ * Deprecated method: correct performance not guaranteed 
  */ 
 void Grid::updatePeriodicGhostCells() { 
     // create a temporary vector to store ghostVecs 
