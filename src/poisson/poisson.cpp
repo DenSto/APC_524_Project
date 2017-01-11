@@ -280,9 +280,6 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
 
-    // offset = 0 to get from the first/last physical cells 
-    int offset=0;
-
     // determine number of fields being sent 
     int nfields; 
     switch (sendID) { 
@@ -295,7 +292,8 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
     // "loop" over all fields to package 
     int begdex; 
     double*** field; 
-    int fieldID,ifield;
+    int fieldID,offset; 
+    int ifield;
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
         switch (sendID) { 
@@ -331,8 +329,13 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
                 break; 
             default: fieldID = sendID; break; // send individual field 
         }; 
+        // determine the magnitude of the offset to use 
+        // different for field types located *on* the shared face 
+        // vs values that are not on the shared face 
         field = fieldPtr_[fieldID]; 
-        // slice the given field 
+        offset = getGhostOffset_(side,fieldID);  
+        
+        // slice the given field with appropriate offset 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
         // store the slice in ghostVec 
         std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
@@ -375,7 +378,8 @@ void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID, i
     // "loop" over all fields to unpackage 
     int begdex,enddex; 
     double*** field; 
-    int fieldID,ifield;
+    int fieldID; 
+    int ifield;
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
         enddex=(ifield+1)*n; 

@@ -181,6 +181,7 @@ protected:
   void constField_(const int fieldID, const double val); 
 
   int sideToIndex_(const int side, const int fieldID);
+  int getGhostOffset_(const int side, const int fieldID); 
   /* assert statements to check necessary conditions for initialized variables */
   void checkInput_();
 
