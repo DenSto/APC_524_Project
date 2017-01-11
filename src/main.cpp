@@ -183,7 +183,6 @@ int main(int argc, char *argv[]){
     // format file names
     std::string inputname = argv[1];
     std::string dir = inputname.substr(0,inputname.find_last_of('/')+1);
-    std::cerr << dir << std::endl;
     if(dir == "") dir = ".";
     std::string outputname = dir + "output.h5";
     std::string boxName = dir + "history.dat";
