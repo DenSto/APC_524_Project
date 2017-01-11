@@ -9,6 +9,8 @@
 // unit of thermal velocity
 #define UNIT_VTH 0.002232
 		
+enum fieldID {E_X, E_Y,E_Z, B_X, B_Y, B_Z};
+
 #ifdef MAIN_CPP
 int rank_MPI, size_MPI;
 int debug; // printf debug flag
@@ -20,6 +22,7 @@ double dt_phys; // current physical time step
 extern int rank_MPI, size_MPI;
 extern int debug;
 extern double time_phys, dt_phys;
+
 
 #endif // MAIN_CPP
 #endif // GLOBALS_HPP

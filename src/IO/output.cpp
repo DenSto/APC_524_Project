@@ -3,8 +3,10 @@
 #include <assert.h>
 #include "../particles/particle.hpp"
 
-//#include "../globals.hpp"
+#include "../globals.hpp"
 #include "output.hpp"
+
+#define SQR(x) (x*x)
 
 //void writeoutput(Grid *grids, Particle_Handler *parts_fields){
 //    //printf("rank %d: writing output files...\n",rank);
@@ -54,7 +56,7 @@ void OutputBoxQuantities::output(double t, long i){
 	if(init){
 		init = false;
 		FILE* fp = fopen(filename_,"w");
-		fprintf(fp,"[1] time \n");
+		fprintf(fp,"[1] time [2] Part en [3] Mx [4] My [5] Mz [6] B Energy [7] E Energy [8] Total E\n");
 		fclose(fp);
 	}
 	
@@ -70,6 +72,8 @@ void OutputBoxQuantities::output(double t, long i){
 
 	if(needsOutput){
 		FILE* fp = fopen(filename_,"a");
+
+		// Particle energy and momentum
 		double pEn  = 0.0;
 		double pM_x = 0.0;			
 		double pM_y = 0.0;			
@@ -82,8 +86,39 @@ void OutputBoxQuantities::output(double t, long i){
 			pM_z += iter->m *iter->v[2];
 		}
 
-		fprintf(fp,"%e %.15e %.15e %.15e %.15e \n",t, pEn,pM_x, pM_y,pM_z);
+		// field energy
+		int beg[6];
+		double EEx = 0;
+		double EEy = 0;
+		double EEz = 0;
+		double EBx = 0;
+		double EBy = 0;
+		double EBz = 0;
+
+		double vol = grid_->getCellVolume();
+		double**** fields = grid_->getFieldPtr();
+
+		grid_->getRealIndices(0,beg);
+		for(int i = beg[0]; i < beg[3]; i++){
+			for(int j = beg[1]; j < beg[4]; j++){
+				for(int k = beg[2]; k < beg[5]; k++){
+					EEx += 0.5*vol*SQR(0.5*(fields[E_X][i][j][k] + fields[E_X][i+1][j][k]));
+					EEy += 0.5*vol*SQR(0.5*(fields[E_Y][i][j][k] + fields[E_Y][i][j+1][k]));
+					EEz += 0.5*vol*SQR(0.5*(fields[E_Z][i][j][k] + fields[E_Z][i][j][k+1]));
+					EBx += 0.5*vol*SQR(0.5*(fields[B_X][i][j][k] + fields[B_X][i+1][j][k]));
+					EBy += 0.5*vol*SQR(0.5*(fields[B_Y][i][j][k] + fields[B_Y][i][j+1][k]));
+					EBz += 0.5*vol*SQR(0.5*(fields[B_Z][i][j][k] + fields[B_Z][i][j][k+1]));
+				}
+			}
+		}
+		
+		double B_en = EBx + EBy + EBz;
+		double E_en = EEx + EEy + EEz;
+		double E_tot = B_en + E_en + pEn;
+
+		fprintf(fp,"%e %.15e %.15e %.15e %.15e %.15e %.15e %.15e\n",t, pM_x, pM_y,pM_z,pEn, B_en, E_en, E_tot);
 		fclose(fp);
 	}
 }
 
+#undef SQR
