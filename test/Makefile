@@ -165,5 +165,11 @@ particles_unittests.o : $(TESTSRC_DIR)/particles_unittests.cc $(GTEST_HEADERS)
 particles_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) particles_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
 
+poisson_unittests.o : $(TESTSRC_DIR)/poisson_unittests.cc $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/poisson_unittests.cc -I $(SRC_DIR)/poisson
+
+poisson_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) poisson_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+
 run_tests: $(TESTS)
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	

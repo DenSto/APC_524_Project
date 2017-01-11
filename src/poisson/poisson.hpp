@@ -67,6 +67,9 @@ protected:
   friend class ConvertPrivateTest;
   FRIEND_TEST(ConvertPrivateTest, constantPhiTest); 
 
+  // unit testing in poisson_unittests.cc
+  friend class PoissonTest;
+  FRIEND_TEST(PoissonTest, testPoisson);
 };
 
 #endif

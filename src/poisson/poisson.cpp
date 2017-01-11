@@ -172,7 +172,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID, double*** u1, double
   //convergenceTol is the needed (absolute) solution accuracy
 
   //Define constants used to iterate Poisson's equation
-  double celldist2 = pow(dx_, 2.0) + pow(dy_, 2.0) + pow(dz_, 2.0);
+  double celldist2 = pow(dx_, 2.0)*pow(dy_, 2.0) + pow(dy_, 2.0)*pow(dz_, 2.0) + pow(dx_, 2.0)*pow(dz_, 2.0);
   double ax = pow(dy_, 2.0) * pow(dz_, 2.0) / (2.0 * celldist2);
   double ay = pow(dx_, 2.0) * pow(dz_, 2.0) / (2.0 * celldist2);
   double az = pow(dx_, 2.0) * pow(dy_, 2.0) / (2.0 * celldist2);
