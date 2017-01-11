@@ -1,6 +1,8 @@
+#define MAIN_CPP
 #include "gtest/gtest.h"
-#include <cmath>
 #include "RNG.hpp"
+#include <cmath>
+#include "globals.hpp"
 
 #define SAMPLES 100000
 

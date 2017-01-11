@@ -15,6 +15,7 @@
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
 CXX = g++
+MPICXX = mpic++
 
 ROOT_DIR = $(shell dirname $(shell pwd))
 
@@ -30,20 +31,16 @@ TESTSRC_DIR = $(ROOT_DIR)/test/test_src
 
 LCONFIG_LIB = $(ROOT_DIR)/libconfig-1.5/lib/libconfig++.a
 HDF5_DIR = $(SRC_DIR)/../hdf5-1.8.12
-#HDF5PAR_DIR = $(SRC_DIR)/../hdf5-1.8.12-parallel
+HDF5PAR_DIR = $(SRC_DIR)/../hdf5-1.8.12-parallel
 
 HDF5_LIB = $(HDF5_DIR)/lib/libhdf5.a
-#HDF5PAR_LIB = $(HDF5PAR_DIR)/lib/libhdf5.a
+HDF5PAR_LIB = $(HDF5PAR_DIR)/lib/libhdf5.a
 
-LIBS = $(LCONFIG_LIB) -lz -ldl -lm
+LIBS = $(LCONFIG_LIB) $(HDF5_LIB)
+LIBS_PAR = $(LCONFIG_LIB) $(HDF5PAR_LIB)
 
-#ifeq ($(USE_MPI),0)
-  HDF5_INCL = $(HDF5_DIR)/include
-  LIBS += $(HDF5_LIB)
-#else
-#  HDF5_INCL = $(HDF5PAR_DIR)/include
-#  LIBS += $(HDF5PAR_LIB)
-#endif
+HDF5_INCL = $(HDF5_DIR)/include
+HDF5PAR_INCL = $(HDF5PAR_DIR)include
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -55,7 +52,8 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = oGrid_unittests grid_unittests spookyGrid_unittests RNG_unittests convertFields_unittests depositJ_unittests readinput_unittests hdf5io_unittests particles_unittests poisson_unittests #dens_frac_test 
+TESTS = oGrid.tests grid.tests spookyGrid.tests RNG.tests convertFields.tests depositJ.tests readinput.tests hdf5io.tests particles.tests poisson.tests #dens_frac_test 
+TESTS_PAR = $(TESTS:=_par)
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -64,10 +62,10 @@ GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
 
 # House-keeping build targets.
 
-all : $(TESTS) 
+all : $(TESTS) $(TESTS_PAR)
 
 clean :
-	rm -f $(TESTS) gtest.a gtest_main.a *.o
+	rm -f $(TESTS) $(TESTS_PAR) gtest.a gtest_main.a *.o
 
 # Builds gtest.a and gtest_main.a.
 
@@ -97,6 +95,8 @@ gtest_main.a : gtest-all.o gtest_main.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
+SRC_INCL = grid IO domain utils poisson particles pusher
+
 include $(SRC_DIR)/Makefile.obj
 
 # General rule to build any .o file in src
@@ -105,71 +105,96 @@ $(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
 	make EMOOPIC; \
 	cd $(ROOT_DIR)/test
 
-readinput_unittests.o : $(TESTSRC_DIR)/readinput_unittests.cc $(SRC_DIR)/IO/input.hpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/readinput_unittests.cc -I $(SRC_DIR)/IO 
+$(SRC_DIR)/%_par.o: $(SRC_DIR)/%.cpp
+	cd $(SRC_DIR); \
+	make EMOOPIC; \
+	cd $(ROOT_DIR)/test
 
-readinput_unittests : $(addprefix $(SRC_DIR)/, $(IOTESTOBJ)) readinput_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+%.tests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) %_unittests.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lm -lz -ldl -lpthread $^ -o $@ $(LIBS)
 
-hdf5io_unittests.o : $(TESTSRC_DIR)/hdf5io_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/hdf5io_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/domain -I $(SRC_DIR)/grid -I $(HDF5_INCL)
+%.tests_par : $(addprefix $(SRC_DIR)/, $(OBJTEST_PAR)) %_unittests.o gtest_main.a
+	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) -lm -lz -ldl -lpthread $^ -o $@ $(LIBS_PAR) $(MPIFLAGS)
 
-hdf5io_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) hdf5io_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS) 
+%.o : $(TESTSRC_DIR)/%.cc $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5_INCL) -I$(SRC_DIR)
 
-RNG_unittests.o : $(TESTSRC_DIR)/RNG_unittests.cc $(SRC_DIR)/utils/RNG.hpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/RNG_unittests.cc -I $(SRC_DIR)/utils
+%_par.o : $(TESTSRC_DIR)/%.cc $(GTEST_HEADERS)
+	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) $(MPIFLAGS) -c $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5PAR_INCL) -I$(SRC_DIR)
 
-RNG_unittests : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) RNG_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lm  -lpthread $^ -o $@ $(LIBS)
-
-oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/oGrid_unittests.cc  -I $(SRC_DIR)/grid 
-
-oGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) oGrid_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS) 
-
-grid_unittests.o : $(TESTSRC_DIR)/grid_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/grid_unittests.cc  -I $(SRC_DIR)/grid 
-
-grid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) grid_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
-
-spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/spookyGrid_unittests.cc  -I $(SRC_DIR)/grid 
-
-spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) spookyGrid_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
-
-dens_frac_test.o : $(TESTSRC_DIR)/dens_frac_test.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/dens_frac_test.cpp -I $(SRC_DIR)/utils
-
-dens_frac_test : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) dens_frac_test.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
-convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/poisson
-
-convertFields_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) convertFields_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
-
-depositJ_unittests.o : $(TESTSRC_DIR)/depositJ_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/depositJ_unittests.cc -I $(SRC_DIR)/poisson -I $(SRC_DIR)/particles
-
-depositJ_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) depositJ_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
-
-particles_unittests.o : $(TESTSRC_DIR)/particles_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/particles_unittests.cc -I $(SRC_DIR)/utils -I $(SRC_DIR)/particles -I $(SRC_DIR)/pusher
-
-particles_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) particles_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
-
-poisson_unittests.o : $(TESTSRC_DIR)/poisson_unittests.cc $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/poisson_unittests.cc -I $(SRC_DIR)/poisson
-
-poisson_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) poisson_unittests.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
-
-run_tests: $(TESTS)
+run_tests: $(TESTS) 
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	
+
+run_tests_par: $(TESTS_PAR) 
+	$(addsuffix ;, $(addprefix ./, $(TESTS_PAR)))	
+
+
+
+
+#old... shouldn't need these anymore...
+
+#readinput_unittests.o : $(TESTSRC_DIR)/readinput_unittests.cc $(SRC_DIR)/IO/input.hpp $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/readinput_unittests.cc -I $(SRC_DIR)/IO 
+#
+#readinput_unittests : $(addprefix $(SRC_DIR)/, $(IOTESTOBJ)) readinput_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+#
+#hdf5io_unittests.o : $(TESTSRC_DIR)/hdf5io_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/hdf5io_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/domain -I $(SRC_DIR)/grid -I $(HDF5_INCL)
+#
+#hdf5io_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) hdf5io_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS) 
+#
+#RNG_unittests.o : $(TESTSRC_DIR)/RNG_unittests.cc $(SRC_DIR)/utils/RNG.hpp $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/RNG_unittests.cc -I $(SRC_DIR)/utils
+#
+#RNG_unittests : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) RNG_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lm  -lpthread $^ -o $@ $(LIBS)
+#
+#oGrid_unittests.o : $(TESTSRC_DIR)/oGrid_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/oGrid_unittests.cc  -I $(SRC_DIR)/grid 
+#
+#oGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) oGrid_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS) 
+#
+#grid_unittests.o : $(TESTSRC_DIR)/grid_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/grid_unittests.cc  -I $(SRC_DIR)/grid 
+#
+#grid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) grid_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+#
+#spookyGrid_unittests.o : $(TESTSRC_DIR)/spookyGrid_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/spookyGrid_unittests.cc  -I $(SRC_DIR)/grid 
+#
+#spookyGrid_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) spookyGrid_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+#
+#dens_frac_test.o : $(TESTSRC_DIR)/dens_frac_test.cpp $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/dens_frac_test.cpp -I $(SRC_DIR)/utils
+#
+#dens_frac_test : $(addprefix $(SRC_DIR)/, $(UTILSOBJ)) dens_frac_test.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+#
+#convertFields_unittests.o : $(TESTSRC_DIR)/convertFields_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/convertFields_unittests.cc -I $(SRC_DIR)/IO -I $(SRC_DIR)/poisson
+#
+#convertFields_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) convertFields_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+#
+#depositJ_unittests.o : $(TESTSRC_DIR)/depositJ_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/depositJ_unittests.cc -I $(SRC_DIR)/poisson -I $(SRC_DIR)/particles
+#
+#depositJ_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) depositJ_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+#
+#particles_unittests.o : $(TESTSRC_DIR)/particles_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/particles_unittests.cc -I $(SRC_DIR)/utils -I $(SRC_DIR)/particles -I $(SRC_DIR)/pusher
+#
+#particles_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) particles_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+#
+#poisson_unittests.o : $(TESTSRC_DIR)/poisson_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/poisson_unittests.cc -I $(SRC_DIR)/poisson
+#
+#poisson_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) poisson_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)

@@ -17,7 +17,7 @@ EMOOPIC*
 *latex/*.aux
 *latex/*.idx
 libconfig-1.5
-test/*unittests
+test/*.tests*
 test/*_test
 *.bundle
 .DS_store

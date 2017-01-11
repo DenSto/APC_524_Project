@@ -1,5 +1,6 @@
 #define MAIN_CPP
 #include "gtest/gtest.h"
+#include "globals.hpp"
 #include "input.hpp"
 
 TEST(ReadinputTest, ValuesCorrect) {
