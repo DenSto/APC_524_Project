@@ -45,25 +45,27 @@ protected:
 TEST_F(PoissonTest, testPoisson) {
   //Make const rho field rho = 0;
   grid->constRho(0.0);
-  //Add a test charge at grid pt (3,3,3)
-  grid->rho_[3][3][3]=2.0;
+  grid->constPhi(0.0);
+  //Add test charges <--remember Poisson requires neutral charge distribution
+  grid->rho_[3][3][3]=2.0; // cation at P=(3,3,3)
+  grid->rho_[3][3][4]=-2.0;// anion at Q=(3,3,4)
 
   //Solve poisson's equation to high convergence.
-  grid->run_poisson_solver_(grid->phi1ID_,grid->phi1_,grid->phi2_,grid->rho_,0.000000001,-4*3.1415936535898);
+  grid->run_poisson_solver_(grid->phi1ID_,grid->phi2ID_,grid->phi1_,grid->phi2_,grid->rho_,0.000001,-4*3.1415936535898);
+  printf("Poisson converged!\n");
 
   //Get cell lengths
   double lcell[3] = {};
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
 
-  //Check point chage scales as 1/r
-  //double phi1 = grid->phi1_[3][3][3]; //at test charge
-  double phi2 = grid->phi1_[3][3][4]; //dz away
-  double phi3 = grid->phi1_[3][3][5]; //2*dz away
-  double phi4 = grid->phi1_[2][3][3]; //dx away
-  double r12 = lcell[2]; //dz
-  double r13 = 2.0*lcell[2]; //2*dz
-  double r14 = lcell[0]; //dx
+  //Check point chage scales as 1/r  <--Only checks in z direction, which was made very long for this test to reduce wrap-around effects.
+  double dz = lcell[2]; //dz
+  double phiTest1 = grid->phi1_[3][3][10]; //phi(P+7*dz) or phi(Q+8*dz)
+  double rP1 = 7.0*dz;
+  double rQ1 = 8.0*dz;
+  double phiTest2 = grid->phi1_[3][3][11]; //phi(P+8*dz) or phi(Q+9*dz)
+  double rP2 = 8.0*dz;
+  double rQ2 = 9.0*dz;
 
-  EXPECT_NEAR(phi2*r12,phi3*r13,0.1);
-  EXPECT_NEAR(phi2*r12,phi4*r14,0.1);
+  EXPECT_NEAR(phiTest1/(1/rP1-1/rQ1),phiTest2/(1/rP2-1/rQ2),0.0001);
 }
