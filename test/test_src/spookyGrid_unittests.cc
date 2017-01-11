@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include "grid.hpp"
 #include "math.h"
+#include "RNG.hpp"
 
 // Tests of input/output to public methods
 class GridTest : public ::testing::Test {
@@ -102,16 +103,21 @@ TEST_F(GridPrivateTest, periodicUpdateTest) {
     for (i = 0; i<grid->nxTot_; ++i) { 
         for (j=0; j<grid->nyTot_; ++j) { 
             for (k=0; k<grid->nzTot_; ++k) { 
-                field[i][j][k] = ++iter; 
+                ++iter; 
+                field[i][j][k] += pow(iter,2); 
             } 
         } 
     } 
 
     // debug: verify the field is being filled up as expected 
+    // this only applies if field is being loaded with += iteri
+    // since this is an analytic sum of the total number of elements
+    /* 
     int n = grid->nxTot_*grid->nyTot_*grid->nzTot_; 
     int anSum = n*(n+1)/2; 
     double sumTot = sumField(field); 
     EXPECT_EQ(sumTot,anSum); 
+    */ 
 
     // get the initial sums of the relevant rows and columns
     double sumYLeftGhost = 0; 
