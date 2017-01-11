@@ -10,7 +10,7 @@ void checkMPI(const char filestem[],double *buffer,int len);
 
 class OutputBoxQuantities {
 	public:
-		OutputBoxQuantities(Grid* grid, Particle_Handler* handler, Input_Info_t* info);	
+		OutputBoxQuantities(const char* fname, Grid* grid, Particle_Handler* handler, Input_Info_t* info);	
 		~OutputBoxQuantities();
 
 		void setParticleHandler(Particle_Handler* handler){pHandler_ = handler;}	
@@ -19,6 +19,7 @@ class OutputBoxQuantities {
 		void output(double t, long i);
 	private:
 		Grid* grid_;
+		char filename_[50];
 		Particle_Handler* pHandler_;
 
 		int dStep_,nextStep_;
