@@ -52,22 +52,22 @@ Hdf5IO::Hdf5IO(const char* filename, Grid* grid, Domain* domain, const int which
     assert(fields_group_id_>=0);
   }
   if(which_fields_==ALL || which_fields_==E) {
-    Ex_tsio_ = new FieldTimeseriesIO(this, grid, "Ex");
-    Ey_tsio_ = new FieldTimeseriesIO(this, grid, "Ey");
-    Ez_tsio_ = new FieldTimeseriesIO(this, grid, "Ez");
+    Ex_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Ex");
+    Ey_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Ey");
+    Ez_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Ez");
   }
   if(which_fields_==ALL || which_fields_==B) {
-    Bx_tsio_ = new FieldTimeseriesIO(this, grid, "Bx");
-    By_tsio_ = new FieldTimeseriesIO(this, grid, "By");
-    Bz_tsio_ = new FieldTimeseriesIO(this, grid, "Bz");
+    Bx_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Bx");
+    By_tsio_ = new FieldTimeseriesIO(this, grid, domain, "By");
+    Bz_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Bz");
   }
   if(which_fields_==ALL || which_fields_==J) {
-    Jx_tsio_ = new FieldTimeseriesIO(this, grid, "Jx");
-    Jy_tsio_ = new FieldTimeseriesIO(this, grid, "Jy");
-    Jz_tsio_ = new FieldTimeseriesIO(this, grid, "Jz");
+    Jx_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Jx");
+    Jy_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Jy");
+    Jz_tsio_ = new FieldTimeseriesIO(this, grid, domain, "Jz");
   }
   if(which_fields_==ALL || which_fields_==rho) {
-    rho_tsio_ = new FieldTimeseriesIO(this, grid, "rho");
+    rho_tsio_ = new FieldTimeseriesIO(this, grid, domain, "rho");
   }
 }
 
@@ -108,6 +108,7 @@ Hdf5IO::~Hdf5IO() {
 /// write all field timeseries to hdf5 file
 int Hdf5IO::writeFields(Grid* grid, double time_phys) {
 
+  // average B to get B at current time
   grid->AvgB();
 
   double**** fieldPtr = grid->getFieldPtr();  
@@ -121,7 +122,6 @@ int Hdf5IO::writeFields(Grid* grid, double time_phys) {
     Ez_tsio_->writeField(fieldPtr[grid->getFieldID("Ez")]);
   }
   if(which_fields_==ALL || which_fields_==B) {
-    // Note: this needs to be changed to Bavg...
     Bx_tsio_->writeField(fieldPtr[grid->getFieldID("Bx_avg")]);
     By_tsio_->writeField(fieldPtr[grid->getFieldID("By_avg")]);
     Bz_tsio_->writeField(fieldPtr[grid->getFieldID("Bz_avg")]);
@@ -165,7 +165,7 @@ int Hdf5IO::writeTime(double time_phys) {
   return 0;
 }
 
-FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldname) 
+FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, std::string fieldname) 
 	: ndims_(4),
   	  nProcxyz_(io->getnProcxyz()),
 	  myijk_(io->getmyijk()),
@@ -225,18 +225,66 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldna
   H5Pclose(create_chunks_plist); 
   
   // get grid coordinates
-  double* x_phys_local = new double[field_block_[0]];
-  double* y_phys_local = new double[field_block_[1]];
-  double* z_phys_local = new double[field_block_[2]];
-  grid->getGridPhys(fieldID, x_phys_local, y_phys_local, z_phys_local);
+  double* x_phys_global = new double[filespace_dims[0]];
+  double* y_phys_global = new double[filespace_dims[1]];
+  double* z_phys_global = new double[filespace_dims[2]];
+  grid->getGridPhys(fieldID, x_phys_global, y_phys_global, z_phys_global);
+#if USE_MPI
+  int* xblocks = new int[size_MPI];
+  int* xdispl = new int[size_MPI];
+  int* yblocks = new int[size_MPI];
+  int* ydispl = new int[size_MPI];
+  int* zblocks = new int[size_MPI];
+  int* zdispl = new int[size_MPI];
+  int* ijk_r = new int[3];
+  for(int r=0; r<size_MPI; r++) {
+    domain->RankToijk(r, ijk_r);
+    if(ijk_r[1]==0 && ijk_r[2]==0) {
+      xblocks[r] = field_block_[0];
+      xdispl[r] = field_block_[0]*ijk_r[0];
+    } else {
+      xblocks[r] = 0;
+      xdispl[r] = 0;
+    }
+    if(ijk_r[0]==0 && ijk_r[2]==0) {
+      yblocks[r] = field_block_[1];
+      ydispl[r] = field_block_[1]*ijk_r[1];
+    } else {
+      yblocks[r] = 0;
+      ydispl[r] = 0;
+    }
+    if(ijk_r[0]==0 && ijk_r[1]==0) {
+      zblocks[r] = field_block_[2];
+      zdispl[r] = field_block_[2]*ijk_r[2];
+    } else {
+      zblocks[r] = 0;
+      zdispl[r] = 0;
+    }
+  }
+
+  MPI_Allgatherv(x_phys_global, xblocks[rank_MPI], MPI_DOUBLE, 
+           x_phys_global, xblocks, xdispl, MPI_DOUBLE, MPI_COMM_WORLD);
+  MPI_Allgatherv(y_phys_global, yblocks[rank_MPI], MPI_DOUBLE, 
+           y_phys_global, yblocks, ydispl, MPI_DOUBLE, MPI_COMM_WORLD);
+  MPI_Allgatherv(z_phys_global, zblocks[rank_MPI], MPI_DOUBLE, 
+           z_phys_global, zblocks, zdispl, MPI_DOUBLE, MPI_COMM_WORLD);
+
+  delete [] xblocks;
+  delete [] xdispl;
+  delete [] yblocks;
+  delete [] ydispl;
+  delete [] zblocks;
+  delete [] zdispl;
+  delete [] ijk_r;
+#endif
 
   // define grid coordinates as attributes
   hid_t x_dataspace;
   hid_t x_attribute;
-  x_dataspace = H5Screate_simple(1, &field_block_[0], NULL);
+  x_dataspace = H5Screate_simple(1, &filespace_dims[0], NULL);
   x_attribute = H5Acreate2(field_dataset_, "x", H5T_NATIVE_DOUBLE, 
 			      x_dataspace, H5P_DEFAULT, H5P_DEFAULT);
-  H5Awrite(x_attribute, H5T_NATIVE_DOUBLE, x_phys_local);
+  H5Awrite(x_attribute, H5T_NATIVE_DOUBLE, x_phys_global);
   H5Aclose(x_attribute);
   H5Sclose(x_dataspace);
 
@@ -245,7 +293,7 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldna
   y_dataspace = H5Screate_simple(1, &filespace_dims[1], NULL);
   y_attribute = H5Acreate2(field_dataset_, "y", H5T_NATIVE_DOUBLE, 
 			      y_dataspace, H5P_DEFAULT, H5P_DEFAULT);
-  H5Awrite(y_attribute, H5T_NATIVE_DOUBLE, y_phys_local);
+  H5Awrite(y_attribute, H5T_NATIVE_DOUBLE, y_phys_global);
   H5Aclose(y_attribute);
   H5Sclose(y_dataspace);
 
@@ -254,7 +302,7 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldna
   z_dataspace = H5Screate_simple(1, &filespace_dims[2], NULL);
   z_attribute = H5Acreate2(field_dataset_, "z", H5T_NATIVE_DOUBLE, 
 			      z_dataspace, H5P_DEFAULT, H5P_DEFAULT);
-  H5Awrite(z_attribute, H5T_NATIVE_DOUBLE, z_phys_local);
+  H5Awrite(z_attribute, H5T_NATIVE_DOUBLE, z_phys_global);
   H5Aclose(z_attribute);
   H5Sclose(z_dataspace);
 
@@ -272,9 +320,9 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, std::string fieldna
   delete [] memspace_dims;
   delete [] nxyzTot;
   delete [] phys_dims;
-  delete [] x_phys_local;
-  delete [] y_phys_local;
-  delete [] z_phys_local;
+  delete [] x_phys_global;
+  delete [] y_phys_global;
+  delete [] z_phys_global;
 }
 
 FieldTimeseriesIO::~FieldTimeseriesIO() {
