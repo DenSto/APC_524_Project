@@ -126,7 +126,7 @@ run_tests: $(TESTS)
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	
 
 run_tests_par: $(TESTS_PAR) 
-	$(addsuffix ;, $(addprefix ./, $(TESTS_PAR)))	
+	$(addprefix mpirun -np 1 , $(addsuffix ;, $(addprefix  ./, $(TESTS_PAR))))
 
 
 
