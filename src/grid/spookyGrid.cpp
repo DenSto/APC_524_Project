@@ -19,20 +19,9 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
 
-    // offset = 0 to get from the first/last physical cells 
-    int offset=0;
-    // if E is in direction parallel to side
-    //    A is in direction parallel to side
-    //    J is in direction parallel to side
-    //    B is in direction perpendicular to side
-    // then offset = 0 to get first/last physical cells to fill in ghost
-    //
-    // if E is in direction perpendicular to side
-    //    A is in direction perpendicular to side
-    //    J is in direction perpendicular to side
-    //    B is in direction parallel to side
-    //    phi
-    // then offset = 1 to get second/second-to-last physical cells to fill in ghost
+    const int xside = 1; 
+    const int yside = 2; 
+    const int zside = 3; 
 
     // determine number of fields being sent 
     int nfields; 
@@ -45,7 +34,8 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     // "loop" over all fields to package 
     int begdex; 
     double*** field; 
-    int fieldID,ifield;
+    int fieldID,offset;
+    int ifield; 
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
         switch (sendID) { 
@@ -69,8 +59,13 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
                 break; 
             default: fieldID = sendID; break; // send individual field 
         }; 
+        // determine the magnitude of the offset to use 
+        // different for field types located *on* the shared face 
+        // vs values that are not on the shared face 
         field = fieldPtr_[fieldID]; 
-        // slice the given field 
+        offset = getGhostOffset_(side,fieldID);  
+        
+        // slice the given field with appropriate offset 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
         // store the slice in ghostVec 
         std::copy(tmpVec,tmpVec + n ,ghostVec + begdex); 
@@ -110,7 +105,8 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
     // "loop" over all fields to unpackage 
     int begdex,enddex; 
     double*** field; 
-    int fieldID,ifield;
+    int fieldID; 
+    int ifield;
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
         enddex=(ifield+1)*n; 
@@ -181,6 +177,49 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
     } 
     return dex; 
 };
+
+/// Gets offset of ghost points
+/*! Called by getGhostVec. 
+ * Returns the index of the value you want to get with getGhostVec \n 
+ * side is the usual -/+ 1,2,3 for -/+ x,y,z boundaries \n 
+ * fieldID is a fieldID (e.g. ExID_ from Grid)
+ */ 
+int Grid::getGhostOffset_(const int side, const int fieldID) { 
+    assert(side != 0 && abs(side) < 4); 
+    assert(0 < fieldID && fieldID < nFieldsTotal_); 
+    
+    const int type = fieldType_[fieldID]; 
+    
+    const int dir = abs(side); 
+    const int xdir = 1; 
+    const int ydir = 2; 
+    const int zdir = 3; 
+
+    int offset = 0; 
+
+    // get the magnitude of the offset 
+    if (type == edgeXID_ && dir != xdir ) { 
+        ++offset; 
+    } else if (type == edgeYID_ && dir != ydir) { 
+        ++offset; 
+    } else if (type == edgeZID_ && dir != zdir) { 
+        ++offset; 
+    } else if (type == faceXID_ && dir == xdir) { 
+        ++offset; 
+    } else if (type == faceYID_ && dir == ydir) { 
+        ++offset; 
+    } else if (type == faceZID_ && dir == zdir) { 
+        ++offset; 
+    } else if (type == vertID_) { 
+        ++offset; 
+    } 
+    
+    // get the sign of the offset
+    // opposite the sign of side 
+
+    if (side > 1) offset *= -1; 
+    return offset; 
+}; 
 
 /// slices a physical plane in the specified direction (excludes ghosts) 
 /*! mat is 3D array whose real (non-ghost) data on one side will be stored in vec as a 1D array. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). unsliceMatToVec_ is the inverse function. 

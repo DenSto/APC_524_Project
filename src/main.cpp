@@ -213,9 +213,9 @@ int main(int argc, char *argv[]){
     if(rank==0)printf("Advancing time steps...\n");
     for(int ti=0;ti<nt;ti++){
 
-       if(rank==0 && ti % 100 == 0) fprintf(stderr,"ti=%d\t\tt=%f\n",ti,time_phys);   
+       if(rank==0 && ti%100==0)fprintf(stderr,"ti=%d\t\t t=%f ps\n",ti,time_phys*UNIT_TIME);   
 		
-	   boxOutput->output(time_phys,ti);
+       boxOutput->output(time_phys,ti);
 
        /* push particles ***********************/
        part_handler->Push(dt_phys);
@@ -266,7 +266,7 @@ int main(int argc, char *argv[]){
 
      } // timestep loop
 
-     if(rank==0) fprintf(stderr,"ti=%d\t\tt=%f\n",nt,time_phys);   
+     if(rank==0) fprintf(stderr,"ti=%d\t\t t=%f ps\n",nt,time_phys*UNIT_TIME);   
      if(rank==0) printf("***Timestep loop complete***\n");
 
     /***************************************************************************/

@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include <assert.h>
 #include <string.h>
 
@@ -21,6 +23,7 @@ int Input::checkinfo(void){
            reset+=1;
            nCell[i]-=resid;
         }
+        assert(nCell[i]>0);
      }
      if(reset>0){
         printf("    nCell not devisible by nProc\n");
@@ -31,6 +34,7 @@ int Input::checkinfo(void){
     double *Lxyz = input_info_->Lxyz;
     double total_volume = 1.0;
     for(int i=0;i<3;i++){total_volume*=Lxyz[i];}; 
+    assert(total_volume>0);
     double domain_volume = total_volume/size_MPI;
     printf("    The volume of each domain is %6.2e cm^3\n",domain_volume);
 
@@ -68,6 +72,7 @@ int Input::checkinfo(void){
     double *charge = input_info_->charge_ratio;
     double cden = 0.0;
     for(int i=0;i<nspec;i++){
+        assert(dens[i]>=0);
         cden += dens[i];
     }
 
@@ -87,14 +92,6 @@ int Input::checkinfo(void){
           err += 1;
        }
     }      
-
-    // super particle scaling of mass, charge and temperature
-    for(int i=0;i<nspec;i++){
-       mass[i]  *= Ns;
-       charge[i]*= Ns*UNIT_CHARGE; // also set charge to proper unit
-       temp[i]  *= Ns;
-    }
-    printf("    Mass, charge, and temperature are scaled for super particles.\n"); 
 
     /* Check boundary conditions **************************/
     char (*parts_bound)[NCHAR] = input_info_->parts_bound;
@@ -128,7 +125,68 @@ int Input::checkinfo(void){
         assert(pol[i]>=0 && pol[i]<=3);
     }     
 
+    /* check time resolution *****************************/
+    double ttmp;
+    printf("    Typical time scales in this simulation are:\n"); 
+
+    // light transit time t=L/c, in unit of picosecond
+    double time_light = Lxyz[0]/nCell[0]; 
+    for(int i=1;i<3;i++){
+        ttmp = Lxyz[i]/nCell[i];
+        if(ttmp<time_light)time_light = ttmp;
+    }
+    time_light *= UNIT_TIME;
+    assert(time_light>0);
+    printf("      Light transit unit cell takes %6.3e ps\n",time_light); 
+
+    // plasma frequency, in unit of 1THz=1/ps
+    ttmp = 0.0;
+    for(int i=0;i<nspec;i++){
+        ttmp += pow(charge[i],2)*dens[i]/mass[i];
+    }
+    //printf("sum e^2n/m=%f,dens_phys=%f\n",ttmp,dens_phys);
+    double omega_p = UNIT_FPE*sqrt(ttmp*dens_phys)*1e-9; // convert KHz to THz
+    printf("      Plasma frequency is %6.3e THz\n",omega_p); 
+
+    // maximum gyro frequency, in unit of 1THz=1/ps
+    double *B0 = input_info_->B0;
+    double B =0.0; // background B field
+    for(int i=0;i<3;i++){B += pow(B0[i],2);}
+    B = sqrt(B);
+    double qm = abs(charge[0]/mass[0]);//charge to mass ratio
+    for(int i=1;i<nspec;i++){
+        ttmp = abs(charge[i]/mass[i]);
+        if(ttmp>qm)qm=ttmp;
+    }
+    //printf("qm=%f,B=%f",qm,B);
+    double omega_c = UNIT_FCE*qm*B*1e-3; // convert GHz to THz
+    printf("      Maximum gyro frequency is %6.3e THz\n",omega_c); 
+
+    // maximum boundary wave frequency, in unit of THz
+    double *omegas = input_info_->omegas;
+    double omega_e = 0.0;
+    if(nwaves>0){
+       omega_e = omegas[0];
+       for(int i=1;i<nwaves;i++){
+           ttmp = omegas[i];
+       }
+       if(ttmp>omega_e) omega_e = ttmp;
+    } 
+    //printf("nwaves=%d,omega=%f\n",nwaves,omega_e);
+    omega_e *= UNIT_FRAD*1e-3; // convert GHz to THz 
+    printf("      Maximum boundary wave frequency is %6.3e THz\n",omega_e); 
+
+
+    // super particle scaling of mass, charge and temperature
+    for(int i=0;i<nspec;i++){
+       mass[i]  *= Ns;
+       charge[i]*= Ns*UNIT_CHARGE; // also set charge to proper unit
+       temp[i]  *= Ns;
+    }
+    printf("    Mass, charge, and temperature are rescaled for super particles.\n"); 
+
     return err;
+
 }
 
 //! Check MPI broadcast **********************************/
