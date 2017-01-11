@@ -5,7 +5,7 @@
 *~
 *.dat
 .depend
-EMOOPIC
+EMOOPIC*
 *.log
 *.dvi
 *latex/*.tex
