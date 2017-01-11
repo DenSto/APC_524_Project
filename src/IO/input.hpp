@@ -64,6 +64,10 @@ typedef struct {
 
     double t0;   /// start time of simulation
 
+    double dens_phys; /// physical number density of all particles
+                      /// used to scale mass, charge and temperature
+                      /// of super particles.
+
     double mass_ratio[NSPEC];/// mass of each type of particle in unit of electron mass
                        /// array of length nspecies 
                        /// eg. in electron-proton plasma

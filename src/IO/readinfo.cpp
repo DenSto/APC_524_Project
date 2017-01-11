@@ -163,6 +163,13 @@ int Input::readinfo(char *fname){
       input_info_->t0 = 0.;
     }
 
+    try{input_info_->dens_phys = cfg.lookup("initialization.particles.dens_phys");
+    }catch(const SettingNotFoundException &nfex){
+      cerr << "Caution: dens_phys not set in input file!" << endl 
+           << "  Assuming dens_phys = actual particle number density" << endl;
+      input_info_->dens_phys = 0.0;
+    }
+
     try
     {
       input_info_->debug = cfg.lookup("runtime.debug");
@@ -262,7 +269,7 @@ int Input::readinfo(char *fname){
       const Setting &temperature = 
            cfg.lookup("initialization.particles.temperature");
       if(temperature.getLength() != nspecies) {
-        cerr << "Error: length of charge ratios does not match nspecies!" << endl;
+        cerr << "Error: length of temp does not match nspecies!" << endl;
         return(EXIT_FAILURE);
       } else {
         for(int i=0;i<nspecies;i++){

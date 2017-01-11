@@ -39,6 +39,10 @@ initialization:
     # number of particles of all species in each domain
     nParticles = 2
 
+    # total physical number density of all species to simulate
+    # used to determine super particle scaling, in unit of cc
+    dens_phys = 10.0
+
     # whether use relaticistic pusher (0 = no, 1 = yes)
     relativity = 0
 

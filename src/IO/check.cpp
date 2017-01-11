@@ -25,8 +25,30 @@ int Input::checkinfo(void){
      if(reset>0){
         printf("    nCell not devisible by nProc\n");
         printf("        Reset nCell to [%d, %d, %d]\n",nCell[0],nCell[1],nCell[2]);
-    } 
-           
+    }
+
+    // calculate volume of each domain
+    double *Lxyz = input_info_->Lxyz;
+    double total_volume = 1.0;
+    for(int i=0;i<3;i++){total_volume*=Lxyz[i];}; 
+    double domain_volume = total_volume/size_MPI;
+    printf("    The volume of each domain is %6.2e cm^3\n",domain_volume);
+
+    // determine super particle scaling
+    long np = input_info_->np;
+    double n0 = np/domain_volume;
+    assert(n0>0);
+
+    double dens_phys = input_info_->dens_phys;
+    if(dens_phys<0){dens_phys=-dens_phys;}
+    else if(dens_phys==0){dens_phys=n0;}
+    input_info_->dens_phys = dens_phys;
+
+    double Ns = dens_phys/n0; // super ratio
+    printf("    Particle density %6.2e cc is used to simulate physical density %6.2e cc\n",
+                n0,dens_phys);
+    printf("        The super particle scaling is %f\n",Ns);  
+
     /* Check run time inputs *******************************/
     // check nTimesteps
     if(input_info_->nt<0){
@@ -53,8 +75,6 @@ int Input::checkinfo(void){
         dens[i]/=cden;
         printf("        Species %d: density %6.2f%%, mass %9.3f, charge %6.3f\n",
                         i,100.0*dens[i],mass[i],charge[i]);
-        // normalize charge to proper unit
-        charge[i]*=UNIT_CHARGE;
     }
 
     // check positivity of mass and temp
@@ -67,6 +87,14 @@ int Input::checkinfo(void){
           err += 1;
        }
     }      
+
+    // super particle scaling of mass, charge and temperature
+    for(int i=0;i<nspec;i++){
+       mass[i]  *= Ns;
+       charge[i]*= Ns*UNIT_CHARGE; // also set charge to proper unit
+       temp[i]  *= Ns;
+    }
+    printf("    Mass, charge, and temperature are scaled for super particles.\n"); 
 
     /* Check boundary conditions **************************/
     char (*parts_bound)[NCHAR] = input_info_->parts_bound;
@@ -129,6 +157,7 @@ void checkinput(Input_Info_t *input_info){
 
    /* particle ************************/
    fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
+   fprintf(stderr,"rank=%d,dens_phys=%f\n",rank,input_info->dens_phys);
    fprintf(stderr,"rank=%d,relativity=%d\n",rank,input_info->relativity);
 
    int nspecies = input_info->nspecies;
