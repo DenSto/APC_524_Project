@@ -143,6 +143,29 @@ To get a sense of how large the electric and magnetic fields are, it is useful t
 \end{eqnarray}
 where KV/cm stands for kilo volte/cm, and T stands for tesla. Notice that a constant field $\tilde{E}=1$ is a very large electric field, which can accelerate an electron to relativistic velocity within 1 $\tilde{s}$. In comparison, a constant field $\tilde{B}=1$ is moderate magnetic field that can be easily produced in laboratory.
 
+\section*{Super Particles}
+It is rare that one has the numerical resources to run a PIC code with physical number of particles. Therefore, super particles are typically used, each representing $N_s$ number of real particles. The mass and charge of a super particle is thereof $N_s$ time those of a real particle:
+\begin{equation}
+    m_s=N_s m, \hspace{3pt} e_s=N_s e.
+\end{equation}
+Since the charge-to-mass ratio remains the same, acceleration of a super particle is no different than that of a real particle. Hence, the velocity of super particle should not be scaled:
+\begin{equation}
+    v_s=v.
+\end{equation}
+Consequently, the temeprature of super particles should be $N_s$ times larger
+\begin{equation}
+    T_s\propto m_s v_{Ts}^2=N_s m v_T^2\propto N_s T.
+\end{equation}
+Nevertheless, since super particle density $n_s$, necessary for representing physical density $n_0$, is reduced to
+\begin{equation}
+    n_s=n_0/N_s,
+\end{equation}
+the plasma frequency and Debye length remains unchanged:
+\begin{eqnarray}
+  \omega_{ps}^2&=&\frac{4\pi n_se_s^2}{m_s}=\frac{4\pi(n_0/N_s)(N_s e)^2}{N_s m}=\omega_p^2,\\
+  \lambda_{Ds}^2&=&\frac{T_s}{4\pi n_s e_s^2}=\frac{N_s T}{4\pi n_0/N_s (N_s e)^2}=\lambda_D^2.
+\end{eqnarray}
+As the super fraction $N_s=n_0/n_s$ becomes closer to $1$, the simulation becomes closer to the reality.
 %------------------------------------------------------------
 
 \end{document}
