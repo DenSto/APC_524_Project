@@ -148,7 +148,7 @@ boundary:
         # length of peakamps should be nwaves
         peakamps = [0.0001, 0.001, 0.0003]
      
-        # What are the wave frequencies? omegas=1 -> 190.40 GHz
+        # What are the wave frequencies? omegas=1 -> frequency=4.7713 GHz
         # length of omega should be nwaves
         omegas = [1.2, 5.6, 3.7]
      
