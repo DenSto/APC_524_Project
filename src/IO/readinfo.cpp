@@ -19,6 +19,9 @@ int Input::readinfo(char *fname){
 
     Config cfg;
     // Read the file. If there is an error, report it and exit.
+
+    cfg.setAutoConvert(true);
+
     try
     {
       cout << "Reading input file " << fname << endl;
@@ -231,12 +234,15 @@ int Input::readinfo(char *fname){
     {
       const Setting &mass_ratio = 
            cfg.lookup("initialization.particles.mass_ratio");
-      if(mass_ratio.getLength() != nspecies) {
+      if(mass_ratio.getLength() != nspecies && !(nspecies==1 && mass_ratio.getLength()==0)) {
         cerr << "Error: length of mass ratios does not match nspecies!" << endl;
         return(EXIT_FAILURE);
       } else {
-        for(int i=0;i<nspecies;i++){
-          input_info_->mass_ratio[i] = mass_ratio[i];
+        if(nspecies==1 && mass_ratio.getLength()==0) input_info_->mass_ratio[0] = mass_ratio;
+        else {
+          for(int i=0;i<nspecies;i++){
+            input_info_->mass_ratio[i] = mass_ratio[i];
+          }
         }
       }
     }
@@ -250,12 +256,15 @@ int Input::readinfo(char *fname){
     {
       const Setting &charge_ratio = 
            cfg.lookup("initialization.particles.charge_ratio");
-      if(charge_ratio.getLength() != nspecies) {
+      if(charge_ratio.getLength() != nspecies && !(nspecies==1 && charge_ratio.getLength()==0)) {
         cerr << "Error: length of charge ratios does not match nspecies!" << endl;
         return(EXIT_FAILURE);
       } else {
-        for(int i=0;i<nspecies;i++){
-          input_info_->charge_ratio[i] = charge_ratio[i];
+        if(nspecies==1 && charge_ratio.getLength()==0) input_info_->charge_ratio[0] = charge_ratio;
+        else {
+          for(int i=0;i<nspecies;i++){
+            input_info_->charge_ratio[i] = charge_ratio[i];
+          }
         }
       }
     }
@@ -268,12 +277,15 @@ int Input::readinfo(char *fname){
     {
       const Setting &temperature = 
            cfg.lookup("initialization.particles.temperature");
-      if(temperature.getLength() != nspecies) {
+      if(temperature.getLength() != nspecies && !(nspecies==1 && temperature.getLength()==0)) {
         cerr << "Error: length of temp does not match nspecies!" << endl;
         return(EXIT_FAILURE);
       } else {
-        for(int i=0;i<nspecies;i++){
-          input_info_->temp[i] = temperature[i];
+        if(nspecies==1 && temperature.getLength()==0) input_info_->temp[0] = temperature;
+        else {
+          for(int i=0;i<nspecies;i++){
+            input_info_->temp[i] = temperature[i];
+          }
         }
       }
     }
@@ -287,31 +299,40 @@ int Input::readinfo(char *fname){
     {
       const Setting &dens_frac = 
            cfg.lookup("initialization.particles.dens_frac");
-      if(dens_frac.getLength() != nspecies) {
-        cerr << "Error: length of fractional densities does not match nspecies!" << endl;
+      if(dens_frac.getLength() != nspecies && !(nspecies==1 && dens_frac.getLength()==0)) {
+        cerr << "Error: length of dens_frac does not match nspecies!" << endl;
         return(EXIT_FAILURE);
       } else {
-        for(int i=0;i<nspecies;i++){
-          input_info_->dens_frac[i] = dens_frac[i];
+        if(nspecies==1 && dens_frac.getLength()==0) input_info_->dens_frac[0] = dens_frac;
+        else {
+          for(int i=0;i<nspecies;i++){
+            input_info_->dens_frac[i] = dens_frac[i];
+          }
         }
       }
     }
     catch(const SettingNotFoundException &nfex)
     {
-      cerr << "Error: dens_frac not set in input file" << endl; 
-      return(EXIT_FAILURE);
+      if(nspecies==1) input_info_->dens_frac[0] = 1;
+      else {
+        cerr << "Error: dens_frac not set in input file" << endl; 
+        return(EXIT_FAILURE);
+      }
     }
 
     try
     {
       const Setting &isTestParticle = 
            cfg.lookup("initialization.particles.isTestParticle");
-      if(isTestParticle.getLength() != nspecies) {
+      if(isTestParticle.getLength() != nspecies && !(nspecies==1 && isTestParticle.getLength()==0)) {
         cerr << "Error: length of isTestParticle does not match nspecies!" << endl;
         return(EXIT_FAILURE);
       } else {
-        for(int i=0;i<nspecies;i++){
-          input_info_->isTestParticle[i] = isTestParticle[i];
+        if(nspecies==1 && isTestParticle.getLength()==0) input_info_->isTestParticle[0] = isTestParticle;
+        else {
+          for(int i=0;i<nspecies;i++){
+            input_info_->isTestParticle[i] = isTestParticle[i];
+          }
         }
       }
     }

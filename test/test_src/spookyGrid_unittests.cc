@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "grid.hpp"
 #include "math.h"
-#include "RNG.hpp"
+//#include "RNG.hpp"
 
 // Tests of input/output to public methods
 class GridTest : public ::testing::Test {
