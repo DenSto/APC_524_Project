@@ -1,4 +1,11 @@
 ###########################################################
+Deoxygen documentation of this program can be found in 
+    /latex/refman.pdf
+
+A description of the physical units being used can be found in
+   /random_tex/units.pdf
+
+###########################################################
 Compilation instructions:
 >> cd src
 >> make

@@ -188,14 +188,23 @@ int main(int argc, char *argv[]){
     int nstep_fields  = input_info->nstep_fields;
 //    int nstep_restart = input_info->nstep_restart;
     int output_fields = input_info->which_fields;
-	// Box average quantities
-	OutputBoxQuantities* boxOutput = new OutputBoxQuantities(boxName.c_str(),grids,part_handler,input_info);
+    if(rank==0)printf("    Writing initial field diagnostic files...\n");
+
+    // Box average quantities
+    OutputBoxQuantities* boxOutput = new OutputBoxQuantities(boxName.c_str(),grids,part_handler,input_info);
+    if(debug) fprintf(stderr,"rank=%d: Finish initialize particle output\n",rank);
+
+    // particle output
+//    part_handler->outputParticles(dir.c_str(),0,input_info); 
+    if(debug) fprintf(stderr,"rank=%d: Finish writing initial particle output\n",rank);
+
     // fields output
     Hdf5IO* hdf5io = new Hdf5IO(outputname.c_str(),grids,domain,output_fields);
-    if(rank==0)printf("    ti=0: Writing initial field diagnostic files...\n");
-    if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
-    // particle output
-    part_handler->outputParticles(dir.c_str(),0,input_info); 
+    if(debug) fprintf(stderr,"rank=%d: Finish initialize field output\n",rank);
+    if(output_fields>=0){
+        hdf5io->writeFields(grids, time_phys);
+        if(debug) fprintf(stderr,"rank=%d: Finish writing initial fields output\n",rank);
+    }
 
     /***************************************************************************/
     /* Advance time step                                                       */
@@ -252,7 +261,7 @@ int main(int argc, char *argv[]){
          if(output_fields>=0) hdf5io->writeFields(grids, time_phys);
        }
        // particle output
-       part_handler->outputParticles(dir.c_str(),ti+1,input_info); 
+//       part_handler->outputParticles(dir.c_str(),ti+1,input_info); 
 
      } // timestep loop
 

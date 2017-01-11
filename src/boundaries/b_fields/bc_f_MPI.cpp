@@ -1,5 +1,6 @@
 #if USE_MPI
 
+#include <stdio.h>
 #include <iostream>
 #include <cmath>
 #include <string.h>
@@ -37,14 +38,16 @@ BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
     side_ = side; // inherited from BC_Field
     int dim = (int)(abs((double)side_)-1); 
     assert(dim>=0 && dim<3);
-    if(debug)cerr<<"rank="<<rank_MPI<<":boundary side "<<side<< " is MPI\n";
+    //if(debug)cerr<<"rank="<<rank_MPI<<": boundary side "<<side_<< " is MPI\n";
+    if(debug)fprintf(stderr,"rank=%d: boundary side %d is MPI\n",rank_MPI,side_);
 
     // if in the middle or periodic, send this side, recv the other side
     // otherwise, send and recv from the same MPI side
     int ind_this = sideToindex(side);
     int ind_other= sideToindex(-side);
     bool isPeriodic = (strcmp(info->fields_bound[ind_this],"periodic")==0);
-    if(debug>1&&isPeriodic)cerr<<"rank="<<rank_MPI<<":boundary side is Periodic\n";
+    //if(debug>1&&isPeriodic)cerr<<"rank="<<rank_MPI<<": boundary side is Periodic\n";
+    if(debug>1&&isPeriodic)fprintf(stderr,"rank=%d: side %d is Periodic\n",rank_MPI,side_);
 
     // determine MPI locations and neighbours 
     int* nProc = domain->getnProcxyz();
@@ -68,17 +71,22 @@ BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
         recvRank_ = rank_this;//recv from this side
         same_=1;
     }
-    if(debug)cerr<<"rank="<<rank_MPI<<":boundary side "<<side
-                 << " sendRank="<<sendRank_
-                 << ", recvRank="<<recvRank_<<endl;
+    //if(debug)cerr<<"rank="<<rank_MPI<<": boundary side "<<side_
+    //             << " sendRank="<<sendRank_
+    //             << ", recvRank="<<recvRank_<<endl;
+    if(debug)fprintf(stderr,"rank=%d: boundary side=%d, sendRank=%d, recvRank=%d\n",
+                             rank_MPI,side,sendRank_,recvRank_);
+
 
     // encode MPI send tag and recv tag in format tag = (sender,receiver)
     stag_ = size_MPI*rank_MPI + sendRank_;
     rtag_ = size_MPI*recvRank_+ rank_MPI;
-    if(debug)cerr<<"rank="<<rank_MPI
-                 <<": boudary side "<<side
-                 << " stag="<< stag_ 
-                 << ", rtag="<< rtag_<< endl;
+    //if(debug)cerr<<"rank="<<rank_MPI
+    //             <<": boudary side "<<side_
+    //             << " stag="<< stag_ 
+    //             << ", rtag="<< rtag_<< endl;
+    if(debug)fprintf(stderr,"rank=%d: boudary side=%d, stag=%d, rtag=%d\n",
+                            rank_MPI,side_,stag_,rtag_);
 }
 
 BC_F_MPI::~BC_F_MPI(){
