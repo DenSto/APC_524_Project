@@ -256,7 +256,7 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
  */ 
 /*int Grid::getGhostOffset_(const int side, const int fieldID) { 
     assert(side != 0 && abs(side) < 4); 
-    assert(0 < fieldID && fieldID < nFieldsTotal_); 
+    assert(-1 < fieldID && fieldID < nFieldsTotal_); 
     
     const int type = fieldType_[fieldID]; 
     
