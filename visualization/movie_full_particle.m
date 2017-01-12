@@ -174,10 +174,12 @@ for i=1:dt:nt
     % plot labels
     subplot(xt);
     xlabel('Time'); ylabel('Position'); title('Position');
+    legend('x','y','z'); 
     box on ; hold off;
     
     subplot(vt);
     xlabel('Time'); ylabel('Velocity'); title('Velocity');
+    legend('v_x','v_y','v_z'); 
     box on ; hold off;
     
     subplot(xtraj);
@@ -197,7 +199,7 @@ for i=1:dt:nt
     if do_save
         lighting phong
         set(f,'Renderer','zbuffer')
-        F(i) = getframe(gcf);
+        F(i) = getframe(f);
     end
 end
 

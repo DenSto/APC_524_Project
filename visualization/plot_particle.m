@@ -106,13 +106,4 @@ if (do_save || do_plot)
     save_and_close('v_traj.png',fv,do_save,do_close)
 end
 
-    function save_and_close(fname,fig,do_save,do_close)
-        if do_save
-            hgexport(fig, fname, hgexport('factorystyle'), 'Format', 'png');
-        end
-        if do_close
-            close(fig);
-        end
-    end
-
 end
