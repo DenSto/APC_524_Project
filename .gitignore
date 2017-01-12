@@ -19,6 +19,7 @@ EMOOPIC*
 libconfig-1.5
 test/*.tests*
 test/*_test
+test/*_unittests
 *.bundle
 .DS_store
 hdf5-1.8.12
