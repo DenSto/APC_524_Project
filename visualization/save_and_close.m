@@ -16,7 +16,7 @@ if nargin < 3
 end 
 
 if nargin < 2
-    do_close = 1; 
+    do_save = 1; 
 end 
 
 if do_save

@@ -30,18 +30,20 @@ show_full_hist=1;
 
 % number of recent points of trajectory to show in color
 % set to 0 to plot no points in color (faster)
-% nhist = floor(nt/10);
-nhist=0;
+% nhist = floor(nt/100);
+nhist=10;
 
 % number of recent points of trajectory to show with markers
-nparts = floor(nhist/10);
+% nparts = floor(nhist/10);
+nparts = 0; 
+
 % size of most recent and least recent marker plotted
 msmin = 1;
 msmax = 10;
 
 % number of steps to iterate forward
 %(e.g. dt = 3 plots on steps 1, 4, 7,etc)
-dt=10;
+dt=2;
 
 % set to 1 to keep the axis limits fixed for the whole movie
 % set to 0 to dynamically adjust them
@@ -133,7 +135,7 @@ end
 if do_save
     F=F(1:dt:nt);
     v=VideoWriter(fsave,'Motion JPEG AVI');
-    v.FrameRate=8;
+    v.FrameRate=60;
     open(v);
     writeVideo(v,F);
     close(v);

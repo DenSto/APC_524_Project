@@ -39,7 +39,7 @@ show_full_hist=1;
 % number of recent points of trajectory to show in color
 % set to 0 to plot no points in color (faster)
 % nhist = floor(nt/100);
-nhist=100;
+nhist=10;
 
 % number of recent points of trajectory to show with markers
 nparts = floor(nhist/10);
@@ -49,7 +49,7 @@ msmax = 10;
 
 % number of steps to iterate forward
 %(e.g. dt = 3 plots on steps 1, 4, 7,etc)
-dt=10;
+dt=1;
 
 % set to 1 to keep the axis limits fixed for the whole movie
 % set to 0 to dynamically adjust them
@@ -149,7 +149,6 @@ for i=1:dt:nt
     subplot(xt); 
     plot_components(t(jmin:i),x(jmin:i,:),LWtraj); 
     axis tight; 
-    axis 
     subplot(vt); 
     plot_components(t(jmin:i),v(jmin:i,:),LWtraj); 
     axis tight; 
@@ -198,7 +197,7 @@ for i=1:dt:nt
     % save a frame for the video
     if do_save
         lighting phong
-        set(f,'Renderer','zbuffer')
+        set(f,'Renderer','zbuffer');
         F(i) = getframe(f);
     end
 end
@@ -207,7 +206,7 @@ end
 if do_save
     F=F(1:dt:nt);
     v=VideoWriter(fsave,'Motion JPEG AVI');
-    v.FrameRate=8;
+    v.FrameRate=60;
     open(v);
     writeVideo(v,F);
     close(v);

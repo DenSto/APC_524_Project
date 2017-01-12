@@ -30,7 +30,7 @@ fname = [dname 'track_' num2str(mpi_rank) '_' num2str(part_rank) '.dat'];
 
 % second line to deal with new header in track.dat files
 % dat=dlmread(fname);
-dat = dlmread(fname,'',1,0); 
+dat = dlmread(fname,'',1,0);
 
 t=dat(:,1);
 xx = dat(:,2);
@@ -45,21 +45,22 @@ v=[vx vy vz];
 
 if (do_save || do_plot)
     do_close = ~do_plot;
-     
+    
     % parameters for plots of components
     fcomp = figure;
     FS = 14;
+    legloc='west';
     nrows=2;
     ncols=1;
     
-    % set to 1 to subtract mean from components (easier to compare) 
+    % set to 1 to subtract mean from components (easier to compare)
     % set to 0 to plot raw values
     do_norm = 0;
     
-    if do_norm 
+    if do_norm
         for i=1:3
-            x(:,i) = x(:,i)-mean(x(:,i)); 
-            v(:,i) = v(:,i)-mean(v(:,i)); 
+            x(:,i) = x(:,i)-mean(x(:,i));
+            v(:,i) = v(:,i)-mean(v(:,i));
         end
     end
     
@@ -69,7 +70,8 @@ if (do_save || do_plot)
     set(gca,'fontsize',FS); box on;
     %     xlabel('Time');
     ylabel('Position');
-    legend('x_x','x_y','x_z');
+    axis tight;
+    legend('x_x','x_y','x_z','Location',legloc);
     
     % plot 3 components of velocity
     subplot(nrows,ncols,2);
@@ -77,7 +79,8 @@ if (do_save || do_plot)
     set(gca,'fontsize',FS); box on ;
     xlabel('Time');
     ylabel('Velocity');
-    legend('v_x','v_y','v_z');
+    axis tight;
+    legend('v_x','v_y','v_z','Location',legloc);
     
     suptitle('Components of Position and Velocity');
     save_and_close('xv_comps.png',fcomp,do_save,do_close);
