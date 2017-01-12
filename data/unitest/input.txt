@@ -21,7 +21,7 @@ runtime:
 {
   # number of time steps to run
   # should be larger than zero
-  nTimesteps = 1000
+  nTimesteps = 2
 
   # start time, in units of 33.4 picosecond. (spped of light c=1)
   startTime = 0.0
@@ -29,7 +29,7 @@ runtime:
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug, write possibly too much debug files
-  debug = 0
+  debug = 2
 }
 
 initialization:
@@ -172,7 +172,7 @@ boundary:
             bound_phi = [0.0,0.02, 0.0,0.0, 0.0,0.0]
 
             # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
-            # in unit of A=1->1KG.cm. The gauge choice is arbitrary.
+            # in unit of A=1->1KG.cm. Use Coulomb gauge.
             bound_Ax = [0.0,0.0, 0.0,0.0, 0.0,0.0]
             bound_Ay = [0.0,1.2, 0.0,0.0, 0.0,0.0]
             bound_Az = [0.0,0.0, 0.0,0.0, 0.0,0.0]

@@ -157,7 +157,8 @@ int main(int argc, char *argv[]){
         if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
         part_handler->depositRhoJ(grids,true,domain,input_info);
         // sum charge and current on MPI boundaries 
-        grids->executeBC(-2,1); // R,J, sum
+        grids->executeBC(-2,0); // first, load physical R,J, and replace ghost
+        grids->executeBC(-2,1); // second, load R,J ghost on this side, and sum to physical
         if(debug) fprintf(stderr,"rank=%d: Finish Pass initial R,J\n",rank);
         if(debug) fprintf(stderr,"rank=%d: Finish initial deposition\n",rank);   
     }
@@ -236,7 +237,8 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
        // sum charge and current on MPI boundaries 
-       grids->executeBC(-2,1); // R,J, sum
+       grids->executeBC(-2,0); // first, load physical R,J, and replace ghost
+       grids->executeBC(-2,1); // second, load R,J ghost on this side, and sum to physical
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass R,J\n",rank,ti);
 
        /* evolve E, B fields *******************/
@@ -244,7 +246,7 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);
 
        // pass E,B field across MPI boundaries, or implement physical boundary conditions
-       grids->executeBC(-1,0); //E,B replace
+       grids->executeBC(-1,0); //E,B load physical to replace ghost
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass E,B\n",rank,ti);
 
        /* interpolation ************************/

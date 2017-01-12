@@ -50,15 +50,18 @@ public:
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
 
+   // called by main to get MPI
   virtual int getGhostVecSize(const int sendID); // called by main to size MPI Buffer
   // side = +1: x right, side = -1: x left
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
-  virtual void getGhostVec(const int side, double* ghostVec, int sendID); // called by main to get MPI
-  virtual void setGhostVec(const int side, double* ghostVec, int sendID, int op);
-  void updatePeriodicGhostCells(); 
-  void setBoundaryVec(const int side, const double* ghostVec); // load physical boundary conditions
-                                                               // boundary condition may depend on time_phys 
+  //
+  // option = 0: get physical, or set ghost by replace
+  // option = 1: get ghost, or set physical by sum
+  virtual void getGhostVec(const int side, double* ghostVec, int sendID, int option);
+  virtual void setGhostVec(const int side, double* ghostVec, int sendID, int option);
+
+  //void updatePeriodicGhostCells(); 
 
   // public methods for diagnostics
   double**** getFieldPtr() {return fieldPtr_;};
