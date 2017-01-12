@@ -69,6 +69,7 @@ public:
   virtual int getFieldID(const std::string &fieldStr);
   void getDimPhys(const int fieldID, int* dim);
   void getGridPhys(const int fieldID, double* x, double* y, double * z); 
+  int getnGhosts() {return nGhosts_;};
   void AvgB(); 
   
   void executeBC(int sendID, int option); // execute field boundary conditions
