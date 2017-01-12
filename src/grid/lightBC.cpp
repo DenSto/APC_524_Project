@@ -191,6 +191,8 @@ void LightBC::applyBCs (double t, double dt, Grid *grids) {
           bFieldVal = bsign*GaussianPulses(t,bPhase,gaussian_pulses_[eid]);//should be eid!
           B1[bid]+=bFieldVal;
        }
+
+       // set value on the first/last physical face
        grids->setFieldAlongEdge(eString_[i],dim_,side_>0, E1[eid]);
        grids->setFieldAlongEdge(bString_[i],dim_,side_>0, B1[bid]);
    }
