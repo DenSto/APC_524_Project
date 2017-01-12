@@ -297,7 +297,7 @@ void Particle_Handler::outputParticles(const char* basename,long step, Input_Inf
 		for(std::vector<Particle>::iterator iter = parts_.begin();iter!=parts_.end();++iter){
 			if(iter->my_id < outputCount_){
 				char fname[100];
-				sprintf(fname,"%s/track_%d_%ld.dat",basename,iter->initRank,iter->my_id);	
+				sprintf(fname,"%strack_%d_%ld.dat",basename,iter->initRank,iter->my_id);	
 				FILE *pout=fopen(fname,"w");
 				fprintf(pout,"[1] time [2] x [3] y [4] z  [5] vx   [6] vy   [7] vz\n");
 				fclose(pout);
@@ -327,7 +327,7 @@ void Particle_Handler::outputParticles(const char* basename,long step, Input_Inf
 	FILE *pout;
 	for(std::vector<Particle>::iterator iter = parts_.begin();iter!=parts_.end();++iter){
 		if(iter->my_id < outputCount_){
-			sprintf(fname,"%s/track_%d_%ld.dat",basename,iter->initRank,iter->my_id);	
+			sprintf(fname,"%strack_%d_%ld.dat",basename,iter->initRank,iter->my_id);	
                         if(debug>1)fprintf(stderr,"    track file name %s\n",fname);
 			pout=fopen(fname,"a");
 			assert(pout != NULL);
