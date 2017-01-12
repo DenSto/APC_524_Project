@@ -125,7 +125,7 @@ for i=1:dt:nt
     if do_save
         lighting phong
         set(f,'Renderer','zbuffer')
-        F(i) = getframe(gcf);
+        F(i) = getframe(f);
     end
 end
 

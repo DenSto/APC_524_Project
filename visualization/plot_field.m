@@ -18,9 +18,17 @@
 % field is an array of size (nx,ny,nz,nt) with the full field
 % data at each point in space and time
 
-function [t,x,y,z,field] = plot_field(fstr,do_plot,do_movie)
+function [t,x,y,z,field] = plot_field(fstr,do_plot,do_movie,do_save)
 
-% plot by default
+% plot and save by default
+if nargin < 4
+    do_save = 1;
+end
+
+if nargin < 3
+    do_movie = 0;
+end
+
 if nargin < 2
     do_plot = 1;
 end
@@ -121,10 +129,14 @@ if do_plot
     %     cmap = jet(1024);
     cmap = 'parula';
     
-    figure;
+    f = figure;
     
     if do_movie
         times = 1:nt;
+        if do_save
+            F(nt)= struct('cdata',[],'colormap',[]);
+            fsave=[fstr '_mov.avi'];
+        end
     else
         times = floor(nt/2); % arbitrary time
     end
@@ -172,9 +184,25 @@ if do_plot
         axis tight; axis equal;
         
         pause(.05);
+        
+        % save a frame for the video
+        if do_movie && do_save
+            lighting phong
+            set(f,'Renderer','zbuffer')
+            F(it) = getframe(f);
+        end
     end
     
 end
 
-
+if do_save
+    if do_movie
+        v=VideoWriter(fsave,'Motion JPEG AVI');
+        v.FrameRate=8;
+        open(v);
+        writeVideo(v,F);
+        close(v);
+    else
+        save_and_close([fstr '.png'],f,do_save,~do_plot)
+    end
 end
