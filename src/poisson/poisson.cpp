@@ -349,12 +349,12 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
         // different for field types located *on* the shared face 
         // vs values that are not on the shared face 
         field = fieldPtr_[fieldID]; 
-        offset = getGhostOffset_(side,fieldID);  
+//        offset = getGhostOffset_(side,fieldID);  
         // special case for J/rho only, sources add at shared interface, 
         // so never want to get from adjacent ghost cells
-        if (sendID == -2) { 
-            offset = 0; 
-        } 
+//        if (sendID == -2) { 
+//            offset = 0; 
+//        } 
         
         // slice the given field with appropriate offset 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
@@ -458,9 +458,9 @@ void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID, i
         field = fieldPtr_[fieldID]; 
         // special case for J/rho only, sources add at shared interface, 
         // so never want to get from adjacent ghost cells
-        if (sendID == -2) { 
-            offset = 0; 
-        } 
+//        if (sendID == -2) { 
+//            offset = 0; 
+//        } 
         // unslice the given field 
         unsliceMatToVec_(fieldID,side,offset,tmpVec,op); 
     } 

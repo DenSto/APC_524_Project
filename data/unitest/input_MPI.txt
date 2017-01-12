@@ -173,7 +173,7 @@ boundary:
             bound_phi = [0.0, 0.03, 0.0, 0.0, 0.0, 0.0]
 
             # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
-            # in unit of A=1->1KG.cm. The gauge choice is arbitrary.
+            # in unit of A=1->1KG.cm. Use Coulomb gauge.
             bound_Ax = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             bound_Ay = [0.0, 1.2, 0.0, 0.0, 0.0, 0.0]
             bound_Az = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

@@ -137,7 +137,7 @@ int Input::checkinfo(void){
     }
     time_light *= UNIT_TIME;
     assert(time_light>0);
-    printf("      Light transit unit cell takes %6.3e ps\n",time_light); 
+    printf("        Light transit unit cell takes %6.3e ps\n",time_light); 
 
     // plasma frequency, in unit of 1THz=1/ps
     ttmp = 0.0;
@@ -146,7 +146,7 @@ int Input::checkinfo(void){
     }
     //printf("sum e^2n/m=%f,dens_phys=%f\n",ttmp,dens_phys);
     double omega_p = UNIT_FPE*sqrt(ttmp*dens_phys)*1e-9; // convert KHz to THz
-    printf("      Plasma frequency is %6.3e THz\n",omega_p); 
+    printf("        Plasma frequency is %6.3e THz\n",omega_p); 
 
     // maximum gyro frequency, in unit of 1THz=1/ps
     double *B0 = input_info_->B0;
@@ -160,7 +160,7 @@ int Input::checkinfo(void){
     }
     //printf("qm=%f,B=%f",qm,B);
     double omega_c = UNIT_FCE*qm*B*1e-3; // convert GHz to THz
-    printf("      Maximum gyro frequency is %6.3e THz\n",omega_c); 
+    printf("        Maximum gyro frequency is %6.3e THz\n",omega_c); 
 
     // maximum boundary wave frequency, in unit of THz
     double *omegas = input_info_->omegas;
@@ -174,7 +174,7 @@ int Input::checkinfo(void){
     } 
     //printf("nwaves=%d,omega=%f\n",nwaves,omega_e);
     omega_e *= UNIT_FRAD*1e-3; // convert GHz to THz 
-    printf("      Maximum boundary wave frequency is %6.3e THz\n",omega_e); 
+    printf("        Maximum boundary wave frequency is %6.3e THz\n",omega_e); 
 
 
     // super particle scaling of mass, charge and temperature

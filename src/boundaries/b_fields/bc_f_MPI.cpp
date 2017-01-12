@@ -118,7 +118,7 @@ int BC_F_MPI::completeBC(int fieldID, int option){
     char fname[20]; // for debug file 
  
     // load ghost value to send. Always send this side of ghost
-    grids_->getGhostVec(side_,sendBuf_,fieldID);     
+    grids_->getGhostVec(side_,sendBuf_,fieldID,option);     
 
     if(debug>2){
        fprintf(stderr,"rank=%d:checking field send\n",rank_MPI);

@@ -10,11 +10,26 @@
  * ghostVec is the vector to store the data in, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
  * sendID = -2 to get Jrho fields, -1 to get EB fields, or sendID = an individual field ID (e.g. ExID_) to get just that field (used for Poisson updating for example) \n
  * Gets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be sent with a single MPI call. If sendID = -1 (as used in each time step update), stores in order: Ex,Ey,Ez,Bx,By,Bz. If sendID = -2, stores in order: Jx,Jy,Jz,rho. \n
+ * option is a flag determining where the ghostVec will get from. 
+ *    option = 0: get physical values on this side. 
+ *    option = 1: get ghost values on this side. \n
  * ghostVec can (and should) be unpacked with setGhostVec function 
  */ 
-void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
+void Grid::getGhostVec(const int side, double* ghostVec, int sendID, int option) {
     assert(-3 < sendID && sendID < nFieldsTotal_); 
     
+    assert(option==0 || option==1);
+    int offset; // offset from physical boundary
+    if(option==0){// get physical values
+        offset = 0; 
+    }else{// get adjacent ghost values
+        assert(sendID = -2);
+        offset = abs(side)/side;
+    }
+    if(debug>1)fprintf(stderr,"rank=%d:get on side=%d with offset=%d,for field=%d\n",
+                               rank_MPI,side,offset,sendID);
+        
+
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
@@ -26,15 +41,15 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     // determine number of fields being sent 
     int nfields; 
     switch (sendID) { 
-        case -2: nfields=3; break; 
-        case -1: nfields=6; break; 
-        default: nfields=1; break; 
+        case -2: nfields=3; break; // two orthogonal J's and rho
+        case -1: nfields=6; break; // two orthogonal B's should be sufficient
+        default: nfields=1; break; // individual field
     }
     
     // "loop" over all fields to package 
     int begdex; 
     double*** field; 
-    int fieldID,offset;
+    int fieldID;
     int ifield; 
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
@@ -75,13 +90,13 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
         // different for field types located *on* the shared face 
         // vs values that are not on the shared face 
         field = fieldPtr_[fieldID]; 
-        offset = getGhostOffset_(side,fieldID);  
+//        offset = getGhostOffset_(side,fieldID);  
         // special case for J/rho only, sources add at shared interface, 
         // so never want to get from adjacent ghost cells
-        if (sendID == -2) { 
-            offset = 0; 
-        } 
-        
+//        if (sendID == -2) { 
+//            offset = 0; 
+//        } 
+
         // slice the given field with appropriate offset 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
         // store the slice in ghostVec 
@@ -94,22 +109,35 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
  * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
  * sendID = -2 to set Jrho fields, -1 to set EB fields, or sendID = an individual field ID (e.g. ExID_) to set just that field (used for Poisson updating for example) \n
  * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be received with a single MPI call. If sendID = -1 (as used in each time step update), fields are read and set in order: Ex,Ey,Ez,Bx,By,Bz. If sendID = -2, fields are read and set in order: Jx,Jy,Jz,rho. \n
- * op is a flag determining how the field will be set. op = 0 replaces the current values in the field's ghost points with the values in ghostVec. op = 1 sums the current values and the values in ghostVec. \n
+ * option is a flag determining how the field will be set. 
+ *    option = 0: replaces ghost values on this side with values in ghostVec. 
+ *    option = 1: sums physical values on this side by ghostVec. \n
  * ghostVec can (and should) be generated with getGhostVec function 
  */ 
-void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
+void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int option) {
     assert(-3 < sendID && sendID < nFieldsTotal_); 
     
+    assert(option==0 || option==1);
+    int offset; // offset from physical boundary
+    if(option==0){// set ghost values by replace
+        offset = abs(side)/side;
+    }else{// set physical values by sum
+        assert(sendID = -2);
+        offset = 0; 
+    }
+    if(debug>1)fprintf(stderr,"rank=%d:set on side=%d with offset=%d,for field=%d\n",
+                                  rank_MPI,side,offset,sendID);
+
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
     
     // offset = +1 to set into the RHS ghost vectors
     // offset = -1 to set into the LHS ghost vectors 
-    int offset = 1; 
-    if (side < 0) { 
-        offset = -1; 
-    };
+//    int offset = 1; 
+//    if (side < 0) { 
+//        offset = -1; 
+//    };
 
     const int xside = 1; 
     // const int yside = 2; // not used 
@@ -118,9 +146,9 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
     // determine number of fields being sent 
     int nfields; 
     switch (sendID) { 
-        case -2: nfields=3; break; 
-        case -1: nfields=6; break; 
-        default: nfields=1; break; 
+        case -2: nfields=3; break; // two orthogonal J's and rho
+        case -1: nfields=6; break; // two orthogonal B's should be sufficient
+        default: nfields=1; break; // individual field
     }
     
     // "loop" over all fields to unpackage 
@@ -169,11 +197,15 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
         field = fieldPtr_[fieldID]; 
         // special case for J/rho only, sources add at shared interface, 
         // so never want to get from adjacent ghost cells
-        if (sendID == -2) { 
-            offset = 0; 
-        } 
-        // unslice the given field 
-        unsliceMatToVec_(fieldID,side,offset,tmpVec,op); 
+//        if (sendID == -2) { 
+//            offset = 0; 
+//        } 
+
+        if(option==0){// set ghost values by replace
+            unsliceMatToVec_(fieldID,side,offset,tmpVec,0); //0: replace 
+        }else{// set physical values by sum
+            unsliceMatToVec_(fieldID,side,offset,tmpVec,1); //1: sum 
+        }
     } 
 }; 
 
@@ -222,7 +254,7 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
  * side is the usual -/+ 1,2,3 for -/+ x,y,z boundaries \n 
  * fieldID is a fieldID (e.g. ExID_ from Grid)
  */ 
-int Grid::getGhostOffset_(const int side, const int fieldID) { 
+/*int Grid::getGhostOffset_(const int side, const int fieldID) { 
     assert(side != 0 && abs(side) < 4); 
     assert(0 < fieldID && fieldID < nFieldsTotal_); 
     
@@ -257,7 +289,7 @@ int Grid::getGhostOffset_(const int side, const int fieldID) {
 
     if (side > 1) offset *= -1; 
     return offset; 
-}; 
+};*/ 
 
 /// slices a physical plane in the specified direction (excludes ghosts) 
 /*! mat is 3D array whose real (non-ghost) data on one side will be stored in vec as a 1D array. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). unsliceMatToVec_ is the inverse function. 
@@ -382,7 +414,7 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
 /*! Makes 4 calls each to get/setGhostVec for EB fields all at once \n 
  * Deprecated method: correct performance not guaranteed 
  */ 
-void Grid::updatePeriodicGhostCells() { 
+/*void Grid::updatePeriodicGhostCells() { 
     // create a temporary vector to store ghostVecs 
     double* tmpGhost = ghostTmp_;  
 
@@ -396,4 +428,4 @@ void Grid::updatePeriodicGhostCells() {
             setGhostVec(-side,tmpGhost,sendID,op); 
         };
     }; 
-}; 
+};*/ 

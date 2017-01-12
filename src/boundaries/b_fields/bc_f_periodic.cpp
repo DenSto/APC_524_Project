@@ -26,19 +26,30 @@ BC_F_Periodic::BC_F_Periodic(int side, Domain* domain, Grid *grids, Input_Info_t
 BC_F_Periodic::~BC_F_Periodic(){
 }
 
-
+//! complete periodic field boundary condition
+/*! option = 0: load physical of the other side
+ *              replace ghost on this side
+ *  option = 1: load ghost on this side
+ *              sum ghost to physical on this side
+ */
 int BC_F_Periodic::completeBC(int fieldID, int option){
 
     int size;
     size = grids_->getGhostVecSize(fieldID); 
     ghost_ = new double[size]; 
 
-    // load physical to tmp from the opposite side 
-    grids_->getGhostVec(-side_,ghost_,fieldID);
-
-    // unload tmp to Ghost on this side
-    // Ghost does not overwrite physical on this side
-    grids_->setGhostVec(side_,ghost_,fieldID,option);  
+    assert(option==0 || option==1);
+    if(option==0){
+        // load physical on the other side 
+        grids_->getGhostVec(-side_,ghost_,fieldID,0);
+        // replace ghost on this side
+        grids_->setGhostVec(side_,ghost_,fieldID,0);
+    } else {
+        // load ghost on this side  
+        grids_->getGhostVec(side_,ghost_,fieldID,1);
+        // sum ghost to physical on this side
+        grids_->setGhostVec(side_,ghost_,fieldID,1);
+    }
 
     delete [] ghost_;
 
