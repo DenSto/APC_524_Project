@@ -23,7 +23,6 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID, int option)
     if(option==0){// get physical values
         offset = 0; 
     }else{// get adjacent ghost values
-        assert(sendID = -2);
         offset = abs(side)/side;
     }
     if(debug>1)fprintf(stderr,"rank=%d:get on side=%d with offset=%d,for field=%d\n",
@@ -122,7 +121,6 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int option)
     if(option==0){// set ghost values by replace
         offset = abs(side)/side;
     }else{// set physical values by sum
-        assert(sendID = -2);
         offset = 0; 
     }
     if(debug>1)fprintf(stderr,"rank=%d:set on side=%d with offset=%d,for field=%d\n",

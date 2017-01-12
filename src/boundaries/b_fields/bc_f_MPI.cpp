@@ -26,6 +26,7 @@ class BC_F_MPI : public BC_Field {
         int stag_,rtag_; // MPI tags for send and recv
         double *sendBuf_;// send buffer
         double *recvBuf_;// recv buffer  
+        double *ghostBuf_; // ghost buffer
         Grid *grids_;     
 };
 
@@ -105,53 +106,78 @@ for(int i=0;i<6;i++){
 }*/
 
 
+//! complete MPI field boundary condition
+/*! option = 0: load physical on this side, and send to neighbour 
+ *              recv from neighbor, use it to replace ghost on this side
+ *  option = 1: take ghost on this side, and add to physical on this side
+ *              no MPI communication is needed, only local operations
+ */             
 int BC_F_MPI::completeBC(int fieldID, int option){
 
+    assert(option==0 || option==1);
 
     int size = grids_->getGhostVecSize(fieldID); 
 
-    sendBuf_ = new double[size]; 
-    recvBuf_ = new double[size]; 
+    if(option==0){//send physical, recv to ghost
+        if(debug>1)fprintf(stderr,"rank=%d: side=%d MPI for field %d...\n",
+                                   rank_MPI,side_,fieldID);
 
-    MPI_Request req;
-    int err; 
-    char fname[20]; // for debug file 
+        sendBuf_ = new double[size]; 
+        recvBuf_ = new double[size]; 
+
+        MPI_Request req;
+        int err; 
+        char fname[20]; // for debug file 
+    
+        // load ghost value to send. Always send this side of ghost
+        grids_->getGhostVec(side_,sendBuf_,fieldID,0);//0: get physical
+   
+        if(debug>2){
+           fprintf(stderr,"rank=%d:checking field send\n",rank_MPI);
+           sprintf(fname,"field%d_send%d.dat",fieldID,side_);
+           checkMPI(fname,sendBuf_,size);
+           fprintf(stderr,"rank=%d:finished checking field send\n",rank_MPI);
+        }
+    
+        // non-blocking send to neighbour
+        err=MPI_Isend(sendBuf_,size,MPI_DOUBLE,sendRank_,stag_,MPI_COMM_WORLD,&req);
+        if(err) fprintf(stderr, "rank=%d: MPI_Isend field on error %d\n",rank_MPI,err);
+    
+        // blocking recv from neighbor, the nieghbour should have already sent 
+        err=MPI_Recv(recvBuf_,size,MPI_DOUBLE,recvRank_,rtag_,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+        if(err) fprintf(stderr, "rank=%d: MPI_Recv field on error %d\n",rank_MPI,err);
+    
+        // wait for communication
+        err=MPI_Wait(&req,MPI_STATUS_IGNORE);
+        if(err) fprintf(stderr, "rank=%d MPI_Wait error = %d\n",rank_MPI,err);
+        if(debug>2) fprintf(stderr,"rank=%d: field received on side %d\n",rank_MPI,side_);
+    
+        if(debug>2){
+           fprintf(stderr,"rank=%d:checking field revc\n",rank_MPI);
+           sprintf(fname,"field%d_recv%d.dat",fieldID,side_);
+           checkMPI(fname,recvBuf_,size);
+           fprintf(stderr,"rank=%d:finished checking field recv\n",rank_MPI);
+        }
+    
+        // unload received value to ghost, unload to this or oppisite side
+        // same side: same =+1. Opposite side: same =-1
+        grids_->setGhostVec(same_*side_,recvBuf_,fieldID,0);//0: replace ghost
+
+        delete [] sendBuf_;
+        delete [] recvBuf_;
+
+    } else { // load ghost, sum to physical, this side only 
  
-    // load ghost value to send. Always send this side of ghost
-    grids_->getGhostVec(side_,sendBuf_,fieldID,option);     
+        if(debug>1)fprintf(stderr,"rank=%d: side=%d MPI local sum for field %d...\n",
+                                   rank_MPI,side_,fieldID);
+        ghostBuf_ = new double[size]; 
+        // load ghost on this side
+        grids_->getGhostVec(side_,ghostBuf_,fieldID,1); //1: get ghost
+        // sum to physical on this side
+        grids_->setGhostVec(side_,ghostBuf_,fieldID,1); //1: sum to physical
+        delete [] ghostBuf_;
 
-    if(debug>2){
-       fprintf(stderr,"rank=%d:checking field send\n",rank_MPI);
-       sprintf(fname,"field%d_send%d.dat",fieldID,side_);
-       checkMPI(fname,sendBuf_,size);
-       fprintf(stderr,"rank=%d:finished checking field send\n",rank_MPI);
     }
- 
-    // non-blocking send to neighbour
-    err = MPI_Isend(sendBuf_,size,MPI_DOUBLE,sendRank_,stag_,MPI_COMM_WORLD,&req);
-    if(err) fprintf(stderr, "rank=%d: MPI_Isend field on error %d\n",rank_MPI,err);
-
-    // blocking recv from neighbor, the nieghbour should have already sent 
-    err = MPI_Recv(recvBuf_,size,MPI_DOUBLE,recvRank_,rtag_,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-    if(err) fprintf(stderr, "rank=%d: MPI_Recv field on error %d\n",rank_MPI,err);
-
-    // wait for communication
-    err=MPI_Wait(&req,MPI_STATUS_IGNORE);
-    if(err) fprintf(stderr, "rank=%d MPI_Wait error = %d\n",rank_MPI,err);
-    if(debug>2) fprintf(stderr,"rank=%d: field received on side %d\n",rank_MPI,side_);
-
-    if(debug>2){
-       fprintf(stderr,"rank=%d:checking field revc\n",rank_MPI);
-       sprintf(fname,"field%d_recv%d.dat",fieldID,side_);
-       checkMPI(fname,recvBuf_,size);
-       fprintf(stderr,"rank=%d:finished checking field recv\n",rank_MPI);
-    }
-
-    // unload received value to ghost, unload to this or oppisite side
-    grids_->setGhostVec(same_*side_,recvBuf_,fieldID,option);   
- 
-    delete [] sendBuf_;
-    delete [] recvBuf_;
 
     return 0;
 }

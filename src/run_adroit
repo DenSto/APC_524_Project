@@ -16,4 +16,4 @@ cd ../data/unitest
 rm -rf output.out
 rm -rf *.dat*
 
-srun $path/EMOOPIC input_MPI.txt > output.out
+srun $path/EMOOPIC_par input_MPI.txt > output.out
