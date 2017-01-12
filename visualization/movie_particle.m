@@ -25,13 +25,13 @@ nt = numel(t);
 %%% plotting options %%%
 
 % set to 1 to plot black line for all past points
-% set to 0 to only plot the nhist most recent points (set below) 
+% set to 0 to only plot the nhist most recent points (set below)
 show_full_hist=1;
 
 % number of recent points of trajectory to show in color
 % set to 0 to plot no points in color (faster)
 % nhist = floor(nt/10);
-nhist=0; 
+nhist=0;
 
 % number of recent points of trajectory to show with markers
 nparts = floor(nhist/10);
@@ -43,9 +43,9 @@ msmax = 10;
 %(e.g. dt = 3 plots on steps 1, 4, 7,etc)
 dt=10;
 
-% set to 1 to keep the axis limits fixed for the whole movie 
+% set to 1 to keep the axis limits fixed for the whole movie
 % set to 0 to dynamically adjust them
-do_fixed_axes = 0; 
+do_fixed_axes = 0;
 
 %%% end plotting options %%%
 
@@ -95,6 +95,7 @@ for i=1:dt:nt
         jprev = max([1 j-1]);
         % plot the previous step with varying color
         plot3(xx(jprev:j),xy(jprev:j),xz(jprev:j),'color',movcmap(ic,:),'linewidth',2);
+        
         % plot nparts most recent markers
         if i-j < nparts
             h=plot3(xx(j),xy(j),xz(j));
@@ -104,12 +105,13 @@ for i=1:dt:nt
     end
     % plot full history without color
     if show_full_hist
-        plot3(xx(1:jmin),xy(1:jmin),xz(1:jmin),'k');
+        jlast = min([jmin nt]);
+        plot3(xx(1:jlast),xy(1:jlast),xz(1:jlast),'k');
     end
     hold off
     
     % plot labels and limits
-    if do_fixed_axes 
+    if do_fixed_axes
         xlim([xl xr]); ylim([yl yr]); zlim([zl zr]);
     end
     xlabel(xstr); ylabel(ystr); zlabel(zstr);
