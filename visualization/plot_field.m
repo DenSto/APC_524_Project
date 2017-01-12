@@ -1,6 +1,23 @@
-% plot particle trajectories
+% plot single field
+% plots output.h5 output files
+% output.h5 files contain field data
+% assumes output.h5 is in current working directory
+%
+% input:
+% fstr is a string specifying which field to plot. Options are:
+% Ex, Ey, Ez, Bx, By, Bz, Jx, Jy, Jz, rho
+% though output.h5 will only contain the fields specified in input.txt
+% do_plot = 1 to make plots,
+% do_plot = 0 to omit plotting (useful for reading hdf5 into matlab variables)
+% do_movie = 1 plots many time slices,
+% do_movie = 0 plots an arbitrarily chosen time slice
+%
+% returns:
+% t is a vector of times of length nt when field was recorded
+% x is a vector with the x grid points of the field, same for y,z
+% field is an array of size (nx,ny,nz,nt) with the full field
+% data at each point in space and time
 
-% function [Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz,rho] = plot_fields(fname,do_plot)
 function [t,x,y,z,field] = plot_field(fstr,do_plot,do_movie)
 
 % plot by default
@@ -24,6 +41,10 @@ catch
     error('Error: h5read error, probably specified string incorrectly');
 end
 
+% for some reason, fields are written in t,z,y,x ordering
+% permute into more natural x,y,z,t
+field = permute(field,[4 3 2 1]);
+
 x = h5readatt(fname,datset,'x');
 y = h5readatt(fname,datset,'y');
 z = h5readatt(fname,datset,'z');
@@ -34,12 +55,8 @@ nz=numel(z);
 
 % set the time to an index for now
 % later time will be written as well
-nt = size(field,1);
-t = 1:nt;
-
-% for some reason, fields are written in t,z,y,x ordering
-% permute into more natural x,y,z,t
-field = permute(field,[4 3 2 1]);
+t = h5read(fname,'/time');
+nt = numel(t);
 
 xmin=min(x); xmax=max(x);
 ymin=min(y); ymax=max(y);
@@ -52,8 +69,9 @@ elseif (ny ~= size(field,2))
     error('error: y grid does not match size of field');
 elseif (nz ~= size(field,3))
     error('error: z grid does not match size of field');
+elseif (nt ~= size(field,4))
+    error('error: t grid does not match size of field');
 end
-
 
 % order must be reversed because of meshgrid quirks
 % not possible to use ndgrid with slice function
@@ -99,7 +117,9 @@ if do_plot
     
     % set the colormap for plotting
     % other options include cmap = 'parula','jet',etc
-    cmap = jet(1024);
+    %     cmap = make_rbcmap(1024);
+    %     cmap = jet(1024);
+    cmap = 'parula';
     
     figure;
     
@@ -130,17 +150,26 @@ if do_plot
             cvec = [minv maxv];
         end
         
+        % choose your own slices to add
+        %         xslice=[xslice 3];
+        %         yslice=[yslice 2.53];
+        %         zslice=[zslice .93];
+        
         % plot 3D data slice
         % (note: similarly here, order of xslice and yslice are
         % counterintuitive but I think this is the correct ordering)
         slice(X,Y,Z,v,yslice,xslice,zslice)
-        set(gca,'fontsize',FS); box on;
-        colormap(cmap); colorbar;
-        try
-            caxis(cvec);
-        catch
-            disp(num2str(cvec));
-        end
+        set(gca,'fontsize',FS); box on; colorbar;
+        
+        % this should be fine but has some strange consequences
+        % for matlab 2013
+        colormap(cmap);
+        colorbar;
+        caxis(cvec);
+        
+        % labels also dumb due to meshgrid
+        xlabel('y'); ylabel('x'); zlabel('z');
+        axis tight; axis equal;
         
         pause(.05);
     end

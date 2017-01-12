@@ -1,3 +1,8 @@
+% similar to movie_particle except captures 4 subplots simultaneously: 
+% 1. x,y,z components as a function of t (1D plot) 
+% 2. position(t) in space (3D plot) 
+% 3. x,y,z components of velocity 
+
 function [t,x,v] = movie_full_particle(mpi_rank,part_rank,do_save)
 if nargin < 3
     do_save = 1;
@@ -6,7 +11,7 @@ end
 dname = './';
 fname = [dname 'track_' num2str(mpi_rank) '_' num2str(part_rank) '.dat'];
 
-dat=dlmread(fname);
+dat=dlmread(fname,'',1,0);
 
 t=dat(:,1);
 xx = dat(:,2);
@@ -34,7 +39,7 @@ show_full_hist=1;
 % number of recent points of trajectory to show in color
 % set to 0 to plot no points in color (faster)
 % nhist = floor(nt/100);
-nhist=0;
+nhist=100;
 
 % number of recent points of trajectory to show with markers
 nparts = floor(nhist/10);
@@ -143,15 +148,19 @@ for i=1:dt:nt
     % emphasize components actively being plotted 
     subplot(xt); 
     plot_components(t(jmin:i),x(jmin:i,:),LWtraj); 
+    axis tight; 
+    axis 
     subplot(vt); 
     plot_components(t(jmin:i),v(jmin:i,:),LWtraj); 
+    axis tight; 
     
     % plot full history without color
     if show_full_hist
+        jlast = min([jmin nt]);
         subplot(xtraj);
-        plot3(xx(1:jmin),xy(1:jmin),xz(1:jmin),'k','linewidth',1);
+        plot3(xx(1:jlast),xy(1:jlast),xz(1:jlast),'k','linewidth',1);
         subplot(vtraj);
-        plot3(vx(1:jmin),vy(1:jmin),vz(1:jmin),'k','linewidth',1);
+        plot3(vx(1:jlast),vy(1:jlast),vz(1:jlast),'k','linewidth',1);
     end
     
     % plot limits

@@ -1,6 +1,7 @@
 % plot particle trajectories
 % plots track_<mpi_rank>_<part_rank>.dat output files
 % track.dat files contain test particle position and velocity data
+% assumes track.dat file is in current working directory
 %
 % input:
 % do_plot = 1 to make plots, do_plot = 0 to omit plotting
@@ -27,7 +28,9 @@ end
 dname = './';
 fname = [dname 'track_' num2str(mpi_rank) '_' num2str(part_rank) '.dat'];
 
-dat=dlmread(fname);
+% second line to deal with new header in track.dat files
+% dat=dlmread(fname);
+dat = dlmread(fname,'',1,0); 
 
 t=dat(:,1);
 xx = dat(:,2);
@@ -42,11 +45,23 @@ v=[vx vy vz];
 
 if (do_save || do_plot)
     do_close = ~do_plot;
+     
     % parameters for plots of components
     fcomp = figure;
     FS = 14;
     nrows=2;
     ncols=1;
+    
+    % set to 1 to subtract mean from components (easier to compare) 
+    % set to 0 to plot raw values
+    do_norm = 0;
+    
+    if do_norm 
+        for i=1:3
+            x(:,i) = x(:,i)-mean(x(:,i)); 
+            v(:,i) = v(:,i)-mean(v(:,i)); 
+        end
+    end
     
     % plot 3 components of position
     subplot(nrows,ncols,1);
