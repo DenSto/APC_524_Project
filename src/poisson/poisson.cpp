@@ -296,7 +296,7 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
     // "loop" over all fields to package 
     int begdex; 
     double*** field; 
-    int fieldID,offset; 
+    int fieldID,offset = 0 ; 
     int ifield;
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 

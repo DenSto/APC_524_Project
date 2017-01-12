@@ -46,6 +46,7 @@ public:
   double getStepSize(int dimension);
   double getCellVolume();
   int getnxyzTot(int *nxyzTot);
+  int getnxyzPhys(int *nxyzPhys);
   void getRealIndices(int fieldID, int* ind); 
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);

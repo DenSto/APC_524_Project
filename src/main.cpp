@@ -211,7 +211,7 @@ int main(int argc, char *argv[]){
     /***************************************************************************/
     /* Advance time step                                                       */
     /***************************************************************************/
-    if(rank==0)printf("Advancing time steps...\n");
+    if(rank==0)printf("Advancing time steps with dt = %f...\n",dt_phys);
     for(int ti=0;ti<nt;ti++){
 
        if(rank==0 && ti%100==0)fprintf(stderr,"ti=%d\t\t t=%f ps\n",ti,time_phys*UNIT_TIME);   

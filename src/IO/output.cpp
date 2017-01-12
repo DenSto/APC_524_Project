@@ -87,7 +87,7 @@ void OutputBoxQuantities::output(double t, long i){
 		}
 
 		// field energy
-		int beg[6];
+		int beg[6],size[3];
 		double EEx = 0;
 		double EEy = 0;
 		double EEz = 0;
@@ -99,9 +99,10 @@ void OutputBoxQuantities::output(double t, long i){
 		double**** fields = grid_->getFieldPtr();
 
 		grid_->getRealIndices(0,beg);
-		for(int i = beg[0]; i < beg[3]; i++){
-			for(int j = beg[1]; j < beg[4]; j++){
-				for(int k = beg[2]; k < beg[5]; k++){
+		grid_->getnxyzPhys(beg);
+		for(int i = beg[0]; i < beg[0] + size[0]; i++){
+			for(int j = beg[1]; j < beg[1] + size[1]; j++){
+				for(int k = beg[2]; k < beg[2] + size[2]; k++){
 					EEx += 0.5*vol*SQR(0.5*(fields[E_X][i][j][k] + fields[E_X][i+1][j][k]));
 					EEy += 0.5*vol*SQR(0.5*(fields[E_Y][i][j][k] + fields[E_Y][i][j+1][k]));
 					EEz += 0.5*vol*SQR(0.5*(fields[E_Z][i][j][k] + fields[E_Z][i][j][k+1]));

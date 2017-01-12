@@ -153,9 +153,9 @@ int Input::checkinfo(void){
     double B =0.0; // background B field
     for(int i=0;i<3;i++){B += pow(B0[i],2);}
     B = sqrt(B);
-    double qm = abs(charge[0]/mass[0]);//charge to mass ratio
+    double qm = fabs(charge[0]/mass[0]);//charge to mass ratio
     for(int i=1;i<nspec;i++){
-        ttmp = abs(charge[i]/mass[i]);
+        ttmp =fabs(charge[i]/mass[i]);
         if(ttmp>qm)qm=ttmp;
     }
     //printf("qm=%f,B=%f",qm,B);

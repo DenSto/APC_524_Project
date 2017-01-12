@@ -376,6 +376,14 @@ int Grid::getnxyzTot(int *nxyzTot) {
   return 0;
 };
 
+/// get Phys dimensions
+int Grid::getnxyzPhys(int *nxyzPhys) {
+  nxyzPhys[0] = nxReal_;
+  nxyzPhys[1] = nyReal_;
+  nxyzPhys[2] = nzReal_;
+  return 0;
+};
+
 /// get dimensions of physical region of field
 void Grid::getDimPhys(const int fieldID, int* dim) {
     // check for legal fieldID and side parameters 
@@ -464,10 +472,15 @@ void Grid::getRealIndices(int fieldID, int* ind) {
     ind[0] = iBeg_; 
     ind[1] = jBeg_; 
     ind[2] = kBeg_; 
+
+	// set the indices of last physical cells
+	int xside = 1;
+	int yside = 1;
+	int zside = 1;
     
-  	ind[3] = iBeg_ + nxReal_;
-  	ind[4] = jBeg_ + nyReal_;
-  	ind[5] = kBeg_ + nzReal_;
+  	ind[3] = sideToIndex_(xside,fieldID);
+  	ind[4] = sideToIndex_(yside,fieldID);
+  	ind[5] = sideToIndex_(zside,fieldID);
 }; 
 
 /// averages two timesteps of B (for output) 
