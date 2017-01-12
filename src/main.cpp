@@ -29,9 +29,7 @@
 #include "./particles/particle_utils.hpp"
 
 #include "./boundaries/particle_bc_factory.hpp"
-#include "./boundaries/particles_boundary.hpp"
 #include "./boundaries/field_bc_factory.hpp"
-#include "./boundaries/fields_boundary.hpp"
 
 #include "./pusher/pusher.hpp"
 #include "./pusher/boris.hpp"

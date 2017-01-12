@@ -52,7 +52,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = oGrid.tests grid.tests spookyGrid.tests RNG.tests convertFields.tests depositJ.tests readinput.tests hdf5io.tests particles.tests poisson.tests #dens_frac_test 
+TESTS = grid.tests spookyGrid.tests RNG.tests convertFields.tests depositJ.tests readinput.tests hdf5io.tests particles.tests poisson.tests randomFields.tests #oGrid.tests dens_frac_test
 TESTS_PAR = $(TESTS:=_par)
 
 # All Google Test headers.  Usually you shouldn't change this
@@ -95,7 +95,7 @@ gtest_main.a : gtest-all.o gtest_main.o
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-SRC_INCL = grid IO domain utils poisson particles pusher
+SRC_INCL = grid IO domain utils poisson particles pusher boundaries
 
 include $(SRC_DIR)/Makefile.obj
 
@@ -197,4 +197,10 @@ run_tests_par: $(TESTS_PAR)
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/poisson_unittests.cc -I $(SRC_DIR)/poisson
 #
 #poisson_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) poisson_unittests.o gtest_main.a
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)
+#
+#randomFields_unittests.o : $(TESTSRC_DIR)/randomFields_unittests.cc $(GTEST_HEADERS)
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTSRC_DIR)/poisson_unittests.cc -I $(SRC_DIR)/grid -I $(SRC_DIR)/particles -I $(SRC_DIR)/boundaries -I $(SRC_DIR)/IO -I $(SRC_DIR)/domain -I $(SRC_DIR)/utls
+#
+#randomFields_unittests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) randomFields_unittests.o gtest_main.a
 #	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@ $(LIBS)

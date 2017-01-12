@@ -99,7 +99,7 @@ void OutputBoxQuantities::output(double t, long i){
 		double**** fields = grid_->getFieldPtr();
 
 		grid_->getRealIndices(0,beg);
-		grid_->getnxyzPhys(beg);
+		grid_->getnxyzPhys(size);
 		for(int i = beg[0]; i < beg[0] + size[0]; i++){
 			for(int j = beg[1]; j < beg[1] + size[1]; j++){
 				for(int k = beg[2]; k < beg[2] + size[2]; k++){
