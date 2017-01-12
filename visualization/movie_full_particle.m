@@ -42,14 +42,16 @@ show_full_hist=1;
 nhist=10;
 
 % number of recent points of trajectory to show with markers
-nparts = floor(nhist/10);
+% nparts = floor(nhist/10);
+nparts = 1; 
+
 % size of most recent and least recent marker plotted
 msmin = 1;
 msmax = 10;
 
 % number of steps to iterate forward
 %(e.g. dt = 3 plots on steps 1, 4, 7,etc)
-dt=1;
+dt=5;
 
 % set to 1 to keep the axis limits fixed for the whole movie
 % set to 0 to dynamically adjust them

@@ -22,7 +22,7 @@ function [t,x,y,z,field] = plot_field(fstr,do_plot,do_movie,do_save)
 
 % plot and save by default
 if nargin < 4
-    do_save = 1;
+    do_save = 0;
 end
 
 if nargin < 3
@@ -188,7 +188,7 @@ if do_plot
         % save a frame for the video
         if do_movie && do_save
             lighting phong
-            set(f,'Renderer','zbuffer')
+            set(f,'Renderer','zbuffer');
             F(it) = getframe(f);
         end
     end
@@ -198,7 +198,7 @@ end
 if do_save
     if do_movie
         v=VideoWriter(fsave,'Motion JPEG AVI');
-        v.FrameRate=8;
+        v.FrameRate=60;
         open(v);
         writeVideo(v,F);
         close(v);
