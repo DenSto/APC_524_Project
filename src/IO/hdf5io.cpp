@@ -116,6 +116,7 @@ int Hdf5IO::writeFields(Grid* grid, double time_phys) {
   // write time
   writeTime(time_phys);
 
+  // write fields
   if(which_fields_==ALL || which_fields_==E) {
     Ex_tsio_->writeField(fieldPtr[grid->getFieldID("Ex")]);
     Ey_tsio_->writeField(fieldPtr[grid->getFieldID("Ey")]);
@@ -314,7 +315,30 @@ FieldTimeseriesIO::FieldTimeseriesIO(Hdf5IO* io, Grid* grid, Domain* domain, std
   memspace_dims[3] = 1;
   memspace_ = H5Screate_simple(ndims_, memspace_dims, NULL);
   assert(memspace_>=0);
+
+  // select the subset of the memory dataspace that we will write from
+  // skip first nGhost cells in each spatial dim to get only physical cells
+  hsize_t* offset = new hsize_t[ndims_];
+  hsize_t* stride = new hsize_t[ndims_];
+  hsize_t* count = new hsize_t[ndims_];
+  assert(offset!=NULL);
+  assert(stride!=NULL);
+  assert(count!=NULL);
+  offset[0] = grid->getnGhosts();
+  offset[1] = grid->getnGhosts();
+  offset[2] = grid->getnGhosts();
+  offset[3] = 0;
+  stride[0] = stride[1] = stride[2] = stride[3] = 1;
+  count[0] = count[1] = count[2] = count[3] = 1;
+
+  int status=-1;
+  status = H5Sselect_hyperslab(memspace_, H5S_SELECT_SET, 
+				   offset, stride, count, field_block_);
+  assert(status>=0);
   
+  delete [] offset;
+  delete [] stride;
+  delete [] count;
   delete [] filespace_dims;
   delete [] filespace_maxdims;
   delete [] memspace_dims;
@@ -345,7 +369,7 @@ int FieldTimeseriesIO::writeField(double*** field_data) {
   assert(stride!=NULL);
   assert(count!=NULL);
 
-  // extend filespace and dataset for this iwrite
+  // extend filespace and dataset for this write
   hsize_t* currdims = new hsize_t[ndims_];
   hsize_t* maxdims = new hsize_t[ndims_];
   hsize_t* newdims = new hsize_t[ndims_];
@@ -367,19 +391,6 @@ int FieldTimeseriesIO::writeField(double*** field_data) {
   count[0] = count[1] = count[2] = count[3] = 1;
   
   status = H5Sselect_hyperslab(filespace_, H5S_SELECT_SET, 
-				   offset, stride, count, field_block_);
-  assert(status>=0);
-
-  // select the subset of the memory dataspace that we are writing from
-  // skip first cell in each spatial dim, which is ghost
-  offset[0] = 1;
-  offset[1] = 1;
-  offset[2] = 1;
-  offset[3] = 0;
-  stride[0] = stride[1] = stride[2] = stride[3] = 1;
-  count[0] = count[1] = count[2] = count[3] = 1;
-
-  status = H5Sselect_hyperslab(memspace_, H5S_SELECT_SET, 
 				   offset, stride, count, field_block_);
   assert(status>=0);
 
