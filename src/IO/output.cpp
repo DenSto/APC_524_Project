@@ -56,7 +56,7 @@ void OutputBoxQuantities::output(double t, long i){
 	if(init){
 		init = false;
 		FILE* fp = fopen(filename_,"w");
-		fprintf(fp,"[1] time [2] Part en [3] Mx [4] My [5] Mz [6] B Energy [7] E Energy [8] Total E\n");
+		fprintf(fp,"[1] time [2] part mom x [3] part mom y [4] part mom z [5] part Energy [6] B Energy [7] E Energy [8] Total E\n");
 		fclose(fp);
 	}
 	
