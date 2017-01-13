@@ -1,4 +1,4 @@
-% plot single field
+% plot single field in 3D at specified times
 % plots output.h5 output files
 % output.h5 files contain field data
 % assumes output.h5 is in current working directory
@@ -7,26 +7,40 @@
 % fstr is a string specifying which field to plot. Options are:
 % Ex, Ey, Ez, Bx, By, Bz, Jx, Jy, Jz, rho
 % though output.h5 will only contain the fields specified in input.txt
+%
 % do_plot = 1 to make plots,
 % do_plot = 0 to omit plotting (useful for reading hdf5 into matlab variables)
-% do_movie = 1 plots many time slices,
-% do_movie = 0 plots an arbitrarily chosen time slice
+% default: do_plot = 1
+%
+% itimes is an integer array specifying which time slices to plot
+% set itimes to a negative scalar to plot all available time slices
+% default: itimes = -1
+%
+% do_save = 1 saves plots to file
+% do_save  0 omits saving
+% default: do_save = 1
 %
 % returns:
 % t is a vector of times of length nt when field was recorded
 % x is a vector with the x grid points of the field, same for y,z
 % field is an array of size (nx,ny,nz,nt) with the full field
 % data at each point in space and time
+%
+% creates files (if do_save == 1):
+% if numel(itimes) > 1 or itimes > 0
+% <fstr>.png 3D plot of field
+% if numel(itimes) > 0 or itimes < 0
+% <fstr>_mov.avi 3D movie of field vs time
 
-function [t,x,y,z,field] = plot_field(fstr,do_plot,do_movie,do_save)
+function [t,x,y,z,field] = plot_field(fstr,do_plot,itimes,do_save)
 
 % plot and save by default
 if nargin < 4
-    do_save = 0;
+    do_save = 1;
 end
 
 if nargin < 3
-    do_movie = 0;
+    itimes = -1;
 end
 
 if nargin < 2
@@ -87,16 +101,26 @@ end
 
 if do_plot
     
+    if numel(itimes)==0 && itimes < 0
+        itimes=1:nt;
+    end
+    
+    if numel(itimes) > 1
+        do_mov = 1;
+    else
+        do_mov = 0;
+    end
+    
     FS = 14;
     
     % set to 1 to plot the faces of the box
     % set to 0 to turn them off
-    do_faces=0;
+    do_faces=1;
     
     % set to 1 to plot slices through the middle of the domain
     % set to 0 to turn them off
     % (do_mid and do_faces both = 1 will show faces)
-    do_mid=1;
+    do_mid=0;
     
     % set to 1 to make a symmetric colorscale around 0
     % set to 0 to use min and max values for colorscale
@@ -131,18 +155,13 @@ if do_plot
     
     f = figure;
     
-    if do_movie
-        times = 1:nt;
-        if do_save
-            F(nt)= struct('cdata',[],'colormap',[]);
-            fsave=[fstr '_mov.avi'];
-        end
-    else
-        times = floor(nt/2); % arbitrary time
+    if do_mov && do_save
+        F(nt)= struct('cdata',[],'colormap',[]);
+        fsave=[fstr '_mov.avi'];
     end
     
     % loop over all times
-    for it = times
+    for it = itimes
         v = reshape(field(:,:,:,it),[nx ny nz]);
         
         % set bounds for colorscale
@@ -163,6 +182,7 @@ if do_plot
         end
         
         % choose your own slices to add
+        % set physical values, not slice indices
         %         xslice=[xslice 3];
         %         yslice=[yslice 2.53];
         %         zslice=[zslice .93];
@@ -183,10 +203,11 @@ if do_plot
         xlabel('y'); ylabel('x'); zlabel('z');
         axis tight; axis equal;
         
+        drawnow; 
         pause(.05);
         
         % save a frame for the video
-        if do_movie && do_save
+        if do_mov && do_save
             lighting phong
             set(f,'Renderer','zbuffer');
             F(it) = getframe(f);
@@ -196,7 +217,7 @@ if do_plot
 end
 
 if do_save
-    if do_movie
+    if do_mov
         v=VideoWriter(fsave,'Motion JPEG AVI');
         v.FrameRate=60;
         open(v);
@@ -205,4 +226,6 @@ if do_save
     else
         save_and_close([fstr '.png'],f,do_save,~do_plot)
     end
+end
+
 end

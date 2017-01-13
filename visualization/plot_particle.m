@@ -4,17 +4,31 @@
 % assumes track.dat file is in current working directory
 %
 % input:
+% mpi_rank is an integer matching <mpi_rank> in file name of form
+% track_<mpi_rank>_<part_rank>.dat 
+%
+% part_rank is an integer matching <part_rank> in file name of form 
+% track_<mpi_rank>_<part_rank>.dat 
+% 
 % do_plot = 1 to make plots, do_plot = 0 to omit plotting
 % (do_plot = 0 simply returns values read from the file)
+% default: do_plot = 0
+%
 % do_save = 1 to save plots as .png, do_save = 0 to omit saving
 % note: do_save takes precedence over do_plot, such that if do_save = 1
 % and do_plot = 0, figures will be created and then immediately closed
 % after saving.
+% default: do_save = 1
 %
 % returns:
 % t is a vector of times of length nt when particle trajectory was recorded
 % x is a matrix of size [nt 3] with x,y,z components of position
 % v is a matrix of size [nt 3] with x,y,z components of velocity
+%
+% creates files (if do_save == 1): 
+% xv_comps.png 1D plot of x and v components vs time 
+% x_traj.png 3D plot of particle position in space 
+% v_traj.png 3D plot of particle velocity in phase space 
 
 function [t,x,v] = plot_particle(mpi_rank,part_rank,do_plot,do_save)
 

@@ -6,10 +6,13 @@
 % input:
 % do_plot = 1 to make plots, do_plot = 0 to omit plotting
 % (do_plot = 0 simply returns values read from the file)
+% default: do_plot = 0
+%
 % do_save = 1 to save plots as .png, do_save = 0 to omit saving
 % note: do_save takes precedence over do_plot, such that if do_save = 1
 % and do_plot = 0, figures will be created and then immediately closed
 % after saving.
+% default: do_save = 1
 %
 % returns:
 % t is a vector of times of length nt when particle trajectory was recorded
@@ -17,6 +20,9 @@
 % K is total particle energy 
 % B2,E2 are magnetic and electric field energy 
 % En is total energy (kinetic + EM)
+%
+% creates files (if do_save == 1): 
+% history.png plot of momentum and energy vs time 
 
 function [t,px,py,pz,K,B2,E2,En] = plot_history(do_plot,do_save)
 

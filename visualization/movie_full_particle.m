@@ -1,7 +1,30 @@
+% make a movie with all particle information plotted side by side 
 % similar to movie_particle except captures 4 subplots simultaneously: 
-% 1. x,y,z components as a function of t (1D plot) 
+% 1. x,y,z components of position as a function of t (1D plot) 
 % 2. position(t) in space (3D plot) 
-% 3. x,y,z components of velocity 
+% 3. x,y,z components of velocity as a function of t (1D plot) 
+% 4. velocity(t) in phase space (3D plot) 
+% plots track_<mpi_rank>_<part_rank>.dat single particle data file 
+%
+% input: 
+% part_rank is an integer matching <part_rank> in file name of form 
+% track_<mpi_rank>_<part_rank>.dat 
+% 
+% do_plot = 1 to make plots, do_plot = 0 to omit plotting
+% (do_plot = 0 simply returns values read from the file)
+% default: do_plot = 0
+%
+% do_save = 1 saves plots to file
+% do_save = 0 omits saving
+% default: do_save = 1
+% 
+% returns:
+% t is a vector of times of length nt when particle trajectory was recorded
+% x is a matrix of size [nt 3] with x,y,z components of position
+% v is a matrix of size [nt 3] with x,y,z components of velocity
+%
+% creates files (if do_save == 1): 
+% full_mov.avi movie showing particle position and velocity in time
 
 function [t,x,v] = movie_full_particle(mpi_rank,part_rank,do_save)
 if nargin < 3

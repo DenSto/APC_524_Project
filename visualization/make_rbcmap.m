@@ -1,4 +1,7 @@
 % make a red/blue colormap with nrblevels number of different levels
+% may be incompatible with some matlab versions, 
+% hence this function is deprecated and no longer 
+% called by any of the visualization functions 
 
 function rstring = make_rbcmap(nrblevels)
 

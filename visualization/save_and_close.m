@@ -8,6 +8,9 @@
 % 
 % returns: 
 % none 
+%
+% creates files: 
+% none
 
 
 function save_and_close(fname,fig,do_save,do_close)

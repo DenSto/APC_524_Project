@@ -2,15 +2,25 @@
 %
 % input:
 % t is a vector of times of length nt
+%
 % vec is matrix of size [nt 3] representing x,y,z coordinates of some
 % time evolving vector. Anticipated to be position (for plot in real space)
 % or velocity (for plot in velocity phase space), but does not have to be.
-% movetype = 1 for plots of position, movtype = 2 for plots of velocity
-% (movetype only affects plot labels and saved file names)
+%
+% movtype = 1 for plots of position, movtype = 2 for plots of velocity
+% (movtype only affects plot labels and saved file names)
+%
 % do_save = 1 to save a .avi movie file, do_save = 0 to not save
+% default: do_save = 1
 %
 % returns:
 % none
+% 
+% creates files (if do_save == 1):
+% if movtype == 1: 
+% x_mov.avi 3D movie of particle position trajectory in space vs time 
+% if movtype == 2: 
+% v_mov.avi 3D movie of particle velocity trajectory in phase space vs time
 
 function [] = movie_particle(t,vec,movtype,do_save)
 
