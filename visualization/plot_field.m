@@ -101,7 +101,7 @@ end
 
 if do_plot
     
-    if numel(itimes)==0 && itimes < 0
+    if numel(itimes)==1 && itimes < 0
         itimes=1:nt;
     end
     
@@ -115,12 +115,12 @@ if do_plot
     
     % set to 1 to plot the faces of the box
     % set to 0 to turn them off
-    do_faces=1;
+    do_faces=0;
     
     % set to 1 to plot slices through the middle of the domain
     % set to 0 to turn them off
     % (do_mid and do_faces both = 1 will show faces)
-    do_mid=0;
+    do_mid=1;
     
     % set to 1 to make a symmetric colorscale around 0
     % set to 0 to use min and max values for colorscale

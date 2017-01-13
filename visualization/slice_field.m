@@ -54,7 +54,7 @@ ny=size(field,2);
 nz=size(field,3);
 
 % set times for movie
-if itimes < 0
+if numel(itimes) ==1 && itimes < 0
     itimes=1:nt;
 end
 nt = numel(itimes);
