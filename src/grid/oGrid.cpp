@@ -207,16 +207,19 @@ int Grid::getFieldInterpolatorVec (int cellID, double* InterpolatorVec) {
 int Grid::getCellID(double x, double y, double z) {
 	// get indices in x, y, z
 	int ix = (int) ((x-x0_) * idx_);
-	if(ix < 0) return -1;
+	ix += nGhost_; 
 
 	int iy = (int) ((y-y0_) * idy_);
-	if(iy < 0) return -1;
+	iy += nGhost_; 
 
 	int iz = (int) ((z-z0_) * idz_);
-	if(iz < 0) return -1;
+	iz += nGhost_; 
 
 	return (ny_*nz_)*ix + nz_*iy + iz;
 
+	//	if(ix < 0 || ix >= nxReal_) return -1;
+	//	if(iy < 0 || iy >= nyReal_) return -1;
+	//	if(iz < 0 || iz >= nzReal_) return -1;
 };
 
 //! Returns vertex corresponding to cell ID

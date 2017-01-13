@@ -128,6 +128,8 @@ void Particle_Handler::InterpolateEB(Grid* grid){
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);
 
   for (long i=0; i<np_; i++) {
+	assert(!parts_[i].isGhost);
+	
     //Get position of particle.
     pos[0] = parts_[i].x[0];
     pos[1] = parts_[i].x[1];
@@ -135,16 +137,14 @@ void Particle_Handler::InterpolateEB(Grid* grid){
 
     //Update cell field variables.
     pCell = grid->getCellID(pos[0],pos[1],pos[2]);
-    if (pCell >= 0) {
-      if (pCell != iCell) {
-        iCell = pCell;
-        grid->getFieldInterpolatorVec(iCell, cellvars);
-      }
-
-      //Interpolate fields at particle.
-	  if(debug>3)  fprintf(stderr,"rank=%d,call Interpolator\n",rank_MPI);
-      interpolator->interpolate_fields(pos, lcell, cellvars, &(parts_[i].field));
+    if (pCell != iCell) {
+      iCell = pCell;
+      grid->getFieldInterpolatorVec(iCell, cellvars);
     }
+
+    //Interpolate fields at particle.
+	if(debug>3)  fprintf(stderr,"rank=%d,call Interpolator\n",rank_MPI);
+    interpolator->interpolate_fields(pos, lcell, cellvars, &(parts_[i].field));
   }
   if(debug>3) fprintf(stderr,"rank=%d,Finish InterpolateEB\n",rank_MPI);
 }

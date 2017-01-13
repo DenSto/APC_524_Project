@@ -41,6 +41,7 @@ int Input::checkinfo(void){
     // determine super particle scaling
     long np = input_info_->np;
     double n0 = np/domain_volume;
+	printf("%ld %f %f\n",np,domain_volume,n0);
     assert(n0>0);
 
     double dens_phys = input_info_->dens_phys;
