@@ -75,6 +75,34 @@ nx=numel(x);
 ny=numel(y);
 nz=numel(z);
 
+% remove any redundancies in the hdf5 
+% (x direction is always okay, though there is a bug in y and z 
+% when decomposing domain in y or z with MPI) 
+ydex = []; 
+for j = 1:ny-1
+    if y(j) == y(j+1)
+        ydex = [ydex j]; 
+    end 
+end 
+
+zdex = []; 
+for k = 1:nz - 1
+    if z(k) == z(k+1) 
+        zdex = [zdex k]; 
+    end 
+end
+
+ydex = setdiff(1:ny,ydex); 
+zdex = setdiff(1:nz,zdex); 
+
+y = y(ydex); 
+z = z(zdex); 
+
+ny=numel(y);
+nz=numel(z);
+
+field = field(:,ydex,zdex,:); 
+
 % set the time to an index for now
 % later time will be written as well
 t = h5read(fname,'/time');

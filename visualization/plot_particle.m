@@ -85,7 +85,7 @@ if (do_save || do_plot)
     %     xlabel('Time');
     ylabel('Position');
     axis tight;
-    legend('x_x','x_y','x_z','Location',legloc);
+    legend('x','y','z','Location',legloc);
     
     % plot 3 components of velocity
     subplot(nrows,ncols,2);
