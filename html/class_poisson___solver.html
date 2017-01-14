@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.12"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>APC_524: Poisson_Solver Class Reference</title>
+<title>EMOOPIC: Poisson_Solver Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -28,8 +28,9 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">APC_524
+   <div id="projectname">EMOOPIC
    </div>
+   <div id="projectbrief">An object-oriented, electromagnetic PIC code</div>
   </td>
  </tr>
  </tbody>
@@ -199,22 +200,27 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class
 <tr class="memitem:a7c37daac383190622c7cf37597101510 inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#a7c37daac383190622c7cf37597101510">getStepSize</a> (int dimension)</td></tr>
 <tr class="memdesc:a7c37daac383190622c7cf37597101510 inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get step size along dimension in grid.  <a href="class_grid.html#a7c37daac383190622c7cf37597101510">More...</a><br /></td></tr>
 <tr class="separator:a7c37daac383190622c7cf37597101510 inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abda930ca601c5701f522297d330bffeb inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top"><a id="abda930ca601c5701f522297d330bffeb"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#abda930ca601c5701f522297d330bffeb">getCellVolume</a> ()</td></tr>
+<tr class="memdesc:abda930ca601c5701f522297d330bffeb inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return volume of a single cell. <br /></td></tr>
+<tr class="separator:abda930ca601c5701f522297d330bffeb inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34fe2343f7e77d47c9f3c271e87b635f inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top"><a id="a34fe2343f7e77d47c9f3c271e87b635f"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#a34fe2343f7e77d47c9f3c271e87b635f">getnxyzTot</a> (int *nxyzTot)</td></tr>
 <tr class="memdesc:a34fe2343f7e77d47c9f3c271e87b635f inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">get total dimensions <br /></td></tr>
 <tr class="separator:a34fe2343f7e77d47c9f3c271e87b635f inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f86732e1ff32ce01ddc90da3f5ccf73 inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top"><a id="a6f86732e1ff32ce01ddc90da3f5ccf73"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#a6f86732e1ff32ce01ddc90da3f5ccf73">getnxyzPhys</a> (int *nxyzPhys)</td></tr>
+<tr class="memdesc:a6f86732e1ff32ce01ddc90da3f5ccf73 inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">get Phys dimensions <br /></td></tr>
+<tr class="separator:a6f86732e1ff32ce01ddc90da3f5ccf73 inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aff5e2877974f2a2faf75fa6e1a3b8c14 inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#aff5e2877974f2a2faf75fa6e1a3b8c14">getRealIndices</a> (int fieldID, int *ind)</td></tr>
 <tr class="memdesc:aff5e2877974f2a2faf75fa6e1a3b8c14 inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">gets the x,y,z indices of the first and last physical points of field  <a href="class_grid.html#aff5e2877974f2a2faf75fa6e1a3b8c14">More...</a><br /></td></tr>
 <tr class="separator:aff5e2877974f2a2faf75fa6e1a3b8c14 inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acee02263521cc2760084c3f23f3caa3e inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#acee02263521cc2760084c3f23f3caa3e">setFieldAlongEdge</a> (std::string &amp;fieldStr, int dim, bool edge, double fieldVal)</td></tr>
 <tr class="memdesc:acee02263521cc2760084c3f23f3caa3e inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set field along a certain edge.  <a href="class_grid.html#acee02263521cc2760084c3f23f3caa3e">More...</a><br /></td></tr>
 <tr class="separator:acee02263521cc2760084c3f23f3caa3e inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad444d3debc56d0b06980d437b424278d inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#ad444d3debc56d0b06980d437b424278d">updatePeriodicGhostCells</a> ()</td></tr>
-<tr class="memdesc:ad444d3debc56d0b06980d437b424278d inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">updates E,B ghost cells in y/z directions with periodic boundary conditions  <a href="class_grid.html#ad444d3debc56d0b06980d437b424278d">More...</a><br /></td></tr>
-<tr class="separator:ad444d3debc56d0b06980d437b424278d inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5bc5bb4bf94c44bc2202ae4b4d74dc0e inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top"><a id="a5bc5bb4bf94c44bc2202ae4b4d74dc0e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>setBoundaryVec</b> (const int side, const double *ghostVec)</td></tr>
-<tr class="separator:a5bc5bb4bf94c44bc2202ae4b4d74dc0e inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade8d6d0a7f28ea5a1e755ffc6fc89386 inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#ade8d6d0a7f28ea5a1e755ffc6fc89386">getGhostVec</a> (const int side, double *ghostVec, int sendID, int option)</td></tr>
+<tr class="memdesc:ade8d6d0a7f28ea5a1e755ffc6fc89386 inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">bundles the data in the ghost cells to send  <a href="class_grid.html#ade8d6d0a7f28ea5a1e755ffc6fc89386">More...</a><br /></td></tr>
+<tr class="separator:ade8d6d0a7f28ea5a1e755ffc6fc89386 inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a562389ee17024dd2b0cfd923073bd747 inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top"><a id="a562389ee17024dd2b0cfd923073bd747"></a>
 double ****&#160;</td><td class="memItemRight" valign="bottom"><b>getFieldPtr</b> ()</td></tr>
 <tr class="separator:a562389ee17024dd2b0cfd923073bd747 inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -226,6 +232,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#a19db78a4f64b97a066e53cb7a285bc2c">getGridPhys</a> (const int fieldID, double *x, double *y, double *z)</td></tr>
 <tr class="memdesc:a19db78a4f64b97a066e53cb7a285bc2c inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">gets physical coordinates of each point on the grid for a given field type <br /></td></tr>
 <tr class="separator:a19db78a4f64b97a066e53cb7a285bc2c inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81c8c087415fb620a965ff72d1a92034 inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top"><a id="a81c8c087415fb620a965ff72d1a92034"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>getnGhosts</b> ()</td></tr>
+<tr class="separator:a81c8c087415fb620a965ff72d1a92034 inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5f7c8c91b3b51b19098697b1bf8fcc0 inherit pub_methods_class_grid"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#ad5f7c8c91b3b51b19098697b1bf8fcc0">AvgB</a> ()</td></tr>
 <tr class="memdesc:ad5f7c8c91b3b51b19098697b1bf8fcc0 inherit pub_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">averages two timesteps of B (for output)  <a href="class_grid.html#ad5f7c8c91b3b51b19098697b1bf8fcc0">More...</a><br /></td></tr>
 <tr class="separator:ad5f7c8c91b3b51b19098697b1bf8fcc0 inherit pub_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -242,9 +251,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>freeBoundaries</b> (v
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a6b9fb4a2d3ed4f9185cdecc6fc5eec6a"><td class="memItemLeft" align="right" valign="top"><a id="a6b9fb4a2d3ed4f9185cdecc6fc5eec6a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>run_poisson_solver_</b> (const int fieldID, double ***u0, double ***u1, double ***R, double convergenceTol, double sourceMult)</td></tr>
-<tr class="separator:a6b9fb4a2d3ed4f9185cdecc6fc5eec6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afdb601487d329aaa4cadbd8b9a2c5541"><td class="memItemLeft" align="right" valign="top"><a id="afdb601487d329aaa4cadbd8b9a2c5541"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>run_poisson_solver_</b> (const int fieldID1, const int fieldID2, double ***u1, double ***u2, double ***R, double convergenceTol, double sourceMult)</td></tr>
+<tr class="separator:afdb601487d329aaa4cadbd8b9a2c5541"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7d96c3bf3be9fe09e92ae451bc7464f"><td class="memItemLeft" align="right" valign="top"><a id="ac7d96c3bf3be9fe09e92ae451bc7464f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_poisson___solver.html#ac7d96c3bf3be9fe09e92ae451bc7464f">setPoissonFieldType_</a> ()</td></tr>
 <tr class="memdesc:ac7d96c3bf3be9fe09e92ae451bc7464f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as <a class="el" href="class_grid.html#a8a84561b2ffc7f944775487d6f513941" title="constructs and returns fieldType_ array ">Grid::setFieldType_</a> for phi,A arrays unique to Poisson. <br /></td></tr>
@@ -262,6 +271,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a91898d50077aa46c1333fa417d4699e5"><td class="memItemLeft" align="right" valign="top"><a id="a91898d50077aa46c1333fa417d4699e5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>FRIEND_TEST</b> (ConvertPrivateTest, constantPhiTest)</td></tr>
 <tr class="separator:a91898d50077aa46c1333fa417d4699e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a085ba0611147f4d44852bf02f4e0f877"><td class="memItemLeft" align="right" valign="top"><a id="a085ba0611147f4d44852bf02f4e0f877"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>FRIEND_TEST</b> (PoissonTest, testPoisson)</td></tr>
+<tr class="separator:a085ba0611147f4d44852bf02f4e0f877"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_class_grid"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_class_grid')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="class_grid.html">Grid</a></td></tr>
 <tr class="memitem:aa77a5a5e91232133acfc819df16b3741 inherit pro_methods_class_grid"><td class="memItemLeft" align="right" valign="top">double ***&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#aa77a5a5e91232133acfc819df16b3741">newField_</a> (int ifield)</td></tr>
 <tr class="memdesc:aa77a5a5e91232133acfc819df16b3741 inherit pro_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">allocates memory for a single field  <a href="class_grid.html#aa77a5a5e91232133acfc819df16b3741">More...</a><br /></td></tr>
@@ -297,11 +309,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:addfa8e18920a9ba276303a5878851c66 inherit pro_methods_class_grid"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#addfa8e18920a9ba276303a5878851c66">sideToIndex_</a> (const int side, const int fieldID)</td></tr>
 <tr class="memdesc:addfa8e18920a9ba276303a5878851c66 inherit pro_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">function to convert (-/+)(1,2,3) side indicator into (left/right)(x,y,z) index of boundary physical data point  <a href="class_grid.html#addfa8e18920a9ba276303a5878851c66">More...</a><br /></td></tr>
 <tr class="separator:addfa8e18920a9ba276303a5878851c66 inherit pro_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79b19f5a0b37839578b04e99acafb9fb inherit pro_methods_class_grid"><td class="memItemLeft" align="right" valign="top"><a id="a79b19f5a0b37839578b04e99acafb9fb"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>getGhostOffset_</b> (const int side, const int fieldID)</td></tr>
+<tr class="separator:a79b19f5a0b37839578b04e99acafb9fb inherit pro_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af631b4ec77d5ad46d17abe24155114c1 inherit pro_methods_class_grid"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#af631b4ec77d5ad46d17abe24155114c1">checkInput_</a> ()</td></tr>
 <tr class="memdesc:af631b4ec77d5ad46d17abe24155114c1 inherit pro_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">checks validity of input parameters for <a class="el" href="class_grid.html" title="Class representing grid on which E and B fields and currents are defined. ">Grid</a> constructor  <a href="class_grid.html#af631b4ec77d5ad46d17abe24155114c1">More...</a><br /></td></tr>
 <tr class="separator:af631b4ec77d5ad46d17abe24155114c1 inherit pro_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a00f217f95b51fbd53d7aface656bb06d inherit pro_methods_class_grid"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#a00f217f95b51fbd53d7aface656bb06d">sliceMatToVec_</a> (const int fieldID, const int side, const int offset, double *vec)</td></tr>
-<tr class="memdesc:a00f217f95b51fbd53d7aface656bb06d inherit pro_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">slices a physical plane in the specified direction (excludes ghosts)  <a href="class_grid.html#a00f217f95b51fbd53d7aface656bb06d">More...</a><br /></td></tr>
+<tr class="memdesc:a00f217f95b51fbd53d7aface656bb06d inherit pro_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets offset of ghost points.  <a href="class_grid.html#a00f217f95b51fbd53d7aface656bb06d">More...</a><br /></td></tr>
 <tr class="separator:a00f217f95b51fbd53d7aface656bb06d inherit pro_methods_class_grid"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a781843e9e496184667d27f571bd8e26c inherit pro_methods_class_grid"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_grid.html#a781843e9e496184667d27f571bd8e26c">unsliceMatToVec_</a> (const int fieldID, const int side, const int offset, double *vec, const int op)</td></tr>
 <tr class="memdesc:a781843e9e496184667d27f571bd8e26c inherit pro_methods_class_grid"><td class="mdescLeft">&#160;</td><td class="mdescRight">unslices a physical plane in the specified direction (excludes ghosts)  <a href="class_grid.html#a781843e9e496184667d27f571bd8e26c">More...</a><br /></td></tr>
@@ -643,6 +658,9 @@ Friends</h2></td></tr>
 <tr class="memitem:afdfcda3f4cb2ca4ccedc65a8e01d8209"><td class="memItemLeft" align="right" valign="top"><a id="afdfcda3f4cb2ca4ccedc65a8e01d8209"></a>
 class&#160;</td><td class="memItemRight" valign="bottom"><b>ConvertPrivateTest</b></td></tr>
 <tr class="separator:afdfcda3f4cb2ca4ccedc65a8e01d8209"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b5727c24e50117b96b6949e5c800d59"><td class="memItemLeft" align="right" valign="top"><a id="a4b5727c24e50117b96b6949e5c800d59"></a>
+class&#160;</td><td class="memItemRight" valign="bottom"><b>PoissonTest</b></td></tr>
+<tr class="separator:a4b5727c24e50117b96b6949e5c800d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a83ebbe9790d7572396561bd37c2644ac"></a>
@@ -710,9 +728,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ConvertPrivateTest</
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void Poisson_Solver::getGhostVec </td>
@@ -738,11 +753,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>ConvertPrivateTest</
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>bundles the data in the ghost cells to send </p>
@@ -754,8 +764,6 @@ Stores the data of the E,B,J fields along the specified boundary plane into a 1D
 If sendID = -2 (as used in Poisson iteration), stores in order: phi1,phi2,Ax1,Ay1,Az1,Ax2,Ay2,Az2 <br />
 If sendID = -3 (as used in Poisson initialization), stores in order: Jx,Jy,Jz,rho <br />
 ghostVec can (and should) be unpacked with setGhostVec function </p>
-
-<p>Reimplemented from <a class="el" href="class_grid.html#a931c762929b7057817a2519999acffee">Grid</a>.</p>
 
 </div>
 </div>
@@ -939,7 +947,7 @@ If sendID = -2 (as used in Poisson iteration), fields are read and set in order:
 If sendID = -3 (as used in Poisson initialization), stores in order: Jx,Jy,Jz,rho <br />
 ghostVec can (and should) be generated with getGhostVec function </p>
 
-<p>Reimplemented from <a class="el" href="class_grid.html#a1b9be8a8853781522e3ec6db6682126b">Grid</a>.</p>
+<p>Reimplemented from <a class="el" href="class_grid.html#a1c7b0040ab13df8c8ca37659b1a304d2">Grid</a>.</p>
 
 </div>
 </div>

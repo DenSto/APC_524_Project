@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.12"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>APC_524: Particle_Handler Class Reference</title>
+<title>EMOOPIC: Particle_Handler Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -28,8 +28,9 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">APC_524
+   <div id="projectname">EMOOPIC
    </div>
+   <div id="projectbrief">An object-oriented, electromagnetic PIC code</div>
   </td>
  </tr>
  </tbody>
@@ -136,9 +137,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setParticleBoundaries
 <tr class="memitem:acf6461aa576bc3e1b15be929b9f52602"><td class="memItemLeft" align="right" valign="top"><a id="acf6461aa576bc3e1b15be929b9f52602"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>executeParticleBoundaryConditions</b> ()</td></tr>
 <tr class="separator:acf6461aa576bc3e1b15be929b9f52602"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3854500bd082120f9dbcf8f914374585"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_particle___handler.html#a3854500bd082120f9dbcf8f914374585">outputParticles</a> (long nstep, <a class="el" href="struct_input___info__t.html">Input_Info_t</a> *input_info)</td></tr>
-<tr class="memdesc:a3854500bd082120f9dbcf8f914374585"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output particles.  <a href="#a3854500bd082120f9dbcf8f914374585">More...</a><br /></td></tr>
-<tr class="separator:a3854500bd082120f9dbcf8f914374585"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a688d4e92af40323ec0ad4c313c7b6e44"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_particle___handler.html#a688d4e92af40323ec0ad4c313c7b6e44">outputParticles</a> (const char *basename, long nstep, <a class="el" href="struct_input___info__t.html">Input_Info_t</a> *input_info)</td></tr>
+<tr class="memdesc:a688d4e92af40323ec0ad4c313c7b6e44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Output particles.  <a href="#a688d4e92af40323ec0ad4c313c7b6e44">More...</a><br /></td></tr>
+<tr class="separator:a688d4e92af40323ec0ad4c313c7b6e44"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a129878d9f8e9a713e296834d8299c084"><td class="memItemLeft" align="right" valign="top"><a id="a129878d9f8e9a713e296834d8299c084"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>outputParticleVel</b> ()</td></tr>
 <tr class="separator:a129878d9f8e9a713e296834d8299c084"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,8 +148,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>outputParticleVel</b>
 <div class="textblock"><p>Class that handles all particle-relevant operations. </p>
 <p><a class="el" href="struct_particle.html">Particle</a> handler handles all the particle operations. This includes deposition, boundary conditions, particle pushing, and communication between MPI nodes if needed </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a3854500bd082120f9dbcf8f914374585"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3854500bd082120f9dbcf8f914374585">&sect;&nbsp;</a></span>outputParticles()</h2>
+<a id="a688d4e92af40323ec0ad4c313c7b6e44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a688d4e92af40323ec0ad4c313c7b6e44">&sect;&nbsp;</a></span>outputParticles()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -156,6 +157,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>outputParticleVel</b>
         <tr>
           <td class="memname">void Particle_Handler::outputParticles </td>
           <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>basename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">long&#160;</td>
           <td class="paramname"><em>step</em>, </td>
         </tr>
@@ -176,7 +183,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>outputParticleVel</b>
 <p>Output particles. </p>
 <p>Output particles. Currently outputs time, position and velocity.</p>
 <p>Can work with either cadencing on time (output every dT) or cadencing on steps (output ever dsteps), or both. Either are optional parameters in the input file and will default to -1.</p>
-<p>Particles are written to the tracks/ directory and named with initial rank and id. </p>
+<p>Particles are written to the same directory as the program input file and named with initial rank and id. </p>
 
 </div>
 </div>

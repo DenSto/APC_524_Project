@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.12"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>APC_524: Input_Info_t Struct Reference</title>
+<title>EMOOPIC: Input_Info_t Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -28,8 +28,9 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">APC_524
+   <div id="projectname">EMOOPIC
    </div>
+   <div id="projectbrief">An object-oriented, electromagnetic PIC code</div>
   </td>
  </tr>
  </tbody>
@@ -140,9 +141,11 @@ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struc
 double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_input___info__t.html#a02a57e53a65b63a528c459193b32d072">t0</a></td></tr>
 <tr class="memdesc:a02a57e53a65b63a528c459193b32d072"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of particles in each domain <br /></td></tr>
 <tr class="separator:a02a57e53a65b63a528c459193b32d072"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86039e37a9bbda3b97ca6836d5570828"><td class="memItemLeft" align="right" valign="top"><a id="a86039e37a9bbda3b97ca6836d5570828"></a>
-double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_input___info__t.html#a86039e37a9bbda3b97ca6836d5570828">mass_ratio</a> [NSPEC]</td></tr>
-<tr class="memdesc:a86039e37a9bbda3b97ca6836d5570828"><td class="mdescLeft">&#160;</td><td class="mdescRight">start time of simulation <br /></td></tr>
+<tr class="memitem:a1cbfe9e45c60d88df7de56707554b4e7"><td class="memItemLeft" align="right" valign="top"><a id="a1cbfe9e45c60d88df7de56707554b4e7"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_input___info__t.html#a1cbfe9e45c60d88df7de56707554b4e7">dens_phys</a></td></tr>
+<tr class="memdesc:a1cbfe9e45c60d88df7de56707554b4e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">start time of simulation <br /></td></tr>
+<tr class="separator:a1cbfe9e45c60d88df7de56707554b4e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86039e37a9bbda3b97ca6836d5570828"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_input___info__t.html#a86039e37a9bbda3b97ca6836d5570828">mass_ratio</a> [NSPEC]</td></tr>
 <tr class="separator:a86039e37a9bbda3b97ca6836d5570828"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab269b25b3729fbd75b8f503b9bc3162c"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_input___info__t.html#ab269b25b3729fbd75b8f503b9bc3162c">charge_ratio</a> [NSPEC]</td></tr>
 <tr class="separator:ab269b25b3729fbd75b8f503b9bc3162c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -319,6 +322,21 @@ char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
       </table>
 </div><div class="memdoc">
 <p>polarization of E field of injected waves eg. inPolE[0]=2: 1st wave E field is in y direction(2) inPolE[1]=3: 2nd wave E field is in Z direction(3) inPolE should only take value of 1,2,3 </p>
+
+</div>
+</div>
+<a id="a86039e37a9bbda3b97ca6836d5570828"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86039e37a9bbda3b97ca6836d5570828">&sect;&nbsp;</a></span>mass_ratio</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Input_Info_t::mass_ratio[NSPEC]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>physical number density of all particles used to scale mass, charge and temperature of super particles. </p>
 
 </div>
 </div>

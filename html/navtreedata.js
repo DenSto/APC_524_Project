@@ -1,6 +1,6 @@
 var NAVTREE =
 [
-  [ "APC_524", "index.html", [
+  [ "EMOOPIC", "index.html", [
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -20,7 +20,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_gaussian_pulse_8hpp_source.html",
-"class_input.html#aad080a2afc9cec0296a8921513626ab7"
+"class_input.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

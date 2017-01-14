@@ -9,6 +9,7 @@ var struct_input___info__t =
     [ "debug", "struct_input___info__t.html#a8ed085436cf814ffa3c903b051249faf", null ],
     [ "delays", "struct_input___info__t.html#abdc179d0c8bff2750b69e73dbf673404", null ],
     [ "dens_frac", "struct_input___info__t.html#a9e29e09938a01cb009d8a00359606448", null ],
+    [ "dens_phys", "struct_input___info__t.html#a1cbfe9e45c60d88df7de56707554b4e7", null ],
     [ "distname", "struct_input___info__t.html#ac83252bb02cc8d4672b0764187d935ad", null ],
     [ "E0", "struct_input___info__t.html#a1264ed6e43e350ef8f69ea264b633f2a", null ],
     [ "electrostatic", "struct_input___info__t.html#acbf36c5bc35d4b3ffb6a4f8f3b1d7aad", null ],

@@ -25,7 +25,7 @@ runtime:
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug print, and write debug files
-  debug = 0
+  debug = 2
 }
 
 initialization:
@@ -37,7 +37,11 @@ initialization:
   particles:
   {
     # number of particles of all species in each domain
-    nParticles = 0
+    nParticles = 1
+
+    # total physical number density of all species to simulate
+    # used to determine super particle scaling, in unit of cc
+    dens_phys = 1.0
 
     # whether use relaticistic pusher (0 = no, 1 = yes)
     relativity = 0
