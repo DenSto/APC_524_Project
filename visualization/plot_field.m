@@ -71,37 +71,21 @@ x = h5readatt(fname,datset,'x');
 y = h5readatt(fname,datset,'y');
 z = h5readatt(fname,datset,'z');
 
+% remove any redundancies in the field data 
+% (not usually an issue)
+xdex = unique_dex(x); 
+ydex = unique_dex(y); 
+zdex = unique_dex(z); 
+
+x = x(xdex); 
+y = y(ydex);
+z = z(zdex); 
+
+field = field(xdex,ydex,zdex,:); 
+
 nx=numel(x);
 ny=numel(y);
 nz=numel(z);
-
-% remove any redundancies in the hdf5 
-% (x direction is always okay, though there is a bug in y and z 
-% when decomposing domain in y or z with MPI) 
-ydex = []; 
-for j = 1:ny-1
-    if y(j) == y(j+1)
-        ydex = [ydex j]; 
-    end 
-end 
-
-zdex = []; 
-for k = 1:nz - 1
-    if z(k) == z(k+1) 
-        zdex = [zdex k]; 
-    end 
-end
-
-ydex = setdiff(1:ny,ydex); 
-zdex = setdiff(1:nz,zdex); 
-
-y = y(ydex); 
-z = z(zdex); 
-
-ny=numel(y);
-nz=numel(z);
-
-field = field(:,ydex,zdex,:); 
 
 % set the time to an index for now
 % later time will be written as well
@@ -154,7 +138,7 @@ if do_plot
     % set to 0 to use min and max values for colorscale
     % (0 means the middle value in the colorscale corresponds to
     % the average value, not zero)
-    norm_color = 0;
+    norm_color = 1;
     
     xslice = [];
     yslice = [];
