@@ -213,6 +213,8 @@ Particle BC_P_MPI::unpackParticle(int offset){
 	p.q = info_->charge_ratio[p.type];
 	p.isTestParticle = info_->isTestParticle[p.type];
 
+	assert(p.x[dim_index_] >= xMin_ && p.x[dim_index_] <= xMax_);   
+
 	return p;
 }
 
