@@ -35,7 +35,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double* x0 = domain->getxyz0();
 
     int nspec      = input_info->nspecies;
-    int npart      = input_info->np;
+    int npart      = input_info->nparticles_domain;
     double *mass   = input_info->mass_ratio;
     double *charge = input_info->charge_ratio;
     double *dens   = input_info->dens_frac; 
@@ -54,8 +54,8 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 				cden  += dens[ispec];
 			}
 			assert(ispec<nspec);
-			p.q = charge[ispec];
-			p.m = mass[ispec];
+			p.q = charge[ispec]; // super particle charge
+			p.m = mass[ispec];   // super particle mass
 			p.isTestParticle = test[ispec];
 			p.type = ispec;
 
@@ -122,7 +122,7 @@ void Particle_Handler::InterpolateEB(Grid* grid){
                       //21 elements ordered as: [x[0],x[1],x[2],E1,E2,E3,B1,B2,B3]
                       //              of sizes:   1, 1, 1, 4, 4, 4, 2, 2, 2
   double pos[3]; //Vector of position of particle.
-  double lcell[3]; //Vector of lengths of cell.
+  double lcell[3]; //Vector of lengths of unit cell.
 
   //Get lengths of grid cells.
   for (int i=0; i<3; i++) lcell[i] = grid->getStepSize(i);

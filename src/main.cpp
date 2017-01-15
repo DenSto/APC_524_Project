@@ -17,6 +17,7 @@
 
 #include "./globals.hpp"
 #include "./domain/domain.hpp"
+#include "./domain/resolve.hpp"
 #include "./IO/input.hpp"
 #include "./IO/output.hpp"
 #include "./IO/hdf5io.hpp"
@@ -83,7 +84,7 @@ int main(int argc, char *argv[]){
       printf("Master reading input file...\n");
       int err = input->readinfo(argv[1]);
       // Check input self-consistency and load physical units to input
-      err += input->checkinfo(); // should not be commented out
+      err += input->ProcessInfo(); // should not be commented out
       if(err!=0) {
         std::cerr << "Input Error. Terminating..." << std::endl;
 #if USE_MPI
@@ -102,6 +103,7 @@ int main(int argc, char *argv[]){
 #endif
     int restart = input_info->restart;
     int relativity = input_info->relativity;
+    int electrostatic = input_info->electrostatic;
     debug = input_info->debug; // global debug flag
     if(debug>1) checkinput(input_info);
 
@@ -110,8 +112,11 @@ int main(int argc, char *argv[]){
     /***************************************************************************/
     if(rank==0)printf("Initial set up...\n");
     // Domain decomposition
-    Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
+    Domain *domain = new Domain(input_info);
     if(debug>1) checkdomain(domain);
+
+    // determine temporal and spatial resolution
+    Resolution *resolution = new Resolution(input_info);
 
     // Initialize particles and pusher
     Particle_Handler *part_handler = new Particle_Handler(); 
@@ -171,13 +176,6 @@ int main(int argc, char *argv[]){
     part_handler->InterpolateEB(grids);
     if(debug) fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);
 
-    // prepare time step
-    int nt = input_info->nt; //number of steps to run
-    time_phys = input_info->t0; //initial time
-    dt_phys = domain->getmindx()/1; //c=1, resolve EM wave
-    dt_phys /= 10.0;
-    if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
-
     // initialize outputs
     // format file names
     std::string inputname = argv[1];
@@ -206,10 +204,17 @@ int main(int argc, char *argv[]){
         if(debug) fprintf(stderr,"rank=%d: Finish writing initial fields output\n",rank);
     }
 
+    // prepare time step
+    int nt = input_info->nt; //number of steps to run
+    time_phys = input_info->t0; //initial time
+    dt_phys = domain->getmindx()/1; //c=1, resolve EM wave
+    dt_phys /= 100.0;
+    if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
+
     /***************************************************************************/
     /* Advance time step                                                       */
     /***************************************************************************/
-    if(rank==0)printf("Advancing time steps with dt = %f...\n",dt_phys);
+    if(rank==0)printf("Advancing time steps with dt = %f ps\n",dt_phys*UNIT_TIME);
     for(int ti=0;ti<nt;ti++){
 
        if(rank==0 && ti%100==0)fprintf(stderr,"ti=%d\t\t t=%f ps\n",ti,time_phys*UNIT_TIME);   
@@ -240,7 +245,11 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass R,J\n",rank,ti);
 
        /* evolve E, B fields *******************/
-       grids->evolveFields(dt_phys);
+       if(electrostatic==1){ // electrostatic field evolve
+           grids->evolveFieldsES(dt_phys);
+       }else { // electromagnetic field evolve
+           grids->evolveFields(dt_phys);
+       }
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);
 
        // pass E,B field across MPI boundaries, or implement physical boundary conditions
@@ -291,6 +300,7 @@ int main(int argc, char *argv[]){
     delete part_handler;
     grids->freeBoundaries(); // field boundary conditions
     delete grids;
+    delete resolution;
     delete input;
     if(debug) fprintf(stderr,"rank=%d: Finish free\n",rank);
 

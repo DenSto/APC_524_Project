@@ -31,7 +31,8 @@ int Boris::Step(Particle* part, Field_part* field, double dt){
   m = part->m;
   if(debug>3)fprintf(stderr,"Mass inside = %f\n",m);
 
-  q_p = (0.5 * dt * q)/m;
+  q_p = (0.5 * dt * q)/m; 
+  q_p *= UNIT_ACC; // multiply unit of acceleration
   if(debug>3)fprintf(stderr,"q_p inside = %f\n",q_p);
 
   ex = field->e1;

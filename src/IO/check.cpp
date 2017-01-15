@@ -6,9 +6,10 @@
 
 #include "input.hpp"
 #include "../globals.hpp"
+#include "../domain/resolve.hpp"
 
-//! Check input self-consistency and sufficiency
-int Input::checkinfo(void){
+//! Check input self-consistency and sufficiency, and process input information
+int Input::ProcessInfo(void){
     int err = 0;
 
     /* Check domain input *********************************/
@@ -36,23 +37,8 @@ int Input::checkinfo(void){
     for(int i=0;i<3;i++){total_volume*=Lxyz[i];}; 
     assert(total_volume>0);
     double domain_volume = total_volume/size_MPI;
+    printf("    The volume of the entire simulation box is %6.2e cm^3\n",total_volume);
     printf("    The volume of each domain is %6.2e cm^3\n",domain_volume);
-
-    // determine super particle scaling
-    long np = input_info_->np;
-    double n0 = np/domain_volume;
-	printf("%ld %f %f\n",np,domain_volume,n0);
-    assert(n0>0);
-
-    double dens_phys = input_info_->dens_phys;
-    if(dens_phys<0){dens_phys=-dens_phys;}
-    else if(dens_phys==0){dens_phys=n0;}
-    input_info_->dens_phys = dens_phys;
-
-    double Ns = dens_phys/n0; // super ratio
-    printf("    Particle density %6.2e cc is used to simulate physical density %6.2e cc\n",
-                n0,dens_phys);
-    printf("        The super particle scaling is %f\n",Ns);  
 
     /* Check run time inputs *******************************/
     // check nTimesteps
@@ -63,27 +49,42 @@ int Input::checkinfo(void){
     }
 
     /* Check particle input *******************************/
-    // check particle dens, mass
-    // normalize charge to proper unit 
+    // determine super particle scaling
+    long nparticles_tot = input_info_->nparticles_tot;
+    double n0 = nparticles_tot/total_volume;
+    if(debug)printf("%ld %f %f\n",nparticles_tot,total_volume,n0);
+    assert(n0>=0);
+
+    double dens_phys = input_info_->dens_phys;
+    if(dens_phys<0){dens_phys=-dens_phys;} // ensure positivity
+    else if(dens_phys==0){dens_phys=n0;}
+    input_info_->dens_phys = dens_phys;
+
+    double super_ratio;
+    if(n0>0){
+        super_ratio = dens_phys/n0; 
+        printf("    Particle density %6.2e cc is used to simulate physical density %6.2e cc\n",
+                    n0,dens_phys);
+        printf("    The super particle scaling is %f\n",super_ratio);  
+    }else{
+        super_ratio = -1.0;
+        printf("    There is no particle in this simulation!\n");
+    }
+    input_info_->super_ratio = super_ratio;
+ 
     int nspec = input_info_->nspecies;
     printf("    There are %d species in this simulation\n",nspec);
 
+    // check particle dens, mass
     double *dens = input_info_->dens_frac; 
-    double *mass = input_info_->mass_ratio;
-    double *charge = input_info_->charge_ratio;
     double cden = 0.0;
     for(int i=0;i<nspec;i++){
         assert(dens[i]>=0);
         cden += dens[i];
     }
 
-    for(int i=0;i<nspec;i++){
-        dens[i]/=cden;
-        printf("        Species %d: density %6.2f%%, mass %9.3f, charge %6.3f\n",
-                        i,100.0*dens[i],mass[i],charge[i]);
-    }
-
     // check positivity of mass and temp
+    double *mass = input_info_->mass_ratio;
     double *temp = input_info_->temp;
     for(int i=0;i<nspec;i++){
        if(temp[i]<0)temp[i]=-temp[i];
@@ -93,6 +94,21 @@ int Input::checkinfo(void){
           err += 1;
        }
     }      
+
+    // super particle scaling of mass, charge and temperature
+    if(super_ratio>0){
+       double *charge = input_info_->charge_ratio;
+       for(int i=0;i<nspec;i++){
+          dens[i]/=cden; // normalize dens to 1 
+          printf("        Species %d: normalizd density %6.2f%%. mass %9.3f, charge %6.3f\n",
+                           i,100.0*dens[i],mass[i],charge[i]);
+          // super particle scaling
+          mass[i]  *= super_ratio;
+          charge[i]*= super_ratio; 
+          temp[i]  *= super_ratio;
+       }
+       printf("    Mass, charge, and temperature are rescaled for super particles.\n"); 
+    }
 
     /* Check boundary conditions **************************/
     char (*parts_bound)[NCHAR] = input_info_->parts_bound;
@@ -126,66 +142,6 @@ int Input::checkinfo(void){
         assert(pol[i]>=0 && pol[i]<=3);
     }     
 
-    /* check time resolution *****************************/
-    double ttmp;
-    printf("    Typical time scales in this simulation are:\n"); 
-
-    // light transit time t=L/c, in unit of picosecond
-    double time_light = Lxyz[0]/nCell[0]; 
-    for(int i=1;i<3;i++){
-        ttmp = Lxyz[i]/nCell[i];
-        if(ttmp<time_light)time_light = ttmp;
-    }
-    time_light *= UNIT_TIME;
-    assert(time_light>0);
-    printf("        Light transit unit cell takes %6.3e ps\n",time_light); 
-
-    // plasma frequency, in unit of 1THz=1/ps
-    ttmp = 0.0;
-    for(int i=0;i<nspec;i++){
-        ttmp += pow(charge[i],2)*dens[i]/mass[i];
-    }
-    //printf("sum e^2n/m=%f,dens_phys=%f\n",ttmp,dens_phys);
-    double omega_p = UNIT_FPE*sqrt(ttmp*dens_phys)*1e-9; // convert KHz to THz
-    printf("        Plasma frequency is %6.3e THz\n",omega_p); 
-
-    // maximum gyro frequency, in unit of 1THz=1/ps
-    double *B0 = input_info_->B0;
-    double B =0.0; // background B field
-    for(int i=0;i<3;i++){B += pow(B0[i],2);}
-    B = sqrt(B);
-    double qm = fabs(charge[0]/mass[0]);//charge to mass ratio
-    for(int i=1;i<nspec;i++){
-        ttmp =fabs(charge[i]/mass[i]);
-        if(ttmp>qm)qm=ttmp;
-    }
-    //printf("qm=%f,B=%f",qm,B);
-    double omega_c = UNIT_FCE*qm*B*1e-3; // convert GHz to THz
-    printf("        Maximum gyro frequency is %6.3e THz\n",omega_c); 
-
-    // maximum boundary wave frequency, in unit of THz
-    double *omegas = input_info_->omegas;
-    double omega_e = 0.0;
-    if(nwaves>0){
-       omega_e = omegas[0];
-       for(int i=1;i<nwaves;i++){
-           ttmp = omegas[i];
-       }
-       if(ttmp>omega_e) omega_e = ttmp;
-    } 
-    //printf("nwaves=%d,omega=%f\n",nwaves,omega_e);
-    omega_e *= UNIT_FRAD*1e-3; // convert GHz to THz 
-    printf("        Maximum boundary wave frequency is %6.3e THz\n",omega_e); 
-
-
-    // super particle scaling of mass, charge and temperature
-    for(int i=0;i<nspec;i++){
-       mass[i]  *= Ns;
-       charge[i]*= Ns*UNIT_CHARGE; // also set charge to proper unit
-       temp[i]  *= Ns;
-    }
-    printf("    Mass, charge, and temperature are rescaled for super particles.\n"); 
-
     return err;
 
 }
@@ -215,8 +171,9 @@ void checkinput(Input_Info_t *input_info){
    fprintf(stderr,"rank=%d,restart=%d\n",rank,restart);
 
    /* particle ************************/
-   fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
+   fprintf(stderr,"rank=%d,nparticles_tot=%ld\n",rank,input_info->nparticles_tot);
    fprintf(stderr,"rank=%d,dens_phys=%f\n",rank,input_info->dens_phys);
+   fprintf(stderr,"rank=%d,super_ratio=%f\n",rank,input_info->super_ratio);
    fprintf(stderr,"rank=%d,relativity=%d\n",rank,input_info->relativity);
 
    int nspecies = input_info->nspecies;
@@ -229,7 +186,7 @@ void checkinput(Input_Info_t *input_info){
    const double *dens = input_info->dens_frac;
    assert(dens!=NULL);
    for(int i=0;i<nspecies;i++){
-      fprintf(stderr,"rank=%d,mass,charge,dens[%d]=%f,%f,%f\n",
+      fprintf(stderr,"rank=%d,rescaled mass,charge,dens[%d]=%f,%f,%f\n",
                       rank,i,mass[i],charge[i],dens[i]);
    }
 

@@ -60,13 +60,18 @@ typedef struct {
     int isTestParticle[NSPEC];/// is the species a test particle species
                        /// i.e. it feels fields but does not influence them
                        /// 0 for no, 1 for yes
-    long np; /// number of particles in each domain
+    long nparticles_tot; /// total number of particles of all species in the entire 
+                         /// simulation box
+    long nparticles_domain; /// total number of particles of all species in each domain
 
     double t0;   /// start time of simulation
 
     double dens_phys; /// physical number density of all particles
                       /// used to scale mass, charge and temperature
                       /// of super particles.
+
+    double super_ratio; /// ratio of physical density over PIC density
+                        /// super_ratio = -1 when there is not particle in simulation
 
     double mass_ratio[NSPEC];/// mass of each type of particle in unit of electron mass
                        /// array of length nspecies 
@@ -127,7 +132,7 @@ class Input{
         ~Input(void);
 
         int readinfo(char* inputname);
-        int checkinfo(void);
+        int ProcessInfo(void);
         Input_Info_t* getinfo(void);
 #if USE_MPI
         void passinfo(void); 

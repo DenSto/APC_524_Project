@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "deposit.hpp"
+#include "../globals.hpp"
 
 Depositor::Depositor(){
 }
@@ -15,7 +16,7 @@ void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellve
   double curIn1D = 0.0; //1D current
   double cur2AreaRatio = 0.0; //Current density to area ratio.
   double cellArea = 0.0; //Cell face area.
-  double cellVolume = lcell[0]*lcell[1]*lcell[2]; //Cell volume.
+  double cellVolume = lcell[0]*lcell[1]*lcell[2]; //unit cell volume.
   double relpos[3] = {}; //Relative position of particle to 'least' vertex of cell.
 
   for (int i=0; i<3; i++) relpos[i] = part->x[i] - cellverts[i];
@@ -28,7 +29,7 @@ void Depositor::deposit_particle_J(Particle *part, double* lcell, double* cellve
 
     //Calculate current due to instantaneous velocity and apply to entered (current) cell.
     cellArea = lcell[j]*lcell[k];
-    curIn1D = pcharge * part->v[i];
+    curIn1D = UNIT_RHOJ * pcharge * part->v[i]; // multiply unit of current
     cur2AreaRatio = (curIn1D / cellVolume) / cellArea;
     JObj[4*i] += cur2AreaRatio * (lcell[j]-relpos[j]) * (lcell[k]-relpos[k]);
     JObj[4*i+1] += cur2AreaRatio * relpos[j] * (lcell[k]-relpos[k]);
@@ -49,7 +50,7 @@ void Depositor::deposit_particle_Rho(Particle *part, double* lcell, double* cell
 
   //Calculate charge and apply to entered (current) cell.
   pcharge = part->q;
-  charge2VolRatio = (pcharge / cellVolume) / cellVolume;
+  charge2VolRatio = UNIT_RHOJ*(pcharge / cellVolume) / cellVolume; //multiply unit of Rho
   RhoObj[0] += charge2VolRatio * (lcell[0]-relpos[0]) * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[0 0 0]
   RhoObj[1] += charge2VolRatio * relpos[0] * (lcell[1]-relpos[1]) * (lcell[2]-relpos[2]); //[1 0 0]
   RhoObj[2] += charge2VolRatio * relpos[0] * relpos[1] * (lcell[2]-relpos[2]); //[1 1 0]
