@@ -2,7 +2,7 @@ domain:
 {
   # total number of cells in each dimension
   # nCell will be devided and distribute to MPI processors
-  nCell = [ 8, 8, 8 ]
+  nCell = [ 16, 16, 16 ]
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
@@ -21,7 +21,7 @@ runtime:
 {
   # number of time steps to run
   # should be larger than zero
-  nTimesteps = 2
+  nTimesteps = 500
 
   # start time, in units of 33.4 picosecond. (spped of light c=1)
   startTime = 0.0
@@ -29,7 +29,7 @@ runtime:
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug, write possibly too much debug files
-  debug = 2
+  debug = 0
 }
 
 initialization:
@@ -41,7 +41,7 @@ initialization:
   particles:
   {
     # number of particles of all species in each domain
-    nParticles = 2
+    nParticles = 16
 
     # total physical number density of all species to simulate
     # used to determine super particle scaling, in unit of cc
