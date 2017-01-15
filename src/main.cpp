@@ -102,6 +102,7 @@ int main(int argc, char *argv[]){
 #endif
     int restart = input_info->restart;
     int relativity = input_info->relativity;
+    int electrostatic = input_info->electrostatic;
     debug = input_info->debug; // global debug flag
     if(debug>1) checkinput(input_info);
 
@@ -240,7 +241,11 @@ int main(int argc, char *argv[]){
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish Pass R,J\n",rank,ti);
 
        /* evolve E, B fields *******************/
-       grids->evolveFields(dt_phys);
+       if(electrostatic==1){ // electrostatic field evolve
+           grids->evolveFieldsES(dt_phys);
+       }else { // electromagnetic field evolve
+           grids->evolveFields(dt_phys);
+       }
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish evolve\n",rank,ti);
 
        // pass E,B field across MPI boundaries, or implement physical boundary conditions
