@@ -1,6 +1,6 @@
 % plot global energy (non)conservation
 % plots history.dat output files
-% track.dat files contain global particle and field energy data
+% track.dat files contain global particle and field energy data 
 % assumes history.dat file is in current working directory
 %
 % input:
@@ -17,12 +17,12 @@
 % returns:
 % t is a vector of times of length nt when particle trajectory was recorded
 % px, py, pz are total particle momenta
-% K is total particle energy
-% B2,E2 are magnetic and electric field energy
+% K is total particle energy 
+% B2,E2 are magnetic and electric field energy 
 % En is total energy (kinetic + EM)
 %
-% creates files (if do_save == 1):
-% history.png plot of momentum and energy vs time
+% creates files (if do_save == 1): 
+% history.png plot of momentum and energy vs time 
 
 function [t,px,py,pz,K,B2,E2,En] = plot_history(do_plot,do_save)
 
@@ -38,7 +38,7 @@ fname = [dname 'history.dat'];
 
 % second line to deal with new header in track.dat files
 % dat=dlmread(fname);
-dat = dlmread(fname,'',1,0);
+dat = dlmread(fname,'',1,0); 
 
 t=dat(:,1);
 px = dat(:,2);
@@ -51,37 +51,36 @@ En = dat(:,8);
 
 if (do_save || do_plot)
     do_close = ~do_plot;
-    
+     
     % parameters for plots of components
     f = figure;
+    set(f,'color','w'); 
     FS = 10;
-    LW = 2;
-    legloc = 'best';
-    nrows=2;
+    LW = 2; 
+    legloc = 'best'; 
+    nrows=2; 
     ncols=1;
     
     % plot 3 components of momentum
-    subplot(nrows,ncols,1);
+    subplot(nrows,ncols,1); 
     plot_components(t,[px py pz],LW);
     set(gca,'fontsize',FS); box on;
-    %     xlabel('Time');
+%     xlabel('Time');
     ylabel('Momentum');
     legend('p_x','p_y','p_z','Location',legloc);
-    xlim([min(t) max(t)]);
-    box on ;
+    axis tight; box on ; 
     
-    % plot E,B,K energies
-    subplot(nrows,ncols,2);
-    plot_components(t,[K E2 B2],LW); hold on ;
-    set(gca,'fontsize',FS); box on;
-    plot(t,En,'k','linewidth',LW); hold off;
+    % plot E,B,K energies 
+    subplot(nrows,ncols,2); 
+    plot_components(t,[K E2 B2],LW); hold on ; 
+        set(gca,'fontsize',FS); box on;
+    plot(t,En,'k','linewidth',LW); hold off; 
     % use log scale while energy is blowing up
-    set(gca,'yscale','log');
-    xlabel('Time');
-    ylabel('Energy');
-    legend('Kinetic','Electric','Magnetic','Total','Location',legloc);
-    xlim([min(t) max(t)]);
-    box on;
-    save_and_close('history.png',f,do_save,do_close);
-    
+    set(gca,'yscale','log'); 
+    xlabel('Time'); 
+    ylabel('Energy'); 
+    legend('Kinetic','Electric','Magnetic','Total','Location',legloc); 
+    axis tight; box on; 
+    save_and_close('history.png',f,do_save,do_close); 
+
 end

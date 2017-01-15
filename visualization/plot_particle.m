@@ -62,6 +62,7 @@ if (do_save || do_plot)
     
     % parameters for plots of components
     fcomp = figure;
+    set(fcomp,'color','w'); 
     FS = 14;
     legloc='west';
     nrows=2;
@@ -85,7 +86,7 @@ if (do_save || do_plot)
     %     xlabel('Time');
     ylabel('Position');
     axis tight;
-    legend('x','y','z','Location',legloc);
+    legend('x_x','x_y','x_z','Location',legloc);
     
     % plot 3 components of velocity
     subplot(nrows,ncols,2);
@@ -106,6 +107,7 @@ if (do_save || do_plot)
     
     % plot position in 3-space
     fx = figure;
+    set(fx,'color','w'); 
     h=plot3(xx,xy,xz);
     set(h,'marker',mstyle,'linestyle',lstyle,'color','k');
     set(gca,'fontsize',FS2); box on;
@@ -115,6 +117,7 @@ if (do_save || do_plot)
     
     % plot velocity in 3-space
     fv = figure;
+    set(fv,'color','w'); 
     h=plot3(vx,vy,vz);
     set(h,'marker',mstyle,'linestyle',lstyle,'color','k');
     set(gca,'fontsize',FS2); box on;

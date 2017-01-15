@@ -8,13 +8,13 @@
 % Ex, Ey, Ez, Bx, By, Bz, Jx, Jy, Jz, rho
 % though output.h5 will only contain the fields specified in input.txt
 %
-% do_plot = 1 to make plots,
-% do_plot = 0 to omit plotting (useful for reading hdf5 into matlab variables)
-% default: do_plot = 1
-%
 % itimes is an integer array specifying which time slices to plot
 % set itimes to a negative scalar to plot all available time slices
 % default: itimes = -1
+%
+% do_plot = 1 to make plots,
+% do_plot = 0 to omit plotting (useful for reading hdf5 into matlab variables)
+% default: do_plot = 1
 %
 % do_save = 1 saves plots to file
 % do_save  0 omits saving
@@ -70,14 +70,23 @@ field = permute(field,[4 3 2 1]);
 x = h5readatt(fname,datset,'x');
 y = h5readatt(fname,datset,'y');
 z = h5readatt(fname,datset,'z');
+t = h5read(fname,'/time');
+
+% remove any redundancies in field data 
+xdex = unique_dex(x); 
+ydex = unique_dex(y); 
+zdex = unique_dex(z); 
+tdex = unique_dex(t); 
+
+x = x(xdex); 
+y = y(ydex); 
+z = z(zdex); 
+t = t(tdex); 
+field = field(xdex,ydex,zdex,tdex); 
 
 nx=numel(x);
 ny=numel(y);
 nz=numel(z);
-
-% set the time to an index for now
-% later time will be written as well
-t = h5read(fname,'/time');
 nt = numel(t);
 
 xmin=min(x); xmax=max(x);
@@ -154,6 +163,7 @@ if do_plot
     cmap = 'parula';
     
     f = figure;
+    set(f,'color','w'); 
     
     if do_mov && do_save
         F(nt)= struct('cdata',[],'colormap',[]);

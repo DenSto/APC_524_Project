@@ -98,6 +98,7 @@ if do_save
 end
 
 f=figure;
+set(f,'color','w'); 
 % loop over all times
 for i=1:dt:nt
     jmin=max([i-nhist+1 1]);

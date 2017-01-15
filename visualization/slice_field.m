@@ -61,11 +61,7 @@ nt = numel(itimes);
 
 % set to 1 to make a contour plot
 % set to 2 to make a surface plot
-plot_type = 1;
-
-% set to 1 to keep the z height fixed for surface plot 
-% set to 0 to allow dynamic adjustment
-cbar_norm = 0; 
+plot_type = 2;
 
 if nt > 1
     do_mov = 1;
@@ -78,25 +74,20 @@ else
 end
 
 f = figure;
+set(f,'color','w'); 
 for i = itimes
     if (slicedir == 1)
         dat = reshape(field(islice,:,:,i),[ny nz]);
         datmin = min(min(min(field(islice,:,:,:))));
         datmax = max(max(max(field(islice,:,:,:))));
-        xstr='y'; 
-        ystr='z'; 
     elseif (slicedir == 2)
         dat = reshape(field(:,islice,:,i),[nx nz]);
         datmin = min(min(min(field(:,islice,:,:))));
         datmax = max(max(max(field(:,islice,:,:))));
-        xstr='x'; 
-        ystr='z'; 
     elseif (slicedir == 3)
         dat = reshape(field(:,:,islice,i),[nx ny]);
         datmin = min(min(min(field(:,:,islice,:))));
         datmax = max(max(max(field(:,:,islice,:))));
-        xstr='x'; 
-        ystr='y'; 
     end
     
     if plot_type == 1
@@ -105,22 +96,10 @@ for i = itimes
         surf(dat);
         zlim([datmin datmax]);
     end
+    box on ; colorbar;
     
-    colorbar; 
-    if cbar_norm 
-        cvec = max(abs([datmin datmax]))*[-1 1]; 
-        if diff(cvec) ~= 0 
-            caxis(cvec); 
-        end 
-    end 
-    
-    xlim([0 size(dat,1)]); 
-    ylim([0 size(dat,2)]);   
-    xlabel(xstr); 
-    ylabel(ystr); 
-    box on; 
     drawnow;
-    pause(.01);
+    pause(.1);
     
     % save a frame for the video
     if do_mov && do_save
