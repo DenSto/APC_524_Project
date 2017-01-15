@@ -11,8 +11,9 @@
 // unit for acceleration in Newton's equation
 #define UNIT_ACC 0.58668774
 
-// unit of charge and current density in StatC/cm^3, 1 electron in 1cc cell
-#define UNIT_RHOJ 4.80320427e-10
+// unit of charge and current density in StatC/cm^3,
+// equals to charge density of 1 electron in 1cc cell
+#define UNIT_RHOJ 4.80320427e-13
 
 // unit for electric field 1->299.79 KV/cm
 #define UNIT_EFIELD 299.792458
