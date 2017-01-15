@@ -32,7 +32,7 @@
 % if numel(itimes) > 0 or itimes < 0
 % <fstr>_mov.avi 3D movie of field vs time
 
-function [t,x,y,z,field] = plot_field(fstr,do_plot,itimes,do_save)
+function [t,x,y,z,field] = plot_field(fstr,itimes,do_plot,do_save)
 
 % plot and save by default
 if nargin < 4
@@ -40,11 +40,11 @@ if nargin < 4
 end
 
 if nargin < 3
-    itimes = -1;
+    do_plot = 1;
 end
 
 if nargin < 2
-    do_plot = 1;
+    itimes = -1;
 end
 
 % expect output file output.h5 to be in this directory
@@ -70,18 +70,6 @@ field = permute(field,[4 3 2 1]);
 x = h5readatt(fname,datset,'x');
 y = h5readatt(fname,datset,'y');
 z = h5readatt(fname,datset,'z');
-
-% remove any redundancies in the field data 
-% (not usually an issue)
-xdex = unique_dex(x); 
-ydex = unique_dex(y); 
-zdex = unique_dex(z); 
-
-x = x(xdex); 
-y = y(ydex);
-z = z(zdex); 
-
-field = field(xdex,ydex,zdex,:); 
 
 nx=numel(x);
 ny=numel(y);
@@ -138,7 +126,7 @@ if do_plot
     % set to 0 to use min and max values for colorscale
     % (0 means the middle value in the colorscale corresponds to
     % the average value, not zero)
-    norm_color = 1;
+    norm_color = 0;
     
     xslice = [];
     yslice = [];
