@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
       printf("Master reading input file...\n");
       int err = input->readinfo(argv[1]);
       // Check input self-consistency and load physical units to input
-      err += input->checkinfo(); // should not be commented out
+      err += input->ProcessInfo(); // should not be commented out
       if(err!=0) {
         std::cerr << "Input Error. Terminating..." << std::endl;
 #if USE_MPI
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]){
     /***************************************************************************/
     if(rank==0)printf("Initial set up...\n");
     // Domain decomposition
-    Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
+    Domain *domain = new Domain(input_info);
     if(debug>1) checkdomain(domain);
 
     // Initialize particles and pusher
@@ -172,13 +172,6 @@ int main(int argc, char *argv[]){
     part_handler->InterpolateEB(grids);
     if(debug) fprintf(stderr,"rank=%d: Finish initializing interpolation\n",rank);
 
-    // prepare time step
-    int nt = input_info->nt; //number of steps to run
-    time_phys = input_info->t0; //initial time
-    dt_phys = domain->getmindx()/1; //c=1, resolve EM wave
-    dt_phys /= 10.0;
-    if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
-
     // initialize outputs
     // format file names
     std::string inputname = argv[1];
@@ -206,6 +199,13 @@ int main(int argc, char *argv[]){
         hdf5io->writeFields(grids, time_phys);
         if(debug) fprintf(stderr,"rank=%d: Finish writing initial fields output\n",rank);
     }
+
+    // prepare time step
+    int nt = input_info->nt; //number of steps to run
+    time_phys = input_info->t0; //initial time
+    dt_phys = domain->getmindx()/1; //c=1, resolve EM wave
+    dt_phys /= 100.0;
+    if(debug) fprintf(stderr,"rank=%d: Finish preparing time step\n",rank);
 
     /***************************************************************************/
     /* Advance time step                                                       */

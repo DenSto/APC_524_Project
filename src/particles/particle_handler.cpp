@@ -35,7 +35,7 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     double* x0 = domain->getxyz0();
 
     int nspec      = input_info->nspecies;
-    int npart      = input_info->np;
+    int npart      = input_info->nparticles_domain;
     double *mass   = input_info->mass_ratio;
     double *charge = input_info->charge_ratio;
     double *dens   = input_info->dens_frac; 

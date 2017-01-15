@@ -7,8 +7,8 @@
 #include "input.hpp"
 #include "../globals.hpp"
 
-//! Check input self-consistency and sufficiency
-int Input::checkinfo(void){
+//! Check input self-consistency and sufficiency, and process input information
+int Input::ProcessInfo(void){
     int err = 0;
 
     /* Check domain input *********************************/
@@ -39,9 +39,9 @@ int Input::checkinfo(void){
     printf("    The volume of each domain is %6.2e cm^3\n",domain_volume);
 
     // determine super particle scaling
-    long np = input_info_->np;
-    double n0 = np/domain_volume;
-	printf("%ld %f %f\n",np,domain_volume,n0);
+    long nparticles_tot = input_info_->nparticles_tot;
+    double n0 = nparticles_tot/total_volume;
+	printf("%ld %f %f\n",nparticles_tot,total_volume,n0);
     assert(n0>=0);
 
     double dens_phys = input_info_->dens_phys;
@@ -215,7 +215,7 @@ void checkinput(Input_Info_t *input_info){
    fprintf(stderr,"rank=%d,restart=%d\n",rank,restart);
 
    /* particle ************************/
-   fprintf(stderr,"rank=%d,np=%ld\n",rank,input_info->np);
+   fprintf(stderr,"rank=%d,nparticles_tot=%ld\n",rank,input_info->nparticles_tot);
    fprintf(stderr,"rank=%d,dens_phys=%f\n",rank,input_info->dens_phys);
    fprintf(stderr,"rank=%d,relativity=%d\n",rank,input_info->relativity);
 
@@ -229,7 +229,7 @@ void checkinput(Input_Info_t *input_info){
    const double *dens = input_info->dens_frac;
    assert(dens!=NULL);
    for(int i=0;i<nspecies;i++){
-      fprintf(stderr,"rank=%d,mass,charge,dens[%d]=%f,%f,%f\n",
+      fprintf(stderr,"rank=%d,rescaled mass,charge,dens[%d]=%f,%f,%f\n",
                       rank,i,mass[i],charge[i],dens[i]);
    }
 

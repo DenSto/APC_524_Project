@@ -19,7 +19,7 @@ void Input::passinfo(void){
                                             //+ 10 of len 1 
                                             //+ 2 of len NWAVE
                                             //+ 1 of len NSPEC
-    int nlong = 1; // 1 of len 1
+    int nlong = 2; // 2 of len 1
     int ndouble = 2*1+4*NSPEC+5*NWAVE+4*NDIM+4*2*NDIM; //2 of len 1 
                                                      //+ 4 of nspecies
                                                      //+ 5 of len NWAVE 

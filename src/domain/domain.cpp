@@ -4,21 +4,21 @@
 
 #include "domain.hpp"
 
-Domain::Domain(const int* nCell_global, const int* nProc, const double* xyz0_global, const double* Lxyz_global)
+Domain::Domain(Input_Info_t *input_info)
       : size_(size_MPI),
         rank_(rank_MPI){
+
+       const int *nCell_global   = input_info->nCell;
+       const int *nProc          = input_info->nProc;
+       const double *xyz0_global = input_info->xyz0;
+       const double *Lxyz_global = input_info->Lxyz;
 
        if(debug) fprintf(stderr,"rank=%d: call Domain constructor\n",rank_);
 
        /* partition domain ********************************/
        nxyz_ = new int[3]; // local grid cells in each direction
-       assert(nxyz_!=NULL);
-
        n2xyz_ = new int[3]; // local grid area in each direction
-       assert(n2xyz_!=NULL);
-
        nProcxyz_ = new int[3];// procs in each direction
-       assert(nProcxyz_!=NULL);
 
        if(debug>1) fprintf(stderr,"rank=%d:Finished allocation\n",rank_);
        if(debug>1) fprintf(stderr,"rank=%d,size=%d,nproc=%d,%d,%d\n",
@@ -85,15 +85,24 @@ Domain::Domain(const int* nCell_global, const int* nProc, const double* xyz0_glo
 
        /* determine physical domain size ******************/
        Lxyz_ = new double[3];
-       assert(Lxyz_!=NULL);
-
        xyz0_ = new double[3];
-       assert(xyz0_!=NULL);
 
        for(int i=0;i<3;i++){
            Lxyz_[i] = Lxyz_global[i]/nProcxyz_[i];
            xyz0_[i] = xyz0_global[i]+Lxyz_[i]*myijk_[i];
        }
+
+       /* determine the number of paricles to be handled by each domain */
+       const int nparticles_tot = input_info->nparticles_tot;
+       long npart = nparticles_tot/size_; // devide particles evenly
+       long nres  = nparticles_tot%size_; // residule
+       if(rank_< nres) npart +=1; // add residule to processors with lower rank
+       input_info->nparticles_domain = npart;
+       if(debug)fprintf(stderr,"rank=%d: nparticles_tot=%ld, nparticles_domain=%ld\n",
+                                rank_, input_info->nparticles_tot, 
+                                input_info->nparticles_domain);
+  
+       
 
        if(debug) fprintf(stderr,"rank=%d: end Domain constructor\n",rank_);
 }
@@ -233,6 +242,6 @@ void checkdomain(Domain *domain){
               domain->getxl(),domain->getxr(),
               domain->getyl(),domain->getyr(),
               domain->getzl(),domain->getzr());
-
+   
 }
     

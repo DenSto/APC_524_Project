@@ -60,7 +60,9 @@ typedef struct {
     int isTestParticle[NSPEC];/// is the species a test particle species
                        /// i.e. it feels fields but does not influence them
                        /// 0 for no, 1 for yes
-    long np; /// number of particles in each domain
+    long nparticles_tot; /// total number of particles of all species in the entire 
+                         /// simulation box
+    long nparticles_domain; /// total number of particles of all species in each domain
 
     double t0;   /// start time of simulation
 
@@ -127,7 +129,7 @@ class Input{
         ~Input(void);
 
         int readinfo(char* inputname);
-        int checkinfo(void);
+        int ProcessInfo(void);
         Input_Info_t* getinfo(void);
 #if USE_MPI
         void passinfo(void); 

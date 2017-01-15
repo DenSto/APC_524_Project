@@ -347,27 +347,27 @@ int Input::readinfo(char *fname){
 
     try
     {
-      const Setting &nParticles = 
-           cfg.lookup("initialization.particles.nParticles");
-      if(nParticles.getType() == Setting::TypeInt) {
-        int np = nParticles;
-        input_info_->np = (long) np;
-        if(input_info_->np < 0) {
+      const Setting &nParticles_tot = 
+           cfg.lookup("initialization.particles.nParticles_tot");
+      if(nParticles_tot.getType() == Setting::TypeInt) {
+        int nparts_tot = nParticles_tot;
+        input_info_->nparticles_tot = (long) nparts_tot;
+        if(input_info_->nparticles_tot < 0) {
           cerr << "Error: integer overflow..." 
                << "Use nParticles = #######L in input file"
                << "for long format or use scientific notation." << endl;
           return(EXIT_FAILURE); 
         }
-      } else if (nParticles.getType() == Setting::TypeInt64) {
-        input_info_->np = nParticles;
-      } else if (nParticles.getType() == Setting::TypeFloat) {
-        double np = nParticles;
-        input_info_->np = (long) np;
+      } else if (nParticles_tot.getType() == Setting::TypeInt64) {
+        input_info_->nparticles_tot = nParticles_tot;
+      } else if (nParticles_tot.getType() == Setting::TypeFloat) {
+        double nparts_tot = nParticles_tot;
+        input_info_->nparticles_tot = (long) nparts_tot;
       }
     }
     catch(const SettingNotFoundException &nfex)
     {
-      cerr << "Error: nParticles not set in input file" << endl; 
+      cerr << "Error: nParticles_tot not set in input file" << endl; 
       return(EXIT_FAILURE);
     }
     
