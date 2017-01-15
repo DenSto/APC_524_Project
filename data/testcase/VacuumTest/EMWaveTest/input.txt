@@ -37,11 +37,11 @@ initialization:
   particles:
   {
     # number of particles of all species in each domain
-    nParticles = 1
+    nParticles = 2
 
     # total physical number density of all species to simulate
     # used to determine super particle scaling, in unit of cc
-    dens_phys = 1.0
+    dens_phys = 0.0
 
     # whether use relaticistic pusher (0 = no, 1 = yes)
     relativity = 0
@@ -56,7 +56,7 @@ initialization:
     charge_ratio = [-1.0,1.0]
 
     # is the species a test particle? (0 = no, 1 = yes)
-    isTestParticle = [0, 0]
+    isTestParticle = [1, 1]
 
     # fractional density of species
     dens_frac = [0.5,0.5]  
