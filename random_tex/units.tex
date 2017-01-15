@@ -78,19 +78,19 @@ In Yee algorithm, using Gaussian unit style with $c = 1$, i.e.
 	\nabla \times B &= \frac{4 \pi}{c} J + \frac{1}{c} \frac{\partial E}{\partial t} = 4 \pi \tilde{J} + \frac{\partial E}{\partial \tilde{t}}.
 \end{align}
 
-I chose to keep cm as the length unit, so that the subsequent two Maxwell equations are unaffected:
+We choose to keep cm as the length unit, so that the subsequent two Maxwell equations are unaffected:
 \begin{align}
 	\nabla \cdot E &= 4 \pi \rho \\
 	\nabla \cdot B &= 0.
 \end{align}
 
-This means that the time has the unit of (1 cm) / (speed of light in seconds), i.e.
+This means that the time has the unit of (1 cm) / (speed of light), i.e.
 \begin{equation}
-	1 \tilde{s} = \frac{1 \text{ cm}}{c_0} \approx 3.3 \times 10^{-11} \text{ s},
+	1 \tilde{s} = \frac{1 \text{cm}}{c_0 \text{cm/s}} \approx 3.34 \times 10^{-11} \text{ s},
 \end{equation}
 where $c_0 \approx 2.9979\times 10^{10}$ is the speed of light in unit of cm/s.
 
-\section*{Velocity, acceleration, and current density}
+\section*{Velocity and acceleration}
 
 The velocity $\tilde{v}$ is now normalized automatically to the speed of light, since it is measured in cm / (distance light travels in 1 cm). Namely,
 \begin{equation}
@@ -109,8 +109,6 @@ We then have the Lorentz acceleration as
 \end{align}
 The small acceleration reflects the timescale separation between light waves and plasma motion.
 
-Finally, current densities should be calculated in $\text{statC} / \text{cm}^2 \tilde{s}$.
-
 \section*{Charge, Mass, and Field}
 It is convenient to normalize charge $q$ to electron charge $e$, and normalize mass $m$ to electron mass $m_e$. Namely,
 \begin{equation}
@@ -127,13 +125,13 @@ Having normalized charge and mass, it is convenient to normalize the electric fi
 \end{equation}
 It is useful to note
 \begin{equation}
-	\frac{1\cdot\text{KstatV/cm}}{c_0\cdot\text{KG}}=1.
+	\frac{1\cdot\text{KstatV/cm}}{c_0 \text{cm/s}\cdot\text{KG}}=1.
 \end{equation}
 With such normalization, there is no large or small coefficient in the Newton's equation with Lorentz force. Explicitly, we have
 \begin{eqnarray}
 	\tilde{a}&=&\frac{a}{\text{cm}\cdot\tilde{s}^{-2}} \\
                  &=& \frac{\tilde{q}}{\tilde{m}}(\tilde{E}+\tilde{v}\times\tilde{B})
-			\times\frac{e\cdot\text{Kstat/cm}}{m_e\cdot\text{cm}\cdot\tilde{s}^{-2}} \\
+			\times\frac{e\cdot\text{KstatV/cm}}{m_e\cdot\text{cm}\cdot\tilde{s}^{-2}} \\
                  &\approx& 0.58668774 \frac{\tilde{q}}{\tilde{m}}(\tilde{E}+\tilde{v}\times\tilde{B}).
 \end{eqnarray}
 To get a sense of how large the electric and magnetic fields are, it is useful to note
@@ -142,6 +140,23 @@ To get a sense of how large the electric and magnetic fields are, it is useful t
 	\tilde{B}=1&\leftrightarrow& B=0.1\text{T},
 \end{eqnarray}
 where KV/cm stands for kilo volte/cm, and T stands for tesla. Notice that a constant field $\tilde{E}=1$ is a very large electric field, which can accelerate an electron to relativistic velocity within 1 $\tilde{s}$. In comparison, a constant field $\tilde{B}=1$ is moderate magnetic field that can be easily produced in laboratory.
+
+\section*{Charge and Current Density}
+Using the above units, the current density due to a single fluid species can be expressed as
+\begin{eqnarray}
+    \tilde{J}&=&\frac{J}{c}=\frac{qvn}{c}\\
+             &=&\tilde{q}\tilde{v}\tilde{n} \times e \text{cm}^{-3} \\
+             &=&4.8032\times 10^{-10}\frac{\text{StatC}}{\text{cm}^{3}}
+                \tilde{q}\tilde{v}\tilde{n}.
+\end{eqnarray}
+That is to say, current densities used in the program is in units $\text{statC}/\text{cm}^3$.
+
+Similarly, the charge density can be expressed as
+\begin{eqnarray}
+    \rho&=&qn=\tilde{q}\tilde{n} \times e \text{cm}^{-3} \\
+             &=&4.8032\times 10^{-10}\frac{\text{StatC}}{\text{cm}^{3}}\tilde{q}\tilde{n}.
+\end{eqnarray}
+Notice that the charge density has the same unit as the current density.
 
 \section*{Super Particles}
 It is rare that one has the numerical resources to run a PIC code with physical number of particles. Therefore, super particles are typically used, each representing $N_s$ number of real particles. The mass and charge of a super particle is thereof $N_s$ time those of a real particle:

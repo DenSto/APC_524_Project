@@ -17,6 +17,7 @@
 
 #include "./globals.hpp"
 #include "./domain/domain.hpp"
+#include "./domain/resolve.hpp"
 #include "./IO/input.hpp"
 #include "./IO/output.hpp"
 #include "./IO/hdf5io.hpp"
@@ -114,6 +115,9 @@ int main(int argc, char *argv[]){
     Domain *domain = new Domain(input_info);
     if(debug>1) checkdomain(domain);
 
+    // determine temporal and spatial resolution
+    Resolution *resolution = new Resolution(input_info);
+
     // Initialize particles and pusher
     Particle_Handler *part_handler = new Particle_Handler(); 
     if(relativity==0){
@@ -210,7 +214,7 @@ int main(int argc, char *argv[]){
     /***************************************************************************/
     /* Advance time step                                                       */
     /***************************************************************************/
-    if(rank==0)printf("Advancing time steps with dt = %f...\n",dt_phys);
+    if(rank==0)printf("Advancing time steps with dt = %f ps\n",dt_phys*UNIT_TIME);
     for(int ti=0;ti<nt;ti++){
 
        if(rank==0 && ti%100==0)fprintf(stderr,"ti=%d\t\t t=%f ps\n",ti,time_phys*UNIT_TIME);   
@@ -296,6 +300,7 @@ int main(int argc, char *argv[]){
     delete part_handler;
     grids->freeBoundaries(); // field boundary conditions
     delete grids;
+    delete resolution;
     delete input;
     if(debug) fprintf(stderr,"rank=%d: Finish free\n",rank);
 

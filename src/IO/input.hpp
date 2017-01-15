@@ -70,6 +70,9 @@ typedef struct {
                       /// used to scale mass, charge and temperature
                       /// of super particles.
 
+    double super_ratio; /// ratio of physical density over PIC density
+                        /// super_ratio = -1 when there is not particle in simulation
+
     double mass_ratio[NSPEC];/// mass of each type of particle in unit of electron mass
                        /// array of length nspecies 
                        /// eg. in electron-proton plasma

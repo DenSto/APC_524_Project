@@ -1,6 +1,6 @@
 IO = input.o readinfo.o passinfo.o check.o output.o hdf5io.o
 IOTEST = input.o readinfo.o passinfo.o
-DOM = domain.o 
+DOM = domain.o resolve.o
 UTIL = RNG.o evaluateGaussianPulse.o
 PUSH = boris.o relativisticBoris.o
 GRID = grid.o oGrid.o spookyGrid.o estaticBC.o lightBC.o

@@ -1,5 +1,6 @@
-#include "pusher.hpp"
 #include <math.h>
+#include "pusher.hpp"
+#include "../globals.hpp"
 
 //! Relativistic Boris pusher
 /*!
@@ -49,7 +50,8 @@ int Relativistic_Boris::Step(Particle* part, Field_part* field, double dt){
 
 	q = part->q;
 	m = part->m;
-	q_p = (0.5 * dt * q)/m;
+	q_p = (0.5 * dt * q)/m; 
+	q_p *= UNIT_ACC; // multiply unit of acceleration
 
 	ex = field->e1;
 	ey = field->e2;

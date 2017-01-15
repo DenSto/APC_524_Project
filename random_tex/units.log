@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2016.2.1)  10 JAN 2017 22:45
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2016.2.1)  15 JAN 2017 14:16
 entering extended mode
  %&-line parsing enabled.
 **units.tex
@@ -225,28 +225,28 @@ File: umsb.fd 2002/01/19 v2.2g AMS font definitions
 ) [1
 
 
-{/usr/share/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] (./units.aux) ) 
+{/usr/share/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4] (./units.aux
+) ) 
 Here is how much of TeX's memory you used:
  2510 strings out of 256214
  29922 string characters out of 1917001
- 184202 words of memory out of 1500000
+ 185202 words of memory out of 1500000
  5778 multiletter control sequences out of 10000+200000
  18502 words of font info for 53 fonts, out of 1200000 for 2000
  645 hyphenation exceptions out of 8191
  35i,11n,43p,344b,224s stack positions out of 5000i,500n,6000p,200000b,15000s
- 
-</home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/eccc1440.600pk>
- </home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095.600pk
-> </home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1440.600p
-k> </home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx2074.600
-pk></usr/share/texmf/fonts/type1/bluesky/cm/cmex10.pfb></usr/share/texmf/fonts/
-type1/bluesky/cm/cmmi10.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmmi8.pfb>
-</usr/share/texmf/fonts/type1/bluesky/cm/cmr10.pfb></usr/share/texmf/fonts/type
-1/bluesky/cm/cmr8.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb></usr
-/share/texmf/fonts/type1/bluesky/cm/cmsy8.pfb>
-Output written on units.pdf (3 pages, 72399 bytes).
+ </home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/eccc1440.60
+0pk> </home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095.6
+00pk> </home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1440.
+600pk> </home/yuans/.texlive2007/texmf-var/fonts/pk/ljfour/jknappen/ec/ecsx2074
+.600pk></usr/share/texmf/fonts/type1/bluesky/cm/cmex10.pfb></usr/share/texmf/fo
+nts/type1/bluesky/cm/cmmi10.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmmi8.
+pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmr10.pfb></usr/share/texmf/fonts/
+type1/bluesky/cm/cmr8.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb><
+/usr/share/texmf/fonts/type1/bluesky/cm/cmsy8.pfb>
+Output written on units.pdf (4 pages, 74155 bytes).
 PDF statistics:
- 161 PDF objects out of 1000 (max. 8388607)
+ 165 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

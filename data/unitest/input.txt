@@ -21,7 +21,7 @@ runtime:
 {
   # number of time steps to run
   # should be larger than zero
-  nTimesteps = 500
+  nTimesteps = 5
 
   # start time, in units of 33.4 picosecond. (spped of light c=1)
   startTime = 0.0
@@ -29,7 +29,7 @@ runtime:
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug, write possibly too much debug files
-  debug = 0
+  debug = 1
 }
 
 initialization:
