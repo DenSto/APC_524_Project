@@ -188,7 +188,7 @@ int Input::readinfo(char *fname){
     }
     catch(const SettingNotFoundException &nfex)
     {
-      cerr << "nstep_sort not set. Using a sort cadence of 100 steps.";
+      cerr << "nstep_sort not set. Using a sort cadence of 100 steps." << endl;
       input_info_->nstep_sort = 100;
     }
     

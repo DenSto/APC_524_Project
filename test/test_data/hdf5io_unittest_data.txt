@@ -30,6 +30,9 @@ runtime:
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug, write possibly too much debug files
   debug = 2
+
+  # number of steps between particle sorting
+  nstep_sort = 100
 }
 
 initialization:
