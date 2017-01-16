@@ -155,7 +155,7 @@ int main(int argc, char *argv[]){
     part_handler->Load(input_info,domain);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
-    // Deposite charge and current from particles to grid
+    // Deposit charge and current from particles to grid
     if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
         if(rank==0)printf("    Depositing rho and J for Poisson solver...\n");
         part_handler->depositRhoJ(grids,true,domain,input_info);
@@ -234,8 +234,8 @@ int main(int argc, char *argv[]){
        part_handler->clearGhosts();
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish clearGhosts\n",rank,ti);
 
-       /* deposite charge and current ***********/
-       // only deposite particles in physical cells
+       /* deposit charge and current ***********/
+       // only deposit particles in physical cells
        part_handler->depositRhoJ(grids,true,domain,input_info);
        if(debug>1) fprintf(stderr,"rank=%d,ti=%d: Finish deposition\n",rank,ti);   
 
