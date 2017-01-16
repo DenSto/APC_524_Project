@@ -46,7 +46,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     // "loop" over all fields to package 
     int begdex; 
     double*** field; 
-    int fieldID;
+    int fieldID = sendID;
     int ifield; 
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
@@ -136,7 +136,7 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
     // "loop" over all fields to unpackage 
     int begdex,enddex; 
     double*** field; 
-    int fieldID; 
+    int fieldID = sendID; 
     int ifield;
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
@@ -213,13 +213,14 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
         dex = 1; 
     }
     else { 
-        /*int type = fieldType_[fieldID]; 
+        int type = fieldType_[fieldID]; 
         // since side > 0 in this branch, side-1 converts (x,y,z = 1,2,3) --> (0,1,2)
         int dir = side-1;
         // fieldSize_ is the total number of points
         // -1 to convert to 0 indexing 
         // -nGhosts to subtract ghost cells 
-        dex = fieldSize_[type][dir]-(nGhosts_+1); */
+        dex = fieldSize_[type][dir]-(nGhosts_+1); 
+        // overwrite the above
         dex = nxyzReal_[side-1]; // same for all fields
     } 
     return dex; 

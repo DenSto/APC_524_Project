@@ -19,6 +19,8 @@ void Poisson_Solver::phiToE() {
  */ 
 void Poisson_Solver::phiToESingleComp_(const int fieldID, const int dir) { 
     assert (0 < dir && dir < 4); 
+    assert(fieldID==ExID_ || fieldID==EyID_ || fieldID==EzID_);
+    assert(dir==xdir_ || dir==ydir_ || dir==zdir_);
 
     // get the field pointer from ID 
     double*** field  = fieldPtr_[fieldID]; 
@@ -34,7 +36,8 @@ void Poisson_Solver::phiToESingleComp_(const int fieldID, const int dir) {
         h = dx_; 
     } else if (dir == ydir_) { 
         h = dy_; 
-    } else if (dir == zdir_) { 
+    //} else if (dir == zdir_) { 
+    } else {
         h = dz_; 
     }; 
 
@@ -48,7 +51,8 @@ void Poisson_Solver::phiToESingleComp_(const int fieldID, const int dir) {
                     nextVal = phi1_[i+1][j][k]; 
                 } else if (dir == ydir_) { 
                     nextVal = phi1_[i][j+1][k]; 
-                } else if (dir == zdir_) { 
+                //} else if (dir == zdir_) { 
+                } else {
                     nextVal = phi1_[i][j][k+1]; 
                 }
                 /* although this expression resembles a forward
@@ -78,6 +82,8 @@ void Poisson_Solver::AToB() {
  */ 
 void Poisson_Solver::AToBSingleComp_(const int fieldID, const int dir) { 
     assert(0 < dir && dir < 4); 
+    assert(fieldID==BxID_ || fieldID==ByID_ || fieldID==BzID_);
+    assert(dir==xdir_ || dir==ydir_ || dir==zdir_);
 
     // get the field pointer from ID 
     double*** field  = fieldPtr_[fieldID]; 
@@ -103,12 +109,13 @@ void Poisson_Solver::AToBSingleComp_(const int fieldID, const int dir) {
         Aj = Az1_; 
         hj = dz_; 
     } 
-    else if (fieldID == BzID_) { 
+    //else if (fieldID == BzID_) { 
+    else{
         Ak = Ay1_; 
         hk = dy_; 
         Aj = Ax1_; 
         hj = dx_; 
-    }; 
+    };
 
     // loop over all physical i,j,k to set B = curl A
     // indices are named j,k imagining that the component to be 
@@ -127,7 +134,8 @@ void Poisson_Solver::AToBSingleComp_(const int fieldID, const int dir) {
                 } else if (dir == ydir_) { 
                     nextValk = Ak[i][j][k+1]; 
                     nextValj = Ak[i+1][j][k]; 
-                } else if (dir == zdir_) { 
+                //} else if (dir == zdir_) { 
+                } else {
                     nextValk = Ak[i+1][j][k]; 
                     nextValj = Ak[i][j+1][k]; 
                 }
