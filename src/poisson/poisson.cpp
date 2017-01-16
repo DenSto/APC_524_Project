@@ -88,8 +88,8 @@ int Poisson_Solver::getFieldID(const std::string &fieldStr){
   int ID;
   if(fieldStr == "phi" || fieldStr == "phi1"){ID = phi1ID_;}
   else if(fieldStr == "Ax" || fieldStr == "Ax1"){ID = Ax1ID_;}
-  else if(fieldStr == "Ay" || fieldStr == "Ax1"){ID = Ay1ID_;}
-  else if(fieldStr == "Az" || fieldStr == "Ax1"){ID = Az1ID_;}
+  else if(fieldStr == "Ay" || fieldStr == "Ay1"){ID = Ay1ID_;}
+  else if(fieldStr == "Az" || fieldStr == "Az1"){ID = Az1ID_;}
   else if(fieldStr == "phi2"){ID = phi2ID_;}
   else if(fieldStr == "Ax2" ){ID = Ax2ID_;}
   else if(fieldStr == "Ay2" ){ID = Ay2ID_;}
@@ -251,7 +251,7 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
 
   }while( !jacobi_method_converged );
 
-  if (debug) printf("Poisson converged with maxDiff=%e!\n",maxDiff);
+  if (debug) fprintf(stderr,"Poisson converged with maxDiff=%e!\n",maxDiff);
 
   //If last calculated pass updated the work array (u2), copy it to the solution array (u1).
   if ( iternum % 2 == 0 ) std::swap(u1,u2);

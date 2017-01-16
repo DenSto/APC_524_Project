@@ -109,7 +109,8 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","reflecting"
-    conditions = ["periodic","periodic", 
+    #conditions = ["periodic","periodic", 
+    conditions = ["reflecting","reflecting", 
                 "periodic","periodic",
                 "periodic","periodic"]
   }
@@ -120,7 +121,8 @@ boundary:
   {
     # conditions = [xleft,xright,yleft,yright,zleft,zright]
     # choose self-consistently from "periodic","external"
-    conditions = ["periodic","periodic",
+    #conditions = ["periodic","periodic",
+    conditions = ["external","external",
                 "periodic","periodic",
                 "periodic","periodic"]
 
