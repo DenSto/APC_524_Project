@@ -426,18 +426,17 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
 /*! Makes 4 calls each to get/setGhostVec for EB fields all at once \n 
  * Deprecated method: correct performance not guaranteed 
  */ 
-/*void Grid::updatePeriodicGhostCells() { 
+void Grid::updatePeriodicGhostCells() { 
     // create a temporary vector to store ghostVecs 
     double* tmpGhost = ghostTmp_;  
 
     int sendID = -1;
-    int op=0; 
     int side; 
     for (side=-3; side<4; ++side) { 
         // to set periodic boundary conditions in y/z directions, simply get/set ghostVec for side=+/-2, +/-3
         if (abs(side)>1) { 
             getGhostVec(side,tmpGhost,sendID); 
-            setGhostVec(-side,tmpGhost,sendID,op); 
+            setGhostVec(-side,tmpGhost,sendID); 
         };
     }; 
-};*/ 
+}; 

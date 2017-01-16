@@ -18,7 +18,7 @@ protected:
     Input_Info_t *input_info = input->getinfo();
 
     //Initialize a domain and a grid
-    Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
+    Domain *domain = new Domain(input_info);
     grid = new Poisson_Solver(domain, input_info);
   }
 
@@ -50,7 +50,7 @@ protected:
     Input_Info_t *input_info = input->getinfo();
 
     //Initialize a domain and a grid
-    Domain *domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
+    Domain *domain = new Domain(input_info);
     grid = new Poisson_Solver(domain, input_info);
   }
 

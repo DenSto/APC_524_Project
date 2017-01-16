@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "math.h"
 #include "RNG.hpp"
-#include "Grid.hpp"
+#include "../../src/grid/grid.hpp"
 
 #include "field_bc_factory.hpp"
 
@@ -36,7 +36,7 @@ protected:
     input_info = input->getinfo();
 
     //Initialize the domain, grid, and particle_handler
-    domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
+    domain = new Domain(input_info);
     grid = new Grid(domain->getnxyz(),1,domain->getxyz0(),domain->getLxyz());
     part_handler = new Particle_Handler();
     part_handler->Load(input_info,domain);
@@ -132,11 +132,10 @@ TEST_F(RandomFieldTest, testEnergy) {
 		double E_tot1 = B_en1 + E_en1;
 		fprintf(fp,"%d %f %f %f %f %f %f\n",n,B_en,E_en,E_tot, B_en1, E_en1, E_tot1);
 
-		grid->executeBC(-2,0);	
-		grid->executeBC(-2,1);	
+		grid->executeBC(-2);	
 
 		grid->evolveFields(dt);
-		grid->executeBC(-1,0);
+		grid->executeBC(-1);
 	}
 	fclose(fp);
 }

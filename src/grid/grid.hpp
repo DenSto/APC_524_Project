@@ -62,7 +62,7 @@ public:
   virtual void getGhostVec(const int side, double* ghostVec, int sendID);
   virtual void setGhostVec(const int side, double* ghostVec, int sendID);
 
-  //void updatePeriodicGhostCells(); 
+  void updatePeriodicGhostCells(); 
 
   // public methods for diagnostics
   double**** getFieldPtr() {return fieldPtr_;};

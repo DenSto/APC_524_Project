@@ -10,12 +10,7 @@ Compilation instructions:
 >> cd src
 >> make
 
-Note:
-To compile the program using MPI (currently work in progress...)
-    Set "USE_MPI = 1" in /src/Makefile
-To compile the serial program
-    Set "USE_MPI = 0" in /src/Makefile
-(make clean before trying to switch from serial to parallel versions)    
+make both serial and parallel versions    
 
 ###########################################################
 Run instructions (from src directory):

@@ -55,7 +55,7 @@ initialization:
     dens_frac = [1.0]
 
     # number of particles of all species in each domain
-    nParticles = 1
+    nParticles_tot = 1
 
     temperature = [0.001]
   

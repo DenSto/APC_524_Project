@@ -69,7 +69,7 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
 {
     checkInput_(); 
     
-    for(int i=0;i<3;i++){nxyzReal_[i]=nxyz[0];}
+    for(int i=0;i<3;i++){nxyzReal_[i]=nxyz[i];}
 
     fieldIsContiguous_ = new int[nFieldsTotal_];
  

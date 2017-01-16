@@ -25,7 +25,7 @@ protected:
     input_info = input->getinfo();
 
     //Initialize the domain, grid, and particle_handler
-    domain = new Domain(input_info->nCell, input_info->nProc, input_info->xyz0, input_info->Lxyz);
+    domain = new Domain(input_info);
     grid = new Poisson_Solver(domain, input_info);
     part_handler = new Particle_Handler();
     part_handler->Load(input_info,domain);
