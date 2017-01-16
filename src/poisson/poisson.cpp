@@ -11,6 +11,7 @@
 
 #define CONV_CRIT 1e-9 // absolute convergence criteria
 #define CONV_RATIO 1e-6 // relative convergence criteria
+#define ITER_MAX 10000 //maximum number of Poisson solver iterations before failure.
 
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   Grid(domain->getnxyz(), 1, domain->getxyz0(), domain->getLxyz()),
@@ -164,6 +165,8 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
   run_poisson_solver_(Az1ID_,Az2ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
   AToB();
 
+  executeBC(-1); //Execute boundary conditions for E and B (-1) with replace operation (0).
+
   printf("        Poisson initialization complete!\n");
 }
 
@@ -182,15 +185,29 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   double az = pow(dx_, 2.0) * pow(dy_, 2.0) / (2.0 * celldist2);
   double af = pow(dx_, 2.0) * pow(dy_, 2.0) * pow(dz_, 2.0) / (2.0 * celldist2);
 
+  // limits
+  int iEnd = nxReal_ + iBeg_;
+  int jEnd = nyReal_ + jBeg_;
+  int kEnd = nzReal_ + kBeg_;
+
   //initialize poisson convergence variables
   bool jacobi_method_converged = false;
   double maxDiff = 0.0;
   double absDiff = 0.0;
-
-  // limits 
-  int iEnd = nxReal_ + iBeg_;  
-  int jEnd = nyReal_ + jBeg_; 
-  int kEnd = nzReal_ + kBeg_; 
+  double avgR = 0.0;
+  long countR = 0;
+  for ( int i=iBeg_; i<iEnd; i++ ) {
+    for ( int j=jBeg_; j<jEnd; j++ ) {
+      for ( int k=kBeg_; k<kEnd; k++ ) {
+	if (R[i][j][k] != 0) {
+	  avgR += fabs(R[i][j][k]);
+	  countR += 1;
+	}
+      }
+    }
+  }
+  avgR /= countR;
+  convergenceTol = std::min(convergenceTol, fabs(af * avgR * sourceMult ));
 
   //loop Jacobi method until convergence!
   int iternum = -1;
@@ -206,18 +223,41 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
 
     //reset poisson convergence variable
     maxDiff = 0.0;
-    // calculate before update to avoid boundary modifications
+
+    //iterate over physical grid points only.
     for ( int i=iBeg_; i<iEnd; i++ ) {
       for ( int j=jBeg_; j<jEnd; j++ ) {
-    	for ( int k=kBeg_; k<kEnd; k++ ) {
+	for ( int k=kBeg_; k<kEnd; k++ ) {
 	  //Calculate poisson step
+	  if ( iternum % 2 == 0 ) {
+	    u2[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) 
+	      + ay*(u1[i][j-1][k]+u1[i][j+1][k]) 
+	      + az*(u1[i][j][k-1]+u1[i][j][k+1]) 
+	      - af*R[i][j][k]*sourceMult;
+	  } else {
+	    u1[i][j][k] = ax*(u2[i-1][j][k]+u2[i+1][j][k]) 
+	      + ay*(u2[i][j-1][k]+u2[i][j+1][k]) 
+	      + az*(u2[i][j][k-1]+u2[i][j][k+1]) 
+	      - af*R[i][j][k]*sourceMult;
+	  }
+	}
+      }
+    }
+
+    // calculate error in convergence (after update step above, BC's shouldnt matter)
+    for ( int i=iBeg_; i<iEnd; i++ ) {
+      for ( int j=jBeg_; j<jEnd; j++ ) {
+        for ( int k=kBeg_; k<kEnd; k++ ) {
+          //Calculate poisson step
           if ( iternum % 2 == 0 ) {
-	    absDiff = fabs(u2[i][j][k]-u1[i][j][k]);
+            absDiff = fabs(u2[i][j][k]-u1[i][j][k]);
           } else {
-	    absDiff = fabs(u1[i][j][k]-u2[i][j][k]);
+            absDiff = fabs(u1[i][j][k]-u2[i][j][k]);
           }
-	  //Retain the largest error
-          if (absDiff > maxDiff) maxDiff = absDiff;
+          //Retain the largest error
+          if (absDiff > maxDiff) {
+	    maxDiff = absDiff;
+	  }
         }
       }
     }
@@ -227,33 +267,17 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
     maxDiff = domain_->GetMaxValueAcrossDomains(maxDiff);
 #endif
 
-    if (maxDiff > convergenceTol){    
-        //iterate over physical grid points only.
-        for ( int i=iBeg_; i<iEnd; i++ ) {
-          for ( int j=jBeg_; j<jEnd; j++ ) {
-        	for ( int k=kBeg_; k<kEnd; k++ ) {
-              //Calculate poisson step
-              if ( iternum % 2 == 0 ) {
-                u2[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) 
-                            + ay*(u1[i][j-1][k]+u1[i][j+1][k]) 
-                            + az*(u1[i][j][k-1]+u1[i][j][k+1]) 
-                            - af*R[i][j][k]*sourceMult;
-              } else {
-                u1[i][j][k] = ax*(u2[i-1][j][k]+u2[i+1][j][k]) 
-                            + ay*(u2[i][j-1][k]+u2[i][j+1][k]) 
-                            + az*(u2[i][j][k-1]+u2[i][j][k+1]) 
-                            - af*R[i][j][k]*sourceMult;
-              }
-            }
-          }
-        }
-     }
-
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
 
-  }while( !jacobi_method_converged );
+  }while( !jacobi_method_converged && iternum < ITER_MAX);
 
-  if (debug) printf("Poisson converged with maxDiff=%e!\n",maxDiff);
+  if (iternum < ITER_MAX) {
+    if (debug) printf("Poisson converged with maxDiff=%e!\n",maxDiff);
+  } else {
+    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+    printf("WARNING: After %d steps, Poisson FAILED to converge, with maxDiff=%.10e, and convTol=%.10e!\n",ITER_MAX,maxDiff,convergenceTol);
+    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+  }
 
   //If last calculated pass updated the work array (u2), copy it to the solution array (u1).
   if ( iternum % 2 == 0 ) std::swap(u1,u2);

@@ -71,6 +71,10 @@ protected:
   friend class PoissonTest;
   FRIEND_TEST(PoissonTest, testPoisson);
 
+  // unit testing in depositJ_unittests.cc
+  friend class DepositJTest;
+  FRIEND_TEST(DepositJTest, testPoissonSolver);
+
 private:
   using  Grid::getGhostVec;
 };

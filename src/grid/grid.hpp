@@ -218,5 +218,6 @@ protected:
   // unit testing in depositJ_unittests.cc
   friend class DepositJTest;
   FRIEND_TEST(DepositJTest, sumOverJandRho);
+  FRIEND_TEST(DepositJTest, testPoissonSolver);
  };
 #endif
