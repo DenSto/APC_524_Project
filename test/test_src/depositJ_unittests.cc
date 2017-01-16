@@ -9,7 +9,15 @@
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
+#if USE_MPI
+  MPI_Init(&argc,&argv); 
+  MPI_Comm_size(MPI_COMM_WORLD,&size_MPI);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank_MPI);
+#endif
   return RUN_ALL_TESTS();
+#if USE_MPI
+  MPI_Finalize();
+#endif
 }
 
 // tests requiring internal examination
@@ -17,8 +25,8 @@ class DepositJTest : public ::testing::Test {
 protected:
   virtual void SetUp() {
     //MPI
-    rank_MPI = 0;
-    size_MPI = 1;
+    //rank_MPI = 0;
+    //size_MPI = 1;
     //Read input file
     Input *input =  new Input();
     char filename[200];
@@ -26,6 +34,12 @@ protected:
     input->readinfo(filename);
     input_info = input->getinfo();
 
+#if USE_MPI
+    // hack nproc
+    input_info->nProc[0] = size_MPI;
+#endif
+    debug = 2;
+    
     //Initialize the domain, particle handler, boundary conditions and grid.
     domain = new Domain(input_info);
     part_handler = new Particle_Handler();
@@ -151,6 +165,7 @@ TEST_F(DepositJTest, testFieldInterpolation) {
 
 //Test Poisson solver is working.
 TEST_F(DepositJTest, testPoissonSolver) {
+
   // Deposit charge and current from particles to grid
   //part_handler->depositRhoJ(grid,true,domain,input_info);
   grid->constJ(0.0,0.0,0.0);

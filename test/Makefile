@@ -16,6 +16,7 @@
 # Remember to tweak this if you move this file.
 CXX = g++
 MPICXX = mpic++
+MPIFLAGS = -DUSE_MPI=1
 
 ROOT_DIR = $(shell dirname $(shell pwd))
 
@@ -40,7 +41,7 @@ LIBS = $(LCONFIG_LIB) $(HDF5_LIB)
 LIBS_PAR = $(LCONFIG_LIB) $(HDF5PAR_LIB)
 
 HDF5_INCL = $(HDF5_DIR)/include
-HDF5PAR_INCL = $(HDF5PAR_DIR)include
+HDF5PAR_INCL = $(HDF5PAR_DIR)/include
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -113,20 +114,20 @@ $(SRC_DIR)/%_par.o: $(SRC_DIR)/%.cpp
 %.tests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) %_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lm -lz -ldl -lpthread $^ -o $@ $(LIBS)
 
-%.tests_par : $(addprefix $(SRC_DIR)/, $(OBJTEST_PAR)) %_unittests_par.o gtest_main.a
-	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) -lm -lz -ldl -lpthread $^ -o $@ $(LIBS_PAR) $(MPIFLAGS)
+#%.tests_par : $(addprefix $(SRC_DIR)/, $(OBJTEST_PAR)) %_unittests_par.o gtest_main.a
+#	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) -lm -lz -ldl -lpthread $^ -o $@ $(LIBS_PAR) $(MPIFLAGS)
 
 %.o : $(TESTSRC_DIR)/%.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5_INCL) -I$(SRC_DIR)
 
-%_par.o : $(TESTSRC_DIR)/%.cc $(GTEST_HEADERS)
-	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) $(MPIFLAGS) -c -o $@ $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5PAR_INCL) -I$(SRC_DIR)
+#%_par.o : $(TESTSRC_DIR)/%.cc $(GTEST_HEADERS)
+#	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) $(MPIFLAGS) -c -o $@ $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5PAR_INCL) -I$(SRC_DIR)
 
 run_tests: $(TESTS) 
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	
 
-run_tests_par: $(TESTS_PAR) 
-	$(addprefix mpirun -np 1 , $(addsuffix ;, $(addprefix  ./, $(TESTS_PAR))))
+#run_tests_par: $(TESTS_PAR) 
+#	$(addprefix mpirun -np 1 , $(addsuffix ;, $(addprefix  ./, $(TESTS_PAR))))
 
 
 
