@@ -188,8 +188,8 @@ int Input::readinfo(char *fname){
     }
     catch(const SettingNotFoundException &nfex)
     {
-      cerr << "nstep_sort not set. Not using particle sorting.";
-      input_info_->nstep_sort = -1;
+      cerr << "nstep_sort not set. Using a sort cadence of 100 steps.";
+      input_info_->nstep_sort = 100;
     }
     
     int restart;

@@ -222,7 +222,8 @@ int main(int argc, char *argv[]){
 
        if(rank==0 && ti%100==0)fprintf(stderr,"ti=%d\t\t t=%f ps\n",ti,time_phys*UNIT_TIME);   
 
-	   if(ti % input_info->nstep_sort == 0) part_handler->SortParticles(*compare);
+	   if(input_info->nstep_sort > 0 && ti % input_info->nstep_sort == 0) 
+		   part_handler->SortParticles(*compare);
 		
        boxOutput->output(time_phys,ti);
 
