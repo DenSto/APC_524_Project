@@ -9,9 +9,9 @@
 #include "../globals.hpp"
 //#include "../domain/domain.hpp"
 
-#define CONV_CRIT 1e-9 // absolute convergence criteria
-#define CONV_RATIO 1e-6 // relative convergence criteria
-#define ITER_MAX 10000 //maximum number of Poisson solver iterations before failure.
+#define CONV_CRIT 1e-12  // absolute convergence criteria
+#define CONV_RATIO 1e-9  // relative convergence criteria
+#define ITER_MAX 10000   //maximum number of Poisson solver iterations before failure.
 
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   Grid(domain->getnxyz(), 1, domain->getxyz0(), domain->getLxyz()),
@@ -165,7 +165,7 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
   run_poisson_solver_(Az1ID_,Az2ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
   AToB();
 
-  executeBC(-1); //Execute boundary conditions for E and B (-1) with replace operation (0).
+  executeBC(-1); //Execute boundary conditions for E and B (-1).
   if(rank_MPI==0)printf("        Poisson initialization complete!\n");
 }
 
@@ -208,17 +208,13 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   avgR /= countR;
   convergenceTol = std::min(convergenceTol, fabs(af * avgR * sourceMult ));
 
+  //Ensure boundary conditions are satisfied for u1 before beginning iteration.
+  executeBC(fieldID1);
+
   //loop Jacobi method until convergence!
   int iternum = -1;
   do {
     iternum++;
-
-    // supply boundary conditions
-    if ( iternum % 2 == 0 ) {
-      executeBC(fieldID1);
-    } else {
-      executeBC(fieldID2);
-    }
 
     //reset poisson convergence variable
     maxDiff = 0.0;
@@ -243,16 +239,18 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
       }
     }
 
+    // supply boundary conditions
+    if ( iternum % 2 == 0 ) {
+      executeBC(fieldID2);
+    } else {
+      executeBC(fieldID1);
+    }
+
     // calculate error in convergence (after update step above, BC's shouldnt matter)
     for ( int i=iBeg_; i<iEnd; i++ ) {
       for ( int j=jBeg_; j<jEnd; j++ ) {
         for ( int k=kBeg_; k<kEnd; k++ ) {
-          //Calculate poisson step
-          if ( iternum % 2 == 0 ) {
-            absDiff = fabs(u2[i][j][k]-u1[i][j][k]);
-          } else {
-            absDiff = fabs(u1[i][j][k]-u2[i][j][k]);
-          }
+	  absDiff = fabs(u2[i][j][k]-u1[i][j][k]);
           //Retain the largest error
           if (absDiff > maxDiff) {
 	    maxDiff = absDiff;
@@ -267,6 +265,8 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
 #endif
 
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
+
+    if (debug) printf("Poisson maxDiff=%.10e vs convTol=%.10e!\n",maxDiff,convergenceTol);
 
   }while( !jacobi_method_converged && iternum < ITER_MAX);
 
