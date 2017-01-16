@@ -57,12 +57,16 @@ TEST_F(OGridTest, getCellIDReturnsInternalCells) {
 }
 
 TEST_F(OGridTest, getCellIDReturnsGhostCells) {
-  EXPECT_EQ(-1, grid->getCellID( 0, 0, 0));
-  EXPECT_EQ(-2, grid->getCellID( 0, 0, 1));
-  EXPECT_EQ(-3, grid->getCellID( 0, 0, .5));
-  EXPECT_EQ(-4, grid->getCellID( 0, 1, .5));
-  EXPECT_EQ(-5, grid->getCellID( 0, .5, .5));
-  EXPECT_EQ(-6, grid->getCellID( 1, .5, .5));
+  int nx = 7;
+  int ny = 12;
+  int nz = 22;
+
+  EXPECT_EQ(1*ny*nz+1*nz+1, grid->getCellID( 0, 0, 0));
+  EXPECT_EQ(1*ny*nz+1*nz+21, grid->getCellID( 0, 0, 1));
+  EXPECT_EQ(1*ny*nz+1*nz+11, grid->getCellID( 0, 0, .5));
+  EXPECT_EQ(1*ny*nz+11*nz+11, grid->getCellID( 0, 1, .5));
+  EXPECT_EQ(1*ny*nz+6*nz+11, grid->getCellID( 0, .5, .5));
+  EXPECT_EQ(6*ny*nz+6*nz+11, grid->getCellID( 1, .5, .5));
 }
 
 int main(int argc, char** argv) {
