@@ -9,8 +9,8 @@
 #include "../globals.hpp"
 //#include "../domain/domain.hpp"
 
-#define CONV_CRIT 1e-12  // absolute convergence criteria
-#define CONV_RATIO 1e-9  // relative convergence criteria
+#define CONV_CRIT 1e-12  // absolute convergence criteria, in unit of 300KV
+#define CONV_RATIO 1e-9  // relative convergence criteria, in unit of 300KV
 #define ITER_MAX 10000   //maximum number of Poisson solver iterations before failure.
 
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
@@ -149,19 +149,19 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
   double convTol;
 
   convTol = std::max(conv_phi_*CONV_RATIO,CONV_CRIT);
-  if(debug>1&&rank_MPI==0)printf("        solving for phi...\n"); 
+  if(debug&&rank_MPI==0)printf("        solving for phi...\n"); 
   run_poisson_solver_(phi1ID_,phi2ID_,phi1_,phi2_,rho_,convTol,sourceMult);
   phiToE();
 
   sourceMult = -4*M_PI; 
   convTol = std::max(conv_A_*CONV_RATIO,CONV_CRIT);
-  if(debug>1&&rank_MPI==0)printf("        solving for Ax...\n"); 
+  if(debug&&rank_MPI==0)printf("        solving for Ax...\n"); 
   run_poisson_solver_(Ax1ID_,Ax2ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
 
-  if(debug>1&&rank_MPI==0)printf("        solving for Ay...\n"); 
+  if(debug&&rank_MPI==0)printf("        solving for Ay...\n"); 
   run_poisson_solver_(Ay1ID_,Ay2ID_,Ay1_,Ay2_,Jy_,convTol,sourceMult);
   
-  if(debug>1&&rank_MPI==0)printf("        solving for Az...\n"); 
+  if(debug&&rank_MPI==0)printf("        solving for Az...\n"); 
   run_poisson_solver_(Az1ID_,Az2ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
   AToB();
 
@@ -193,20 +193,20 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   bool jacobi_method_converged = false;
   double maxDiff = 0.0;
   double absDiff = 0.0;
-  double avgR = 0.0;
-  long countR = 0;
-  for ( int i=iBeg_; i<iEnd; i++ ) {
-    for ( int j=jBeg_; j<jEnd; j++ ) {
-      for ( int k=kBeg_; k<kEnd; k++ ) {
-	if (R[i][j][k] != 0) {
-	  avgR += fabs(R[i][j][k]);
-	  countR += 1;
-	}
-      }
-    }
-  }
-  avgR /= countR;
-  convergenceTol = std::min(convergenceTol, fabs(af * avgR * sourceMult ));
+  //double avgR = 0.0;
+  //long countR = 0;
+  //for ( int i=iBeg_; i<iEnd; i++ ) {
+  //  for ( int j=jBeg_; j<jEnd; j++ ) {
+  //    for ( int k=kBeg_; k<kEnd; k++ ) {
+  //      if (R[i][j][k] != 0) {
+  //        avgR += fabs(R[i][j][k]);
+  //        countR += 1;
+  //      }
+  //    }
+  //  }
+  //}
+  //avgR /= countR;
+  //convergenceTol = std::min(convergenceTol, fabs(af * avgR * sourceMult ));
 
   //Ensure boundary conditions are satisfied for u1 before beginning iteration.
   executeBC(fieldID1);
@@ -266,16 +266,19 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
 
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
 
-    if (debug) printf("Poisson maxDiff=%.10e vs convTol=%.10e!\n",maxDiff,convergenceTol);
+    if (debug>1&&rank_MPI==0) fprintf(stderr,"Poisson maxDiff=%.10e vs convTol=%.10e!\n",
+                                 maxDiff,convergenceTol);
 
   }while( !jacobi_method_converged && iternum < ITER_MAX);
 
   if (iternum < ITER_MAX) {
-    if (debug) printf("Poisson converged with maxDiff=%e!\n",maxDiff);
+    if (debug>1&&rank_MPI==0) fprintf(stderr,"Poisson converged with maxDiff=%e!\n",maxDiff);
   } else {
+    if(rank_MPI==0){
     printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
     printf("WARNING: After %d steps, Poisson FAILED to converge, with maxDiff=%.10e, and convTol=%.10e!\n",ITER_MAX,maxDiff,convergenceTol);
     printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
+  }
   }
 
   //If last calculated pass updated the work array (u2), copy it to the solution array (u1).
