@@ -1,0 +1,4 @@
+<map id="Resolve_t" name="Resolve_t">
+<area shape="rect" id="node2" href="$struct_time___resolve__t.html" title="Sturcture storing time resolutions information, in unit of ps or THz. " alt="" coords="5,5,123,32"/>
+<area shape="rect" id="node3" href="$struct_space___resolve__t.html" title="Sturcture storing spatial resolutions information, in unit of cm or cm^{&#45;1}. " alt="" coords="147,5,273,32"/>
+</map>

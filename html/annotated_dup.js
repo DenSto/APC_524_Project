@@ -34,5 +34,9 @@ var annotated_dup =
     [ "RegisterFieldBoundary", "struct_register_field_boundary.html", "struct_register_field_boundary" ],
     [ "RegisterParticleBoundary", "struct_register_particle_boundary.html", "struct_register_particle_boundary" ],
     [ "Relativistic_Boris", "class_relativistic___boris.html", "class_relativistic___boris" ],
-    [ "RNG_State", "struct_r_n_g___state.html", "struct_r_n_g___state" ]
+    [ "Resolution", "class_resolution.html", "class_resolution" ],
+    [ "Resolve_t", "struct_resolve__t.html", "struct_resolve__t" ],
+    [ "RNG_State", "struct_r_n_g___state.html", "struct_r_n_g___state" ],
+    [ "Space_Resolve_t", "struct_space___resolve__t.html", "struct_space___resolve__t" ],
+    [ "Time_Resolve_t", "struct_time___resolve__t.html", "struct_time___resolve__t" ]
 ];

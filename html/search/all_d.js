@@ -11,5 +11,6 @@ var searchData=
   ['phitoesinglecomp_5f',['phiToESingleComp_',['../class_poisson___solver.html#a866bc414e18f77ff139608148ecee2fd',1,'Poisson_Solver']]],
   ['poisson_5fsolver',['Poisson_Solver',['../class_poisson___solver.html',1,'']]],
   ['poissonbc',['PoissonBC',['../class_poisson_b_c.html',1,'']]],
+  ['processinfo',['ProcessInfo',['../class_input.html#a1dcf6dee58fe4b02980e5b776b4e5ddb',1,'Input']]],
   ['pusher',['Pusher',['../class_pusher.html',1,'']]]
 ];

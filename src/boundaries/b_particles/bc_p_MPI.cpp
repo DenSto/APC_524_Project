@@ -27,7 +27,7 @@ class BC_P_MPI : public BC_Particle {
 		std::string type_;
 
 		int sendRank_, recvRank_;
-		double* lengthShift_;
+		double* lengthShiftRecv_,*lengthShiftSend_;
 		long toSend_, toReceive_;
 		std::vector<double> sendBuf_;
 		std::vector<Particle> ghostBuf_;
@@ -61,10 +61,14 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 	info_ = Part_BC_Factory::getInstance().getInfo();
 
 	std::string periodic ("periodic");
-	bool isPeriodic = (periodic.compare(type) == 0);
+	bool isPeriodic = (periodic.compare(type_) == 0);
 
-	lengthShift_ = new double[3];
-	for(int i = 0; i < 3; i++) lengthShift_[i] = 0.0;
+	lengthShiftRecv_ = new double[3];
+	lengthShiftSend_ = new double[3];
+	for(int i = 0; i < 3; i++){
+		lengthShiftRecv_[i] = 0.0;
+		lengthShiftSend_[i] = 0.0;
+	}
 
 	int* nProc = domain->getnProcxyz();
 	int* myLoc = domain->getmyijk();
@@ -82,11 +86,6 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 			sendRank_ = neigh[2*dim_index_];     //send to left
 			recvRank_ = neigh[2*dim_index_ + 1]; //receive from right
 
-			if(!inMiddle){// Left most processor responsible for wrap-around in x
-				const int* nxyz = domain->getnxyz();
-				const double* L = domain->getLxyz();
-				lengthShift_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
-			}
 		}
 	} else {
 		if(isRight_){ 
@@ -97,13 +96,24 @@ BC_P_MPI::BC_P_MPI(Domain* domain, int dim_Index, short isRight, std::string typ
 			recvRank_ = neigh[2*dim_index_]; // receive from left
 		}
 	}
+
+	if(partitionIndex == 0 && isPeriodic){// Left most processor responsible for wrap-around in x
+		const int* nxyz = domain->getnProcxyz();
+		const double* L = domain->getLxyz();
+		if(isRight_){
+			lengthShiftRecv_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
+		} else {
+			lengthShiftSend_[dim_index_] = L[dim_index_]*nxyz[dim_index_];
+		}
+	}
 }
 
 
 BC_P_MPI::~BC_P_MPI(){
 	if(recvBuf_ != NULL)
 		free(recvBuf_);
-	delete[] lengthShift_;
+	delete[] lengthShiftSend_;
+	delete[] lengthShiftRecv_;
 }
 
 int BC_P_MPI::completeBC(std::vector<Particle> *pl){
@@ -144,7 +154,7 @@ int BC_P_MPI::completeBC(std::vector<Particle> *pl){
 
 		err=MPI_Recv(recvBuf_,toReceive_*DOUBLES_IN_PARTICLE, MPI_DOUBLE, recvRank_,12,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 		if(err) fprintf(stderr, "rank=%d MPI_Recv error on recvBuf_ = %d\n",rank_MPI,err);
-	
+
 		for(int i = 0; i < toReceive_; i++){
 			ghostBuf_.push_back(unpackParticle(i*DOUBLES_IN_PARTICLE));
 		}
@@ -180,9 +190,9 @@ int BC_P_MPI::particle_BC(Particle* p){
 }
 
 void BC_P_MPI::packParticle(Particle* p){
-	sendBuf_.push_back(p->x[0] + lengthShift_[0]);
-	sendBuf_.push_back(p->x[1] + lengthShift_[1]);
-	sendBuf_.push_back(p->x[2] + lengthShift_[2]);
+	sendBuf_.push_back(p->x[0] + lengthShiftSend_[0]);
+	sendBuf_.push_back(p->x[1] + lengthShiftSend_[1]);
+	sendBuf_.push_back(p->x[2] + lengthShiftSend_[2]);
 	sendBuf_.push_back(p->v[0]);
 	sendBuf_.push_back(p->v[1]);
 	sendBuf_.push_back(p->v[2]);
@@ -194,26 +204,27 @@ void BC_P_MPI::packParticle(Particle* p){
 }
 
 Particle BC_P_MPI::unpackParticle(int offset){
-	Particle p;
+	Particle p = new_particle();
 	int i =offset;
-	p.x[0] = recvBuf_[i++] - lengthShift_[0];
-	p.x[1] = recvBuf_[i++] - lengthShift_[1];
-	p.x[2] = recvBuf_[i++] - lengthShift_[2];
+	p.x[0] = recvBuf_[i++] - lengthShiftRecv_[0];
+	p.x[1] = recvBuf_[i++] - lengthShiftRecv_[1];
+	p.x[2] = recvBuf_[i++] - lengthShiftRecv_[2];
 	p.v[0] = recvBuf_[i++];
 	p.v[1] = recvBuf_[i++];
 	p.v[2] = recvBuf_[i++];
 	p.gamma= recvBuf_[i++];
 	p.my_id = (long) recvBuf_[i++];
 	p.initRank = (int) recvBuf_[i++];
-	p.type = (short) type_[i++];
+	p.type = (short) recvBuf_[i++];
 
 	p.isGhost = 0;
+
+	assert(p.x[dim_index_] >= xMin_ && p.x[dim_index_] <= xMax_);
 
 	p.m = info_->mass_ratio[p.type];
 	p.q = info_->charge_ratio[p.type];
 	p.isTestParticle = info_->isTestParticle[p.type];
 
-	assert(p.x[dim_index_] >= xMin_ && p.x[dim_index_] <= xMax_);   
 
 	return p;
 }

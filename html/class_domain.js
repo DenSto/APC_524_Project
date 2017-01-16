@@ -1,6 +1,6 @@
 var class_domain =
 [
-    [ "Domain", "class_domain.html#a90fa4a149131ae9114e5444dbf0d4ce3", null ],
+    [ "Domain", "class_domain.html#aa8940ad71c7ff842825d0a495f2555c0", null ],
     [ "~Domain", "class_domain.html#a29cec9afb2e54c810ba1f3c1a49543a8", null ],
     [ "getLxyz", "class_domain.html#a85f15ae00a318da34e8dfde4e0f1fdab", null ],
     [ "GetMaxValueAcrossDomains", "class_domain.html#a61be4f3cfb1941b4d61f0c9fed3dd8ef", null ],
