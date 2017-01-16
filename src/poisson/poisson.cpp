@@ -89,8 +89,8 @@ int Poisson_Solver::getFieldID(const std::string &fieldStr){
   int ID;
   if(fieldStr == "phi" || fieldStr == "phi1"){ID = phi1ID_;}
   else if(fieldStr == "Ax" || fieldStr == "Ax1"){ID = Ax1ID_;}
-  else if(fieldStr == "Ay" || fieldStr == "Ax1"){ID = Ay1ID_;}
-  else if(fieldStr == "Az" || fieldStr == "Ax1"){ID = Az1ID_;}
+  else if(fieldStr == "Ay" || fieldStr == "Ay1"){ID = Ay1ID_;}
+  else if(fieldStr == "Az" || fieldStr == "Az1"){ID = Az1ID_;}
   else if(fieldStr == "phi2"){ID = phi2ID_;}
   else if(fieldStr == "Ax2" ){ID = Ax2ID_;}
   else if(fieldStr == "Ay2" ){ID = Ay2ID_;}

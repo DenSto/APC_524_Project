@@ -14,21 +14,26 @@
        side = -2: y left, side = +2: y right \n
        side = -3: z left, side = +3: y right \n
 */
-class PoissonBC : public GridBC {
+class PoissonBC {
 public:
-   PoissonBC(int side, Input_Info_t *input_info);
+   PoissonBC(int side, Input_Info_t *input_info, Grid *grids);
    ~PoissonBC(void);
-   void applyBCs(double fieldID, double option, Grid *grids);
+   void applyBCs(int fieldID);
+   int fieldIDToIndex(int fieldID); 
 
 private:
-   int size_;
-   int ifLoad_[4]; //=[ifphi,ifAx,ifAy,ifAz]
-                  // ifphi=0: boundary condition have not been loaded
-                  // ifphi=1: boundary condition have been loaded in u1
-                  // ifphi>1: boundary condition have been loaded for
-                  //          both u1 and u2, no need to load again.
-   double *ghost_;
-   double phiA_[4]; //=[phi,Ax,Ay,Az]
+   Grid *grids_;
+
+   double fieldVal_;
+   double ***field_;
+   double ****fieldPtr_;
+
+   int dim_; //1:x, 2:y, 3:z
+   int offset_; //where to place the boudary value
+               // left:  first physical
+               // right: last ghost
+   int fid_;
+   double phiA_[4]; 
 };
 
 

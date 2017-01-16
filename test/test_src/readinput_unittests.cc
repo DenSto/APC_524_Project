@@ -14,7 +14,7 @@ TEST(ReadinputTest, ValuesCorrect) {
   EXPECT_EQ(8, input_info->nCell[1]);
   EXPECT_EQ(8, input_info->nCell[2]);
 
-  EXPECT_EQ(16, input_info->np);
+  EXPECT_EQ(16, input_info->nparticles_tot);
 }
 
 

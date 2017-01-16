@@ -386,6 +386,11 @@ int Grid::getnxyzPhys(int *nxyzPhys) {
   return 0;
 };
 
+/// similar to above, more convenient
+int* Grid::getnxyzReal(void){
+    return nxyzReal_;
+}
+
 /// get dimensions of physical region of field
 void Grid::getDimPhys(const int fieldID, int* dim) {
     // check for legal fieldID and side parameters 

@@ -31,7 +31,7 @@ BC_F_External::BC_F_External(int side, Domain* domain, Grid *grids, Input_Info_t
     // if initialize with poisson, than equipe poisson boundary conditions
     if(info->restart==0 && strcmp(info->fields_init,"poisson")==0){
         support_poisson_=true;
-        poissonbc_ = new PoissonBC(side_,info);
+        poissonbc_ = new PoissonBC(side_,info,grids);
     }else{
         support_poisson_=false;
     }
@@ -51,7 +51,7 @@ int BC_F_External::completeBC(int fieldID){
         lightbc_->applyBCs(time_phys,dt_phys,grids_);	
     }else if(support_poisson_ && fieldID>0){
         //individual field for poisson solver
-        //poissonbc_->applyBCs((double)fieldID,(double)option,grids_);
+        poissonbc_->applyBCs(fieldID);
     }
 
     return 0;

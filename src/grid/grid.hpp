@@ -47,9 +47,12 @@ public:
   double getCellVolume();
   int getnxyzTot(int *nxyzTot);
   int getnxyzPhys(int *nxyzPhys);
+  int *getnxyzReal(void); 
   void getRealIndices(int fieldID, int* ind); 
 
   int setFieldAlongEdge( std::string &fieldStr, int dim, bool edge, double fieldVal);
+  int setFieldInPlane( int dim, int indx, double *** field, double fieldVal);
+
 
    // called by main to get MPI
   virtual int getGhostVecSize(const int sendID); // called by main to size MPI Buffer
@@ -192,8 +195,6 @@ protected:
   void sliceMatToVec_(const int fieldID, const int side, const int offset, double* vec);
   // puts a 2D plane of ghost points from sliceTmp_ into mat
   void unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec, const int op);
-
-  int setFieldInPlane_( int dim, int indx, double *** field, double fieldVal);
 
   // for unit testing
   friend class oGridInternalTest;

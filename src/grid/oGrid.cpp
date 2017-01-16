@@ -297,20 +297,20 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 			// otherwise, last index borders grid at nx - nghosts 
 			switch (dim) {
 				case 0:
-					ret = setFieldInPlane_( dim, nx_ - 1 - nGhosts_, Ex_, fieldVal);
+					ret = setFieldInPlane( dim, nx_ - 1 - nGhosts_, Ex_, fieldVal);
 					break;
 				case 1:
-					ret = setFieldInPlane_( dim, ny_ - nGhosts_, Ex_, fieldVal);
+					ret = setFieldInPlane( dim, ny_ - nGhosts_, Ex_, fieldVal);
 					break;
 				case 2:
-					ret = setFieldInPlane_( dim, nz_ - nGhosts_, Ex_, fieldVal);
+					ret = setFieldInPlane( dim, nz_ - nGhosts_, Ex_, fieldVal);
 					break;
 				default:
 					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
 					return 1;
 			}
 		} else {
-			ret = setFieldInPlane_( dim, nGhosts_, Ex_, fieldVal);
+			ret = setFieldInPlane( dim, nGhosts_, Ex_, fieldVal);
 		}
 		return ret;
 	}
@@ -318,20 +318,20 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 		if (edge) {
 			switch (dim) {
 				case 0:
-					ret = setFieldInPlane_( dim, nx_ - nGhosts_, Ey_, fieldVal);
+					ret = setFieldInPlane( dim, nx_ - nGhosts_, Ey_, fieldVal);
 					break;
 				case 1:
-					ret = setFieldInPlane_( dim, ny_ - 1 - nGhosts_, Ey_, fieldVal);
+					ret = setFieldInPlane( dim, ny_ - 1 - nGhosts_, Ey_, fieldVal);
 					break;
 				case 2:
-					ret = setFieldInPlane_( dim, nz_ - nGhosts_, Ey_, fieldVal);
+					ret = setFieldInPlane( dim, nz_ - nGhosts_, Ey_, fieldVal);
 					break;
 				default:
 					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
 					return 1;
 			}
 		} else {
-			ret = setFieldInPlane_( dim, nGhosts_, Ey_, fieldVal);
+			ret = setFieldInPlane( dim, nGhosts_, Ey_, fieldVal);
 		}
 		return ret;
 	}
@@ -339,20 +339,20 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 		if (edge) {
 			switch (dim) {
 				case 0:
-					ret = setFieldInPlane_( dim, nx_ - nGhosts_, Ez_, fieldVal);
+					ret = setFieldInPlane( dim, nx_ - nGhosts_, Ez_, fieldVal);
 					break;
 				case 1:
-					ret = setFieldInPlane_( dim, ny_ - nGhosts_, Ez_, fieldVal);
+					ret = setFieldInPlane( dim, ny_ - nGhosts_, Ez_, fieldVal);
 					break;
 				case 2:
-					ret = setFieldInPlane_( dim, nz_ - 1 - nGhosts_, Ez_, fieldVal);
+					ret = setFieldInPlane( dim, nz_ - 1 - nGhosts_, Ez_, fieldVal);
 					break;
 				default:
 					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
 					return 1;
 			}
 		} else {
-			ret = setFieldInPlane_( dim, nGhosts_, Ez_, fieldVal);
+			ret = setFieldInPlane( dim, nGhosts_, Ez_, fieldVal);
 		}
 		return ret;
 	}
@@ -365,20 +365,20 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 			// note this is consistent with edge conventions above, since perp-to-x plane contains y and z edges
 			switch (dim) {
 				case 0:
-					ret = setFieldInPlane_( dim, nx_ - nGhosts_ , Bx_, fieldVal);
+					ret = setFieldInPlane( dim, nx_ - nGhosts_ , Bx_, fieldVal);
 					break;
 				case 1:
-					ret = setFieldInPlane_( dim, ny_ - 1 - nGhosts_, Bx_, fieldVal);
+					ret = setFieldInPlane( dim, ny_ - 1 - nGhosts_, Bx_, fieldVal);
 					break;
 				case 2:
-					ret = setFieldInPlane_( dim, nz_ - 1 - nGhosts_, Bx_, fieldVal);
+					ret = setFieldInPlane( dim, nz_ - 1 - nGhosts_, Bx_, fieldVal);
 					break;
 				default:
 					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
 					return 1;
 			}
 		} else {
-			ret = setFieldInPlane_( dim, nGhosts_, Bx_, fieldVal);
+			ret = setFieldInPlane( dim, nGhosts_, Bx_, fieldVal);
 		}
 		return ret;
 	}
@@ -386,20 +386,20 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 		if (edge) {
 			switch (dim) {
 				case 0:
-					ret = setFieldInPlane_( dim, nx_ - 1 - nGhosts_, By_, fieldVal);
+					ret = setFieldInPlane( dim, nx_ - 1 - nGhosts_, By_, fieldVal);
 					break;
 				case 1:
-					ret = setFieldInPlane_( dim, ny_ - nGhosts_, By_, fieldVal);
+					ret = setFieldInPlane( dim, ny_ - nGhosts_, By_, fieldVal);
 					break;
 				case 2:
-					ret = setFieldInPlane_( dim, nz_ - 1 - nGhosts_, By_, fieldVal);
+					ret = setFieldInPlane( dim, nz_ - 1 - nGhosts_, By_, fieldVal);
 					break;
 				default:
 					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
 					return 1;
 			}
 		} else {
-			ret = setFieldInPlane_( dim, nGhosts_, By_, fieldVal);
+			ret = setFieldInPlane( dim, nGhosts_, By_, fieldVal);
 		}
 		return ret;
 	}
@@ -407,20 +407,20 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 		if (edge) {
 			switch (dim) {
 				case 0:
-					ret = setFieldInPlane_( dim, nx_ - 1 - nGhosts_, Bz_, fieldVal);
+					ret = setFieldInPlane( dim, nx_ - 1 - nGhosts_, Bz_, fieldVal);
 					break;
 				case 1:
-					ret = setFieldInPlane_( dim, ny_ - 1 - nGhosts_, Bz_, fieldVal);
+					ret = setFieldInPlane( dim, ny_ - 1 - nGhosts_, Bz_, fieldVal);
 					break;
 				case 2:
-					ret = setFieldInPlane_( dim, nz_ - nGhosts_, Bz_, fieldVal);
+					ret = setFieldInPlane( dim, nz_ - nGhosts_, Bz_, fieldVal);
 					break;
 				default:
 					printf("Invalid dimension in Grid::setFieldAlongEdge\n");
 					return 1;
 			}
 		} else {
-			ret = setFieldInPlane_( dim, nGhosts_, Bz_, fieldVal);
+			ret = setFieldInPlane( dim, nGhosts_, Bz_, fieldVal);
 		}
 		return ret;
 	}
@@ -443,7 +443,7 @@ int Grid::setFieldAlongEdge( std::string  &fieldStr, int dim, bool edge, double 
 
 	value to set field
 */
-int Grid::setFieldInPlane_( int dim, int indx, double *** field, double fieldVal) {
+int Grid::setFieldInPlane( int dim, int indx, double *** field, double fieldVal) {
 	switch (dim) {
 		case 0:
 			for ( int i = 0; i < ny_ + 1; i++) {
@@ -467,7 +467,7 @@ int Grid::setFieldInPlane_( int dim, int indx, double *** field, double fieldVal
 			}
 			break;
 		default:
-			printf("Invalid dimension in Grid::setFieldInPlane_\n");
+			printf("Invalid dimension in Grid::setFieldInPlane\n");
 			return 1;
 
 	}

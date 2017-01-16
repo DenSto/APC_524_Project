@@ -27,20 +27,20 @@ int main(int argc, char** argv) {
 }
 
 TEST_F(FieldIOTest, writeField) {
-    int nxyz [3] = {3,4,5};
-    int nProc [3] = {1,1,1};
-    int nGhosts = 1; 
-    double xyz0 [3] = {0,0,0};
-    double Lxyz [3] = {1,1,1};
-
-    int which_fields = 1; //only write E
-    int nwrite = 0;
 
     size_MPI = 1;
     rank_MPI = 0;
-    domain = new Domain(nxyz, nProc, xyz0, Lxyz);
-    grid = new Grid(nxyz, nGhosts, xyz0, Lxyz);
-    hdf5io = new Hdf5IO("test_data/hdf5io_unittests.h5", grid, domain, which_fields);
+    //Read input file
+    Input *input =  new Input();
+    char filename[200];
+    sprintf(filename, "test_data/hdf5io_unittest_data.txt");
+    input->readinfo(filename);
+    Input_Info_t *info = input->getinfo();
+
+    domain = new Domain(info);
+    grid = new Grid(domain->getnxyz(),1,domain->getxyz0(),domain->getLxyz());
+    hdf5io = new Hdf5IO("test_data/hdf5io_unittests.h5", grid, domain, info->which_fields);
+    int nwrite = 0;
 
     int i,j,k; 
     for (i=0; i<grid->nxTot_; ++i) { 
@@ -84,6 +84,10 @@ TEST_F(FieldIOTest, writeField) {
     ASSERT_GE(dset_id, 0);
     dset_id = H5Dopen2(file_id, "/fields/Ez", H5P_DEFAULT);
     ASSERT_GE(dset_id, 0);
+    // make sure B is not being written
+    //dset_id = H5Dopen2(file_id, "/fields/Bz", H5P_DEFAULT);
+    //ASSERT_LE(dset_id, 0);
+    
     // check Ex values
     dset_id = H5Dopen2(file_id, "/fields/Ex", H5P_DEFAULT);
     ASSERT_GE(dset_id, 0);
