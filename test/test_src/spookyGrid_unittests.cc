@@ -78,8 +78,8 @@ TEST_F(GridPrivateTest, sideToIndexTest) {
     int yLeftReal = 1; 
     int zLeftReal = 1; 
     int xRightReal = grid->nx_-2; 
-    int yRightReal = grid->ny_-1; 
-    int zRightReal = grid->nz_-1; 
+    int yRightReal = grid->ny_-2; 
+    int zRightReal = grid->nz_-2; 
 
     EXPECT_EQ(xLeftReal,grid->sideToIndex_(-xside,ID)); 
     EXPECT_EQ(xRightReal,grid->sideToIndex_(xside,ID)); 

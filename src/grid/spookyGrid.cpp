@@ -213,13 +213,14 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
         dex = 1; 
     }
     else { 
-        int type = fieldType_[fieldID]; 
+        /*int type = fieldType_[fieldID]; 
         // since side > 0 in this branch, side-1 converts (x,y,z = 1,2,3) --> (0,1,2)
         int dir = side-1;
         // fieldSize_ is the total number of points
         // -1 to convert to 0 indexing 
         // -nGhosts to subtract ghost cells 
-        dex = fieldSize_[type][dir]-(nGhosts_+1); 
+        dex = fieldSize_[type][dir]-(nGhosts_+1); */
+        dex = nxyzReal_[side-1]; // same for all fields
     } 
     return dex; 
 };
