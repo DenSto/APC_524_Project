@@ -9,7 +9,7 @@ TEST(GridGetNumberOfCellsTest, returnsCorrectNumberOfCells) {
   double Lxyz [3] = {1,1,1};
 
   Grid *grid = new Grid(nxyz, 1, xyz0, Lxyz);
-  EXPECT_EQ(60, grid->getNumberOfCells());
+  EXPECT_EQ(5*6*7, grid->getNumberOfCells());
   delete grid;
 }
 
@@ -41,7 +41,19 @@ TEST_F(OGridTest, getStepSize) {
 
 
 TEST_F(OGridTest, getCellIDReturnsInternalCells) {
-  EXPECT_EQ(510, grid->getCellID(0.501,0.501,0.501));
+  double x = 0.501;
+  double y = 0.501;
+  double z = 0.501;
+
+  int ix = x*5+1; 
+  int iy = y*10+1; 
+  int iz = z*20+1; 
+
+  int nx = 7;
+  int ny = 12;
+  int nz = 22;
+
+  EXPECT_EQ(ix*ny*nz+nz*iy+iz, grid->getCellID(x,y,z));
 }
 
 TEST_F(OGridTest, getCellIDReturnsGhostCells) {

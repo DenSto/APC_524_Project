@@ -39,7 +39,7 @@ BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
     int dim = (int)(abs((double)side_)-1); 
     assert(dim>=0 && dim<3);
     //if(debug)cerr<<"rank="<<rank_MPI<<": boundary side "<<side_<< " is MPI\n";
-    if(debug)fprintf(stderr,"rank=%d: boundary side %d is MPI\n",rank_MPI,side_);
+    if(debug>1)fprintf(stderr,"rank=%d: boundary side %d is MPI\n",rank_MPI,side_);
 
     // if in the middle or periodic, send this side, recv the other side
     // otherwise, send and recv from the same MPI side
@@ -74,7 +74,7 @@ BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
     //if(debug)cerr<<"rank="<<rank_MPI<<": boundary side "<<side_
     //             << " sendRank="<<sendRank_
     //             << ", recvRank="<<recvRank_<<endl;
-    if(debug)fprintf(stderr,"rank=%d: boundary side=%d, sendRank=%d, recvRank=%d\n",
+    if(debug>1)fprintf(stderr,"rank=%d: boundary side=%d, sendRank=%d, recvRank=%d\n",
                              rank_MPI,side,sendRank_,recvRank_);
 
 
@@ -85,7 +85,7 @@ BC_F_MPI::BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info){
     //             <<": boudary side "<<side_
     //             << " stag="<< stag_ 
     //             << ", rtag="<< rtag_<< endl;
-    if(debug)fprintf(stderr,"rank=%d: boudary side=%d, stag=%d, rtag=%d\n",
+    if(debug>1)fprintf(stderr,"rank=%d: boudary side=%d, stag=%d, rtag=%d\n",
                             rank_MPI,side_,stag_,rtag_);
 }
 
@@ -159,7 +159,7 @@ int BC_F_MPI::completeBC(int fieldID){
     }
 
     if(!(fieldID==-2&&((side_<0&&same_==-1)||(side_>0&&same_==1)))){//those who recv need to set 
-        if(debug)fprintf(stderr,"rank=%d: set MPI side=%d,fieldID=%d\n",
+        if(debug>1)fprintf(stderr,"rank=%d: set MPI side=%d,fieldID=%d\n",
                                  rank_MPI,same_*side_,fieldID);
         if(debug>2){
            fprintf(stderr,"rank=%d:checking field revc\n",rank_MPI);

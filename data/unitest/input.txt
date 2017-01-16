@@ -2,7 +2,7 @@ domain:
 {
   # total number of cells in each dimension
   # nCell will be divided and distributed to MPI processors
-  nCell = [ 32, 32, 32 ]
+  nCell = [ 34, 32, 32 ]
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
