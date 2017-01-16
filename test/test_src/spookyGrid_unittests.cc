@@ -296,7 +296,7 @@ TEST_F(GridPrivateTest, ghostVecSizeTest) {
     EXPECT_EQ(maxPlane,grid->maxPointsInPlane_);
 
     int nFields = 6; 
-    int nSources= 4; 
+    int nSources= 3; 
 
     int sizeF = nFields*maxPlane; 
     int sizeS = nSources*maxPlane; 
