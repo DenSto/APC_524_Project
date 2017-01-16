@@ -84,7 +84,7 @@ void PoissonBC::applyBCs (double fieldID, double iternum, Grid *grids) {
        for(int i=0;i<size_;i++){ghost_[i] = phiA_[which];}
        
        // set ghost vec
-       grids->setGhostVec(side_,ghost_,sendID + 4*iter,0); // 0:replace 
+       grids->setGhostVec(side_,ghost_,sendID + 4*iter); 
     
        ifLoad_[which]+=1;       
        delete [] ghost_;

@@ -30,10 +30,10 @@ void Field_BC_Factory::Construct(Domain* domain, Grid *grids, Input_Info_t *inpu
 	    short inMiddle = (partitionIndex != 0) && (partitionIndex != nProc[i] - 1);
 	    // compare return 0 when equal
 	    if(periodic.compare(types[2*i])==0 || inMiddle){ // Two MPI communication loops
-		// left boundary condition first
-		ret[2*i]=lookup(mpi)(-(i+1),domain,grids,input_info);
-		// Right boundary condition first
-		ret[2*i+1]=lookup(mpi)(i+1,domain,grids,input_info);
+		// right boundary condition first, because right always send
+		ret[2*i]=lookup(mpi)(i+1,domain,grids,input_info);
+		// left boundary condition next, because left may only recv
+		ret[2*i+1]=lookup(mpi)(-(i+1),domain,grids,input_info);
             } else { // One MPI communication loop
 		int MPIisRight;	
 		// Physical side (to be calculated first to avoid MPI deadlock !!)

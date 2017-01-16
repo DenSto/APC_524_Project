@@ -185,15 +185,10 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   double absDiff = 0.0;
   double uLast = 0.0;
 
-  // directions 
-  int xside=1; 
-  int yside=2; 
-  int zside=3; 
-
   // limits 
-  int iEnd = sideToIndex_(xside,fieldID1)+1;  
-  int jEnd = sideToIndex_(yside,fieldID1)+1; 
-  int kEnd = sideToIndex_(zside,fieldID1)+1; 
+  int iEnd = nxReal_ + iBeg_;  
+  int jEnd = nyReal_ + jBeg_; 
+  int kEnd = nzReal_ + kBeg_; 
 
   //loop Jacobi method until convergence!
   int iternum = -1;
@@ -206,12 +201,12 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
     // supply boundary conditions
     //note second argument of executeBC = 0 to replace (and NOT add) the ghost cell
     if ( iternum % 2 == 0 ) {
-      executeBC(fieldID1,0);
+      executeBC(fieldID1);
     } else {
-      executeBC(fieldID2,0);
+      executeBC(fieldID2);
     }
 
-    //iterate over entire grid.
+    //iterate over physical grid points only.
     for ( int i=iBeg_; i<iEnd; i++ ) {
       for ( int j=jBeg_; j<jEnd; j++ ) {
     	for ( int k=kBeg_; k<kEnd; k++ ) {

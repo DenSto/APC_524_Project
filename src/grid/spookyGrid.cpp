@@ -6,28 +6,26 @@
 #include "grid.hpp"
 
 /// bundles the data in the ghost cells to send
-/*! side = -/+ 1 for left/right x direction, -/+ 2 for y, -/+ 3 for z \n
- * ghostVec is the vector to store the data in, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
- * sendID = -2 to get Jrho fields, -1 to get EB fields, or sendID = an individual field ID (e.g. ExID_) to get just that field (used for Poisson updating for example) \n
- * Gets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be sent with a single MPI call. If sendID = -1 (as used in each time step update), stores in order: Ex,Ey,Ez,Bx,By,Bz. If sendID = -2, stores in order: Jx,Jy,Jz,rho. \n
- * option is a flag determining where the ghostVec will get from. 
- *    option = 0: get physical values on this side. 
- *    option = 1: get ghost values on this side. \n
+/*! side = -/+ i for left/right i-th direction
+ *             i=1: x, i=2: y, i=3:, z \n
+ * ghostVec is the vector to store the data in, which must be of length ghostVecSize_ \n
+ * sendID >= 0: get an individual field ID (e.g. ExID_) \n
+ *        = -1: (as used in each time step update), stores in order: Ex,Ey,Ez,Bx,By,Bz.\n 
+ *        = -2: stores orthogonal J's and Rho in order: Jj,Jk,rho.\n
  * ghostVec can (and should) be unpacked with setGhostVec function 
  */ 
-void Grid::getGhostVec(const int side, double* ghostVec, int sendID, int option) {
+void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
     assert(-3 < sendID && sendID < nFieldsTotal_); 
     
-    assert(option==0 || option==1);
     int offset; // offset from physical boundary
-    if(option==0){// get physical values
-        offset = 0; 
-    }else{// get adjacent ghost values
-        offset = abs(side)/side;
+    if(sendID==-2){// get Jj,Jk,Rho on right ghost
+        assert(side>0);
+        offset = 1; // right ghost
+    }else{// get physical values
+        offset = 0; // physical
     }
     if(debug>1)fprintf(stderr,"rank=%d:get on side=%d with offset=%d,for field=%d\n",
-                               rank_MPI,side,offset,sendID);
-        
+                                  rank_MPI,side,offset,sendID);
 
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
@@ -89,12 +87,6 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID, int option)
         // different for field types located *on* the shared face 
         // vs values that are not on the shared face 
         field = fieldPtr_[fieldID]; 
-//        offset = getGhostOffset_(side,fieldID);  
-        // special case for J/rho only, sources add at shared interface, 
-        // so never want to get from adjacent ghost cells
-//        if (sendID == -2) { 
-//            offset = 0; 
-//        } 
 
         // slice the given field with appropriate offset 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
@@ -104,39 +96,33 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID, int option)
 }; 
 
 /// unbundles the data in the ghost cells to send
-/*! side = -/+ 1 for left/right x direction, -/+ 2 for y, -/+ 3 for z \n
- * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
- * sendID = -2 to set Jrho fields, -1 to set EB fields, or sendID = an individual field ID (e.g. ExID_) to set just that field (used for Poisson updating for example) \n
- * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be received with a single MPI call. If sendID = -1 (as used in each time step update), fields are read and set in order: Ex,Ey,Ez,Bx,By,Bz. If sendID = -2, fields are read and set in order: Jx,Jy,Jz,rho. \n
- * option is a flag determining how the field will be set. 
- *    option = 0: replaces ghost values on this side with values in ghostVec. 
- *    option = 1: sums physical values on this side by ghostVec. \n
+/*! side = -/+ i for left/right i-th direction \n
+ * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ \n
+ * sendID = -2 to set Jj,Jk, rho fields
+ *          -1 to set EB fields 
+ *          an individual field ID (e.g. ExID_) to set just that field \n
  * ghostVec can (and should) be generated with getGhostVec function 
  */ 
-void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int option) {
+void Grid::setGhostVec(const int side, double* ghostVec, int sendID) {
     assert(-3 < sendID && sendID < nFieldsTotal_); 
     
-    assert(option==0 || option==1);
     int offset; // offset from physical boundary
-    if(option==0){// set ghost values by replace
-        offset = abs(side)/side;
-    }else{// set physical values by sum
-        offset = 0; 
+    int option; // for unslice,0:replace, 1:sum
+    if(sendID==-2){// sum Rho and Jj,Jk to left physical
+        assert(side<0); //left
+        offset = 0; // physical
+        option = 1; // sum
+    }else{// set ghost values by replace
+        offset = abs(side)/side; // ghost
+        option = 0; // replace
     }
-    if(debug>1)fprintf(stderr,"rank=%d:set on side=%d with offset=%d,for field=%d\n",
-                                  rank_MPI,side,offset,sendID);
+    if(debug>1)fprintf(stderr,"rank=%d:set side=%d, offset=%d, field=%d, option=%d\n",
+                                  rank_MPI,side,offset,sendID,option);
 
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
     
-    // offset = +1 to set into the RHS ghost vectors
-    // offset = -1 to set into the LHS ghost vectors 
-//    int offset = 1; 
-//    if (side < 0) { 
-//        offset = -1; 
-//    };
-
     const int xside = 1; 
     // const int yside = 2; // not used 
     const int zside = 3; 
@@ -193,17 +179,9 @@ void Grid::setGhostVec(const int side, double* ghostVec, int sendID, int option)
             default: fieldID = sendID; break; // send individual field 
         }; 
         field = fieldPtr_[fieldID]; 
-        // special case for J/rho only, sources add at shared interface, 
-        // so never want to get from adjacent ghost cells
-//        if (sendID == -2) { 
-//            offset = 0; 
-//        } 
-
-        if(option==0){// set ghost values by replace
-            unsliceMatToVec_(fieldID,side,offset,tmpVec,0); //0: replace 
-        }else{// set physical values by sum
-            unsliceMatToVec_(fieldID,side,offset,tmpVec,1); //1: sum 
-        }
+            
+        // unslice the given field with appropriate offset 
+        unsliceMatToVec_(fieldID,side,offset,tmpVec,option);  
     } 
 }; 
 
@@ -224,9 +202,11 @@ int Grid::getGhostVecSize(const int sendID) {
 
 /// function to convert (-/+)(1,2,3) side indicator into (left/right)(x,y,z) index of boundary physical data point 
 /*! Helper function for public ghost cell methods which accept side indicator as argument. \n 
- * Side < 0 will return index of first physical point, side > 0 will return index of last physical point \n 
+ * Side < 0 will return index of first physical point, side > 0 will return index of last physical point \n
+ * Notice that the last plane of a physical cell is a ghost plane! \n 
  * abs(side) == 1 returns value in x direction, 2 in y, 3 in z \n 
- * This function is necessary because different field types have a different number of physical grid points in each direction. \n
+ * This function is necessary because different field types have a different number of grid points on physical cells in each direction. \n
+ * However, notice that the last grid point on faces of physical cells is in fact a ghost point.
  * fieldID is a private fieldID such as ExID_
  */ 
 int Grid::sideToIndex_(const int side, const int fieldID) { 
@@ -289,8 +269,19 @@ int Grid::sideToIndex_(const int side, const int fieldID) {
     return offset; 
 };*/ 
 
-/// slices a physical plane in the specified direction (excludes ghosts) 
-/*! mat is 3D array whose real (non-ghost) data on one side will be stored in vec as a 1D array. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). unsliceMatToVec_ is the inverse function. 
+/// slices a physical plane in the specified direction  
+/*! mat is 3D array whose data on one side will be stored in vec as a 1D array. 
+ * vec must be of size maxPointsInPlane_. 
+ * side = 1: x right, -1: x left
+ *      = 2: y right, -2: y left
+ *      = 3: z right, -3: z left
+ * offset is an integer offset from the first/last physical index 
+ *      e.g. side=-1 and offset=0 gives the 1st physical yz plane in x direction
+ *                       offset=-1 would have returned the adjacent ghost plane
+ *                       offset = 3 would have returned the 4th physical yz plane 
+ *           side=+1 and offset=0 gives the last physical yz plane in x direction.
+ *
+ * unsliceMatToVec_ is the inverse function. 
  */ 
 void Grid::sliceMatToVec_(const int fieldID, const int side, const int offset, double* vec) { 
     // check for legal fieldID and side parameters 
@@ -298,7 +289,13 @@ void Grid::sliceMatToVec_(const int fieldID, const int side, const int offset, d
     assert(side != 0 && abs(side) < 4); 
 
     // get the index to slice from
-    int dex = sideToIndex_(side,fieldID) + offset; 
+    int dex;
+    if(side<0){//left side
+        dex = nGhosts_; // index of first physical point, count from 0
+    }else{
+        dex = nGhosts_ + nxyzReal_[side-1] - 1; // index of last physical point
+    }
+    dex += offset;
     assert(dex > -1); 
     
     // use fieldID to get the pointer to the field 
@@ -344,8 +341,21 @@ void Grid::sliceMatToVec_(const int fieldID, const int side, const int offset, d
     } 
 };
 
-/// unslices a physical plane in the specified direction (excludes ghosts) 
-/*! mat is 3D array whose real (non-ghost) data on one side will be replaced by data in the 1D array vec. vec must be of size maxPointsInPlane_. side is an integer -/+ 1 to indicate the location on the left/right side in the x direction, -/+ 2 in y, -/+ 3 in z. offset is an integer offset from the first/last physical index determined by side (e.g. side=-1 and offset=0 gives the yz plane of the 1st physical grid points in x direction, whereas offset=-1 would have returned the adjacent ghost cells and offset = 3 would have returned the 4th physical yz plane from the left). op=0 replaces the values in mat with those in vec, op=1 adds the values in vec to thos in mat. sliceMatToVec_ is the inverse function. 
+/// unslices a plane in the specified direction  
+/*! mat is 3D array on one sidei, will be replaced by data in the 1D array vec. 
+ * vec must be of size maxPointsInPlane_. 
+ * side = 1: x right, -1: x left
+ *      = 2: y right, -2: y left
+ *      = 3: z right, -3: z left
+ * offset is an integer offset from the first/last physical index 
+ *      e.g. side=-1 and offset=0 gives the 1st physical yz plane in x direction
+ *                       offset=-1 would have returned the adjacent ghost plane
+ *                       offset = 3 would have returned the 4th physical yz plane 
+ *           side=+1 and offset=0 gives the last physical yz plane in x direction.
+ * op = 0: replaces the values in mat with those in vec
+ *      1: adds the values in vec to thos in mat. 
+ *
+ * sliceMatToVec_ is the inverse function. 
  */ 
 void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset, double* vec, const int op) { 
     // check for legal fieldID and side parameters 
@@ -353,7 +363,13 @@ void Grid::unsliceMatToVec_(const int fieldID, const int side, const int offset,
     assert(side != 0 && abs(side) < 4); 
 
     // get the index to unslice from
-    int dex = sideToIndex_(side,fieldID) + offset; 
+    int dex;
+    if(side<0){//left side
+        dex = nGhosts_; // index of first physical point, count from 0
+    }else{
+        dex = nGhosts_ + nxyzReal_[side-1] - 1; // index of last physical point
+    }
+    dex += offset;
     assert(dex > -1); 
 
     // use fieldID to get the pointer to the field 

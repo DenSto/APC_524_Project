@@ -9,7 +9,7 @@ PART = particle.o particle_handler.o interpolate.o deposit.o
 BC_PART = bc_p_MPI.o bc_p_periodic.o bc_p_reflecting.o
 BC_FIELD = bc_f_MPI.o bc_f_periodic.o bc_f_external.o 
 BC = particles_boundary.o particle_bc_factory.o \
-     fields_boundary.o field_bc_factory.o
+     field_bc_factory.o
 
 IOOBJ = $(addprefix ./IO/, $(IO))
 IOTESTOBJ = $(addprefix ./IO/, $(IOTEST))

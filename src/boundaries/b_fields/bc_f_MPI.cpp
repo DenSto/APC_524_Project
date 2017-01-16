@@ -17,7 +17,7 @@ class BC_F_MPI : public BC_Field {
 	BC_F_MPI(int side, Domain* domain, Grid *grids, Input_Info_t *info);
 	~BC_F_MPI();
         int sideToindex(int side);
-	int completeBC(int sendID, int option);
+	int completeBC(int sendID);
     private:
         short same_; //same=+1: send and recv from the same side
                      //same=-1: send and recv from opposite sides
@@ -26,7 +26,6 @@ class BC_F_MPI : public BC_Field {
         int stag_,rtag_; // MPI tags for send and recv
         double *sendBuf_;// send buffer
         double *recvBuf_;// recv buffer  
-        double *ghostBuf_; // ghost buffer
         Grid *grids_;     
 };
 
@@ -107,31 +106,23 @@ for(int i=0;i<6;i++){
 
 
 //! complete MPI field boundary condition
-/*! option = 0: load physical on this side, and send to neighbour 
- *              recv from neighbor, use it to replace ghost on this side
- *  option = 1: take ghost on this side, and add to physical on this side
- *              no MPI communication is needed, only local operations
+/*! 
+ *  Treat Rho,J in one way
+ *  Treat E,B,A,phi in another way 
  */             
-int BC_F_MPI::completeBC(int fieldID, int option){
-
-    assert(option==0 || option==1);
+int BC_F_MPI::completeBC(int fieldID){
 
     int size = grids_->getGhostVecSize(fieldID); 
+    MPI_Request req;
+    int err; 
+    char fname[20]; // for debug file 
 
-    if(option==0){//send physical, recv to ghost
-        if(debug>1)fprintf(stderr,"rank=%d: side=%d MPI for field %d...\n",
-                                   rank_MPI,side_,fieldID);
-
+    if(!(fieldID==-2 && side_<0)){ // need to send on this side 
+        if(debug>1)fprintf(stderr,"rank=%d: send MPI side=%d,fieldID=%d\n",
+                                 rank_MPI,side_,fieldID);
         sendBuf_ = new double[size]; 
-        recvBuf_ = new double[size]; 
-
-        MPI_Request req;
-        int err; 
-        char fname[20]; // for debug file 
-    
-        // load ghost value to send. Always send this side of ghost
-        grids_->getGhostVec(side_,sendBuf_,fieldID,0);//0: get physical
-   
+        // load on this side to buffer for send
+        grids_->getGhostVec(side_,sendBuf_,fieldID);
         if(debug>2){
            fprintf(stderr,"rank=%d:checking field send\n",rank_MPI);
            sprintf(fname,"field%d_send%d.dat",fieldID,side_);
@@ -142,16 +133,34 @@ int BC_F_MPI::completeBC(int fieldID, int option){
         // non-blocking send to neighbour
         err=MPI_Isend(sendBuf_,size,MPI_DOUBLE,sendRank_,stag_,MPI_COMM_WORLD,&req);
         if(err) fprintf(stderr, "rank=%d: MPI_Isend field on error %d\n",rank_MPI,err);
-    
+    }
+      
+
+    if(!(fieldID==-2 && ((side_<0 && same_==-1) || (side_>0 && same_==1)))){ // need to recv 
+        if(debug>1)fprintf(stderr,"rank=%d: recv MPI side=%d,fieldID=%d\n",
+                                 rank_MPI,side_,fieldID);
+        recvBuf_ = new double[size]; 
         // blocking recv from neighbor, the nieghbour should have already sent 
         err=MPI_Recv(recvBuf_,size,MPI_DOUBLE,recvRank_,rtag_,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
         if(err) fprintf(stderr, "rank=%d: MPI_Recv field on error %d\n",rank_MPI,err);
-    
+        if(debug>1) fprintf(stderr,"rank=%d: fieldID %d recved on side %d\n",
+                                    rank_MPI,fieldID,side_);
+    }
+
+    if(!(fieldID==-2 && side_<0)){ // those who send need to wait 
+        if(debug>1)fprintf(stderr,"rank=%d: wait MPI side=%d,fieldID=%d\n",
+                                 rank_MPI,side_,fieldID);
         // wait for communication
         err=MPI_Wait(&req,MPI_STATUS_IGNORE);
         if(err) fprintf(stderr, "rank=%d MPI_Wait error = %d\n",rank_MPI,err);
-        if(debug>2) fprintf(stderr,"rank=%d: field received on side %d\n",rank_MPI,side_);
-    
+        if(debug>1) fprintf(stderr,"rank=%d: fieldID %d sent on side %d\n",
+                                    rank_MPI,fieldID,side_);
+        delete [] sendBuf_;
+    }
+
+    if(!(fieldID==-2&&((side_<0&&same_==-1)||(side_>0&&same_==1)))){//those who recv need to set 
+        if(debug)fprintf(stderr,"rank=%d: set MPI side=%d,fieldID=%d\n",
+                                 rank_MPI,same_*side_,fieldID);
         if(debug>2){
            fprintf(stderr,"rank=%d:checking field revc\n",rank_MPI);
            sprintf(fname,"field%d_recv%d.dat",fieldID,side_);
@@ -161,22 +170,11 @@ int BC_F_MPI::completeBC(int fieldID, int option){
     
         // unload received value to ghost, unload to this or oppisite side
         // same side: same =+1. Opposite side: same =-1
-        grids_->setGhostVec(same_*side_,recvBuf_,fieldID,0);//0: replace ghost
-
-        delete [] sendBuf_;
+        grids_->setGhostVec(same_*side_,recvBuf_,fieldID);
+        if(debug>1) fprintf(stderr,"rank=%d: fieldID %d set on side %d\n",
+                                    rank_MPI,fieldID,same_*side_);
+    
         delete [] recvBuf_;
-
-    } else { // load ghost, sum to physical, this side only 
- 
-        if(debug>1)fprintf(stderr,"rank=%d: side=%d MPI local sum for field %d...\n",
-                                   rank_MPI,side_,fieldID);
-        ghostBuf_ = new double[size]; 
-        // load ghost on this side
-        grids_->getGhostVec(side_,ghostBuf_,fieldID,1); //1: get ghost
-        // sum to physical on this side
-        grids_->setGhostVec(side_,ghostBuf_,fieldID,1); //1: sum to physical
-        delete [] ghostBuf_;
-
     }
 
     return 0;

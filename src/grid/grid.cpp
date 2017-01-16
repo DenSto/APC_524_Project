@@ -68,6 +68,8 @@ Grid::Grid(int *nxyz, int nGhosts, double *xyz0, double *Lxyz):
     vertID_(6)
 {
     checkInput_(); 
+    
+    for(int i=0;i<3;i++){nxyzReal_[i]=nxyz[0];}
 
     fieldIsContiguous_ = new int[nFieldsTotal_];
  
@@ -567,12 +569,12 @@ void Grid::InitializeFields(Input_Info_t *input_info){
 }; 
 
 //! Execute field boundary conditions
-void Grid::executeBC(int fieldID, int option){
+void Grid::executeBC(int fieldID){
     // loop through dimensions
     if(debug>2) fprintf(stderr,"rank=%d: executing field BC\n",rank_MPI);
     for(int i=0;i<3;i++){
         // left and right boundary in each dimension
-        boundaries_[2*i]->completeBC(fieldID,option);
-        boundaries_[2*i+1]->completeBC(fieldID,option);
+        boundaries_[2*i]->completeBC(fieldID);
+        boundaries_[2*i+1]->completeBC(fieldID);
     }
 };

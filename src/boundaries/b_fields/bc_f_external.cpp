@@ -9,7 +9,7 @@ class BC_F_External : public BC_Field {
     public:
 	BC_F_External(int side, Domain* domain, Grid *grids, Input_Info_t *info);
 	~BC_F_External();
-	int completeBC(int fieldID, int option);
+	int completeBC(int fieldID);
     private:
         Grid *grids_;
         LightBC *lightbc_; // inject transverse EM waves + background
@@ -42,16 +42,16 @@ BC_F_External::~BC_F_External(void){
    if(support_poisson_) delete poissonbc_;
 }
 
-int BC_F_External::completeBC(int fieldID, int option){
+int BC_F_External::completeBC(int fieldID){
 
-    if(debug>2)fprintf(stderr,"    rank=%d: executing external boundary on side %d\n",
+    if(debug>1)fprintf(stderr,"    rank=%d: executing external boundary on side %d\n",
                     rank_MPI,side_); 
  
     if(fieldID==-1){//E,B fields 
         lightbc_->applyBCs(time_phys,dt_phys,grids_);	
     }else if(support_poisson_ && fieldID>0){
         //individual field for poisson solver
-        poissonbc_->applyBCs((double)fieldID,(double)option,grids_);
+        //poissonbc_->applyBCs((double)fieldID,(double)option,grids_);
     }
 
     return 0;

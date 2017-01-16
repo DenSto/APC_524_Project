@@ -56,11 +56,8 @@ public:
   // side = +1: x right, side = -1: x left
   // side = +2: y right, side = -2: y left
   // side = +3: z right, side = -3: z left
-  //
-  // option = 0: get physical, or set ghost by replace
-  // option = 1: get ghost, or set physical by sum
-  virtual void getGhostVec(const int side, double* ghostVec, int sendID, int option);
-  virtual void setGhostVec(const int side, double* ghostVec, int sendID, int option);
+  virtual void getGhostVec(const int side, double* ghostVec, int sendID);
+  virtual void setGhostVec(const int side, double* ghostVec, int sendID);
 
   //void updatePeriodicGhostCells(); 
 
@@ -72,7 +69,7 @@ public:
   int getnGhosts() {return nGhosts_;};
   void AvgB(); 
   
-  void executeBC(int sendID, int option); // execute field boundary conditions
+  void executeBC(int sendID); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
 
@@ -82,7 +79,8 @@ protected:
   const int nxReal_; 
   const int nyReal_; 
   const int nzReal_; 
-  
+  int nxyzReal_[3];  
+
   const int nGhosts_; // number of ghost points in each dimension/2
 
   const int nx_;     // number of physical+ghost points

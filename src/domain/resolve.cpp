@@ -2,14 +2,15 @@
 #include <assert.h>
 #include <math.h>
 #include "resolve.hpp"
+#include "../globals.hpp"
 
 Resolution::Resolution(Input_Info_t *input_info){
 
     resolve_ = new Resolve_t;
-    printf("    Determining necessary temporal/spatial resolutions...\n"); 
+    if(rank_MPI==0)printf("    Determining necessary temporal/spatial resolutions...\n"); 
 
     /* Determin time resolution *****************************/
-    printf("        Typical time scales in this simulation are:\n"); 
+    if(rank_MPI==0)printf("        Typical time scales in this simulation are:\n"); 
     // light transit time t=L/c, in unit of picosecond
     int *nCell   = input_info->nCell;
     double *Lxyz = input_info->Lxyz;  
@@ -22,7 +23,8 @@ Resolution::Resolution(Input_Info_t *input_info){
     }
     time_light *= UNIT_TIME;
     assert(time_light>0);
-    printf("            Light transit unit cell takes %6.3e ps\n",time_light); 
+    if(rank_MPI==0)printf("            Light transit unit cell takes %6.3e ps\n",time_light); 
+    // MPI gather
     (resolve_->time).time_light = time_light;
 
     // Load data to determine plasma frequency scales
@@ -42,7 +44,8 @@ Resolution::Resolution(Input_Info_t *input_info){
     }
     //if(debug)printf("sum e^2n/m=%f,n0=%f,dens_phys=%f\n",ttmp,n0,dens_phys);
     double omega_p = UNIT_FPE*sqrt(ttmp*n0)*1e-9; // convert KHz to THz
-    printf("            Plasma frequency is %6.3e THz\n",omega_p); 
+    // MPI gather
+    if(rank_MPI)printf("            Plasma frequency is %6.3e THz\n",omega_p); 
 
 /*
     // maximum gyro frequency, in unit of 1THz=1/ps

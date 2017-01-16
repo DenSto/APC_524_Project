@@ -18,10 +18,10 @@ int Grid::evolveFields (double dt) {
 	std::swap(By_tm1_, By_);
 	std::swap(Bz_tm1_, Bz_);
 
-	// calculate E 
-	for (int ix = 1; ix < nx_; ix++) {
-		for (int iy = 1; iy < ny_; iy++) {
-			for (int iz = 1; iz < nz_; iz++) {
+	// calculate E on physical edges only: ni_=niReal_+2*nGhosts_
+	for (int ix = nGhosts_; ix < nx_-nGhosts_; ix++) {
+		for (int iy = nGhosts_; iy < ny_-nGhosts_; iy++) {
+			for (int iz = nGhosts_; iz < nz_-nGhosts_; iz++) {
 				Ex_[ix][iy][iz] = Ex_[ix][iy][iz] - dt * 
 								  (  ( By_tm1_[ix][iy][iz] - By_tm1_[ix][iy][iz-1] )/dz_  
 								   - ( Bz_tm1_[ix][iy][iz] - Bz_tm1_[ix][iy-1][iz] )/dy_ 
@@ -38,10 +38,10 @@ int Grid::evolveFields (double dt) {
 		}
 	}
 
-	// calculate B
-	for (int ix = 1; ix < nx_; ix++) {
-		for (int iy = 1; iy < ny_; iy++) {
-			for (int iz = 1; iz < nz_; iz++) {
+	// calculate B on physical faces only: ni_=niReal_+2*nGhosts_
+	for (int ix = nGhosts_; ix < nx_-nGhosts_; ix++) {
+		for (int iy = nGhosts_; iy < ny_-nGhosts_; iy++) {
+			for (int iz = nGhosts_; iz < nz_-nGhosts_; iz++) {
 				Bx_[ix][iy][iz] = Bx_tm1_[ix][iy][iz] + dt * 
 								  (  ( Ey_[ix][iy][iz+1] - Ey_[ix][iy][iz] )/dz_  
 								   - ( Ez_[ix][iy+1][iz] - Ez_[ix][iy][iz] )/dy_ );
@@ -66,9 +66,9 @@ int Grid::evolveFields (double dt) {
 int Grid::evolveFieldsES (double dt) {
 
 	// calculate E 
-	for (int ix = 1; ix < nx_; ix++) {
-		for (int iy = 1; iy < ny_; iy++) {
-			for (int iz = 1; iz < nz_; iz++) {
+	for (int ix = nGhosts_; ix < nx_-nGhosts_; ix++) {
+		for (int iy = nGhosts_; iy < ny_-nGhosts_; iy++) {
+			for (int iz = nGhosts_; iz < nz_-nGhosts_; iz++) {
 				Ex_[ix][iy][iz] = - dt * (  4*M_PI*Jx_[ix][iy][iz]  );
 				Ey_[ix][iy][iz] = - dt * (  4*M_PI*Jy_[ix][iy][iz]  );
 				Ez_[ix][iy][iz] = - dt * (  4*M_PI*Jz_[ix][iy][iz]  );
