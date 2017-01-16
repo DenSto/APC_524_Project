@@ -2,7 +2,7 @@ CC = g++
 MPICC = mpic++
 MPIFLAGS = -DUSE_MPI=1
 
-CFLAGS= -g  -Wall 
+CFLAGS= -g  -Wall -O3
 
 include Makefile.obj
 
