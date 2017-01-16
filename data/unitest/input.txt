@@ -2,7 +2,7 @@ domain:
 {
   # total number of cells in each dimension
   # nCell will be devided and distribute to MPI processors
-  nCell = [ 16, 16, 16 ]
+  nCell = [ 32, 32, 32 ]
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
@@ -29,7 +29,7 @@ runtime:
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug, write possibly too much debug files
-  debug = 1
+  debug = 2
 }
 
 initialization:
