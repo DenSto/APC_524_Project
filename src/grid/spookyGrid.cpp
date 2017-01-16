@@ -83,9 +83,7 @@ void Grid::getGhostVec(const int side, double* ghostVec, int sendID) {
                 break; 
             default: fieldID = sendID; break; // send individual field 
         }; 
-        // determine the magnitude of the offset to use 
-        // different for field types located *on* the shared face 
-        // vs values that are not on the shared face 
+        
         field = fieldPtr_[fieldID]; 
 
         // slice the given field with appropriate offset 

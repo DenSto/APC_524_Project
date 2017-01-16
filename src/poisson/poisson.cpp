@@ -9,7 +9,8 @@
 #include "../globals.hpp"
 //#include "../domain/domain.hpp"
 
-#define CONV_CRIT 1e-4 // convergence criteria
+#define CONV_CRIT 1e-9 // absolute convergence criteria
+#define CONV_RATIO 1e-6 // relative convergence criteria
 
 Poisson_Solver::Poisson_Solver(Domain *domain, Input_Info_t *input_info) :
   Grid(domain->getnxyz(), 1, domain->getxyz0(), domain->getLxyz()),
@@ -146,13 +147,13 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
   double sourceMult = -4*M_PI;
   double convTol;
 
-  convTol = std::max(conv_phi_*0.1,CONV_CRIT);
+  convTol = std::max(conv_phi_*CONV_RATIO,CONV_CRIT);
   if(debug>1&&rank_MPI==0)printf("        solving for phi...\n"); 
   run_poisson_solver_(phi1ID_,phi2ID_,phi1_,phi2_,rho_,convTol,sourceMult);
   phiToE();
 
   sourceMult = -4*M_PI; 
-  convTol = std::max(conv_A_*0.1,CONV_CRIT);
+  convTol = std::max(conv_A_*CONV_RATIO,CONV_CRIT);
   if(debug>1&&rank_MPI==0)printf("        solving for Ax...\n"); 
   run_poisson_solver_(Ax1ID_,Ax2ID_,Ax1_,Ax2_,Jx_,convTol,sourceMult);
 
@@ -162,6 +163,8 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
   if(debug>1&&rank_MPI==0)printf("        solving for Az...\n"); 
   run_poisson_solver_(Az1ID_,Az2ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
   AToB();
+
+  printf("        Poisson initialization complete!\n");
 }
 
 void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2, double*** u1, double*** u2,double*** R,double convergenceTol,double sourceMult) {
@@ -183,7 +186,6 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   bool jacobi_method_converged = false;
   double maxDiff = 0.0;
   double absDiff = 0.0;
-  double uLast = 0.0;
 
   // limits 
   int iEnd = nxReal_ + iBeg_;  
@@ -195,34 +197,25 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
   do {
     iternum++;
 
-    //reset poisson convergence variable
-    maxDiff = 0.0;
-
     // supply boundary conditions
-    //note second argument of executeBC = 0 to replace (and NOT add) the ghost cell
     if ( iternum % 2 == 0 ) {
       executeBC(fieldID1);
     } else {
       executeBC(fieldID2);
     }
 
-    //iterate over physical grid points only.
+    //reset poisson convergence variable
+    maxDiff = 0.0;
+    // calculate before update to avoid boundary modifications
     for ( int i=iBeg_; i<iEnd; i++ ) {
       for ( int j=jBeg_; j<jEnd; j++ ) {
     	for ( int k=kBeg_; k<kEnd; k++ ) {
 	  //Calculate poisson step
           if ( iternum % 2 == 0 ) {
-	    uLast = u2[i][j][k];
-            u2[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) + ay*(u1[i][j-1][k]+u1[i][j+1][k]) + 
-              az*(u1[i][j][k-1]+u1[i][j][k+1]) - af*R[i][j][k]*sourceMult;
-	    absDiff = fabs(u2[i][j][k]-uLast);
+	    absDiff = fabs(u2[i][j][k]-u1[i][j][k]);
           } else {
-	    uLast = u1[i][j][k];
-            u1[i][j][k] = ax*(u2[i-1][j][k]+u2[i+1][j][k]) + ay*(u2[i][j-1][k]+u2[i][j+1][k]) +
-	      az*(u2[i][j][k-1]+u2[i][j][k+1]) - af*R[i][j][k]*sourceMult;
-	    absDiff = fabs(u1[i][j][k]-uLast);
+	    absDiff = fabs(u1[i][j][k]-u2[i][j][k]);
           }
-
 	  //Retain the largest error
           if (absDiff > maxDiff) maxDiff = absDiff;
         }
@@ -234,10 +227,33 @@ void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2,
     maxDiff = domain_->GetMaxValueAcrossDomains(maxDiff);
 #endif
 
+    if (maxDiff > convergenceTol){    
+        //iterate over physical grid points only.
+        for ( int i=iBeg_; i<iEnd; i++ ) {
+          for ( int j=jBeg_; j<jEnd; j++ ) {
+        	for ( int k=kBeg_; k<kEnd; k++ ) {
+              //Calculate poisson step
+              if ( iternum % 2 == 0 ) {
+                u2[i][j][k] = ax*(u1[i-1][j][k]+u1[i+1][j][k]) 
+                            + ay*(u1[i][j-1][k]+u1[i][j+1][k]) 
+                            + az*(u1[i][j][k-1]+u1[i][j][k+1]) 
+                            - af*R[i][j][k]*sourceMult;
+              } else {
+                u1[i][j][k] = ax*(u2[i-1][j][k]+u2[i+1][j][k]) 
+                            + ay*(u2[i][j-1][k]+u2[i][j+1][k]) 
+                            + az*(u2[i][j][k-1]+u2[i][j][k+1]) 
+                            - af*R[i][j][k]*sourceMult;
+              }
+            }
+          }
+        }
+     }
+
     if (maxDiff < convergenceTol) jacobi_method_converged = true;
+
   }while( !jacobi_method_converged );
 
-  if (debug>1) printf("Poisson converged!\n");
+  if (debug) printf("Poisson converged with maxDiff=%e!\n",maxDiff);
 
   //If last calculated pass updated the work array (u2), copy it to the solution array (u1).
   if ( iternum % 2 == 0 ) std::swap(u1,u2);
@@ -260,17 +276,26 @@ int Poisson_Solver::getGhostVecSize(const int sendID) {
 
 /// bundles the data in the ghost cells to send
 /*! side = -/+ 1 for left/right x direction, -/+ 2 for y, -/+ 3 for z \n
- * ghostVec is the vector to store the data in, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
- * sendID = -1 to get EB fields, -2 for rho/J sources, -3 for phi/A potentials, or sendID = an individual field ID (e.g. ExID_) to get just that field (used for Poisson updating for example) \n
- * Stores the data of the E,B,J fields along the specified boundary plane into a 1D array to be sent with a single MPI call. \n 
- * If sendID = -1 (as used in each time step update), stores in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
- * If sendID = -2 (as used in Poisson iteration), stores in order: phi1,phi2,Ax1,Ay1,Az1,Ax2,Ay2,Az2 \n
- * If sendID = -3 (as used in Poisson initialization), stores in order: Jx,Jy,Jz,rho \n
+ * ghostVec is the vector to store the data in, which must be of length ghostVecSize_ \n
+ * sendID = -1 to get EB fields, 
+ *          -2 for rho/J sources, 
+ *          -3 for phi/A potentials, 
+ *        = an individual field ID (e.g. ExID_) to get just that field \n
  * ghostVec can (and should) be unpacked with setGhostVec function 
  */ 
 void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
     assert(-4 < sendID && sendID < nFieldsTotal_); 
     
+    int offset; // offset from physical boundary
+    if(sendID==-2){// get Jj,Jk,Rho on right ghost
+        assert(side>0);
+        offset = 1; // right ghost
+    }else{// get physical values
+        offset = 0; // physical
+    }
+    if(debug>1)fprintf(stderr,"rank=%d:get on side=%d with offset=%d,for field=%d\n",
+                                  rank_MPI,side,offset,sendID);
+
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
@@ -291,7 +316,7 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
     // "loop" over all fields to package 
     int begdex; 
     double*** field; 
-    int fieldID,offset = 0 ; 
+    int fieldID; 
     int ifield;
     for (ifield=0; ifield<nfields; ++ifield) { 
         begdex=ifield*n; 
@@ -340,16 +365,8 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
                 break; 
             default: fieldID = sendID; break; // send individual field 
         }; 
-        // determine the magnitude of the offset to use 
-        // different for field types located *on* the shared face 
-        // vs values that are not on the shared face 
+
         field = fieldPtr_[fieldID]; 
-//        offset = getGhostOffset_(side,fieldID);  
-        // special case for J/rho only, sources add at shared interface, 
-        // so never want to get from adjacent ghost cells
-//        if (sendID == -2) { 
-//            offset = 0; 
-//        } 
         
         // slice the given field with appropriate offset 
         sliceMatToVec_(fieldID,side,offset,tmpVec); 
@@ -359,18 +376,30 @@ void Poisson_Solver::getGhostVec(const int side, double* ghostVec, int sendID) {
 }; 
 
 /// unbundles the data in the ghost cells to send
-/*! side = -/+ 1 for left/right x direction, -/+ 2 for y, -/+ 3 for z \n
- * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ (can be determined with getGhostVecSize) \n
- * sendID = -1 to set JEB fields, or sendID = an individual field ID (e.g. ExID_) to set just that field (used for Poisson updating for example) \n
- * Sets the data of the E,B,J fields along the specified boundary plane from the 1D array ghostVec to be received with a single MPI call. \n 
- * If sendID = -1 (as used in each time step update), fields are read and set in order: Ex,Ey,Ez,Bx,By,Bz,Jx,Jy,Jz. \n
- * If sendID = -2 (as used in Poisson iteration), fields are read and set in order: phi1,phi2,Ax1,Ay1,Az1,Ax2,Ay2,Az2 \n
- * If sendID = -3 (as used in Poisson initialization), stores in order: Jx,Jy,Jz,rho \n
+/*! side = -/+ i for left/right i-th direction \n
+ * ghostVec is the vector to read the data from, which must be of length ghostVecSize_ \n
+ * sendID = -3 phi and A fields
+ *          -2 to set Jj,Jk, rho fields
+ *          -1 to set EB fields 
+ *          an individual field ID (e.g. ExID_) to set just that field \n
  * ghostVec can (and should) be generated with getGhostVec function 
- */ 
-void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID, int op) {
+ */
+void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID) {
     assert(-4 < sendID && sendID < nFieldsTotal_); 
     
+    int offset; // offset from physical boundary
+    int option; // for unslice,0:replace, 1:sum
+    if(sendID==-2){// sum Rho and Jj,Jk to left physical
+        assert(side<0); //left
+        offset = 0; // physical
+        option = 1; // sum
+    }else{// set ghost values by replace
+        offset = abs(side)/side; // ghost
+        option = 0; // replace
+    }
+    if(debug>1)fprintf(stderr,"rank=%d:set side=%d, offset=%d, field=%d, option=%d\n",
+                                  rank_MPI,side,offset,sendID,option);
+
     // create a temporary vector to store slices in 
     int n = maxPointsInPlane_;
     double* tmpVec = sliceTmp_; 
@@ -379,13 +408,6 @@ void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID, i
     // const int yside = 2; // not used 
     const int zside = 3; 
     
-    // offset = +1 to set into the RHS ghost vectors
-    // offset = -1 to set into the LHS ghost vectors 
-    int offset = 1; 
-    if (side < 0) { 
-        offset = -1; 
-    };
-
     // determine number of fields being sent 
     int nfields; 
     switch (sendID) { 
@@ -451,12 +473,8 @@ void Poisson_Solver::setGhostVec(const int side, double* ghostVec, int sendID, i
             default: fieldID = sendID; break; // send individual field 
         }; 
         field = fieldPtr_[fieldID]; 
-        // special case for J/rho only, sources add at shared interface, 
-        // so never want to get from adjacent ghost cells
-//        if (sendID == -2) { 
-//            offset = 0; 
-//        } 
+        
         // unslice the given field 
-        unsliceMatToVec_(fieldID,side,offset,tmpVec,op); 
+        unsliceMatToVec_(fieldID,side,offset,tmpVec,option); 
     } 
 }; 

@@ -13,6 +13,7 @@
 #include "../utils/RNG.hpp"
 #include <string.h>
 #include <iostream>
+#include <limits>
 #define _USE_MATH_DEFINES
 #if USE_MPI
 #include "mpi.h"
@@ -109,10 +110,13 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     }
     if (allBoundariesPeriodic && strcmp(input_info->fields_init,"poisson") == 0 ) {
       //zero them out.
-      printf("============================================================================================\n");
-      printf("NOTICE: Because the user requested Poisson initialization with periodic boundary conditions,\n");
-      printf("        the average particle velocity will be initialized to zero (by species).\n");
-      printf("============================================================================================\n");
+      if(rank_MPI==0){
+	printf("    ===========================================================\n");
+	printf("    NOTICE: Because the user requested Poisson initialization\n");
+	printf("            with periodic boundary conditions, the average\n");
+	printf("            particle velocity will be set to zero (by species).\n");
+	printf("    ===========================================================\n");
+      }
       zeroAvgChargeAndVelocity_();
     }
 }
@@ -373,14 +377,16 @@ void Particle_Handler::outputParticleVel(){
 
 void Particle_Handler::zeroAvgChargeAndVelocity_(){
 
-  double qTot = 0.0;
-  long qRefIdx = 0;
-  long qCount = 0;
-  double vx = 0.0;
-  double vy = 0.0;
-  double vz = 0.0;
+  double qTot = 0.0;   //total charge of all particles
+  long qRefIdx = 0;    //reference index
+  long qCount = 0;     //count of the # of charges
+  double vx = 0.0;     //x velocity
+  double vy = 0.0;     //y velocity
+  double vz = 0.0;     //z velocity
 
-  std::vector<int> countedParticle(np_,0);
+  double min_q = std::numeric_limits<float>::max();  //minimum absolute charge on any particle
+  std::vector<int> countedParticle(np_,0);           //vector of integers, tracking the handling of particles
+
   do {
     qRefIdx = 0;
     qCount = 0;
@@ -417,6 +423,7 @@ void Particle_Handler::zeroAvgChargeAndVelocity_(){
 	  parts_[i].v[1] -= vy;
 	  parts_[i].v[2] -= vz;
 	  qTot += parts_[i].q;
+	  min_q = std::min(fabs(parts_[i].q), min_q);
 	}
       }
     }
@@ -424,10 +431,10 @@ void Particle_Handler::zeroAvgChargeAndVelocity_(){
   } while(qCount > 0);
 
   //Test for errors
-  if(qTot !=0) {
+  if(fabs(qTot) >= min_q / np_) {
     printf("ERROR: Poisson initialization with periodic boundaries cannot be run with a net charge.  Please adjust inputs and rerun.\n");
   }
-  assert(qTot == 0);
+  assert(fabs(qTot) < min_q / np_);
   for (long i=0; i<np_; i++) {
     assert(countedParticle[i] == 2);
   }
