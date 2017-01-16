@@ -1,0 +1,213 @@
+domain:
+{
+  # total number of cells in each dimension
+  # nCell will be divided and distributed to MPI processors
+  nCell = [ 3, 4, 5 ]
+
+  # number of processors in each dimension (parallel version only)
+  nProc = [ 1, 1, 1 ]
+
+  # origin of the entire simulation domain
+  # origin of individual MPI domains will be determined by the program
+  xyz0 = [0.0, 0.0, 0.0]
+
+  # physical length of the entire simulation domain, in unit of cm
+  # Lxyz will be divided and distributed to MPI processors  
+  Lxyz = [1.0, 1.0, 1.0]
+
+}
+
+runtime: 
+{
+  # number of time steps to run
+  # should be larger than zero
+  nTimesteps = 5
+
+  # start time, in units of 33.4 picosecond. (speed of light c=1)
+  startTime = 0.0
+
+  # debug = 1 turns on basic debug print statements
+  # debug = 2 turns on more debug print statements
+  # debug = 3 turns on more debug, write possibly too much debug files
+  debug = 2
+}
+
+initialization:
+{
+  # COMING SOON: whether this is restart of a previous run (0 = no)
+  restart = 0
+
+  # particle initialization
+  particles:
+  {
+    # number of particles of all species in the entire simulation box.
+    # When MPI is used, this number will be devided by the number of 
+    # processors. Processors with lower rank may get one more particle
+    # than processors with higher rank.
+    nParticles_tot = 16
+
+    # total physical number density of all species to simulate
+    # used to determine super particle scaling, in unit of cm^3
+    dens_phys = 10.0
+
+    # whether use relaticistic pusher (0 = no, 1 = yes)
+    relativity = 0
+
+    # number of species
+    nspecies = 2
+
+    # mass of each species in unit of electron mass
+    # length of mass_ratio array should be nspecies
+    mass_ratio = [1.0,1.0]
+
+    # charge of each species in unit of |e|
+    # length of charge_ratio array should be nspecies
+    charge_ratio = [-1.0,1.0]
+
+    # is the species a test particle? (0 = no, 1 = yes)
+    # test particle does not deposit charge or currents
+    # length of isTestParticle array should be nspecies
+    isTestParticle = [0, 0]
+
+    # fractional density of species
+    # length of dens_frac array should be nspecies
+    # sum of elements must be 1
+    dens_frac = [0.5,0.5]  
+
+    # temperature of species in unit of eV
+    # length of temperature array should be nspecies
+    temperature = [0.001, 0.001]
+  }
+ 
+  fields:
+  {
+    # Whether to use electrostatic solver 
+    # 0: no, use EM solve
+    # 1: yes,use electrostatic solver
+    electrostatic = 0
+
+    # How to initialize fields?
+    #init = "constant"
+    init = "poisson"
+
+    # uniform constant background/boundary magnetic field. 1->1kG
+    B0 = [0.0, 0.0, 1.0]
+
+    # uniform constant background/boundary electric field. 1->299.79KV/cm
+    E0 = [0.0, 0.0, 0.0]
+
+  }
+}
+
+boundary:
+{
+  # Note: in each direction, if on side is "periodic", the other side must also be "periodic"
+
+  # particle boundary
+  particles:
+  {
+    # conditions = [xleft,xright,yleft,yright,zleft,zright]
+    # choose self-consistently from "periodic","reflecting"
+    conditions = ["periodic","periodic", 
+                "periodic","periodic",
+                "periodic","periodic"]
+  }
+
+
+  # field boundary 
+  fields:
+  {
+    # conditions = [xleft,xright,yleft,yright,zleft,zright]
+    # choose self-consistently from "periodic","external"
+    conditions = ["periodic","periodic",
+                "periodic","periodic",
+                "periodic","periodic"]
+
+    ## EXPERTS ONLY:
+    ## If and only if conditions[i]="external", will the following be meaningful in i-direction 
+    ## eg. if conditions[1]="periodic", conditions[3]="external", and inSide = [-1,2],
+    ## then inPolE[0], corresponding to inSide[0]=-1, namely, wave injection in xleft, will
+    ## be ignored; while inPolE[1], corresponding to inSide[1]=2, namely, wave injection
+    ## in yright, will be meaninful to the program. 
+    external:
+    {
+        # number of waves to inject
+        nwaves = 3
+     
+        # from which sides are waves injectes
+        # -1: x left, 1: x right
+        # -2: y left, 2: y right
+        # -3: z left, 3: z right
+        # length of inSide should be nwaves
+        inSide = [-1, -1, 2]
+     
+        # Which direction are wave E fields aligned with?
+        # 1: x, 2: y, 3: z
+        # To inject elliptical polarization, use combination of linear polarizations, with proper phase shifts
+        # length of inPolE should be nwaves
+        inPolE = [1, 2, 1]
+     
+        # What are the wave E field amplitudes? amps=1 -> E=299.79KV/cm
+        # length of peakamps should be nwaves
+        peakamps = [0.0001, 0.001, 0.0003]
+     
+        # What are the wave frequencies? omegas=1 -> frequency=4.7713 GHz
+        # length of omega should be nwaves
+        omegas = [1.2, 5.6, 3.7]
+     
+        # What are the wave phases, in units of degree?
+        # length of phase should be nwaves
+        phases = [90.0, 0.0, 45.0]
+
+        # What are the inverse Width of pulses, in units of 1/33.4 ps? 
+        # invWidths=0 -> pulse duration is infinity
+        # length of invWidths should be nwaves
+        invWidths = [0.2, 0.0, 0.8]
+
+        # What are the delays of pulses? 
+        # delyas=1 -> 33.4 ps, w.r.t time_phys
+        delays = [-0.2, 0.0, 1.2]
+ 
+        # if initialize by solving poisson's equation   
+        poisson:
+        {
+            # constant boundry values of phi in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of phi=1->299.79KV
+            bound_phi = [0.0,0.02, 0.0,0.0, 0.0,0.0]
+
+            # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
+            # in unit of A=1->1KG.cm. Use Coulomb gauge.
+            bound_Ax = [0.0,0.0, 0.0,0.0, 0.0,0.0]
+            bound_Ay = [0.0,1.2, 0.0,0.0, 0.0,0.0]
+            bound_Az = [0.0,0.0, 0.0,0.0, 0.0,0.0]
+        }
+
+    }
+  }
+}
+
+diagnostics:
+{
+  # How many time steps between each field diagnostic
+  nstep_fields = 1
+
+  # How many time steps between each particle diagnostic
+  nstep_parts = 5
+
+  # COMING SOON: How many time steps between each restart
+  nstep_restart = 100
+
+  particles:
+  {
+    # How many particle/species to track by each core?
+    output_pCount = 10
+  }
+
+  fields:
+  {
+    # Which fields to write time series?
+    # 0:rho, 1:E, 2:B, 3:J, 4:all
+    which_fields = 1
+  }
+}
+
