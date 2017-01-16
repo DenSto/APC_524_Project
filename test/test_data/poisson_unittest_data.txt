@@ -73,21 +73,6 @@ initialization:
     # length of dens_frac should be nspecies
     dens_frac = [0.5,0.5]  
 
-    # number of particles of all species in each domain
-    nParticles_tot = 1
-
-    temperature = [0.001]
-  
-    # position distribution function
-    #xdist = "sinusoid"
-    #xdist = "delta function"
-    #xdist = "file: xdist.dat"
-  
-    # velocity distribution function
-    vdist = "maxwellian"
-    #vdist = "waterbag"
-    #vdist = "file: vdist.dat"
-  
     # temperature of species in unit of eV
     # length of temperature should be nspecies
     temperature = [0.001,0.001]
@@ -103,7 +88,6 @@ initialization:
     # How to initialize fields?
     #init = "constant"
     init = "poisson"
-    #init = "file: fields.dat"
 
     # uniform constant background/boundary magnetic field. 1->1kG
     B0 = [0.0, 0.0, 1.0]

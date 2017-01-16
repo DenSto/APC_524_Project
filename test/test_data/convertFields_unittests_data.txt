@@ -56,7 +56,7 @@ initialization:
 
 
     # number of particles of all species in each domain
-    nParticles = 2
+    nParticles_tot = 2
 
     temperature = [0.001, 0.001]
 
