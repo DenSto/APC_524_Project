@@ -214,7 +214,7 @@ if do_plot
         axis tight; axis equal;
         
         drawnow; 
-        pause(.05);
+        pause(.01);
         
         % save a frame for the video
         if do_mov && do_save

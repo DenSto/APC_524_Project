@@ -40,5 +40,9 @@ var hierarchy =
     [ "Random_Number_Generator", "class_random___number___generator.html", null ],
     [ "RegisterFieldBoundary", "struct_register_field_boundary.html", null ],
     [ "RegisterParticleBoundary", "struct_register_particle_boundary.html", null ],
-    [ "RNG_State", "struct_r_n_g___state.html", null ]
+    [ "Resolution", "class_resolution.html", null ],
+    [ "Resolve_t", "struct_resolve__t.html", null ],
+    [ "RNG_State", "struct_r_n_g___state.html", null ],
+    [ "Space_Resolve_t", "struct_space___resolve__t.html", null ],
+    [ "Time_Resolve_t", "struct_time___resolve__t.html", null ]
 ];

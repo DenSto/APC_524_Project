@@ -11,6 +11,8 @@
 #include "../pusher/boris.hpp"
 #include "../grid/grid.hpp"
 #include "../utils/RNG.hpp"
+#include <string.h>
+#include <iostream>
 #define _USE_MATH_DEFINES
 #if USE_MPI
 #include "mpi.h"
@@ -95,6 +97,23 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
 	p.v[2]=0.001;
 	parts_.push_back(p);
 	np_++;
+    }
+
+    //if boundaries are ALL periodic, and initialization is Poisson, then charge and velocity must be zero (within each species)
+    bool allBoundariesPeriodic = true;
+    for (int i=0; i<6; i++) {
+      if ( strcmp(input_info->fields_bound[i],"periodic") != 0 ) {
+	allBoundariesPeriodic = false;
+	break;
+      }
+    }
+    if (allBoundariesPeriodic && strcmp(input_info->fields_init,"poisson") == 0 ) {
+      //zero them out.
+      printf("============================================================================================\n");
+      printf("NOTICE: Because the user requested Poisson initialization with periodic boundary conditions,\n");
+      printf("        the average particle velocity will be initialized to zero (by species).\n");
+      printf("============================================================================================\n");
+      zeroAvgChargeAndVelocity_();
     }
 }
 
@@ -350,6 +369,70 @@ void Particle_Handler::outputParticleVel(){
     fprintf(fp,"Species = %f   Vel = %f\n",parts_[i].q,parts_[i].v[0]);
     fclose(fp);
   }
+}
+
+void Particle_Handler::zeroAvgChargeAndVelocity_(){
+
+  double qTot = 0.0;
+  long qRefIdx = 0;
+  long qCount = 0;
+  double vx = 0.0;
+  double vy = 0.0;
+  double vz = 0.0;
+
+  std::vector<int> countedParticle(np_,0);
+  do {
+    qRefIdx = 0;
+    qCount = 0;
+    vx = 0.0;
+    vy = 0.0;
+    vz = 0.0;
+
+    //Sum up velocities of particles with charge matching qRef.
+    for (long i=0; i<np_; i++) {
+      if (countedParticle[i]==0) {
+	if (qRefIdx == 0) qRefIdx = i;
+
+	if (parts_[i].q == parts_[qRefIdx].q) {
+	  countedParticle[i] = 1; //move to 'state 1: counted velocity toward an average'
+	  qCount += 1;
+	  vx += parts_[i].v[0];
+	  vy += parts_[i].v[1];
+	  vz += parts_[i].v[2];
+	} 
+      }
+    }
+
+    if (qCount > 0) {
+      //Take the average
+      vx /= qCount;
+      vy /= qCount;
+      vz /= qCount;
+
+      //Subtract out the average
+      for (long i=0; i<np_; i++) {
+	if (countedParticle[i]==1) {
+	  countedParticle[i] = 2; //move to 'state 2: average deducted from velocity, and added charge to qTot'
+	  parts_[i].v[0] -= vx;
+	  parts_[i].v[1] -= vy;
+	  parts_[i].v[2] -= vz;
+	  qTot += parts_[i].q;
+	}
+      }
+    }
+
+  } while(qCount > 0);
+
+  //Test for errors
+  if(qTot !=0) {
+    printf("ERROR: Poisson initialization with periodic boundaries cannot be run with a net charge.  Please adjust inputs and rerun.\n");
+  }
+  assert(qTot == 0);
+  for (long i=0; i<np_; i++) {
+    assert(countedParticle[i] == 2);
+  }
+
+  countedParticle.clear();
 }
 
 #undef _USE_MATH_DEFINES

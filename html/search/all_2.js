@@ -1,7 +1,6 @@
 var searchData=
 [
   ['charge_5fratio',['charge_ratio',['../struct_input___info__t.html#ab269b25b3729fbd75b8f503b9bc3162c',1,'Input_Info_t']]],
-  ['checkinfo',['checkinfo',['../class_input.html#aecc125b11034e78f3452ae3d661e64d0',1,'Input']]],
   ['checkinput_5f',['checkInput_',['../class_grid.html#af631b4ec77d5ad46d17abe24155114c1',1,'Grid']]],
   ['clearghosts',['clearGhosts',['../class_particle___handler.html#a0d91553d01965b66ae291f1df01d3417',1,'Particle_Handler']]],
   ['completebc',['completeBC',['../class_b_c___f___periodic.html#acc1bc86c28e412f978bf5cd685264fee',1,'BC_F_Periodic']]],

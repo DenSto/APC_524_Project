@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <math.h>
 #include "grid.hpp"
+#include "assert.h"
 #include <string>
 
 
@@ -208,12 +209,15 @@ int Grid::getCellID(double x, double y, double z) {
 	// get indices in x, y, z
 	int ix = (int) ((x-x0_) * idx_);
 	ix += nGhosts_; 
+	assert(ix >= 0 && ix < nxTot_);
 
 	int iy = (int) ((y-y0_) * idy_);
 	iy += nGhosts_; 
+	assert(iy >= 0 && iy < nyTot_);
 
 	int iz = (int) ((z-z0_) * idz_);
 	iz += nGhosts_; 
+	assert(iz >= 0 && iz < nzTot_);
 
 	return (ny_*nz_)*ix + nz_*iy + iz;
 

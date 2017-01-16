@@ -4,5 +4,7 @@ var searchData=
   ['registerfieldboundary',['RegisterFieldBoundary',['../struct_register_field_boundary.html',1,'']]],
   ['registerparticleboundary',['RegisterParticleBoundary',['../struct_register_particle_boundary.html',1,'']]],
   ['relativistic_5fboris',['Relativistic_Boris',['../class_relativistic___boris.html',1,'']]],
+  ['resolution',['Resolution',['../class_resolution.html',1,'']]],
+  ['resolve_5ft',['Resolve_t',['../struct_resolve__t.html',1,'']]],
   ['rng_5fstate',['RNG_State',['../struct_r_n_g___state.html',1,'']]]
 ];
