@@ -153,6 +153,7 @@ int main(int argc, char *argv[]){
     // Load particles, allow restart
     if(rank==0)printf("    Loading particles...\n");
     part_handler->Load(input_info,domain);
+	Particle_Compare* compare = new Particle_Compare(grids);
     if(debug) fprintf(stderr,"rank=%d: Finish loading particles\n",rank);   
 
     // Deposit charge and current from particles to grid
@@ -220,6 +221,8 @@ int main(int argc, char *argv[]){
     for(int ti=0;ti<nt;ti++){
 
        if(rank==0 && ti%100==0)fprintf(stderr,"ti=%d\t\t t=%f ps\n",ti,time_phys*UNIT_TIME);   
+
+	   if(ti % input_info->nstep_sort == 0) part_handler->SortParticles(*compare);
 		
        boxOutput->output(time_phys,ti);
 
@@ -305,6 +308,7 @@ int main(int argc, char *argv[]){
     delete domain;
     delete [] bc; // particle boundary condition
     delete part_handler;
+	delete compare;
     grids->freeBoundaries(); // field boundary conditions
     delete grids;
     delete resolution;

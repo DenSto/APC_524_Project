@@ -16,14 +16,41 @@
 * 	2) Bring the code to calculating i,j,k into the comparison routine
 */
 class Particle_Compare {
-	Grid* grid_;
 	public:
-	Particle_Compare(Grid* grid) : 
-		grid_(grid)
+	Particle_Compare(Grid* grid)  
 	{
+		idx_ = grid->getidx();
+		idy_ = grid->getidy();
+		idz_ = grid->getidz();
+
+		x0_ = grid->getx0();
+		y0_ = grid->gety0();
+		z0_ = grid->getz0();
 	}
 
 	bool operator()(Particle const a, Particle const b) const {
+// Sort by individual i,j,k
+		int na,nb;	
+
+		na = (int)((a.x[0] - x0_)*idx_);
+		nb = (int)((b.x[0] - x0_)*idx_);
+		if(na < nb) return 0;
+		if(na > nb) return 1;
+
+		na = (int)((a.x[1] - y0_)*idy_);
+		nb = (int)((b.x[1] - y0_)*idy_);
+		if(na < nb) return 0;
+		if(na > nb) return 1;
+
+		na = (int)((a.x[2] - z0_)*idz_);
+		nb = (int)((b.x[2] - z0_)*idz_);
+		if(na <= nb) return 0;
+		if(na > nb)  return 1;
+
+		return 0;
+
+// Sort by cell ID (probably overkill)
+/*
 		int id1 = grid_->getCellID(a.x[0],a.x[1],a.x[2]);
 		int id2 = grid_->getCellID(b.x[0],b.x[1],b.x[2]);
 
@@ -32,7 +59,13 @@ class Particle_Compare {
 			return 0;
 		else
 			return 1;
+*/
 	}
+
+	private:
+	
+		double idx_,idy_,idz_;
+		double x0_,y0_,z0_;
 };
 
 #endif

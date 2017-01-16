@@ -38,6 +38,7 @@ typedef struct {
     int nstep_fields;  
     int nstep_parts;  
     int nstep_restart;
+    int nstep_sort;
 
     int which_fields; /// flag determine which fields to write
                       /// 0: write components of rho

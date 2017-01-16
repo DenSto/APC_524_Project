@@ -181,6 +181,16 @@ int Input::readinfo(char *fname){
     {
       input_info_->debug = 0;
     }
+
+    try
+    {
+      input_info_->nstep_sort = cfg.lookup("runtime.nstep_sort");
+    }
+    catch(const SettingNotFoundException &nfex)
+    {
+      cerr << "nstep_sort not set. Not using particle sorting.";
+      input_info_->nstep_sort = -1;
+    }
     
     int restart;
     try

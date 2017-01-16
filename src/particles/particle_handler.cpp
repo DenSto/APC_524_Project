@@ -178,6 +178,7 @@ void Particle_Handler::InterpolateEB(Grid* grid){
  * This should be called often to ensure cache hits.  Should be emperically determined.
  */
 void Particle_Handler::SortParticles(Particle_Compare comp){
+	if(debug>0 && rank_MPI == 0) fprintf(stderr,"Sorting Particles.\n");
 	std::sort(parts_.begin(),parts_.end(),comp);
 }
 
