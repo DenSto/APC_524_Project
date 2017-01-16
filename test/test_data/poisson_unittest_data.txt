@@ -1,15 +1,18 @@
 domain:
 {
-  # number of cells in each dimension
-  nCell = [ 50, 50, 100 ]
+  # total number of cells in each dimension
+  # nCell will be devided and distribute to MPI processors
+  nCell = [ 32, 32, 32 ]
 
   # number of processors in each dimension (parallel version only)
   nProc = [ 1, 1, 1 ]
 
-  # origin of simulation domain
+  # origin of the entire simulation domain
+  # origin of individual MPI domains will be determined by the program
   xyz0 = [0.0, 0.0, 0.0]
 
-  # physical length of simulation domain, in unit of cm
+  # physical length of the entire simulation domain, in unit of cm
+  # Lxyz will be devided and distributed to MPI processors  
   Lxyz = [5.0, 1.0, 1.0]
 
 }
@@ -17,81 +20,69 @@ domain:
 runtime: 
 {
   # number of time steps to run
-  nTimesteps = 15
+  # should be larger than zero
+  nTimesteps = 10
 
-  # start time
+  # start time, in units of 33.4 picosecond. (spped of light c=1)
   startTime = 0.0
 
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
-  # debug = 3 turns on more debug print, and write debug files
-  debug = 2
+  # debug = 3 turns on more debug, write possibly too much debug files
+  debug = 0
 }
 
 initialization:
 {
-  # whether this is restart of a previous run
+  # whether this is restart of a previous run (0 = no)
   restart = 0
 
   # particle initialization
   particles:
   {
-    # whether use relaticistic pusher
-    relativity = 0
-
-    # number of species
-    nspecies = 1
-
-    # mass of each species in unit of electron mass
-    mass_ratio = [1000.0]
-
-    # charge of each species in unit of |e|
-    charge_ratio = [1.0]
-
-    # is the species a test particle? (0 = no, 1 = yes)
-    isTestParticle = [0]
-
-    # fractional density of species
-    dens_frac = [1.0]
+    # number of particles of all species in the entire simulation box.
+    # When MPI is used, this number will be devided by the number of 
+    # processors. Processors with lower rank may get one more particle
+    # than processors with higher rank.
+    nParticles_tot = 2
 
     # total physical number density of all species to simulate
     # used to determine super particle scaling, in unit of cc
     dens_phys = 10.0
 
-    # number of particles of all species in each domain
-    nParticles = 1
+    # whether use relaticistic pusher (0 = no, 1 = yes)
+    relativity = 0
 
-    temperature = [0.001]
-  
-    # position distribution function
-    #xdist = "sinusoid"
-    #xdist = "delta function"
-    #xdist = "file: xdist.dat"
-  
-    # velocity distribution function
-    vdist = "maxwellian"
-    #vdist = "waterbag"
-    #vdist = "file: vdist.dat"
-  
-    maxwellian:
-    {
-      # density of nspecies in unit of 10^18 cm^{-3}
-      # used to scale super particle mass and charge
-      density = [1.01]
+    # number of species
+    nspecies = 2
 
-      # temperature of nspecies in unit of eV
-      temperature = [0.01]
-    }
-  
-    #sinusoid:
-    #{
-    #  k = [ 1, 1, 1 ]
-    #}
+    # mass of each species in unit of electron mass
+    # length of mass_ratio should be nspecies
+    mass_ratio = [1.0,1.0]
+
+    # charge of each species in unit of |e|
+    # length of charge_ratio should be nspecies
+    charge_ratio = [-1.0,1.0]
+
+    # is the species a test particle? (0 = no, 1 = yes)
+    # test particle does not deposite
+    # length of isTestParticle should be nspecies
+    isTestParticle = [0,0]
+
+    # fractional density of species
+    # length of dens_frac should be nspecies
+    dens_frac = [0.5,0.5]  
+
+    # temperature of species in unit of eV
+    # length of temperature should be nspecies
+    temperature = [0.001,0.001]
   }
  
   fields:
   {
-    # Whether to use electrostatic solver
+    # Whether to use electrostatic solver 
+    # 0: no, use EM solve
+    # 1: yes,use electrostatic solver
     electrostatic = 0
 
     # How to initialize fields?
@@ -99,10 +90,10 @@ initialization:
     init = "poisson"
     #init = "file: fields.dat"
 
-    # constant background/boundary magnetic field. 1->1kG
+    # uniform constant background/boundary magnetic field. 1->1kG
     B0 = [0.0, 0.0, 1.0]
 
-    # constant background/boundary electric field. 1->299.79KV/cm
+    # uniform constant background/boundary electric field. 1->299.79KV/cm
     E0 = [0.0, 0.0, 0.0]
 
   }
@@ -143,24 +134,37 @@ boundary:
         nwaves = 3
      
         # from which sides are waves injectes
+        # -1: x left, 1: x right
+        # -2: y left, 2: y right
+        # -3: z left, 3: z right
+        # length of inSide should be nwaves
         inSide = [-1, -1, 2]
      
         # Which direction are wave E fields aligned with?
+        # 1: x, 2: y, 3: z
+        # To inject elliptical polarization, use combination of linear polarizations, with proper phase shifts
+        # length of inPolE should be nwaves
         inPolE = [1, 2, 1]
      
         # What are the wave E field amplitudes? amps=1 -> E=299.79KV/cm
+        # length of peakamps should be nwaves
         peakamps = [0.0001, 0.001, 0.0003]
      
-        # What are the wave frequencies? omegas=1 -> 190.40 GHz
+        # What are the wave frequencies? omegas=1 -> frequency=4.7713 GHz
+        # length of omega should be nwaves
         omegas = [1.2, 5.6, 3.7]
      
-        # What are the wave phases in degree?
+        # What are the wave phases, in units of degree?
+        # length of phase should be nwaves
         phases = [90.0, 0.0, 45.0]
 
-        # What are the inverse Width of pulses? invWidths=0 -> pulse duration infinity
+        # What are the inverse Width of pulses, in units of 1/33.4 ps? 
+        # invWidths=0 -> pulse duration is infinity
+        # length of invWidths should be nwaves
         invWidths = [0.2, 0.0, 0.8]
 
-        # What are the delays of pulses? delyas=1 -> 33.4 ps, w.r.t time_phys
+        # What are the delays of pulses? 
+        # delyas=1 -> 33.4 ps, w.r.t time_phys
         delays = [-0.2, 0.0, 1.2]
  
         # if initialize by solving poisson's equation   
@@ -171,7 +175,7 @@ boundary:
             bound_phi = [0.0,0.02, 0.0,0.0, 0.0,0.0]
 
             # constant boundary values of A in format: [xl,xr,yl,yr,zl,zr]
-            # in unit of A=1->1KG.cm. The gauge choice is arbitrary.
+            # in unit of A=1->1KG.cm. Use Coulomb gauge.
             bound_Ax = [0.0,0.0, 0.0,0.0, 0.0,0.0]
             bound_Ay = [0.0,1.2, 0.0,0.0, 0.0,0.0]
             bound_Az = [0.0,0.0, 0.0,0.0, 0.0,0.0]
