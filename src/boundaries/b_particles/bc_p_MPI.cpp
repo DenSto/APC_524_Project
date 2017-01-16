@@ -139,7 +139,7 @@ int BC_P_MPI::completeBC(std::vector<Particle> *pl){
 
 		sendBuf_.clear();
 
-		if(debug>-1)fprintf(stderr,"rank=%d:dim=%d: Sending %ld particles.\n",
+		if(debug>1)fprintf(stderr,"rank=%d:dim=%d: Sending %ld particles.\n",
                                    rank_MPI,dim_index_,toSend_); 	
 	}
 
