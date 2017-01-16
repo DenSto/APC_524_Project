@@ -192,7 +192,7 @@ int Input::readinfo(char *fname){
       input_info_->nstep_sort = 100;
     }
     
-    int restart;
+    int restart = 0;
     try
     {
       restart = cfg.lookup("initialization.restart");
@@ -514,7 +514,7 @@ int Input::readinfo(char *fname){
       cout << "    There are " << isexternal << " external field boundaries" << endl;
       // reading external fields parameters    
 
-      int nwaves;
+      int nwaves = 0;
       try
       {
         nwaves = cfg.lookup("boundary.fields.external.nwaves");
@@ -533,6 +533,7 @@ int Input::readinfo(char *fname){
       {
         cerr << "Caution: nwave not set in input file" << endl
              << "  Assume zero boundary conditions." << endl; 
+        input_info_->nwaves = 0;
       }
     
       try
