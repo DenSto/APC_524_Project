@@ -30,7 +30,13 @@ protected:
 };
 
 int main(int argc, char** argv) {
+#if USE_MPI
+  MPI_Init(&argc,&argv); 
+#endif
   ::testing::InitGoogleTest(&argc, argv);
+#if USE_MPI
+  MPI_Finalize();
+#endif
   return RUN_ALL_TESTS();
 }
 

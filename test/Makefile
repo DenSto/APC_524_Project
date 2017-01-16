@@ -113,14 +113,14 @@ $(SRC_DIR)/%_par.o: $(SRC_DIR)/%.cpp
 %.tests : $(addprefix $(SRC_DIR)/, $(OBJTEST)) %_unittests.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lm -lz -ldl -lpthread $^ -o $@ $(LIBS)
 
-%.tests_par : $(addprefix $(SRC_DIR)/, $(OBJTEST_PAR)) %_unittests.o gtest_main.a
+%.tests_par : $(addprefix $(SRC_DIR)/, $(OBJTEST_PAR)) %_unittests_par.o gtest_main.a
 	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) -lm -lz -ldl -lpthread $^ -o $@ $(LIBS_PAR) $(MPIFLAGS)
 
 %.o : $(TESTSRC_DIR)/%.cc $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5_INCL) -I$(SRC_DIR)
 
 %_par.o : $(TESTSRC_DIR)/%.cc $(GTEST_HEADERS)
-	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) $(MPIFLAGS) -c $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5PAR_INCL) -I$(SRC_DIR)
+	$(MPICXX) $(CPPFLAGS) $(CXXFLAGS) $(MPIFLAGS) -c -o $@ $< $(addprefix -I$(SRC_DIR)/, $(SRC_INCL)) -I$(HDF5PAR_INCL) -I$(SRC_DIR)
 
 run_tests: $(TESTS) 
 	$(addsuffix ;, $(addprefix ./, $(TESTS)))	
