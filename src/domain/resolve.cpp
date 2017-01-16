@@ -45,7 +45,7 @@ Resolution::Resolution(Input_Info_t *input_info){
     //if(debug)printf("sum e^2n/m=%f,n0=%f,dens_phys=%f\n",ttmp,n0,dens_phys);
     double omega_p = UNIT_FPE*sqrt(ttmp*n0)*1e-9; // convert KHz to THz
     // MPI gather
-    if(rank_MPI)printf("            Plasma frequency is %6.3e THz\n",omega_p); 
+    if(rank_MPI==0)printf("            Plasma frequency is %6.3e THz\n",omega_p); 
 
 /*
     // maximum gyro frequency, in unit of 1THz=1/ps

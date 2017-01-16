@@ -109,10 +109,12 @@ void Particle_Handler::Load(Input_Info_t *input_info, Domain* domain){
     }
     if (allBoundariesPeriodic && strcmp(input_info->fields_init,"poisson") == 0 ) {
       //zero them out.
+      if(rank_MPI==0){
       printf("============================================================================================\n");
       printf("NOTICE: Because the user requested Poisson initialization with periodic boundary conditions,\n");
       printf("        the average particle velocity will be initialized to zero (by species).\n");
       printf("============================================================================================\n");
+      }
       zeroAvgChargeAndVelocity_();
     }
 }
