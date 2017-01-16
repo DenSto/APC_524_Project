@@ -75,6 +75,15 @@ public:
   void executeBC(int sendID); // execute field boundary conditions
   void setBoundaries(BC_Field** bc){boundaries_=bc;}
   void freeBoundaries(void){delete [] boundaries_;}
+  
+  // public methods to get grid characteristics (for sorting)
+ int getx0(){ return x0_;}
+ int gety0(){ return y0_;}
+ int getz0(){ return z0_;}
+
+ double getidx() {return idx_;}
+ double getidy() {return idy_;}
+ double getidz() {return idz_;}
 
 protected:
   BC_Field** boundaries_; // field boundary conditions
