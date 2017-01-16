@@ -163,6 +163,8 @@ void Poisson_Solver::InitializeFields(Input_Info_t *input_info) {
   if(debug>1&&rank_MPI==0)printf("        solving for Az...\n"); 
   run_poisson_solver_(Az1ID_,Az2ID_,Az1_,Az2_,Jz_,convTol,sourceMult);
   AToB();
+
+  printf("        Poisson initialization complete!\n");
 }
 
 void Poisson_Solver::run_poisson_solver_(const int fieldID1, const int fieldID2, double*** u1, double*** u2,double*** R,double convergenceTol,double sourceMult) {

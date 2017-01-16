@@ -137,11 +137,11 @@ int main(int argc, char *argv[]){
     Grid *grids;
     if(restart==0 && strcmp(input_info->fields_init,"poisson")==0){
         //need to solve Poisson's equation
-        if(rank==0)printf("    Grid initialing: will solve Poisson's equations...\n");
+        if(rank==0)printf("    Grid initializing: will solve Poisson's equations...\n");
         grids = new Poisson_Solver(domain,input_info);
     }else{
         //no need to solve Poisson's equation
-        if(rank==0)printf("    Grid initialing: won't solve Poisson's equations...\n");
+        if(rank==0)printf("    Grid initializing: won't solve Poisson's equations...\n");
         grids = new Grid(domain->getnxyz(),1,domain->getxyz0(),domain->getLxyz()); 
     }
     if(debug) fprintf(stderr,"rank=%d: Finish grid constructor\n", rank);
