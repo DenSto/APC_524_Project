@@ -1,7 +1,7 @@
 domain:
 {
   # total number of cells in each dimension
-  # nCell will be devided and distribute to MPI processors
+  # nCell will be divided and distributed to MPI processors
   nCell = [ 16, 16, 16 ]
 
   # number of processors in each dimension (parallel version only)
@@ -12,7 +12,7 @@ domain:
   xyz0 = [0.0, 0.0, 0.0]
 
   # physical length of the entire simulation domain, in unit of cm
-  # Lxyz will be devided and distributed to MPI processors  
+  # Lxyz will be divided and distributed to MPI processors  
   Lxyz = [5.0, 1.0, 1.0]
 
 }
@@ -23,7 +23,7 @@ runtime:
   # should be larger than zero
   nTimesteps = 5
 
-  # start time, in units of 33.4 picosecond. (spped of light c=1)
+  # start time, in units of 33.4 picosecond. (speed of light c=1)
   startTime = 0.0
 
   # debug = 1 turns on basic debug print statements
@@ -34,7 +34,7 @@ runtime:
 
 initialization:
 {
-  # whether this is restart of a previous run (0 = no)
+  # COMING SOON: whether this is restart of a previous run (0 = no)
   restart = 0
 
   # particle initialization
@@ -47,7 +47,7 @@ initialization:
     nParticles_tot = 16
 
     # total physical number density of all species to simulate
-    # used to determine super particle scaling, in unit of cc
+    # used to determine super particle scaling, in unit of cm^3
     dens_phys = 10.0
 
     # whether use relaticistic pusher (0 = no, 1 = yes)
@@ -57,24 +57,25 @@ initialization:
     nspecies = 2
 
     # mass of each species in unit of electron mass
-    # length of mass_ratio should be nspecies
+    # length of mass_ratio array should be nspecies
     mass_ratio = [1.0,1.0]
 
     # charge of each species in unit of |e|
-    # length of charge_ratio should be nspecies
+    # length of charge_ratio array should be nspecies
     charge_ratio = [-1.0,1.0]
 
     # is the species a test particle? (0 = no, 1 = yes)
-    # test particle does not deposite
-    # length of isTestParticle should be nspecies
+    # test particle does not deposit charge or currents
+    # length of isTestParticle array should be nspecies
     isTestParticle = [0, 0]
 
     # fractional density of species
-    # length of dens_frac should be nspecies
+    # length of dens_frac array should be nspecies
+    # sum of elements must be 1
     dens_frac = [0.5,0.5]  
 
     # temperature of species in unit of eV
-    # length of temperature should be nspecies
+    # length of temperature array should be nspecies
     temperature = [0.001, 0.001]
   }
  
@@ -88,7 +89,6 @@ initialization:
     # How to initialize fields?
     #init = "constant"
     init = "poisson"
-    #init = "file: fields.dat"
 
     # uniform constant background/boundary magnetic field. 1->1kG
     B0 = [0.0, 0.0, 1.0]
@@ -123,6 +123,7 @@ boundary:
                 "periodic","periodic",
                 "periodic","periodic"]
 
+    ## EXPERTS ONLY:
     ## If and only if conditions[i]="external", will the following be meaningful in i-direction 
     ## eg. if conditions[1]="periodic", conditions[3]="external", and inSide = [-1,2],
     ## then inPolE[0], corresponding to inSide[0]=-1, namely, wave injection in xleft, will
@@ -193,7 +194,7 @@ diagnostics:
   # How many time steps between each particle diagnostic
   nstep_parts = 5
 
-  # How many time steps between each restart
+  # COMING SOON: How many time steps between each restart
   nstep_restart = 100
 
   particles:
