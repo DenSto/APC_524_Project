@@ -20,7 +20,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_gaussian_pulse_8hpp_source.html",
-"class_input.html"
+"class_input.html",
+"struct_register_field_boundary.html#ad1319455b81b4e114eb450348a0834e0"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

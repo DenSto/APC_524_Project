@@ -10,5 +10,7 @@ var searchData=
   ['setpoissonfieldtype_5f',['setPoissonFieldType_',['../class_poisson___solver.html#ac7d96c3bf3be9fe09e92ae451bc7464f',1,'Poisson_Solver']]],
   ['sidetoindex_5f',['sideToIndex_',['../class_grid.html#addfa8e18920a9ba276303a5878851c66',1,'Grid']]],
   ['slicemattovec_5f',['sliceMatToVec_',['../class_grid.html#a00f217f95b51fbd53d7aface656bb06d',1,'Grid']]],
-  ['sortparticles',['SortParticles',['../class_particle___handler.html#a8242d00522fe66ac92ba64c9b9494b2a',1,'Particle_Handler']]]
+  ['sortparticles',['SortParticles',['../class_particle___handler.html#a8242d00522fe66ac92ba64c9b9494b2a',1,'Particle_Handler']]],
+  ['space_5fresolve_5ft',['Space_Resolve_t',['../struct_space___resolve__t.html',1,'']]],
+  ['super_5fratio',['super_ratio',['../struct_input___info__t.html#a69f1146d701f298ab848fe7aaf67b703',1,'Input_Info_t']]]
 ];
