@@ -21,7 +21,7 @@ runtime:
 {
   # number of time steps to run
   # should be larger than zero
-  nTimesteps = 5
+  nTimesteps = 10
 
   # start time, in units of 33.4 picosecond. (speed of light c=1)
   startTime = 0.0
@@ -29,7 +29,7 @@ runtime:
   # debug = 1 turns on basic debug print statements
   # debug = 2 turns on more debug print statements
   # debug = 3 turns on more debug, write possibly too much debug files
-  debug = 2
+  debug = 1
 }
 
 initialization:
@@ -44,7 +44,7 @@ initialization:
     # When MPI is used, this number will be devided by the number of 
     # processors. Processors with lower rank may get one more particle
     # than processors with higher rank.
-    nParticles_tot = 16
+    nParticles_tot = 300
 
     # total physical number density of all species to simulate
     # used to determine super particle scaling, in unit of cm^3
